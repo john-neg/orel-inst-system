@@ -1,2 +1,2 @@
 # apeks-vuz-extension
-Extensions for Apeks VUZ software
+Extensions for Apeks-VUZ software
