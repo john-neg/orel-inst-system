@@ -9,3 +9,7 @@ def index():
 @app.route('/calendar')
 def calendar():
     return render_template('calendar.html')
+
+@app.route('/competencies')
+def competencies():
+    return render_template('competencies.html')
