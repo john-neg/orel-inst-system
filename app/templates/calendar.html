@@ -1,5 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Календарь {% endblock %}</h1>
+    <h1>{% block title %} Экспорт расписания {% endblock %}</h1>
+
+            <div class="col-md-4">
+              <label for="department" class="form-label">Выберите кафедру:</label>
+              <select class="form-select" id="department" required>
+                <option value="">Выбрать...</option>
+                  {% for department in departments.values() %}
+                  <option>{{department}}</option>
+                  {% endfor %}
+              </select>
+<!--              <div class="invalid-feedback">-->
+<!--                Пожалуйста выберите кафедру.-->
+<!--              </div>-->
+            </div>
+
+<!--{{departments}}-->
 {% endblock %}
