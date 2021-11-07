@@ -2,19 +2,45 @@
 
 {% block content %}
     <h1>{% block title %} Экспорт расписания {% endblock %}</h1>
+    <p></p>
 
-            <div class="col-md-4">
-              <label for="department" class="form-label">Выберите кафедру:</label>
-              <select class="form-select" id="department" required>
-                <option value="">Выбрать...</option>
-                  {% for department in departments.values() %}
-                  <option>{{form.month}}</option>
-                  {% endfor %}
-              </select>
-<!--              <div class="invalid-feedback">-->
-<!--                Пожалуйста выберите кафедру.-->
-<!--              </div>-->
+    <form action="" method="post">
+        {{ form.csrf_token() }}
+
+        <div class="container-fluid">
+
+          <div class="row gy-3">
+            <div class="col-md-8">
+                <div class="form-label form-label-ld">{{ form.department.label }}</div>
+                     {{ form.department (class="form-select form-select-ld") }}
+
+                {{ form.submit (class="btn btn-secondary")}}
             </div>
 
-<!--{{departments}}-->
+          </div>
+
+        {% if department %}
+          <div class="row gy-3">
+            <div class="col-6 col-md-2">
+                <div class="form-label form-label-ld">{{ form.year.label }}</div>
+                {{ form.year (class="form-select form-select-ld") }}
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="form-label form-label-ld">{{ form.month.label }}</div>
+                {{ form.month (class="form-select form-select-ld") }}
+            </div>
+            <div class="col-6 col-md-4">
+                <div class="form-label form-label-ld">{{ form.prepod.label }}</div>
+                {{ form.prepod (class="form-select form-select-ld") }}
+            </div>
+          </div>
+        {% else %}
+        {% endif %}
+
+        </div>
+
+
+
+    </form>
+
 {% endblock %}
