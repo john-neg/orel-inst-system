@@ -12,3 +12,5 @@ class ApeksStaff:
                         + '&year=' + date.today().strftime('%Y'))
     staff = data.json()['data']['staff']
     departments = data.json()['data']['departments']
+    plan_disciplines = requests.get(app.config['URL'] + '/api/call/system-database/get' + app.config['TOKEN']
+                                    + '&table=plan_disciplines' + '&filter[level]=3').json()['data']
