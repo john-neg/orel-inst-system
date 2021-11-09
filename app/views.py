@@ -16,19 +16,24 @@ def calendar():
     form.department.choices = list(ApeksStaff.departments.items())
 
     if request.method == 'POST':
-        if request.form.get('prepod'):
+        if request.form.get('xslx_exp'):     # request.form.get('prepod'): request.form.get('ical_exp') or
             department = request.form.get('department')
             month = request.form.get('month')
             year = request.form.get('year')
             prepod = request.form.get('prepod')
-            filename = lessons_exp_cal(department, prepod, month, year)
+
+            if request.form.get('ical_exp'):
+                filename = lessons_ical_exp(department, prepod, month, year)
+            if request.form.get('xlsx_exp'):
+                filename = lessons_xlsx_exp(department, prepod, month, year)
+
             if filename == 'no data':
                 form.prepod.choices = list(get_staff(department).items())
                 error = f'{staff_name(prepod, department)} - нет занятий в указанный период'
-                return render_template('calendar.html', form=form, department=department, prepod=None, error=error)
+                return render_template('calendar.html', form=form, department=department, error=error)
             else:
                 return redirect(url_for('getfile', filename=filename))
-        elif request.form.get('department'):
+        elif request.form['dept_choose']:    # request.form.get('department'):
             department = request.form.get('department')
             form.prepod.choices = list(get_staff(department).items())
             return render_template('calendar.html', form=form, department=department)

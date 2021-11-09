@@ -5,7 +5,7 @@
     <p></p>
 
     <form action="" method="post">
-<!--        {{ form.csrf_token() }}-->
+        {{ form.csrf_token() }}
 
         <div class="container-fluid">
 
@@ -18,7 +18,7 @@
 
           <div class="row gy-3">
               <div class="col-md-3">
-              {{ form.submit (class="btn btn-secondary")}}
+                  <input type="submit" name="dept_choose" value="Выбор" class="btn btn-secondary">
               </div>
           </div>
 
@@ -38,14 +38,9 @@
             </div>
           </div>
 
-          <div class="row gy-3">
-              <div class="col-md-2">
-              {{ form.get_ical (class="btn btn-secondary")}}
-              </div>
+<!--            <input type="submit" name="ical_exp" value="Экспорт в формате iCal" class="btn btn-secondary">-->
+            <input type="submit" name="xlsx_exp" value="Экспорт в формате Excel" class="btn btn-secondary">
 
-<!--              <div class="col-md-2">-->
-<!--              {{ form.get_xlsx (class="btn btn-secondary")}}-->
-<!--              </div>-->
           </div>
         {% else %}
         {% endif %}

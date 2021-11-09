@@ -1,3 +1,4 @@
+import xlsxwriter
 from app import app
 import requests
 from app.classes import ApeksStaff
@@ -45,12 +46,20 @@ def staff_name(staff_id, department_id):  # сокращенное имя пре
         return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
 
 
-def lessons_exp_cal(department_id, staff_id, month, year):  # формирование данных для экспорта iCAl
+def get_lessons(staff_id, month, year):  # получение списка занятий
+    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff' + app.config['TOKEN']
+                            + '&staff_id=' + str(staff_id) + '&month=' + str(month) + '&year=' + str(year))
+    return response.json()['data']['lessons']
 
-    def get_lessons(staff_id, month, year):  # получение списка занятий
-        response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff' + app.config['TOKEN']
-                                + '&staff_id=' + str(staff_id) + '&month=' + str(month) + '&year=' + str(year))
-        return response.json()['data']['lessons']
+
+def shortdiscname(discipline_id):  # короткое имя дисциплины
+    plan_disciplines = ApeksStaff.plan_disciplines
+    for i in range(len(plan_disciplines)):
+        if plan_disciplines[i]['id'] == str(discipline_id):
+            return plan_disciplines[i]['name_short']
+
+
+def lessons_ical_exp(department_id, staff_id, month, year):  # формирование данных для экспорта iCAl
 
     def calendarname(i):  # формирование сборного имени для календаря
         class_type_name = lessons[i]['class_type_name']
@@ -76,23 +85,17 @@ def lessons_exp_cal(department_id, staff_id, month, year):  # формирова
 
     def topic_name(i):  # получение темы занятия
         if lessons[i]['topic_name'] is None:
-            topic_name = ' '
+            name = ' '
         else:
-            topic_name = lessons[i]['topic_name']
-        return topic_name
+            name = lessons[i]['topic_name']
+        return name
 
     def topic_code(i):  # получение № темы занятия
         if lessons[i]['topic_code'] != '' and lessons[i]['topic_code'] is not None:
-            topic_code = ' (' + lessons[i]['topic_code'] + ') '
+            code = ' (' + lessons[i]['topic_code'] + ') '
         else:
-            topic_code = ' '
-        return topic_code
-
-    def shortdiscname(discipline_id):  # короткое имя дисциплины
-        plan_disciplines = ApeksStaff.plan_disciplines
-        for i in range(len(plan_disciplines)):
-            if plan_disciplines[i]['id'] == str(discipline_id):
-                return plan_disciplines[i]['name_short']
+            code = ' '
+        return code
 
     lessons = get_lessons(staff_id, month, year)
 
@@ -131,15 +134,15 @@ def lessons_exp_cal(department_id, staff_id, month, year):  # формирова
                 f.write(line)
                 f.write('\n')
             f.write('\n')
-            for i in range(len(lessons)):
+            for lesson in range(len(lessons)):
                 f.write('BEGIN:VEVENT' + '\n')
-                f.write('DTSTART:' + timestart_cal(i) + '\n')
-                f.write('DTEND:' + timeend_cal(i) + '\n')
-                f.write('DESCRIPTION:' + topic_code(i) + topic_name(i) + '\n')
-                f.write('LOCATION:' + lessons[i]['classroom'] + '\n')
+                f.write('DTSTART:' + timestart_cal(lesson) + '\n')
+                f.write('DTEND:' + timeend_cal(lesson) + '\n')
+                f.write('DESCRIPTION:' + topic_code(lesson) + topic_name(lesson) + '\n')
+                f.write('LOCATION:' + lessons[lesson]['classroom'] + '\n')
                 f.write('SEQUENCE:0' + '\n')
                 f.write('STATUS:CONFIRMED' + '\n')
-                f.write('SUMMARY:' + calendarname(i) + '\n')
+                f.write('SUMMARY:' + calendarname(lesson) + '\n')
                 f.write('TRANSP:OPAQUE' + '\n')
                 f.write('BEGIN:VALARM' + '\n')
                 f.write('ACTION:DISPLAY' + '\n')
@@ -151,3 +154,101 @@ def lessons_exp_cal(department_id, staff_id, month, year):  # формирова
             f.write('END:VCALENDAR')
         f.close()
     return f'{staff_name(staff_id, department_id)} {month}-{year}.ics'
+
+
+def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка занятий в формате xlsx
+
+    def calendarname(i):  # формирование сборного имени для календаря
+        class_type_name = lessons[i]['class_type_name']
+        text = class_type_name + topic_code(i) + shortdiscname(lessons[i]['discipline_id']) + ' ' + lessons[i][
+            'groupName']
+        return text
+
+    def timestart(i):  # время начала занятия
+        time = lessons[i]['lessonTime'].split(' - ')
+        fulltime = lessons[i]['date'] + ' ' + time[0]
+        return fulltime
+
+    def timeend(i):  # время окончания занятия
+        time = lessons[i]['lessonTime'].split(' - ')
+        fulltime = lessons[i]['date'] + ' ' + time[1]
+        return fulltime
+
+    def topic_name(i):  # получение темы занятия
+        if lessons[i]['topic_name'] is None:
+            name = ' '
+        else:
+            name = lessons[i]['topic_name']
+        return name
+
+    def topic_code(i):  # получение № темы занятия
+        if lessons[i]['topic_code'] != '' and lessons[i]['topic_code'] is not None:
+            code = ' (' + lessons[i]['topic_code'] + ') '
+        else:
+            code = ' '
+        return code
+
+    lessons = get_lessons(staff_id, month, year)
+
+    if not lessons:
+        return 'no data'
+    else:
+        workbook = xlsxwriter.Workbook(f'app/files/{staff_name(staff_id, department_id)} {month}-{year}.xlsx')
+        worksheet = workbook.add_worksheet(staff_name(staff_id, department_id))
+
+        bold = workbook.add_format({'bold': True})
+        worksheet.write('A1', 'Расписание на месяц ' + str(month) + '-' + str(year), bold)
+        worksheet.write('B1', staff_name(staff_id, department_id), bold)
+
+        a = str(3)  # отступ сверху
+
+        # Write some data headers.
+        worksheet.write('A' + a, 'Название', bold)
+        worksheet.write('B' + a, 'Начало', bold)
+        worksheet.write('C' + a, 'Конец', bold)
+        worksheet.write('D' + a, 'Уведомить', bold)
+        worksheet.write('E' + a, 'Описание', bold)
+        worksheet.write('F' + a, 'Место', bold)
+
+        # Worksheet set columns width
+        worksheet.set_column(0, 0, 50)
+        worksheet.set_column(1, 1, 15)
+        worksheet.set_column(2, 2, 15)
+        worksheet.set_column(3, 3, 25)
+        worksheet.set_column(4, 4, 50)
+        worksheet.set_column(5, 5, 15)
+
+        # Some data we want to write to the worksheet.
+
+        email_data = requests.get(app.config['URL'] + '/api/call/system-database/get' + app.config['TOKEN']
+                                  + '&table=state_staff_field_data' + '&filter[field_id]=3'
+                                  + '&filter[staff_id]=' + str(staff_id)).json()
+        if not email_data['data']:
+            email = 'none'
+        else:
+            email = email_data['data'][0]['data']
+
+        lessonexport = ()
+        for lesson in range(len(lessons)):
+            export = ([
+                          calendarname(lesson),
+                          timestart(lesson),
+                          timeend(lesson),
+                          email,
+                          topic_name(lesson),
+                          lessons[lesson]['classroom'],
+                      ],)
+            lessonexport += export
+
+        # Start from the first cell below the headers.
+        row = 3
+        col = 0
+
+        # Iterate over the data and write it out row by row.
+        for lesson in lessonexport:
+            for a in range(len(lesson)):
+                worksheet.write(row, col + a, lesson[a])
+            row += 1
+
+        workbook.close()
+        return f'{staff_name(staff_id, department_id)} {month}-{year}.xlsx'

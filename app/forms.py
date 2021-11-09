@@ -6,9 +6,6 @@ from wtforms.validators import DataRequired
 
 class CalendarForm(FlaskForm):
     department = SelectField('Кафедра:', coerce=str, validators=[DataRequired()])
-
-    submit = SubmitField('Выбор')
-
     year = SelectField('Год', coerce=str, choices=[
         date.today().year - 1,
         date.today().year,
@@ -29,7 +26,3 @@ class CalendarForm(FlaskForm):
         (12, 'Декабрь'),
         ], default=date.today().month, validators=[DataRequired()])
     prepod = SelectField('Преподаватель', coerce=str, validators=[DataRequired()])
-
-    get_ical = SubmitField('Экспорт в формате iCal')
-
-    get_xlsx = SubmitField('Экспорт в формате Excel')

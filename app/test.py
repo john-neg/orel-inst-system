@@ -1,8 +1,9 @@
 from app.classes import ApeksStaff
+from app.func import *
+department_id = '12'
+staff_id = '32'
+month = '12'
+year = '2021'
 
-department_id = '22'
-staff_id = '122'
-
-
-
-print(ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None)
+lessons_xlsx_exp(department_id, staff_id, month, year)
+lessons_ical_exp(department_id, staff_id, month, year)

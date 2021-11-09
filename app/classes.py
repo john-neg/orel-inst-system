@@ -1,3 +1,4 @@
+import xlsxwriter
 import requests
 from app import app
 from datetime import date
