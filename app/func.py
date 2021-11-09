@@ -206,27 +206,17 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка 
         worksheet.write('A' + a, 'Название', bold)
         worksheet.write('B' + a, 'Начало', bold)
         worksheet.write('C' + a, 'Конец', bold)
-        worksheet.write('D' + a, 'Уведомить', bold)
-        worksheet.write('E' + a, 'Описание', bold)
-        worksheet.write('F' + a, 'Место', bold)
+        worksheet.write('D' + a, 'Тема', bold)
+        worksheet.write('E' + a, 'Место', bold)
 
         # Worksheet set columns width
         worksheet.set_column(0, 0, 50)
         worksheet.set_column(1, 1, 15)
         worksheet.set_column(2, 2, 15)
-        worksheet.set_column(3, 3, 25)
-        worksheet.set_column(4, 4, 50)
-        worksheet.set_column(5, 5, 15)
+        worksheet.set_column(3, 4, 50)
+        worksheet.set_column(4, 5, 15)
 
         # Some data we want to write to the worksheet.
-
-        email_data = requests.get(app.config['URL'] + '/api/call/system-database/get' + app.config['TOKEN']
-                                  + '&table=state_staff_field_data' + '&filter[field_id]=3'
-                                  + '&filter[staff_id]=' + str(staff_id)).json()
-        if not email_data['data']:
-            email = 'none'
-        else:
-            email = email_data['data'][0]['data']
 
         lessonexport = ()
         for lesson in range(len(lessons)):
@@ -234,7 +224,6 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка 
                           calendarname(lesson),
                           timestart(lesson),
                           timeend(lesson),
-                          email,
                           topic_name(lesson),
                           lessons[lesson]['classroom'],
                       ],)
