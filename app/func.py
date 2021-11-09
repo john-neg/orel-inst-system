@@ -37,7 +37,15 @@ def get_staff(department_id):  # получение списка id препод
     return prepod_dict
 
 
-def lessons_exp_cal(department_id, staff_id, month, year): # формирование данных для экспорта iCAl
+def staff_name(staff_id, department_id):  # сокращенное имя преподавателя без звания
+    if ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
+        return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName']
+    else:
+        rank_name = ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
+        return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
+
+
+def lessons_exp_cal(department_id, staff_id, month, year):  # формирование данных для экспорта iCAl
 
     def get_lessons(staff_id, month, year):  # получение списка занятий
         response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff' + app.config['TOKEN']
@@ -56,8 +64,6 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
         utffix = str(int(time.split(':')[0]) - 3)
         if len(utffix) < 2:
             utffix = f'0{utffix}'
-        else:
-            utffix
         return date[2] + date[1] + date[0] + 'T' + utffix + time.split(':')[1] + '00Z'
 
     def timeend_cal(i):  # время окончания занятия
@@ -66,12 +72,10 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
         utffix = str(int(time.split(':')[0]) - 3)
         if len(utffix) < 2:
             utffix = f'0{utffix}'
-        else:
-            utffix
         return date[2] + date[1] + date[0] + 'T' + utffix + time.split(':')[1] + '00Z'
 
     def topic_name(i):  # получение темы занятия
-        if lessons[i]['topic_name'] == None:
+        if lessons[i]['topic_name'] is None:
             topic_name = ' '
         else:
             topic_name = lessons[i]['topic_name']
@@ -84,13 +88,6 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
             topic_code = ' '
         return topic_code
 
-    def staff_name(staff_id, department_id):  # сокращенное имя преподавателя без звания
-        if ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
-            return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName']
-        else:
-            rank_name = ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
-            return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
-
     def shortdiscname(discipline_id):  # короткое имя дисциплины
         plan_disciplines = ApeksStaff.plan_disciplines
         for i in range(len(plan_disciplines)):
@@ -99,8 +96,8 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
 
     lessons = get_lessons(staff_id, month, year)
 
-    if lessons == []:
-        return
+    if not lessons:
+        return 'no data'
     else:
         lines = [
             'BEGIN:VCALENDAR',
@@ -129,7 +126,7 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
             'END:STANDARD',
             'END:VTIMEZONE']
 
-        with open(f'files/{staff_name(staff_id, department_id)} {month}-{year}.ics', "w") as f:
+        with open(f'app/files/{staff_name(staff_id, department_id)} {month}-{year}.ics', "w") as f:
             for line in lines:
                 f.write(line)
                 f.write('\n')
@@ -153,4 +150,4 @@ def lessons_exp_cal(department_id, staff_id, month, year): # формирова�
                 f.write('\n')
             f.write('END:VCALENDAR')
         f.close()
-    return f'files/{staff_name(staff_id, department_id)} {month}-{year}.ics'
+    return f'{staff_name(staff_id, department_id)} {month}-{year}.ics'

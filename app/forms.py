@@ -4,12 +4,11 @@ from datetime import date
 from wtforms.validators import DataRequired
 
 
-class DepartmentForm(FlaskForm):
+class CalendarForm(FlaskForm):
     department = SelectField('Кафедра:', coerce=str, validators=[DataRequired()])
+
     submit = SubmitField('Выбор')
 
-
-class CalendarForm(DepartmentForm):
     year = SelectField('Год', coerce=str, choices=[
         date.today().year - 1,
         date.today().year,
@@ -30,5 +29,7 @@ class CalendarForm(DepartmentForm):
         (12, 'Декабрь'),
         ], default=date.today().month, validators=[DataRequired()])
     prepod = SelectField('Преподаватель', coerce=str, validators=[DataRequired()])
+
     get_ical = SubmitField('Экспорт в формате iCal')
+
     get_xlsx = SubmitField('Экспорт в формате Excel')

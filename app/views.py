@@ -1,6 +1,8 @@
 from app.func import *
 from app.forms import *
-from flask import render_template, request, send_file, send_from_directory
+from werkzeug.utils import redirect
+from flask import render_template, request, send_file, url_for
+
 
 @app.route('/')
 @app.route('/index')
@@ -19,9 +21,13 @@ def calendar():
             month = request.form.get('month')
             year = request.form.get('year')
             prepod = request.form.get('prepod')
-            form.prepod.choices = list(get_staff(department).items())
-            send_from_directory(directory=app.export_folder, filename=lessons_exp_cal(department, prepod, month, year))
-            return render_template('calendar.html', form=form, department=department, month=month, year=year, prepod=prepod)
+            filename = lessons_exp_cal(department, prepod, month, year)
+            if filename == 'no data':
+                form.prepod.choices = list(get_staff(department).items())
+                error = f'{staff_name(prepod, department)} - нет занятий в указанный период'
+                return render_template('calendar.html', form=form, department=department, prepod=None, error=error)
+            else:
+                return redirect(url_for('getfile', filename=filename))
         elif request.form.get('department'):
             department = request.form.get('department')
             form.prepod.choices = list(get_staff(department).items())
@@ -29,12 +35,14 @@ def calendar():
 
     return render_template('calendar.html', form=form)  # department=department, month=month, year=year, prepod=prepod
 
-# def exp_cal():
-#     month = request.form.get('month')
-#     year = request.form.get('year')
-#     prepod = request.form.get('prepod')
-#     lessons_exp_cal(prepod, month, year)
-#     return render_template('calendar.html')
+
+@app.route('/<string:filename>', methods=['GET'])  # this is a job for GET, not POST
+def getfile(filename):  # check dir name on prod server
+    return send_file(app.config['EXPORT_FILE_DIR'] + filename,
+                     mimetype='text/plain',
+                     attachment_filename=filename,
+                     as_attachment=True)
+
 
 @app.route('/competencies')
 def competencies():
