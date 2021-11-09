@@ -16,7 +16,7 @@ def calendar():
     form.department.choices = list(ApeksStaff.departments.items())
 
     if request.method == 'POST':
-        if request.form.get('xslx_exp'):     # request.form.get('prepod'): request.form.get('ical_exp') or
+        if request.form.get('ical_exp') or request.form.get('xlsx_exp'):     # request.form.get('prepod'): request.form.get('ical_exp') or request.form.get('xslx_exp')
             department = request.form.get('department')
             month = request.form.get('month')
             year = request.form.get('year')

@@ -5,6 +5,6 @@ APEKS_DEPT_ID = '4'
 
 # Flask config
 SECRET_KEY = 'verysupersecretkeystring'
-EXPORT_FILE_DIR = 'files\\'
+EXPORT_FILE_DIR = 'files/'
 
 
