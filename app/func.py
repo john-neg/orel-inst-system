@@ -20,7 +20,7 @@ def get_staff(department_id):  # получение списка id препод
             if k.get('id') == position_id:
                 return k.get('sort')
 
-    def staff_name(staff_id):  # сокращенное имя преподавателя без звания
+    def short_staff_name(staff_id):  # сокращенное имя преподавателя без звания
         if ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
             return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName']
         else:
@@ -34,7 +34,7 @@ def get_staff(department_id):  # получение списка id препод
 
     prepod_dict = {}
     for i in range(len(a)):
-        prepod_dict[a[i][0]] = staff_name(a[i][0])
+        prepod_dict[a[i][0]] = short_staff_name(a[i][0])
     return prepod_dict
 
 
