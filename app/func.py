@@ -203,29 +203,26 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка 
         a = str(3)  # отступ сверху
 
         # Write some data headers.
-        worksheet.write('A' + a, 'Название', bold)
-        worksheet.write('B' + a, 'Начало', bold)
-        worksheet.write('C' + a, 'Конец', bold)
+        worksheet.write('A' + a, 'Дата/время', bold)
+        worksheet.write('B' + a, 'Занятие', bold)
+        worksheet.write('C' + a, 'Место', bold)
         worksheet.write('D' + a, 'Тема', bold)
-        worksheet.write('E' + a, 'Место', bold)
 
         # Worksheet set columns width
-        worksheet.set_column(0, 0, 50)
-        worksheet.set_column(1, 1, 15)
+        worksheet.set_column(0, 0, 15)
+        worksheet.set_column(1, 1, 60)
         worksheet.set_column(2, 2, 15)
         worksheet.set_column(3, 4, 50)
-        worksheet.set_column(4, 5, 15)
 
         # Some data we want to write to the worksheet.
 
         lessonexport = ()
         for lesson in range(len(lessons)):
             export = ([
-                          calendarname(lesson),
                           timestart(lesson),
-                          timeend(lesson),
-                          topic_name(lesson),
+                          calendarname(lesson),
                           lessons[lesson]['classroom'],
+                          topic_name(lesson),
                       ],)
             lessonexport += export
 
