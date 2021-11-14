@@ -1,7 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField
+from wtforms import SelectField, StringField, PasswordField, BooleanField, SubmitField
 from datetime import date
 from wtforms.validators import DataRequired
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Логин', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    remember_me = BooleanField('Запомнить')
+    submit = SubmitField('Войти')
 
 
 class CalendarForm(FlaskForm):
@@ -26,3 +33,8 @@ class CalendarForm(FlaskForm):
         (12, 'Декабрь'),
         ], default=date.today().month, validators=[DataRequired()])
     prepod = SelectField('Преподаватель', coerce=str, validators=[DataRequired()])
+
+
+class CompetenciesLoad(FlaskForm):
+    edu_spec = SelectField('Специальность:', coerce=str, validators=[DataRequired()])
+    edu_plans = SelectField('План:', coerce=str, validators=[DataRequired()])

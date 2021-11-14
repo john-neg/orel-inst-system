@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5">{% block title %} Загрузка компетенций в учебный план {% endblock %}</h1>
+
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.edu_spec.label }}</label>
+        {{ form.edu_spec (class="form-select form-select-ld") }}
+      </div>
+      <div>
+        <input type="submit" name="spec_choose" value="Выбор" class="btn btn-secondary">
+      </div>
+    </div>
+
+    {% if edu_spec %}
+        <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.edu_plans.label }}</label>
+        {{ form.edu_plans (class="form-select form-select-ld") }}
+      </div>
+      <div>
+        <input type="submit" name="plan_choose" value="Выбор" class="btn btn-secondary">
+      </div>
+    </div>
+    {% else %}
+    {% endif %}
+
+    {% endblock %}

@@ -1,17 +1,71 @@
 import xlsxwriter
 from app import app
 import requests
-from app.classes import ApeksStaff
+from app.models import ApeksData
 
 
-def get_staff(department_id):  # получение списка id преподавателей кафедры и расстановка по должностям
-    state_staff_positions = requests.get(app.config['URL'] + '/api/call/system-database/get' + app.config['TOKEN']
-                                         + '&table=state_staff_positions').json()['data']
-    state_staff_history = requests.get(app.config['URL'] + '/api/call/system-database/get' + app.config['TOKEN']
-                                       + '&table=state_staff_history' + '&filter[department_id]='
-                                       + str(department_id)).json()['data']
+def db_request(dbname):  # функция запроса к таблице БД без фильтра
+    payload = {'token': app.config['TOKEN'],
+               'table': dbname}
+    response = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    return response.json()['data']
 
-    def staff_sort(staff_id):  # получение кода сортировки л/с по должности
+
+def db_filter_req(dbname, sqltable,
+                  sqlvalue):  # функция запроса к таблице БД (название таблицы БД, название поля БД, значение)
+    payload = {'token': app.config['TOKEN'],
+               'table': dbname,
+               'filter[' + sqltable + ']': str(sqlvalue)}
+    response = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    return response.json()
+
+
+def active_staff_id():  # getting ID of first active user (need to make general API data request)
+    # getting ID of first active user
+    payload = {'token': app.config['TOKEN'],
+               'table': 'state_staff',
+               'filter[active]': '1'}
+    respond = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload).json()['data'][0]['id']
+    return respond
+
+
+def education_specialty():  # getting education_speciality data
+    payload = {'token': app.config['TOKEN'],
+               'table': 'plan_education_specialties'}
+    request = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    specialties = {}
+    for i in request.json()['data']:
+        specialties[i.get('id')] = i.get('name')
+    return specialties
+
+
+def education_plans(education_specialty_id):
+    payload = {'token': app.config['TOKEN'],
+               'table': 'plan_education_plans',
+               'filter[data_type]': 'plan',
+               'filter[education_specialty_id]': education_specialty_id,
+               'filter[active]': '1'}
+    request = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    plans = {}
+    for i in request.json()['data']:
+        plans[i.get('id')] = i.get('name')
+    return plans
+
+
+def get_staff(department_id):  # getting staff ID and sorting by position at the department
+    # getting staff range data
+    payload_staff = {'token': app.config['TOKEN'],
+                     'table': 'state_staff_positions'}
+    state_staff_positions = requests.get(app.config['URL'] + '/api/call/system-database/get',
+                                         params=payload_staff).json()['data']
+
+    payload_history = {'token': app.config['TOKEN'],
+                       'table': 'state_staff_history',
+                       'filter[department_id]': str(department_id)}
+    state_staff_history = requests.get(app.config['URL'] + '/api/call/system-database/get',
+                                       params=payload_history).json()['data']
+
+    def staff_sort(staff_id):  # getting sorting code by position
         position_id = ''
         for history in state_staff_history:
             if history.get('staff_id') == str(staff_id):
@@ -20,15 +74,15 @@ def get_staff(department_id):  # получение списка id препод
             if k.get('id') == position_id:
                 return k.get('sort')
 
-    def short_staff_name(staff_id):  # сокращенное имя преподавателя без звания
-        if ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
-            return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName']
+    def short_staff_name(staff_id):  # short staff name without rank
+        if ApeksData.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
+            return ApeksData.staff[str(department_id)][str(staff_id)]['shortName']
         else:
-            rank_name = ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
-            return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
+            rank_name = ApeksData.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
+            return ApeksData.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
 
     sort_dict = {}
-    for i in ApeksStaff.staff[str(department_id)].keys():
+    for i in ApeksData.staff[str(department_id)].keys():
         sort_dict[i] = int(staff_sort(i))
     a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
 
@@ -38,26 +92,33 @@ def get_staff(department_id):  # получение списка id препод
     return prepod_dict
 
 
-def staff_name(staff_id, department_id):  # сокращенное имя преподавателя без звания
-    if ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
-        return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName']
+def staff_name(staff_id, department_id):  # short staff name without rank
+    if ApeksData.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
+        return ApeksData.staff[str(department_id)][str(staff_id)]['shortName']
     else:
-        rank_name = ApeksStaff.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
-        return ApeksStaff.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
+        rank_name = ApeksData.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
+        return ApeksData.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
 
 
-def get_lessons(staff_id, month, year):  # получение списка занятий
-    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff' + app.config['TOKEN']
-                            + '&staff_id=' + str(staff_id) + '&month=' + str(month) + '&year=' + str(year))
+def get_lessons(staff_id, month, year):  # getting staff lessons
+    payload = {'token': app.config['TOKEN'],
+               'staff_id': str(staff_id),
+               'month': str(month),
+               'year': str(year)}
+    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff', params=payload)
     return response.json()['data']['lessons']
 
 
-def shortdiscname(discipline_id):  # короткое имя дисциплины
-    plan_disciplines = ApeksStaff.plan_disciplines
+def shortdiscname(discipline_id):  # discipline short name
+    plan_disciplines = ApeksData.plan_disciplines
     for i in range(len(plan_disciplines)):
         if plan_disciplines[i]['id'] == str(discipline_id):
             return plan_disciplines[i]['name_short']
 
+
+# 5) template строки или значения, как для ical, лучше выносить из кода
+# 6) некоторые функции функций наводят на мысль, что лучше сделать их классами
+# 4) Прямое обращение к словарю опасно, так как можно получить ненайденный ключ. Лучше делать get и делать catch ошибок
 
 def lessons_ical_exp(department_id, staff_id, month, year):  # формирование данных для экспорта iCAl
 
@@ -167,11 +228,6 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка 
     def timestart(i):  # время начала занятия
         time = lessons[i]['lessonTime'].split(' - ')
         fulltime = lessons[i]['date'] + ' ' + time[0]
-        return fulltime
-
-    def timeend(i):  # время окончания занятия
-        time = lessons[i]['lessonTime'].split(' - ')
-        fulltime = lessons[i]['date'] + ' ' + time[1]
         return fulltime
 
     def topic_name(i):  # получение темы занятия
