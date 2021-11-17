@@ -8,26 +8,26 @@ from datetime import date
 
 class ApeksData:
     # getting ID of first active user (need to make general API data request)
-    payload = {'token': app.config['TOKEN'],
-               'table': 'state_staff',
+    payload = {'table': 'state_staff',
                'filter[active]': '1'}
-    active_staff_id = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload).json()['data'][0]['id']
+    active_staff_id = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                                   + app.config['TOKEN'], params=payload).json()['data'][0]['id']
 
     # getting data about organisation structure
-    payload = {'token': app.config['TOKEN'],
-               'staff_id': active_staff_id,
+    payload = {'staff_id': active_staff_id,
                'month': date.today().strftime('%m'),
                'year': date.today().strftime('%Y')}
-    data = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff', params=payload)
+    data = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff?token='
+                        + app.config['TOKEN'], params=payload)
     # getting data about recent staff
     staff = data.json()['data']['staff']
     # getting data about divisions
     departments = data.json()['data']['departments']
     # getting data about disciplines
-    payload = {'token': app.config['TOKEN'],
-               'table': 'plan_disciplines',
+    payload = {'table': 'plan_disciplines',
                'filter[level]': '3'}
-    plan_disciplines = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload).json()['data']
+    plan_disciplines = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                                    + app.config['TOKEN'], params=payload).json()['data']
 
 
 class User(UserMixin, db.Model):

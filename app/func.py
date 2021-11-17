@@ -4,35 +4,40 @@ import requests
 from app.models import ApeksData
 
 
+def allowed_file(filename):  # check if file extension in allowed list
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+
+
 def db_request(dbname):  # функция запроса к таблице БД без фильтра
-    payload = {'token': app.config['TOKEN'],
-               'table': dbname}
-    response = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    payload = {'table': dbname}
+    response = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                            + app.config['TOKEN'], params=payload)
     return response.json()['data']
 
 
 def db_filter_req(dbname, sqltable,
                   sqlvalue):  # функция запроса к таблице БД (название таблицы БД, название поля БД, значение)
-    payload = {'token': app.config['TOKEN'],
-               'table': dbname,
+    payload = {'table': dbname,
                'filter[' + sqltable + ']': str(sqlvalue)}
-    response = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    response = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                            + app.config['TOKEN'], params=payload)
     return response.json()
 
 
 def active_staff_id():  # getting ID of first active user (need to make general API data request)
     # getting ID of first active user
-    payload = {'token': app.config['TOKEN'],
-               'table': 'state_staff',
+    payload = {'table': 'state_staff',
                'filter[active]': '1'}
-    respond = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload).json()['data'][0]['id']
+    respond = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                           + app.config['TOKEN'], params=payload).json()['data'][0]['id']
     return respond
 
 
 def education_specialty():  # getting education_speciality data
-    payload = {'token': app.config['TOKEN'],
-               'table': 'plan_education_specialties'}
-    request = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    payload = {'table': 'plan_education_specialties'}
+    request = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                           + app.config['TOKEN'], params=payload)
     specialties = {}
     for i in request.json()['data']:
         specialties[i.get('id')] = i.get('name')
@@ -40,12 +45,12 @@ def education_specialty():  # getting education_speciality data
 
 
 def education_plans(education_specialty_id):
-    payload = {'token': app.config['TOKEN'],
-               'table': 'plan_education_plans',
+    payload = {'table': 'plan_education_plans',
                'filter[data_type]': 'plan',
                'filter[education_specialty_id]': education_specialty_id,
                'filter[active]': '1'}
-    request = requests.get(app.config['URL'] + '/api/call/system-database/get', params=payload)
+    request = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                           + app.config['TOKEN'], params=payload)
     plans = {}
     for i in request.json()['data']:
         plans[i.get('id')] = i.get('name')
@@ -54,16 +59,14 @@ def education_plans(education_specialty_id):
 
 def get_staff(department_id):  # getting staff ID and sorting by position at the department
     # getting staff range data
-    payload_staff = {'token': app.config['TOKEN'],
-                     'table': 'state_staff_positions'}
-    state_staff_positions = requests.get(app.config['URL'] + '/api/call/system-database/get',
-                                         params=payload_staff).json()['data']
+    payload_staff = {'table': 'state_staff_positions'}
+    state_staff_positions = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                                         + app.config['TOKEN'], params=payload_staff).json()['data']
 
-    payload_history = {'token': app.config['TOKEN'],
-                       'table': 'state_staff_history',
+    payload_history = {'table': 'state_staff_history',
                        'filter[department_id]': str(department_id)}
-    state_staff_history = requests.get(app.config['URL'] + '/api/call/system-database/get',
-                                       params=payload_history).json()['data']
+    state_staff_history = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
+                                       + app.config['TOKEN'], params=payload_history).json()['data']
 
     def staff_sort(staff_id):  # getting sorting code by position
         position_id = ''
@@ -101,11 +104,11 @@ def staff_name(staff_id, department_id):  # short staff name without rank
 
 
 def get_lessons(staff_id, month, year):  # getting staff lessons
-    payload = {'token': app.config['TOKEN'],
-               'staff_id': str(staff_id),
+    payload = {'staff_id': str(staff_id),
                'month': str(month),
                'year': str(year)}
-    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff', params=payload)
+    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff?token='
+                            + app.config['TOKEN'], params=payload)
     return response.json()['data']['lessons']
 
 
@@ -114,6 +117,20 @@ def shortdiscname(discipline_id):  # discipline short name
     for i in range(len(plan_disciplines)):
         if plan_disciplines[i]['id'] == str(discipline_id):
             return plan_disciplines[i]['name_short']
+
+
+def comp_delete(education_plan_id):
+    data = db_filter_req('plan_competencies', 'education_plan_id', education_plan_id)
+    # data['data'][0]['id']
+    report = []
+    for i in range(len(data['data'])):
+        payload = {'table': 'plan_competencies',
+                   'filter[id]': data['data'][i]['id']}
+        remove = requests.delete(app.config['URL'] + '/api/call/system-database/delete?token='
+                                 + app.config['TOKEN'], params=payload)
+        if remove.json()['status'] == 0:
+            report.append(f"{data['data'][i]['code']} - {remove.json()['message']}")
+            return report
 
 
 # 5) template строки или значения, как для ical, лучше выносить из кода

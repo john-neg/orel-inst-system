@@ -1,4 +1,5 @@
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Apeks API configuration data
@@ -12,9 +13,16 @@ EXPORT_FILE_DIR = 'files/'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+UPLOAD_FOLDER = 'files/'
+ALLOWED_EXTENSIONS = set(['xlxs', 'csv'])
 
-# User roles
+# User roles in DB
 ROLE_ADMIN = 1
 ROLE_USER = 2
 ROLE_METOD = 3
 ROLE_BIBL = 4
+
+# Setup of fields-id for Library list upload
+BIBL_MAIN = 1
+BIBL_ADD = 2
+BIBL_NP = 3
