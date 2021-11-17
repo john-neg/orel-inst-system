@@ -37,4 +37,4 @@ class CalendarForm(FlaskForm):
 
 class CompetenciesLoad(FlaskForm):
     edu_spec = SelectField('Специальность:', coerce=str, validators=[DataRequired()])
-    edu_plans = SelectField('План:', coerce=str, validators=[DataRequired()])
+    edu_plan = SelectField('План:', coerce=str, validators=[DataRequired()])

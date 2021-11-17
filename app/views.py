@@ -1,8 +1,9 @@
+import os
 from app.func import *
 from app.forms import *
 from app.models import User
-from werkzeug.utils import redirect
-from flask import render_template, request, send_file, url_for, flash
+from werkzeug.utils import redirect, secure_filename
+from flask import render_template, request, send_file, url_for, flash, send_from_directory
 from flask_login import logout_user, login_user, current_user, login_required
 
 
@@ -32,9 +33,12 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
 #
 # 3) вместо простых условий можно и нужно использовать
 # тернарные операторы вроде value_if_true if condition else value_if_false
+
 
 @app.route('/calendar', methods=['GET', 'POST'])
 def calendar():
@@ -60,7 +64,7 @@ def calendar():
                                        form=form, department=department, error=error)
             else:
                 return redirect(url_for('getfile', filename=filename))
-        elif request.form['dept_choose']:    # request.form.get('department'):
+        elif request.form['dept_choose']:  # request.form.get('department'):
             department = request.form.get('department')
             form.prepod.choices = list(get_staff(department).items())
             return render_template('calendar.html', active='calendar', form=form, department=department)
@@ -81,16 +85,22 @@ def getfile(filename):  # check dir name on prod server
 def competencies():
     return render_template('competencies.html', active='competencies')
 
+
 @app.route('/competencies_load', methods=['GET', 'POST'])
 @login_required
 def competencies_load():
     form = CompetenciesLoad()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == 'POST':
-        if request.form['spec_choose']:
+        if request.form.get('plan_choose') and request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
-            # form.edu_spec.choices = list(education_specialty().items())
-            form.edu_plans.choices = list(education_plans(edu_spec).items())
+            edu_plan = request.form.get('edu_plan')
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            return render_template('competencies_load.html', active='competencies', form=form,
+                                   edu_plan=edu_plan, edu_spec=edu_spec)
+        elif request.form.get('edu_spec'):
+            edu_spec = request.form.get('edu_spec')
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
             return render_template('competencies_load.html', active='competencies', form=form, edu_spec=edu_spec)
     return render_template('competencies_load.html', active='competencies', form=form)
 
@@ -99,3 +109,19 @@ def competencies_load():
 @login_required
 def library():
     return render_template('library.html', active='library')
+
+
+@app.route('/uploads', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'],
+                               filename)

@@ -20,14 +20,39 @@
     {% if edu_spec %}
         <div class="row mb-3 gy-3">
       <div class="col-md-7">
-        <label class="form-label">{{ form.edu_plans.label }}</label>
-        {{ form.edu_plans (class="form-select form-select-ld") }}
+        <label class="form-label">{{ form.edu_plan.label }}</label>
+        {{ form.edu_plan (class="form-select form-select-ld") }}
       </div>
       <div>
         <input type="submit" name="plan_choose" value="Выбор" class="btn btn-secondary">
       </div>
     </div>
+    {% endif %}
+    {% if edu_plan %}
+
+    <div class="row mb-3 gy-3">
+        <div class="d-grid col-md-7">
+            <input type="submit" name="comp_delete" value="Удаление компетенций из плана" class="btn btn-secondary">
+        </div>
+
+        <form enctype=multipart/form-data class="d-grid col-md-7">
+            <div class="mb-3 col-md-7">
+                <label for="formFile" class="form-label">Выберите файл для загрузки</label>
+                <input class="form-control" type="file" id="formFile">
+            </div>
+        </form>
+
+        <div class="d-grid col-md-7">
+            <input type="submit" name="comp_check" value="Проверка файла" class="btn btn-secondary">
+        </div>
+
+        <div class="d-grid col-md-7">
+            <input type="submit" name="comp_load" value="Загрузка компетенций из файла" class="btn btn-secondary">
+        </div>
+    </div>
+
+
     {% else %}
     {% endif %}
-
+</form>
     {% endblock %}
