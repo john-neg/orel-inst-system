@@ -17,7 +17,7 @@ class CalendarForm(FlaskForm):
         date.today().year - 1,
         date.today().year,
         date.today().year + 1,
-        ], default=date.today().year, validators=[DataRequired()])
+    ], default=date.today().year, validators=[DataRequired()])
     month = SelectField('Месяц', coerce=str, choices=[
         (1, 'Январь'),
         (2, 'Февраль'),
@@ -31,10 +31,18 @@ class CalendarForm(FlaskForm):
         (10, 'Октябрь'),
         (11, 'Ноябрь'),
         (12, 'Декабрь'),
-        ], default=date.today().month, validators=[DataRequired()])
+    ], default=date.today().month, validators=[DataRequired()])
     prepod = SelectField('Преподаватель', coerce=str, validators=[DataRequired()])
 
 
-class CompetenciesLoad(FlaskForm):
+class ChoosePlan(FlaskForm):
     edu_spec = SelectField('Специальность:', coerce=str, validators=[DataRequired()])
     edu_plan = SelectField('План:', coerce=str, validators=[DataRequired()])
+
+
+class WorkProgramUpdate(FlaskForm):  # добавить валидаторы для дат
+    date_methodical = StringField('Дата методического совета')
+    document_methodical = StringField('Номер документа методического совета')
+    date_academic = StringField('Дата Ученого совета')
+    document_academic = StringField('Номер документа Ученого совета')
+    date_approval = StringField('Дата утверждения')

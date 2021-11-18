@@ -80,29 +80,49 @@ def getfile(filename):  # check dir name on prod server
                      as_attachment=True)
 
 
-@app.route('/competencies')
+@app.route('/programs', methods=['GET', 'POST'])
 @login_required
-def competencies():
-    return render_template('competencies.html', active='competencies')
-
-
-@app.route('/competencies_load', methods=['GET', 'POST'])
-@login_required
-def competencies_load():
-    form = CompetenciesLoad()
+def programs():
+    form = ChoosePlan()
+    form_upd = WorkProgramUpdate()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == 'POST':
         if request.form.get('plan_choose') and request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
             edu_plan = request.form.get('edu_plan')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('competencies_load.html', active='competencies', form=form,
+            return render_template('programs.html', active='programs', form=form, form_upd=form_upd,
                                    edu_plan=edu_plan, edu_spec=edu_spec)
         elif request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('competencies_load.html', active='competencies', form=form, edu_spec=edu_spec)
-    return render_template('competencies_load.html', active='competencies', form=form)
+            return render_template('programs.html', active='programs', form=form, form_upd=form_upd, edu_spec=edu_spec)
+    return render_template('programs.html', active='programs', form=form, form_upd=form_upd)
+
+
+@app.route('/wp_update', methods=['GET', 'POST'])
+@login_required
+def wp_update():
+    return  #render_template('programs.html', active='programs', form=form)
+
+
+@app.route('/competencies_load', methods=['GET', 'POST'])
+@login_required
+def competencies_load():
+    form = ChoosePlan()
+    form.edu_spec.choices = list(education_specialty().items())
+    if request.method == 'POST':
+        if request.form.get('plan_choose') and request.form.get('edu_spec'):
+            edu_spec = request.form.get('edu_spec')
+            edu_plan = request.form.get('edu_plan')
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            return render_template('competencies_load.html', active='programs', form=form,
+                                   edu_plan=edu_plan, edu_spec=edu_spec)
+        elif request.form.get('edu_spec'):
+            edu_spec = request.form.get('edu_spec')
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            return render_template('competencies_load.html', active='programs', form=form, edu_spec=edu_spec)
+    return render_template('competencies_load.html', active='programs', form=form)
 
 
 @app.route('/library')
@@ -120,6 +140,7 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
+
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

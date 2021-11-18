@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-5">{% block title %} Информация об утверждении программ {% endblock %}</h1>
+
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.edu_spec.label }}</label>
+        {{ form.edu_spec (class="form-select form-select-ld") }}
+      </div>
+      <div>
+        <input type="submit" name="spec_choose" value="Выбор" class="btn btn-secondary">
+      </div>
+    </div>
+
+    {% if edu_spec %}
+        <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.edu_plan.label }}</label>
+        {{ form.edu_plan (class="form-select form-select-ld") }}
+      </div>
+      <div>
+        <input type="submit" name="plan_choose" value="Выбор" class="btn btn-secondary">
+      </div>
+    </div>
+    {% endif %}
+</form>
+    <form action="{{ url_for('wp_update') }}" method="POST">
+                <div class="row mb-2 gy-2">
+              <div class="col-md-7">
+                {{ form_upd.date_methodical (placeholder="YYYY-MM-DD")  }}
+              <label class="form-label">{{ form_upd.date_methodical.label }}</label>
+              </div>
+              <div class="col-md-7">
+                {{ form_upd.document_methodical (placeholder="01") }}
+                <label class="form-label">{{ form_upd.document_methodical.label }}</label>
+              </div>
+              <div class="col-md-7">
+                {{ form_upd.date_academic (placeholder="YYYY-MM-DD")  }}
+                <label class="form-label">{{ form_upd.date_academic.label }}</label>
+              </div>
+              <div class="col-md-7">
+                {{ form_upd.document_academic (placeholder="01") }}
+                <label class="form-label">{{ form_upd.document_academic.label }}</label>
+              </div>
+              <div class="col-md-7">
+                {{ form_upd.date_approval (placeholder="YYYY-MM-DD") }}
+                <label class="form-label">{{ form_upd.date_approval.label }}</label>
+              </div>
+                    </div>
+    <input type="hidden" name="btn_identifier" value="wp_update_identifier" />
+    <input type="submit" name="wp_update" value="Обновить данные" class="btn btn-secondary">
+    </form>
+
+{% endblock %}
