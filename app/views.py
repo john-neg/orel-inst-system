@@ -109,24 +109,6 @@ def programs():
     return render_template('programs.html', active='programs', form=form)
 
 
-# @app.route('/wp_update', methods=['GET', 'POST'])
-# @login_required
-# def wp_update():
-#     form = WorkProgramUpdate()
-#     edu_spec = request.form.get('edu_spec')
-#     edu_plan = request.form.get('edu_plan')
-#     date_methodical = request.form.get('date_methodical')
-#     document_methodical = request.form.get('document_methodical')
-#     date_academic = request.form.get('date_academic')
-#     document_academic = request.form.get('document_academic')
-#     date_approval = request.form.get('date_approval')
-#     disciplines, non_exist = wp_update_list(edu_plan)
-#     for disc in disciplines:
-#         wp_update(disc, date_methodical, document_methodical,
-#                   date_academic, document_academic, date_approval)
-#     return redirect(url_for('programs'))
-
-
 @app.route('/competencies_load', methods=['GET', 'POST'])
 @login_required
 def competencies_load():
