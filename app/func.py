@@ -83,22 +83,16 @@ def wp_update_list(education_plan_id):  # Получение Id и назван�
     return workprogram, not_exist
 
 
-# def wp_update(wp_id, date_methodical, document_methodical, date_academic, document_academic, date_approval):
-#     payload = {'table': 'mm_work_programs',
-#                'filter[id]': wp_id,
-#                if date_methodical:
-#                    'fields[date_methodical]': date_methodical,
-#                if document_methodical:
-#                    "fields[document_methodical]": document_methodical,
-#                if date_academic:
-#                    "fields[date_academic]": date_academic,
-#                if document_academic:
-#                    'fields[document_academic]': document_academic,
-#                if date_approval:
-#                    'fields[date_approval]': date_approval,
-#                }
-#     send = requests.post(app.config['URL'] + '/api/call/system-database/edit?token=' + app.config['TOKEN'], data=payload)
-#     print(send.json())
+def wp_update(wp_id, date_methodical, document_methodical, date_academic, document_academic, date_approval):
+    payload = {'table': 'mm_work_programs',
+               'filter[id]': wp_id,
+               'fields[date_methodical]': date_methodical,
+               'fields[document_methodical]': document_methodical,
+               'fields[date_academic]': date_academic,
+               'fields[document_academic]': document_academic,
+               'fields[date_approval]': date_approval}
+    send = requests.post(app.config['URL'] + '/api/call/system-database/edit?token=' + app.config['TOKEN'], data=payload)
+    print(send.json())
 
 
 def get_staff(department_id):  # getting staff ID and sorting by position at the department

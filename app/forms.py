@@ -40,7 +40,7 @@ class ChoosePlan(FlaskForm):
     edu_plan = SelectField('План:', coerce=str, validators=[DataRequired()])
 
 
-class WorkProgramUpdate(FlaskForm):  # добавить валидаторы для дат
+class WorkProgramUpdate(ChoosePlan):  # добавить валидаторы для дат
     date_methodical = DateField('Дата методического совета', format='%Y-%m-%d')
     document_methodical = IntegerField('Номер документа методического совета')
     date_academic = StringField('Дата Ученого совета')

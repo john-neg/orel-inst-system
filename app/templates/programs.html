@@ -22,35 +22,29 @@
         <label class="form-label">{{ form.edu_plan.label }}</label>
         {{ form.edu_plan (class="form-select form-select-ld") }}
       </div>
-      <div>
-        <input type="submit" name="plan_choose" value="Выбор" class="btn btn-secondary">
-      </div>
-    </div>
-    {% endif %}
-</form>
-    {% if edu_spec and edu_plan %}
 
-    <form action="" method="POST">
+    </div>
+
                 <div class="row mb-2 gy-2">
               <div class="col-md-7">
-                {{ form_upd.date_methodical (placeholder="YYYY-MM-DD")  }}
-              <label class="form-label">{{ form_upd.date_methodical.label }}</label>
+                {{ form.date_methodical (placeholder="YYYY-MM-DD")  }}
+              <label class="form-label">{{ form.date_methodical.label }}</label>
               </div>
               <div class="col-md-7">
-                {{ form_upd.document_methodical (placeholder="1") }}
-                <label class="form-label">{{ form_upd.document_methodical.label }}</label>
+                {{ form.document_methodical (placeholder="1") }}
+                <label class="form-label">{{ form.document_methodical.label }}</label>
               </div>
               <div class="col-md-7">
-                {{ form_upd.date_academic (placeholder="YYYY-MM-DD")  }}
-                <label class="form-label">{{ form_upd.date_academic.label }}</label>
+                {{ form.date_academic (placeholder="YYYY-MM-DD")  }}
+                <label class="form-label">{{ form.date_academic.label }}</label>
               </div>
               <div class="col-md-7">
-                {{ form_upd.document_academic (placeholder="1") }}
-                <label class="form-label">{{ form_upd.document_academic.label }}</label>
+                {{ form.document_academic (placeholder="1") }}
+                <label class="form-label">{{ form.document_academic.label }}</label>
               </div>
               <div class="col-md-7">
-                {{ form_upd.date_approval (placeholder="YYYY-MM-DD") }}
-                <label class="form-label">{{ form_upd.date_approval.label }}</label>
+                {{ form.date_approval (placeholder="YYYY-MM-DD") }}
+                <label class="form-label">{{ form.date_approval.label }}</label>
               </div>
                     </div>
     <input type="hidden" name="btn_identifier" value="wp_update_identifier" />
@@ -58,11 +52,11 @@
     </form>
     {% endif %}
 
-    {% if date_methodical %}
+    {% if message %}
     <div class="row mb-3 gy-3">
     <div class="d-grid col-md-7">
         <div class="alert alert-warning" role="alert">
-          {{ date_methodical }}
+          {{ message }}
         </div>
     </div></div>
     {% endif %}

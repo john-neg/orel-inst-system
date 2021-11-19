@@ -83,38 +83,48 @@ def getfile(filename):  # check dir name on prod server
 @app.route('/programs', methods=['GET', 'POST'])
 @login_required
 def programs():
-    form = ChoosePlan()
-    form_upd = WorkProgramUpdate()
+    form = WorkProgramUpdate()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == 'POST':
-        if request.form.get('plan_choose') and request.form.get('edu_spec'):
+        if request.form.get('wp_update'):
             edu_spec = request.form.get('edu_spec')
             edu_plan = request.form.get('edu_plan')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('programs.html', active='programs', form=form, form_upd=form_upd,
-                                   edu_plan=edu_plan, edu_spec=edu_spec)
+            date_methodical = request.form.get('date_methodical')
+            document_methodical = request.form.get('document_methodical')
+            date_academic = request.form.get('date_academic')
+            document_academic = request.form.get('document_academic')
+            date_approval = request.form.get('date_approval')
+            disciplines, non_exist = wp_update_list(edu_plan)
+            for disc in disciplines:
+                wp_update(disc, date_methodical, document_methodical,
+                          date_academic, document_academic, date_approval)
+            message = f'План #{edu_plan} - обновлен'
+            return render_template('programs.html', active='programs', form=form,
+                                   edu_plan=edu_plan, edu_spec=edu_spec, message=message)
         elif request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('programs.html', active='programs', form=form, form_upd=form_upd, edu_spec=edu_spec)
-    return render_template('programs.html', active='programs', form=form, form_upd=form_upd)
+            return render_template('programs.html', active='programs', form=form, edu_spec=edu_spec)
+    return render_template('programs.html', active='programs', form=form)
 
 
-@app.route('/wp_update', methods=['GET', 'POST'])
-@login_required
-def wp_update():
-    edu_spec = request.form.get('edu_spec')
-    edu_plan = request.form.get('edu_plan')
-    wp_list = wp_update_list(edu_plan)
-    date_methodical = request.form.get('date_methodical')
-    document_methodical = request.form.get('document_methodical')
-    date_academic = request.form.get('date_academic')
-    document_academic = request.form.get('document_academic')
-    date_approval = request.form.get('date_approval')
-    return render_template('programs.html', active='programs', form=form, form_upd=form_upd,
-                           edu_plan=edu_plan, edu_spec=edu_spec, date_methodical=date_methodical,
-                           document_methodical=document_methodical, date_academic=date_academic,
-                           document_academic=document_academic, date_approval=date_approval)
+# @app.route('/wp_update', methods=['GET', 'POST'])
+# @login_required
+# def wp_update():
+#     form = WorkProgramUpdate()
+#     edu_spec = request.form.get('edu_spec')
+#     edu_plan = request.form.get('edu_plan')
+#     date_methodical = request.form.get('date_methodical')
+#     document_methodical = request.form.get('document_methodical')
+#     date_academic = request.form.get('date_academic')
+#     document_academic = request.form.get('document_academic')
+#     date_approval = request.form.get('date_approval')
+#     disciplines, non_exist = wp_update_list(edu_plan)
+#     for disc in disciplines:
+#         wp_update(disc, date_methodical, document_methodical,
+#                   date_academic, document_academic, date_approval)
+#     return redirect(url_for('programs'))
 
 
 @app.route('/competencies_load', methods=['GET', 'POST'])
