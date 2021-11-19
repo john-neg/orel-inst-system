@@ -57,6 +57,50 @@ def education_plans(education_specialty_id):
     return plans
 
 
+def plan_disciplines(education_plan_id):  # Получение списка ID, кодов и названий дисциплин плана
+    disciplines = {}
+    plan_curriculum_disciplines = db_filter_req('plan_curriculum_disciplines', 'education_plan_id', education_plan_id)
+    for disc in plan_curriculum_disciplines['data']:
+        if disc['level'] == '3':
+            disciplines[disc['id']] = [disc['code'],
+                                       db_filter_req('plan_disciplines', 'id', disc['discipline_id'])['data'][0][
+                                           'name']]
+    return disciplines
+
+
+def wp_update_list(education_plan_id):  # Получение Id и названий рабочих программ
+    disciplines = plan_disciplines(education_plan_id)
+    workprogram = {}
+    not_exist = {}
+    for disc in disciplines:
+        response = db_filter_req('mm_work_programs', 'curriculum_discipline_id', disc)
+        if response['data'] != []:
+            wp_id = response['data'][0]['id']
+            wp_name = response['data'][0]['name']
+            workprogram[wp_id] = wp_name
+        else:
+            not_exist[disc] = disciplines[str(disc)]
+    return workprogram, not_exist
+
+
+# def wp_update(wp_id, date_methodical, document_methodical, date_academic, document_academic, date_approval):
+#     payload = {'table': 'mm_work_programs',
+#                'filter[id]': wp_id,
+#                if date_methodical:
+#                    'fields[date_methodical]': date_methodical,
+#                if document_methodical:
+#                    "fields[document_methodical]": document_methodical,
+#                if date_academic:
+#                    "fields[date_academic]": date_academic,
+#                if document_academic:
+#                    'fields[document_academic]': document_academic,
+#                if date_approval:
+#                    'fields[date_approval]': date_approval,
+#                }
+#     send = requests.post(app.config['URL'] + '/api/call/system-database/edit?token=' + app.config['TOKEN'], data=payload)
+#     print(send.json())
+
+
 def get_staff(department_id):  # getting staff ID and sorting by position at the department
     # getting staff range data
     payload_staff = {'table': 'state_staff_positions'}
@@ -113,10 +157,10 @@ def get_lessons(staff_id, month, year):  # getting staff lessons
 
 
 def shortdiscname(discipline_id):  # discipline short name
-    plan_disciplines = ApeksData.plan_disciplines
-    for i in range(len(plan_disciplines)):
-        if plan_disciplines[i]['id'] == str(discipline_id):
-            return plan_disciplines[i]['name_short']
+    data = ApeksData.plan_disciplines
+    for i in range(len(data)):
+        if data[i]['id'] == str(discipline_id):
+            return data[i]['name_short']
 
 
 def comp_delete(education_plan_id):

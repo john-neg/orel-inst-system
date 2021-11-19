@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms import SelectField, StringField, PasswordField, BooleanField, SubmitField, IntegerField, DateField
 from datetime import date
 from wtforms.validators import DataRequired
 
@@ -41,8 +41,8 @@ class ChoosePlan(FlaskForm):
 
 
 class WorkProgramUpdate(FlaskForm):  # добавить валидаторы для дат
-    date_methodical = StringField('Дата методического совета')
-    document_methodical = StringField('Номер документа методического совета')
+    date_methodical = DateField('Дата методического совета', format='%Y-%m-%d')
+    document_methodical = IntegerField('Номер документа методического совета')
     date_academic = StringField('Дата Ученого совета')
-    document_academic = StringField('Номер документа Ученого совета')
+    document_academic = IntegerField('Номер документа Ученого совета')
     date_approval = StringField('Дата утверждения')

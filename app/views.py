@@ -103,7 +103,18 @@ def programs():
 @app.route('/wp_update', methods=['GET', 'POST'])
 @login_required
 def wp_update():
-    return  #render_template('programs.html', active='programs', form=form)
+    edu_spec = request.form.get('edu_spec')
+    edu_plan = request.form.get('edu_plan')
+    wp_list = wp_update_list(edu_plan)
+    date_methodical = request.form.get('date_methodical')
+    document_methodical = request.form.get('document_methodical')
+    date_academic = request.form.get('date_academic')
+    document_academic = request.form.get('document_academic')
+    date_approval = request.form.get('date_approval')
+    return render_template('programs.html', active='programs', form=form, form_upd=form_upd,
+                           edu_plan=edu_plan, edu_spec=edu_spec, date_methodical=date_methodical,
+                           document_methodical=document_methodical, date_academic=date_academic,
+                           document_academic=document_academic, date_approval=date_approval)
 
 
 @app.route('/competencies_load', methods=['GET', 'POST'])

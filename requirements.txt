@@ -1,5 +1,7 @@
-Flask~=2.0.2
+XlsxWriter~=3.0.2
 requests~=2.26.0
 WTForms~=2.3.3
 Werkzeug~=2.0.2
-XlsxWriter~=3.0.2
+Flask~=2.0.2
+Flask-Login
+Flask-SQLAlchemy
