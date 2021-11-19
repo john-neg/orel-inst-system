@@ -96,10 +96,13 @@ def programs():
             document_academic = request.form.get('document_academic')
             date_approval = request.form.get('date_approval')
             disciplines, non_exist = wp_update_list(edu_plan)
+            result = []
             for disc in disciplines:
-                wp_update(disc, date_methodical, document_methodical,
-                          date_academic, document_academic, date_approval)
-            message = f'План #{edu_plan} - обновлен'
+                load_info = wp_update(disc, date_methodical, document_methodical,
+                                      date_academic, document_academic, date_approval)
+                if load_info == 1:
+                    result.append(disciplines[disc])
+            message = f'Обновлены: {result}'
             return render_template('programs.html', active='programs', form=form,
                                    edu_plan=edu_plan, edu_spec=edu_spec, message=message)
         elif request.form.get('edu_spec'):

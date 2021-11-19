@@ -41,8 +41,8 @@ class ChoosePlan(FlaskForm):
 
 
 class WorkProgramUpdate(ChoosePlan):  # добавить валидаторы для дат
-    date_methodical = DateField('Дата методического совета', format='%Y-%m-%d')
-    document_methodical = IntegerField('Номер документа методического совета')
-    date_academic = StringField('Дата Ученого совета')
-    document_academic = IntegerField('Номер документа Ученого совета')
-    date_approval = StringField('Дата утверждения')
+    date_methodical = DateField('Дата методического совета', format='%Y-%m-%d', validators=[DataRequired()])
+    document_methodical = IntegerField('Номер документа методического совета', validators=[DataRequired()])
+    date_academic = DateField('Дата Ученого совета', format='%Y-%m-%d', validators=[DataRequired()])
+    document_academic = IntegerField('Номер документа Ученого совета', validators=[DataRequired()])
+    date_approval = DateField('Дата утверждения', format='%Y-%m-%d', validators=[DataRequired()])

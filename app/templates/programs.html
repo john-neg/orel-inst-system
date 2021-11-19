@@ -4,7 +4,7 @@
     <h1 class="display-5">{% block title %} Информация об утверждении программ {% endblock %}</h1>
 
 <form action="" method="post">
-    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
 
     <div class="row mb-3 gy-3">
       <div class="col-md-7">
@@ -30,10 +30,16 @@
                 {{ form.date_methodical (placeholder="YYYY-MM-DD")  }}
               <label class="form-label">{{ form.date_methodical.label }}</label>
               </div>
+                  {% for err in form.date_methodical.errors %}
+                    <span style="color: #ff4f1f">{{ err }}</span>
+                  {% endfor %}
               <div class="col-md-7">
                 {{ form.document_methodical (placeholder="1") }}
                 <label class="form-label">{{ form.document_methodical.label }}</label>
               </div>
+                  {% for err in form.document_methodical.errors %}
+                    <span style="color: #ff4f1f">{{ err }}</span>
+                  {% endfor %}
               <div class="col-md-7">
                 {{ form.date_academic (placeholder="YYYY-MM-DD")  }}
                 <label class="form-label">{{ form.date_academic.label }}</label>

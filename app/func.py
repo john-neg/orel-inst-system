@@ -92,7 +92,7 @@ def wp_update(wp_id, date_methodical, document_methodical, date_academic, docume
                'fields[document_academic]': document_academic,
                'fields[date_approval]': date_approval}
     send = requests.post(app.config['URL'] + '/api/call/system-database/edit?token=' + app.config['TOKEN'], data=payload)
-    print(send.json())
+    return send.json()['data']
 
 
 def get_staff(department_id):  # getting staff ID and sorting by position at the department
