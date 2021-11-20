@@ -5,3 +5,4 @@ Werkzeug~=2.0.2
 Flask~=2.0.2
 Flask-Login
 Flask-SQLAlchemy
+Flask-Migrate

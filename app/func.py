@@ -1,5 +1,4 @@
 import xlsxwriter
-from app import app
 import requests
 from app.models import ApeksData
 from config import ApeksAPI, FlaskConfig
@@ -7,27 +6,25 @@ from config import ApeksAPI, FlaskConfig
 
 def allowed_file(filename):  # check if file extension in allowed list
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+           filename.rsplit('.', 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
 
 
-def db_request(dbname):  # функция запроса к таблице БД без фильтра
+def db_request(dbname):  # DB request function without filter
     payload = {'table': dbname}
     response = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
                             + ApeksAPI.TOKEN, params=payload)
     return response.json()['data']
 
 
-def db_filter_req(dbname, sqltable,
-                  sqlvalue):  # функция запроса к таблице БД (название таблицы БД, название поля БД, значение)
+def db_filter_req(dbname, sqltable, sqlvalue):  # Filtered DB request (DB table, DB field, value)
     payload = {'table': dbname,
                'filter[' + sqltable + ']': str(sqlvalue)}
     response = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
                             + ApeksAPI.TOKEN, params=payload)
-    return response.json()
+    return response.json()['data']
 
 
 def active_staff_id():  # getting ID of first active user (need to make general API data request)
-    # getting ID of first active user
     payload = {'table': 'state_staff',
                'filter[active]': '1'}
     respond = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
@@ -45,7 +42,7 @@ def education_specialty():  # getting education_speciality data
     return specialties
 
 
-def education_plans(education_specialty_id):
+def education_plans(education_specialty_id):  # Getting education plans with selected speciality
     payload = {'table': 'plan_education_plans',
                'filter[data_type]': 'plan',
                'filter[education_specialty_id]': education_specialty_id,
@@ -58,26 +55,25 @@ def education_plans(education_specialty_id):
     return plans
 
 
-def plan_disciplines(education_plan_id):  # Получение списка ID, кодов и названий дисциплин плана
+def plan_disciplines(education_plan_id):  # Getting disciplines info (disc_ID:[disc_code:disc_name])
     disciplines = {}
     plan_curriculum_disciplines = db_filter_req('plan_curriculum_disciplines', 'education_plan_id', education_plan_id)
-    for disc in plan_curriculum_disciplines['data']:
+    for disc in plan_curriculum_disciplines:
         if disc['level'] == '3':
             disciplines[disc['id']] = [disc['code'],
-                                       db_filter_req('plan_disciplines', 'id', disc['discipline_id'])['data'][0][
-                                           'name']]
+                                       db_filter_req('plan_disciplines', 'id', disc['discipline_id'])[0]['name']]
     return disciplines
 
 
-def wp_update_list(education_plan_id):  # Получение Id и названий рабочих программ
+def wp_update_list(education_plan_id):  # Getting ID and names of plan work programs
     disciplines = plan_disciplines(education_plan_id)
     workprogram = {}
     not_exist = {}
     for disc in disciplines:
         response = db_filter_req('mm_work_programs', 'curriculum_discipline_id', disc)
-        if response['data']:
-            wp_id = response['data'][0]['id']
-            wp_name = response['data'][0]['name']
+        if response:
+            wp_id = response[0]['id']
+            wp_name = response[0]['name']
             workprogram[wp_id] = wp_name
         else:
             not_exist[disc] = disciplines[str(disc)]
@@ -96,17 +92,7 @@ def wp_update(wp_id, date_methodical, document_methodical, date_academic, docume
     return send.json()['data']
 
 
-def get_staff(department_id):  # getting staff ID and sorting by position at the department
-    # getting staff range data
-    payload_staff = {'table': 'state_staff_positions'}
-    state_staff_positions = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
-                                         + ApeksAPI.TOKEN, params=payload_staff).json()['data']
-
-    payload_history = {'table': 'state_staff_history',
-                       'filter[department_id]': str(department_id)}
-    state_staff_history = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
-                                       + ApeksAPI.TOKEN, params=payload_history).json()['data']
-
+def get_staff(department_id):  # getting staff ID and sorting them by position at the department
     def staff_sort(staff_id):  # getting sorting code by position
         position_id = ''
         for history in state_staff_history:
@@ -115,22 +101,15 @@ def get_staff(department_id):  # getting staff ID and sorting by position at the
         for k in state_staff_positions:
             if k.get('id') == position_id:
                 return k.get('sort')
-
-    def short_staff_name(staff_id):  # short staff name without rank
-        if ApeksData.staff[str(department_id)][str(staff_id)]['specialRank'] is None:
-            return ApeksData.staff[str(department_id)][str(staff_id)]['shortName']
-        else:
-            rank_name = ApeksData.staff[str(department_id)][str(staff_id)]['specialRank']['name_short']
-            return ApeksData.staff[str(department_id)][str(staff_id)]['shortName'].replace(rank_name + ' ', '')
-
+    state_staff_positions = db_request('state_staff_positions')
+    state_staff_history = db_filter_req('state_staff_history', 'department_id', str(department_id))
     sort_dict = {}
     for i in ApeksData.staff[str(department_id)].keys():
         sort_dict[i] = int(staff_sort(i))
     a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
-
     prepod_dict = {}
     for i in range(len(a)):
-        prepod_dict[a[i][0]] = short_staff_name(a[i][0])
+        prepod_dict[a[i][0]] = staff_name(a[i][0], department_id)
     return prepod_dict
 
 
@@ -162,13 +141,13 @@ def comp_delete(education_plan_id):
     data = db_filter_req('plan_competencies', 'education_plan_id', education_plan_id)
     # data['data'][0]['id']
     report = []
-    for i in range(len(data['data'])):
+    for i in range(len(data)):
         payload = {'table': 'plan_competencies',
-                   'filter[id]': data['data'][i]['id']}
+                   'filter[id]': data[i]['id']}
         remove = requests.delete(ApeksAPI.URL + '/api/call/system-database/delete?token='
                                  + ApeksAPI.TOKEN, params=payload)
         if remove.json()['status'] == 0:
-            report.append(f"{data['data'][i]['code']} - {remove.json()['message']}")
+            report.append(f"{data[i]['code']} - {remove.json()['message']}")
             return report
 
 

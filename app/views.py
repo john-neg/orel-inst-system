@@ -1,4 +1,5 @@
 import os
+from app import app
 from app.func import *
 from app.forms import *
 from app.models import User
@@ -75,7 +76,7 @@ def programs():
     if request.method == 'POST':
         if request.form.get('wp_update') and form.validate_on_submit():
             edu_spec = request.form.get('edu_spec')
-            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            # form.edu_plan.choices = list(education_plans(edu_spec).items())
             edu_plan = request.form.get('edu_plan')
             date_methodical = request.form.get('date_methodical') if request.form.get('date_methodical') else ''
             document_methodical = request.form.get('document_methodical') if request.form.get(
@@ -124,12 +125,11 @@ def library():
     return render_template('library.html', active='library')
 
 
-@app.route('/<string:filename>', methods=['GET'])  # Send file and delete it
+@app.route('/<string:filename>', methods=['GET'])  # Send file and delete it from server
 def getfile(filename):  # check dir name on prod server
-    return send_file(FlaskConfig.EXPORT_FILE_DIR + filename,
-                     mimetype='text/plain',
-                     attachment_filename=filename,
-                     as_attachment=True), os.remove(FlaskConfig.EXPORT_FILE_DIR + filename)
+    return send_file(FlaskConfig.EXPORT_FILE_DIR + filename, mimetype='text/plain',
+                     attachment_filename=filename, as_attachment=True), \
+           os.remove(FlaskConfig.EXPORT_FILE_DIR + filename)
 
 
 @app.route('/uploads', methods=['GET', 'POST'])
