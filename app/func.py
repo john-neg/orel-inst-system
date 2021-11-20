@@ -2,7 +2,7 @@ import xlsxwriter
 from app import app
 import requests
 from app.models import ApeksData
-from config import ApeksAPI
+from config import ApeksAPI, FlaskConfig
 
 
 def allowed_file(filename):  # check if file extension in allowed list
@@ -75,7 +75,7 @@ def wp_update_list(education_plan_id):  # Получение Id и назван�
     not_exist = {}
     for disc in disciplines:
         response = db_filter_req('mm_work_programs', 'curriculum_discipline_id', disc)
-        if response['data'] != []:
+        if response['data']:
             wp_id = response['data'][0]['id']
             wp_name = response['data'][0]['name']
             workprogram[wp_id] = wp_name
@@ -246,7 +246,7 @@ def lessons_ical_exp(department_id, staff_id, month, year):  # формиров�
             'END:STANDARD',
             'END:VTIMEZONE']
 
-        with open(f'app/files/{staff_name(staff_id, department_id)} {month}-{year}.ics', "w") as f:
+        with open(f'{FlaskConfig.EXPORT_FILE_DIR}{staff_name(staff_id, department_id)} {month}-{year}.ics', "w") as f:
             for line in lines:
                 f.write(line)
                 f.write('\n')
@@ -305,7 +305,7 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):  # выгрузка 
     if not lessons:
         return 'no data'
     else:
-        workbook = xlsxwriter.Workbook(f'app/files/{staff_name(staff_id, department_id)} {month}-{year}.xlsx')
+        workbook = xlsxwriter.Workbook(f'{FlaskConfig.EXPORT_FILE_DIR}{staff_name(staff_id, department_id)} {month}-{year}.xlsx')
         worksheet = workbook.add_worksheet(staff_name(staff_id, department_id))
 
         bold = workbook.add_format({'bold': True})

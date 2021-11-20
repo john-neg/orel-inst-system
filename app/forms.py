@@ -37,12 +37,18 @@ class CalendarForm(FlaskForm):
 
 class ChoosePlan(FlaskForm):
     edu_spec = SelectField('Специальность:', coerce=str, validators=[DataRequired()])
-    edu_plan = SelectField('План:', coerce=str, validators=[DataRequired()])
+    edu_plan = SelectField('План:', coerce=str, validators=[DataRequired()], validate_choice=False)
 
 
 class WorkProgramUpdate(ChoosePlan):  # добавить валидаторы для дат
-    date_methodical = StringField('Дата методического совета', validators=[DataRequired(), Length(min=10, max=10, message='Формат даты - ГГГГ-ММ-ДД')])
-    document_methodical = IntegerField('Номер документа методического совета', validators=[DataRequired(), NumberRange(min=1, max=99)])
-    date_academic = StringField('Дата Ученого совета', validators=[DataRequired(), Length(min=10, max=10)])
-    document_academic = IntegerField('Номер документа Ученого совета', validators=[DataRequired(), NumberRange(min=1, max=99)])
-    date_approval = StringField('Дата утверждения', validators=[DataRequired(), Length(min=10, max=10)])
+    date_methodical = StringField('Дата методического совета',
+                                  validators=[Length(min=10, max=10, message='Формат даты - ГГГГ-ММ-ДД')])
+    document_methodical = IntegerField('Номер документа методического совета',
+                                       validators=[NumberRange(max=99, message='Номер протокола от 1 до 99')])
+    date_academic = StringField('Дата Ученого совета',
+                                validators=[Length(min=10, max=10, message='Формат даты - ГГГГ-ММ-ДД')])
+    document_academic = IntegerField('Номер документа Ученого совета',
+                                     validators=[NumberRange(max=99, message='Номер протокола (от 1 до 99)')])
+    date_approval = StringField('Дата утверждения',
+                                validators=[Length(min=10, max=10, message='Формат даты - ГГГГ-ММ-ДД')])
+    wp_update = SubmitField("Обновить данные")
