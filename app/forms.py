@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, PasswordField, BooleanField, SubmitField, IntegerField, DateField
+from wtforms import SelectField, StringField, PasswordField, BooleanField, SubmitField, IntegerField
 from datetime import date
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length, NumberRange
 
 
 class LoginForm(FlaskForm):
@@ -41,8 +41,8 @@ class ChoosePlan(FlaskForm):
 
 
 class WorkProgramUpdate(ChoosePlan):  # добавить валидаторы для дат
-    date_methodical = DateField('Дата методического совета', format='%Y-%m-%d', validators=[DataRequired()])
-    document_methodical = IntegerField('Номер документа методического совета', validators=[DataRequired()])
-    date_academic = DateField('Дата Ученого совета', format='%Y-%m-%d', validators=[DataRequired()])
-    document_academic = IntegerField('Номер документа Ученого совета', validators=[DataRequired()])
-    date_approval = DateField('Дата утверждения', format='%Y-%m-%d', validators=[DataRequired()])
+    date_methodical = StringField('Дата методического совета', validators=[DataRequired(), Length(min=10, max=10, message='Формат даты - ГГГГ-ММ-ДД')])
+    document_methodical = IntegerField('Номер документа методического совета', validators=[DataRequired(), NumberRange(min=1, max=99)])
+    date_academic = StringField('Дата Ученого совета', validators=[DataRequired(), Length(min=10, max=10)])
+    document_academic = IntegerField('Номер документа Ученого совета', validators=[DataRequired(), NumberRange(min=1, max=99)])
+    date_approval = StringField('Дата утверждения', validators=[DataRequired(), Length(min=10, max=10)])

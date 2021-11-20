@@ -43,7 +43,7 @@
 
 <main>
   <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-secondary text-decoration-none">
       <svg class="bi me-3" width="32" height="32"><use xlink:href="#apeks-ext"/></svg>
       <span class="fs-4">Сервисы для <br> Апекс-ВУЗ</span>
     </a>
@@ -54,7 +54,7 @@
          {% if active == "index" %}
            <a href="/" class="nav-link active text-white" aria-current="page">
          {% else %}
-           <a href="/" class="nav-link text-white" aria-current="page">
+           <a href="/" class="nav-link text-secondary" aria-current="page">
          {% endif %}
          <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
          Главная</a>
@@ -62,9 +62,9 @@
 
       <li>
          {% if active == "calendar" %}
-           <a href="calendar" class="nav-link active text-white" aria-current="page">
+           <a href="{{ url_for('calendar') }}" class="nav-link active text-white" aria-current="page">
          {% else %}
-           <a href="calendar" class="nav-link text-white" aria-current="page">
+           <a href="{{ url_for('calendar') }}" class="nav-link text-secondary" aria-current="page">
          {% endif %}
          <svg class="bi me-2" width="16" height="16"><use xlink:href="#calendar"/></svg>
          Расписание</a>
@@ -74,9 +74,9 @@
 
       <li>
           {% if active == "programs" %}
-            <a href="programs" class='nav-link active text-white rounded collapsed' aria-current="page">
+            <a href="{{ url_for('programs') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
           {% else %}
-            <a href="programs" class="nav-link text-white rounded collapsed" aria-current="page">
+            <a href="{{ url_for('programs') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
           Программы</a>
@@ -91,9 +91,9 @@
 
         <li>
           {% if active == "library" %}
-            <a href="library" class="nav-link active text-white" aria-current="page">
+            <a href="{{ url_for('library') }}" class="nav-link active text-white" aria-current="page">
           {% else %}
-            <a href="library" class="nav-link text-white" aria-current="page">
+            <a href="{{ url_for('library') }}" class="nav-link text-secondary" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>
           Литература</a>
@@ -107,7 +107,7 @@
 
     {% if current_user.is_anonymous %}
     <div>
-      <a href="login" class="d-flex align-items-center text-white text-decoration-none">
+      <a href="{{ url_for('login') }}" class="d-flex align-items-center text-white text-decoration-none">
         <img src="../static/images/login.png" alt="" width="32" height="32" class="rounded-circle me-2">
         <strong>Войти</strong>
       </a>
@@ -121,7 +121,7 @@
           <strong>{{ current_user }}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="user">
-          <li><a class="dropdown-item" href="logout">Выйти</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Выйти</a></li>
         </ul>
       </div>
     {% endif %}
@@ -130,7 +130,7 @@
 
       <div class="b-divider"></div>
 
-      <div class="container-fluid mt-5">
+      <div class="container-fluid mt-5 overflow-scroll">
       {% block content %} {% endblock %}
     </div>
 

@@ -21,8 +21,8 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Неверный логин или пароль')
-            return redirect(url_for('login'))
+            error = 'Неверный логин или пароль'
+            return render_template('login.html', title='Авторизация', form=form, error=error) # redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         return redirect(url_for('index'))
     return render_template('login.html', title='Авторизация', form=form)
@@ -72,13 +72,6 @@ def calendar():
     return render_template('calendar.html', active='calendar', form=form)
 
 
-@app.route('/<string:filename>', methods=['GET'])  # this is a job for GET, not POST
-def getfile(filename):  # check dir name on prod server
-    return send_file(app.config['EXPORT_FILE_DIR'] + filename,
-                     mimetype='text/plain',
-                     attachment_filename=filename,
-                     as_attachment=True)
-
 
 @app.route('/programs', methods=['GET', 'POST'])
 @login_required
@@ -96,15 +89,14 @@ def programs():
             document_academic = request.form.get('document_academic')
             date_approval = request.form.get('date_approval')
             disciplines, non_exist = wp_update_list(edu_plan)
-            result = []
+            results = []
             for disc in disciplines:
                 load_info = wp_update(disc, date_methodical, document_methodical,
                                       date_academic, document_academic, date_approval)
                 if load_info == 1:
-                    result.append(disciplines[disc])
-            message = f'Обновлены: {result}'
+                    results.append(disciplines[disc])
             return render_template('programs.html', active='programs', form=form,
-                                   edu_plan=edu_plan, edu_spec=edu_spec, message=message)
+                                   edu_plan=edu_plan, edu_spec=edu_spec, results=results, non_exist=non_exist)
         elif request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
@@ -135,6 +127,15 @@ def competencies_load():
 @login_required
 def library():
     return render_template('library.html', active='library')
+
+
+
+@app.route('/<string:filename>', methods=['GET'])  # this is a job for GET, not POST
+def getfile(filename):  # check dir name on prod server
+    return send_file(app.config['EXPORT_FILE_DIR'] + filename,
+                     mimetype='text/plain',
+                     attachment_filename=filename,
+                     as_attachment=True)
 
 
 @app.route('/uploads', methods=['GET', 'POST'])

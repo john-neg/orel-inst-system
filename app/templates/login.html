@@ -38,6 +38,11 @@
           <span style="color: red;">[{{ error }}]</span>
           {% endfor %}
     </div>
+    {% if error %}
+       <div class="mb-3 fw-normal text-danger">
+           {{ error }}
+   </div>
+    {% endif %}
 
     <div class="checkbox mb-3">
       <label>

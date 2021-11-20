@@ -2,6 +2,7 @@ import xlsxwriter
 from app import app
 import requests
 from app.models import ApeksData
+from config import ApeksAPI
 
 
 def allowed_file(filename):  # check if file extension in allowed list
@@ -11,8 +12,8 @@ def allowed_file(filename):  # check if file extension in allowed list
 
 def db_request(dbname):  # функция запроса к таблице БД без фильтра
     payload = {'table': dbname}
-    response = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                            + app.config['TOKEN'], params=payload)
+    response = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                            + ApeksAPI.TOKEN, params=payload)
     return response.json()['data']
 
 
@@ -20,8 +21,8 @@ def db_filter_req(dbname, sqltable,
                   sqlvalue):  # функция запроса к таблице БД (название таблицы БД, название поля БД, значение)
     payload = {'table': dbname,
                'filter[' + sqltable + ']': str(sqlvalue)}
-    response = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                            + app.config['TOKEN'], params=payload)
+    response = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                            + ApeksAPI.TOKEN, params=payload)
     return response.json()
 
 
@@ -29,15 +30,15 @@ def active_staff_id():  # getting ID of first active user (need to make general 
     # getting ID of first active user
     payload = {'table': 'state_staff',
                'filter[active]': '1'}
-    respond = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                           + app.config['TOKEN'], params=payload).json()['data'][0]['id']
+    respond = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                           + ApeksAPI.TOKEN, params=payload).json()['data'][0]['id']
     return respond
 
 
 def education_specialty():  # getting education_speciality data
     payload = {'table': 'plan_education_specialties'}
-    request = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                           + app.config['TOKEN'], params=payload)
+    request = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                           + ApeksAPI.TOKEN, params=payload)
     specialties = {}
     for i in request.json()['data']:
         specialties[i.get('id')] = i.get('name')
@@ -49,8 +50,8 @@ def education_plans(education_specialty_id):
                'filter[data_type]': 'plan',
                'filter[education_specialty_id]': education_specialty_id,
                'filter[active]': '1'}
-    request = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                           + app.config['TOKEN'], params=payload)
+    request = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                           + ApeksAPI.TOKEN, params=payload)
     plans = {}
     for i in request.json()['data']:
         plans[i.get('id')] = i.get('name')
@@ -91,20 +92,20 @@ def wp_update(wp_id, date_methodical, document_methodical, date_academic, docume
                'fields[date_academic]': date_academic,
                'fields[document_academic]': document_academic,
                'fields[date_approval]': date_approval}
-    send = requests.post(app.config['URL'] + '/api/call/system-database/edit?token=' + app.config['TOKEN'], data=payload)
+    send = requests.post(ApeksAPI.URL + '/api/call/system-database/edit?token=' + ApeksAPI.TOKEN, data=payload)
     return send.json()['data']
 
 
 def get_staff(department_id):  # getting staff ID and sorting by position at the department
     # getting staff range data
     payload_staff = {'table': 'state_staff_positions'}
-    state_staff_positions = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                                         + app.config['TOKEN'], params=payload_staff).json()['data']
+    state_staff_positions = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                                         + ApeksAPI.TOKEN, params=payload_staff).json()['data']
 
     payload_history = {'table': 'state_staff_history',
                        'filter[department_id]': str(department_id)}
-    state_staff_history = requests.get(app.config['URL'] + '/api/call/system-database/get?token='
-                                       + app.config['TOKEN'], params=payload_history).json()['data']
+    state_staff_history = requests.get(ApeksAPI.URL + '/api/call/system-database/get?token='
+                                       + ApeksAPI.TOKEN, params=payload_history).json()['data']
 
     def staff_sort(staff_id):  # getting sorting code by position
         position_id = ''
@@ -145,8 +146,8 @@ def get_lessons(staff_id, month, year):  # getting staff lessons
     payload = {'staff_id': str(staff_id),
                'month': str(month),
                'year': str(year)}
-    response = requests.get(app.config['URL'] + '/api/call/schedule-schedule/staff?token='
-                            + app.config['TOKEN'], params=payload)
+    response = requests.get(ApeksAPI.URL + '/api/call/schedule-schedule/staff?token='
+                            + ApeksAPI.TOKEN, params=payload)
     return response.json()['data']['lessons']
 
 
@@ -164,8 +165,8 @@ def comp_delete(education_plan_id):
     for i in range(len(data['data'])):
         payload = {'table': 'plan_competencies',
                    'filter[id]': data['data'][i]['id']}
-        remove = requests.delete(app.config['URL'] + '/api/call/system-database/delete?token='
-                                 + app.config['TOKEN'], params=payload)
+        remove = requests.delete(ApeksAPI.URL + '/api/call/system-database/delete?token='
+                                 + ApeksAPI.TOKEN, params=payload)
         if remove.json()['status'] == 0:
             report.append(f"{data['data'][i]['code']} - {remove.json()['message']}")
             return report
