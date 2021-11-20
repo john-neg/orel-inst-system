@@ -52,7 +52,6 @@ def calendar():
             prepod = request.form.get('prepod')
             filename = lessons_ical_exp(department, prepod, month, year) if request.form.get('ical_exp') \
                 else lessons_xlsx_exp(department, prepod, month, year)
-
             if filename == 'no data':
                 form.prepod.choices = list(get_staff(department).items())
                 error = f'{staff_name(prepod, department)} - нет занятий в указанный период'
@@ -64,7 +63,6 @@ def calendar():
             department = request.form.get('department')
             form.prepod.choices = list(get_staff(department).items())
             return render_template('calendar.html', active='calendar', form=form, department=department)
-
     return render_template('calendar.html', active='calendar', form=form)
 
 
@@ -76,7 +74,6 @@ def programs():
     if request.method == 'POST':
         if request.form.get('wp_update') and form.validate_on_submit():
             edu_spec = request.form.get('edu_spec')
-            # form.edu_plan.choices = list(education_plans(edu_spec).items())
             edu_plan = request.form.get('edu_plan')
             date_methodical = request.form.get('date_methodical') if request.form.get('date_methodical') else ''
             document_methodical = request.form.get('document_methodical') if request.form.get(
@@ -110,13 +107,13 @@ def competencies_load():
             edu_spec = request.form.get('edu_spec')
             edu_plan = request.form.get('edu_plan')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('competencies_load.html', active='programs', form=form,
+            return render_template('competencies_load.html', active='plans', form=form,
                                    edu_plan=edu_plan, edu_spec=edu_spec)
         elif request.form.get('edu_spec'):
             edu_spec = request.form.get('edu_spec')
             form.edu_plan.choices = list(education_plans(edu_spec).items())
-            return render_template('competencies_load.html', active='programs', form=form, edu_spec=edu_spec)
-    return render_template('competencies_load.html', active='programs', form=form)
+            return render_template('competencies_load.html', active='plans', form=form, edu_spec=edu_spec)
+    return render_template('competencies_load.html', active='plans', form=form)
 
 
 @app.route('/library')
