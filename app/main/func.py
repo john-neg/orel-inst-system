@@ -43,23 +43,6 @@ def education_specialty():
     return specialties
 
 
-def plan_curriculum_disciplines(education_plan_id):
-    """Getting disciplines info as dict (disc_ID:[disc_code:disc_name])"""
-    disciplines = {}
-    plan_curriculum_disciplines = db_filter_req(
-        "plan_curriculum_disciplines", "education_plan_id", education_plan_id
-    )
-    for disc in plan_curriculum_disciplines:
-        if disc["level"] == "3":
-            disciplines[disc["id"]] = [
-                disc["code"],
-                db_filter_req("plan_disciplines", "id", disc["discipline_id"])[0][
-                    "name"
-                ],
-            ]
-    return disciplines
-
-
 def education_plans(education_specialty_id):
     """Getting education plans with selected speciality"""
     payload = {
@@ -76,3 +59,18 @@ def education_plans(education_specialty_id):
     for i in request.json()["data"]:
         plans[i.get("id")] = i.get("name")
     return plans
+
+
+def plan_curriculum_disciplines(education_plan_id):
+    """Getting disciplines info as dict (disc_ID:[disc_code:disc_name])"""
+    disciplines = {}
+    resp = db_filter_req(
+        "plan_curriculum_disciplines", "education_plan_id", education_plan_id
+    )
+    for disc in resp:
+        if disc["level"] == "3":
+            disciplines[disc["id"]] = [
+                disc["code"],
+                db_filter_req("plan_disciplines", "id", disc["discipline_id"])[0]["name"],
+            ]
+    return disciplines

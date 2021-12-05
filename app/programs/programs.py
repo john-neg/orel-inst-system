@@ -1,9 +1,39 @@
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
 from flask_login import login_required
-from app.main.func import education_specialty, education_plans
+from app.main.func import education_specialty, education_plans, db_filter_req
 from app.programs import bp
-from app.programs.forms import WorkProgramDatesUpdate
+from app.programs.forms import WorkProgramDatesUpdate, FieldsForm, ChoosePlan
 from app.programs.func import wp_update_list, wp_dates_update
+from app.programs.models import WorkProgramBunchData
+
+
+@bp.route("/choose_plan", methods=["GET", "POST"])
+@login_required
+def choose_plan():
+    form = ChoosePlan()
+    form.edu_spec.choices = list(education_specialty().items())
+    if request.method == "POST":
+        edu_spec = request.form.get("edu_spec")
+        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        if request.form.get("edu_plan") and form.validate_on_submit():
+            edu_plan = request.form.get("edu_plan")
+            return redirect(url_for("programs.fields_data", plan_id=edu_plan))
+        return render_template("programs/choose_plan.html", active="programs", form=form, edu_spec=edu_spec)
+    return render_template("programs/choose_plan.html", active="programs", form=form)
+
+
+@bp.route("/fields_data/<int:plan_id>", methods=["GET", "POST"])
+@login_required
+def fields_data(plan_id):
+    form = FieldsForm()
+    plan_name = db_filter_req('plan_education_plans', 'id', plan_id)[0]['name']
+    if request.method == "POST":
+        wp_field = request.form.get("wp_fields")
+        wp_method = getattr(WorkProgramBunchData(plan_id), wp_field)
+        wp_data = wp_method()
+        return render_template("programs/fields_data.html", active="programs", form=form, plan_name=plan_name,
+                               wp_fields=wp_field, wp_data=wp_data)
+    return render_template("programs/fields_data.html", active="programs", form=form, plan_name=plan_name)
 
 
 @bp.route("/dates_update", methods=["GET", "POST"])

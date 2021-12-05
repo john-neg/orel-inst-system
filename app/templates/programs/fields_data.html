@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-6" xmlns="http://www.w3.org/1999/html">{% block title %} Сводная информация по полям рабочих программ плана {% endblock %}</h1>
+    <p></p>
+    <h2 class="h5 mb-3 fw-normal"><b>{{ plan_name }}</b></h2>
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.wp_fields.label }}</label>
+        {{ form.wp_fields(class="form-select form-select-ld") }}
+      </div>
+    </div>
+
+    {{ form.fields_data (class="btn btn-secondary mb-2") }}
+</form>
+
+
+    {% if wp_data %}
+<div>
+    <table class="col-md-7 mt-3 table">
+        {% for wp in wp_data %}
+              <tr class="table-success">
+                  <td>{{ wp }}</td>
+              </tr>
+              <tr>
+                <td><span style="white-space: pre-line">{{ wp_data[wp] }}</span></td>
+              </tr>
+              <tr>
+                <td></td>
+              </tr>
+        {% endfor %}
+    </table>
+</div>
+    {% endif %}
+
+{% endblock %}
