@@ -1,4 +1,4 @@
-from app.models import ApeksData, User
+from app.login.models import User
 
 # from app.func import *
 # department_id = '12'

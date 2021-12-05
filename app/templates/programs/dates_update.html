@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="display-5" xmlns="http://www.w3.org/1999/html">{% block title %} Информация об утверждении программ {% endblock %}</h1>
+    <h1 class="display-5" xmlns="http://www.w3.org/1999/html">{% block title %} Обновление информации об утверждении программ {% endblock %}</h1>
+    <p></p>
 
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
@@ -60,7 +61,7 @@
                     <span style="color: #ff4f1f">{{ err }}</span>
                   {% endfor %}
                     </div>
-    {{ form.wp_update (class="btn btn-secondary mb-2") }}
+    {{ form.wp_dates_update (class="btn btn-secondary mb-2") }}
 
 <!--    <input type="submit" name="wp_update" value="Обновить данные" class="btn btn-secondary mb-2">-->
     {% endif %}

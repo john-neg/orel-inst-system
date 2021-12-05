@@ -11,11 +11,11 @@ class ApeksAPI(object):
 
 class FlaskConfig(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'verysupersecretkeystring'
-    EXPORT_FILE_DIR = os.path.join(BASEDIR, 'app/files/')
+    EXPORT_FILE_DIR = os.path.join(BASEDIR, 'app/files/export/')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = os.path.join(BASEDIR, 'app/files/')
+    UPLOAD_FOLDER = os.path.join(BASEDIR, 'app/files/upload/')
     ALLOWED_EXTENSIONS = {'xlxs', 'csv'}
 
 

@@ -7,14 +7,14 @@
     <meta name="description" content="Apeks-VUZ extensions">
 
     <!-- Bootstrap CSS -->
-    <link href="static/bootstrap5/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/css/sidebars.css" rel="stylesheet">
+    <link href="{{url_for('static', filename='bootstrap5/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/sidebars.css')}}" rel="stylesheet">
 
     <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="static/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="static/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="static/favicons/favicon-16x16.png">
-    <link rel="manifest" href="static/favicons/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='favicons/apple-touch-icon.png')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='favicons/favicon-32x32.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='favicons/favicon-16x16.png')}}">
+    <link rel="manifest" href="{{url_for('static', filename='favicons/site.webmanifest')}}">
 
   <title>{% block title %} {% endblock %}</title>
   </head>
@@ -28,7 +28,7 @@
       <symbol id="home" viewBox="0 0 16 16">
         <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z"/>
       </symbol>
-      <symbol id="calendar" viewBox="0 0 16 16">
+      <symbol id="schedule" viewBox="0 0 16 16">
         <path d="M9.402 10.246c.625 0 1.184-.484 1.184-1.18 0-.832-.527-1.23-1.16-1.23-.586 0-1.168.387-1.168 1.21 0 .817.543 1.2 1.144 1.2z"/>
         <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zm9.954 3H2.545c-.3 0-.545.224-.545.5v1c0 .276.244.5.545.5h10.91c.3 0 .545-.224.545-.5v-1c0-.276-.244-.5-.546-.5zm-4.118 9.79c1.258 0 2-1.067 2-2.872 0-1.934-.781-2.668-1.953-2.668-.926 0-1.797.672-1.797 1.809 0 1.16.824 1.77 1.676 1.77.746 0 1.23-.376 1.383-.79h.027c-.004 1.316-.461 2.164-1.305 2.164-.664 0-1.008-.45-1.05-.82h-.684c.047.64.594 1.406 1.703 1.406zm-2.89-5.435h-.633A12.6 12.6 0 0 0 4.5 8.16v.695c.375-.257.969-.62 1.258-.777h.012v4.61h.675V7.354z"/>
       </symbol>
@@ -66,57 +66,58 @@
       </li>
 
       <li>
-         {% if active == "calendar" %}
-           <a href="{{ url_for('calendar') }}" class="nav-link active text-white" aria-current="page">
+         {% if active == "schedule" %}
+           <a href="{{ url_for('schedule.schedule') }}" class="nav-link active text-white" aria-current="page">
          {% else %}
-           <a href="{{ url_for('calendar') }}" class="nav-link text-secondary" aria-current="page">
+           <a href="{{ url_for('schedule.schedule') }}" class="nav-link text-secondary" aria-current="page">
          {% endif %}
-         <svg class="bi me-2" width="16" height="16"><use xlink:href="#calendar"/></svg>
+         <svg class="bi me-2" width="16" height="16"><use xlink:href="#schedule"/></svg>
          Расписание</a>
       </li>
 
       {% if current_user.is_authenticated %}
 
-      <li>
-          {% if active == "plans" %}
-            <a href="{{ url_for('competencies_load') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
-          {% else %}
-            <a href="{{ url_for('competencies_load') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
-          {% endif %}
-          <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
-          Учебные планы</a>
-      </li>
-         {% if active == "plans" %}
-             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                 <li><a href="#" class="text-white rounded">Компетенции в РПД</a></li>
-                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>
-             </ul>
-         {% endif %}
+<!--      <li>-->
+<!--          {% if active == "plans" %}-->
+<!--            <a href="{{ url_for('plans.competencies_load') }}" class='nav-link active text-white rounded collapsed' aria-current="page">-->
+<!--          {% else %}-->
+<!--            <a href="{{ url_for('plans.competencies_load') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">-->
+<!--          {% endif %}-->
+<!--          <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>-->
+<!--          Учебные планы</a>-->
+<!--      </li>-->
+<!--         {% if active == "plans" %}-->
+<!--             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
+<!--                 <li><a href="{{ url_for('plans.competencies_load') }}" class="text-white rounded">Загрузка компетенций</a></li>-->
+<!--&lt;!&ndash;                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>&ndash;&gt;-->
+<!--             </ul>-->
+<!--         {% endif %}-->
 
       <li>
           {% if active == "programs" %}
-            <a href="{{ url_for('programs') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+            <a href="{{ url_for('programs.dates_update') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
           {% else %}
-            <a href="{{ url_for('programs') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+            <a href="{{ url_for('programs.dates_update') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
           Программы</a>
       </li>
          {% if active == "programs" %}
              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                 <li><a href="#" class="text-white rounded">Загрузка индикаторов</a></li>
+                     <li><a href="{{ url_for('programs.dates_update') }}" class="text-white rounded">Обновление дат</a></li>
+<!--                 <li><a href="#" class="text-white rounded">Загрузка индикаторов</a></li>-->
              </ul>
          {% endif %}
 
-        <li>
-          {% if active == "library" %}
-            <a href="{{ url_for('library') }}" class="nav-link active text-white" aria-current="page">
-          {% else %}
-            <a href="{{ url_for('library') }}" class="nav-link text-secondary" aria-current="page">
-          {% endif %}
-          <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>
-          Литература</a>
-        </li>
+<!--        <li>-->
+<!--          {% if active == "library" %}-->
+<!--            <a href="{{ url_for('library.library') }}" class="nav-link active text-white" aria-current="page">-->
+<!--          {% else %}-->
+<!--            <a href="{{ url_for('library.library') }}" class="nav-link text-secondary" aria-current="page">-->
+<!--          {% endif %}-->
+<!--          <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>-->
+<!--          Библиотека</a>-->
+<!--        </li>-->
 
       {% endif %}
 
@@ -126,8 +127,8 @@
 
     {% if current_user.is_anonymous %}
     <div>
-      <a href="{{ url_for('login') }}" class="d-flex align-items-center text-white text-decoration-none">
-        <img src="../static/images/login.png" alt="" width="32" height="32" class="rounded-circle me-2">
+      <a href="{{ url_for('auth.login') }}" class="d-flex align-items-center text-white text-decoration-none">
+        <img src="{{url_for('static', filename='images/login.png')}}" alt="" width="32" height="32" class="rounded-circle me-2">
         <strong>Войти</strong>
       </a>
     </div>
@@ -136,11 +137,11 @@
     {% if current_user.is_authenticated %}
      <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="user" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="../static/images/auth.png" alt="" width="32" height="32" class="rounded-circle me-2">
+          <img src="{{url_for('static', filename='images/auth.png')}}" alt="" width="32" height="32" class="rounded-circle me-2">
           <strong>{{ current_user }}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="user">
-          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Выйти</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
         </ul>
       </div>
     {% endif %}
@@ -156,7 +157,7 @@
 </main>
 
     <!-- Optional JavaScript -->
-    <script src="static/bootstrap5/js/bootstrap.bundle.min.js"></script>
+    <script src="{{url_for('static', filename='bootstrap5/js/bootstrap.bundle.min.js')}}"></script>
 <!--    <script src="sidebars.js"></script>-->
   </body>
 </html>
