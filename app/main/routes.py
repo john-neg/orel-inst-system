@@ -26,16 +26,24 @@ def getfile(filename):
     )
 
 
-# @bp.route("/uploads", methods=["GET", "POST"])
-# def upload_file():
-#     if request.method == "POST":
-#         file = request.files["file"]
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(FlaskConfig.UPLOAD_FOLDER, filename))
-#             return redirect(url_for("uploaded_file", filename=filename))
-#
-#
-# @bp.route("/uploads/<filename>")
-# def uploaded_file(filename):
-#     return send_from_directory(FlaskConfig.UPLOAD_FOLDER, filename)
+@bp.route("/upload", methods=["GET", "POST"])
+def upload():
+    if request.method == "POST":
+        file = request.files["user_file"]
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(FlaskConfig.UPLOAD_FOLDER, filename))
+            return filename
+    return render_template('main/upload.html')
+
+
+@bp.route('/read_file', methods=['GET'])
+def read_uploaded_file():
+    filename = secure_filename(request.args.get('filename'))
+    try:
+        if filename and allowed_file(filename):
+            with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
+                return f.read()
+    except IOError:
+        pass
+    return "Unable to read file"

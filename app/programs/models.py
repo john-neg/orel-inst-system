@@ -9,13 +9,14 @@ class WorkProgramBunchData:
         self.plan_disc_list = plan_curriculum_disciplines(education_plan_id)
 
     def mm_work_programs(self, field):
-        """Метод для работы с таблицей mm_work_programs (общие данные о рабочих программах)"""
+        """Метод для работы с таблицей mm_work_programs (общие данные о рабочих программах)
+        (индекс -1 чтобы бралось более новое значение если их более 1)"""
         response = {}
         for disc in self.plan_disc_list:
             try:
                 response[" ".join(self.plan_disc_list[disc])] = db_filter_req(
                     "mm_work_programs", "curriculum_discipline_id", disc
-                )[0][field]
+                )[-1][field]
             except IndexError:
                 response[
                     " ".join(self.plan_disc_list[disc])
@@ -45,7 +46,7 @@ class WorkProgramBunchData:
                 try:
                     response[" ".join(self.plan_disc_list[disc])] = db_filter_req(
                         "mm_sections", "work_program_id", wp_id
-                    )[0][field]
+                    )[-1][field]
                 except IndexError:
                     response[" ".join(self.plan_disc_list[disc])] = ""
         return response
@@ -78,7 +79,7 @@ class WorkProgramBunchData:
                               'filter[field_id]': field_id}
                     resp = requests.get(ApeksAPI.URL + '/api/call/system-database/get', params=params).json()['data']
 
-                    response[" ".join(self.plan_disc_list[disc])] = resp[0]['data']
+                    response[" ".join(self.plan_disc_list[disc])] = resp[-1]['data']
                 except IndexError:
                     response[" ".join(self.plan_disc_list[disc])] = ""
         return response

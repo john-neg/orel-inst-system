@@ -1,1 +1,1 @@
-default directory for generated files
+# default directory for generated files

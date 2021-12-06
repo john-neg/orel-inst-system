@@ -16,7 +16,7 @@ class FlaskConfig(object):
         'sqlite:///' + os.path.join(BASEDIR, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = os.path.join(BASEDIR, 'app/files/upload/')
-    ALLOWED_EXTENSIONS = {'xlxs', 'csv'}
+    ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
 
 
 class DbRoles(object):  # User roles
