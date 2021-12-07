@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-6" xmlns="http://www.w3.org/1999/html">{% block title %} Сводная информация по полям рабочих программ {% endblock %}</h1>
+    <p></p>
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-2">
+        <label class="form-label">{{ form.year.label }}</label>
+        {{ form.year (class="form-select form-select-ld") }}
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label">{{ form.edu_spec.label }}</label>
+        {{ form.edu_spec (class="form-select form-select-ld") }}
+      </div>
+    </div>
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.department.label }}</label>
+        {{ form.department (class="form-select form-select-ld") }}
+      </div>
+    </div>
+
+    <div class="row mb-3 gy-3">
+      <div class="col-md-7">
+        <label class="form-label">{{ form.wp_fields.label }}</label>
+        {{ form.wp_fields(class="form-select form-select-ld") }}
+      </div>
+    </div>
+
+    {{ form.fields_data (class="btn btn-secondary mb-2") }}
+</form>
+
+
+    {% if wp_data %}
+<div>
+    <table class="col-md-7 mt-3 table">
+        {% for plan in wp_data %}
+                  <tr class="table-primary">
+                      <td><b>{{ plan }}</b></td>
+                  </tr>
+              {% for wp in wp_data[plan] %}
+                  <tr class="table-success">
+                    <td><span style="white-space: pre-line">{{ wp }}</span></td>
+                  </tr>
+                  <tr>
+                    <td><span style="white-space: pre-line">{{ wp_data[plan][wp] }}</span></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                  </tr>
+              {% endfor %}
+        {% endfor %}
+    </table>
+</div>
+    {% endif %}
+
+{% endblock %}
