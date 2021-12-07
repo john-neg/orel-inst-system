@@ -1,6 +1,6 @@
 import os
-from flask import render_template, send_file, request, url_for, send_from_directory
-from werkzeug.utils import secure_filename, redirect
+from flask import render_template, send_file, request
+from werkzeug.utils import secure_filename
 from app.main.func import allowed_file
 from app.main import bp
 from config import FlaskConfig

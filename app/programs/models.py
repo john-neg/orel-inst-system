@@ -66,6 +66,7 @@ class WorkProgramData:
         return response
 
     def mm_sections(self, field):
+        """Метод для работы с таблицей mm_sections (цели, задачи...)"""
         response = {}
         for disc in self.disc_list:
             try:
@@ -84,15 +85,19 @@ class WorkProgramData:
         return response
 
     def purposes(self):
+        """Цели"""
         return self.mm_sections("purposes")
 
     def tasks(self):
+        """Задачи"""
         return self.mm_sections("tasks")
 
     def place_in_structure(self):
+        """Место в структуре ООП"""
         return self.mm_sections("place_in_structure")
 
     def mm_work_programs_data(self, field_id):
+        """Метод для работы с таблицей mmm_work_programs_data (произвольные поля программ)"""
         response = {}
         for disc in self.disc_list:
             try:
@@ -201,11 +206,13 @@ class WorkProgramData:
 
 class WorkProgramBunchData(WorkProgramData):
     def __init__(self, education_plan_id):
+        """Данные РП по учебному плану"""
         super().__init__()
         self.disc_list = plan_curriculum_disciplines(education_plan_id)
 
 
 class WorkProgramDeptData(WorkProgramData):
     def __init__(self, education_plan_id, department_id):
+        """Данные РП по кафедре"""
         super().__init__()
         self.disc_list = plan_department_disciplines(education_plan_id, department_id)
