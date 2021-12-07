@@ -13,6 +13,7 @@ class ChoosePlan(FlaskForm):
 class FieldsForm(FlaskForm):
     wp_fields = SelectField("Поле рабочей программы:", coerce=str, choices=[
             ('names', "Название программы"),
+            ('date_department', 'Дата и протокол заседания кафедры'),
             ('reviewers_ext', 'Рецензенты'),
             ('purposes', "Цели"),
             ('tasks', "Задачи"),
@@ -28,6 +29,7 @@ class FieldsForm(FlaskForm):
             ('exam_form_desc', "Примерные оц. средства для пров. пром. атт. обучающихся по дисциплине"),
             ('task_works', "Задачи"),
             ('tests', "Тесты"),
+            ('regulations', "Нормативные акты"),
             ('internet', "Ресурсы информационно-телекоммуникационной сети Интернет"),
             ('software', "Программное обеспечение"),
             ('ref_system', "Базы данных, информационно-справочные и поисковые системы"),

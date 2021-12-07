@@ -1,5 +1,10 @@
 import requests
-from app.main.func import plan_curriculum_disciplines, db_filter_req, get_active_staff_id, get_data, education_plans
+from app.main.func import (
+    plan_curriculum_disciplines,
+    db_filter_req,
+    get_active_staff_id,
+    get_data,
+)
 from app.programs.func import plan_department_disciplines
 from config import ApeksAPI
 
@@ -25,9 +30,7 @@ class WorkProgramData:
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[-1][field]
             except IndexError:
-                response[
-                    " ".join(self.disc_list[disc])
-                ] = "-->Программа отсутствует<--"
+                response[" ".join(self.disc_list[disc])] = "-->Программа отсутствует<--"
         return response
 
     def names(self):
@@ -38,6 +41,30 @@ class WorkProgramData:
         """Получение рецензентов рабочих программ"""
         return self.mm_work_programs("reviewers_ext")
 
+    def date_department(self):
+        """Получение даты утверждения и номера протокола кафедры"""
+        response = {}
+        for disc in self.disc_list:
+            try:
+                data = db_filter_req(
+                    "mm_work_programs", "curriculum_discipline_id", disc
+                )
+                date_department = data[-1]["date_department"]
+                document_department = data[-1]["document_department"]
+                if date_department:
+                    date = date_department.split("-")
+                    date_department = f"{date[-1]}.{date[-2]}.{date[-3]}"
+                else:
+                    date_department = "[Не заполнена]"
+                if document_department is None:
+                    document_department = "[Отсутствует]"
+                response[
+                    " ".join(self.disc_list[disc])
+                ] = f"Дата заседания кафедры: {date_department}\r\nПротокол № {document_department}"
+            except IndexError:
+                response[" ".join(self.disc_list[disc])] = "-->Программа отсутствует<--"
+        return response
+
     def mm_sections(self, field):
         response = {}
         for disc in self.disc_list:
@@ -46,9 +73,7 @@ class WorkProgramData:
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[0]["id"]
             except IndexError:
-                response[
-                    " ".join(self.disc_list[disc])
-                ] = "-->Программа отсутствует<--"
+                response[" ".join(self.disc_list[disc])] = "-->Программа отсутствует<--"
             else:
                 try:
                     response[" ".join(self.disc_list[disc])] = db_filter_req(
@@ -75,18 +100,20 @@ class WorkProgramData:
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[0]["id"]
             except IndexError:
-                response[
-                    " ".join(self.disc_list[disc])
-                ] = "-->Программа отсутствует<--"
+                response[" ".join(self.disc_list[disc])] = "-->Программа отсутствует<--"
             else:
                 try:
-                    params = {'token': ApeksAPI.TOKEN,
-                              'table': 'mm_work_programs_data',
-                              'filter[work_program_id]': wp_id,
-                              'filter[field_id]': field_id}
-                    resp = requests.get(ApeksAPI.URL + '/api/call/system-database/get', params=params).json()['data']
+                    params = {
+                        "token": ApeksAPI.TOKEN,
+                        "table": "mm_work_programs_data",
+                        "filter[work_program_id]": wp_id,
+                        "filter[field_id]": field_id,
+                    }
+                    resp = requests.get(
+                        ApeksAPI.URL + "/api/call/system-database/get", params=params
+                    ).json()["data"]
 
-                    response[" ".join(self.disc_list[disc])] = resp[-1]['data']
+                    response[" ".join(self.disc_list[disc])] = resp[-1]["data"]
                 except IndexError:
                     response[" ".join(self.disc_list[disc])] = ""
         return response
@@ -144,6 +171,11 @@ class WorkProgramData:
     def tests(self):
         """Тесты"""
         field_id = 19
+        return self.mm_work_programs_data(field_id)
+
+    def regulations(self):
+        """Нормативные акты"""
+        field_id = 16
         return self.mm_work_programs_data(field_id)
 
     def internet(self):
