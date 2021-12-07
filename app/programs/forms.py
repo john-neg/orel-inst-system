@@ -1,3 +1,4 @@
+from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length, NumberRange
@@ -10,7 +11,7 @@ class ChoosePlan(FlaskForm):
 
 
 class FieldsForm(FlaskForm):
-    wp_fields = SelectField("Выберите поле:", coerce=str, choices=[
+    wp_fields = SelectField("Поле рабочей программы:", coerce=str, choices=[
             ('names', "Название программы"),
             ('reviewers_ext', 'Рецензенты'),
             ('purposes', "Цели"),
@@ -34,6 +35,26 @@ class FieldsForm(FlaskForm):
         ],
             validators=[DataRequired()])
     fields_data = SubmitField("Сформировать")
+
+
+class DepartmentWPCheck(FieldsForm):
+    edu_spec = SelectField("Специальность:", coerce=str, validators=[DataRequired()])
+    department = SelectField("Кафедра:", coerce=str, validators=[DataRequired()])
+    year = SelectField(
+        "Год",
+        coerce=str,
+        choices=[
+            date.today().year - 5,
+            date.today().year - 4,
+            date.today().year - 3,
+            date.today().year - 2,
+            date.today().year - 1,
+            date.today().year,
+            date.today().year + 1,
+        ],
+        default=date.today().year,
+        validators=[DataRequired()],
+    )
 
 
 class WorkProgramDatesUpdate(ChoosePlan):  # добавить валидаторы для дат

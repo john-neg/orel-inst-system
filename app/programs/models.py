@@ -1,25 +1,32 @@
 import requests
-
-from app.main.func import plan_curriculum_disciplines, db_filter_req
+from app.main.func import plan_curriculum_disciplines, db_filter_req, get_active_staff_id, get_data, education_plans
+from app.programs.func import plan_department_disciplines
 from config import ApeksAPI
 
 
-class WorkProgramBunchData:
-    def __init__(self, education_plan_id):
-        self.plan_disc_list = plan_curriculum_disciplines(education_plan_id)
+class ApeksDeptData:
+    def __init__(self):
+        self.active_staff_id = get_active_staff_id()
+        self.data = get_data(self.active_staff_id)
+        self.departments = self.data["departments"]
+
+
+class WorkProgramData:
+    def __init__(self):
+        self.disc_list = []
 
     def mm_work_programs(self, field):
         """Метод для работы с таблицей mm_work_programs (общие данные о рабочих программах)
         (индекс -1 чтобы бралось более новое значение если их более 1)"""
         response = {}
-        for disc in self.plan_disc_list:
+        for disc in self.disc_list:
             try:
-                response[" ".join(self.plan_disc_list[disc])] = db_filter_req(
+                response[" ".join(self.disc_list[disc])] = db_filter_req(
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[-1][field]
             except IndexError:
                 response[
-                    " ".join(self.plan_disc_list[disc])
+                    " ".join(self.disc_list[disc])
                 ] = "-->Программа отсутствует<--"
         return response
 
@@ -33,22 +40,22 @@ class WorkProgramBunchData:
 
     def mm_sections(self, field):
         response = {}
-        for disc in self.plan_disc_list:
+        for disc in self.disc_list:
             try:
                 wp_id = db_filter_req(
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[0]["id"]
             except IndexError:
                 response[
-                    " ".join(self.plan_disc_list[disc])
+                    " ".join(self.disc_list[disc])
                 ] = "-->Программа отсутствует<--"
             else:
                 try:
-                    response[" ".join(self.plan_disc_list[disc])] = db_filter_req(
+                    response[" ".join(self.disc_list[disc])] = db_filter_req(
                         "mm_sections", "work_program_id", wp_id
                     )[-1][field]
                 except IndexError:
-                    response[" ".join(self.plan_disc_list[disc])] = ""
+                    response[" ".join(self.disc_list[disc])] = ""
         return response
 
     def purposes(self):
@@ -62,14 +69,14 @@ class WorkProgramBunchData:
 
     def mm_work_programs_data(self, field_id):
         response = {}
-        for disc in self.plan_disc_list:
+        for disc in self.disc_list:
             try:
                 wp_id = db_filter_req(
                     "mm_work_programs", "curriculum_discipline_id", disc
                 )[0]["id"]
             except IndexError:
                 response[
-                    " ".join(self.plan_disc_list[disc])
+                    " ".join(self.disc_list[disc])
                 ] = "-->Программа отсутствует<--"
             else:
                 try:
@@ -79,9 +86,9 @@ class WorkProgramBunchData:
                               'filter[field_id]': field_id}
                     resp = requests.get(ApeksAPI.URL + '/api/call/system-database/get', params=params).json()['data']
 
-                    response[" ".join(self.plan_disc_list[disc])] = resp[-1]['data']
+                    response[" ".join(self.disc_list[disc])] = resp[-1]['data']
                 except IndexError:
-                    response[" ".join(self.plan_disc_list[disc])] = ""
+                    response[" ".join(self.disc_list[disc])] = ""
         return response
 
     def authorprint(self):
@@ -158,3 +165,15 @@ class WorkProgramBunchData:
         """Описание материально-технической базы"""
         field_id = 20
         return self.mm_work_programs_data(field_id)
+
+
+class WorkProgramBunchData(WorkProgramData):
+    def __init__(self, education_plan_id):
+        super().__init__()
+        self.disc_list = plan_curriculum_disciplines(education_plan_id)
+
+
+class WorkProgramDeptData(WorkProgramData):
+    def __init__(self, education_plan_id, department_id):
+        super().__init__()
+        self.disc_list = plan_department_disciplines(education_plan_id, department_id)

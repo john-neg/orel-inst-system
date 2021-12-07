@@ -1,3 +1,4 @@
+from datetime import date
 import requests
 from config import ApeksAPI, FlaskConfig
 
@@ -31,6 +32,24 @@ def db_filter_req(dbname, sqltable, sqlvalue):
     return response.json()["data"]
 
 
+def get_active_staff_id():
+    """getting Apeks ID of first active user (need to make general API data request)"""
+    return db_filter_req("state_staff", "active", 1)[0]["id"]
+
+
+def get_data(active_staff_id):
+    """getting Apeks data about organisation structure"""
+    params = {
+        "token": ApeksAPI.TOKEN,
+        "staff_id": active_staff_id,
+        "month": date.today().strftime("%m"),
+        "year": date.today().strftime("%Y"),
+    }
+    return requests.get(
+        ApeksAPI.URL + "/api/call/schedule-schedule/staff", params=params
+    ).json()["data"]
+
+
 def education_specialty():
     """Getting education_speciality data"""
     payload = {"token": ApeksAPI.TOKEN, "table": "plan_education_specialties"}
@@ -43,7 +62,7 @@ def education_specialty():
     return specialties
 
 
-def education_plans(education_specialty_id):
+def education_plans(education_specialty_id, year=0):
     """Getting education plans with selected speciality"""
     payload = {
         "token": ApeksAPI.TOKEN,
@@ -56,9 +75,18 @@ def education_plans(education_specialty_id):
         ApeksAPI.URL + "/api/call/system-database/get", params=payload
     )
     plans = {}
-    for i in request.json()["data"]:
-        plans[i.get("id")] = i.get("name")
-    return plans
+    if year == 0:
+        for i in request.json()["data"]:
+            plans[i.get("id")] = i.get("name")
+        return plans
+    else:
+        for i in request.json()["data"]:
+            if i.get("custom_start_year") == year:
+                plans[i.get("id")] = i.get("name")
+            elif i.get("custom_start_year") is None:
+                if db_filter_req('plan_semesters', 'education_plan_id', i.get("id"))[0]['start_date'].split('-')[0] == year:
+                    plans[i.get("id")] = i.get("name")
+        return plans
 
 
 def plan_curriculum_disciplines(education_plan_id):

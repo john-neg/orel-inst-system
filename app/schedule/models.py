@@ -1,5 +1,5 @@
-from app.main.func import db_request, db_filter_req
-from app.schedule.func import get_active_staff_id, get_data, get_lessons, get_disc_list
+from app.main.func import db_request, db_filter_req, get_active_staff_id, get_data
+from app.schedule.func import get_lessons, get_disc_list
 
 
 class ApeksStaffData:

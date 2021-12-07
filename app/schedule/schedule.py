@@ -5,6 +5,8 @@ from app.schedule.forms import CalendarForm
 from app.schedule.models import ApeksStaffData, ApeksLessons
 from config import FlaskConfig
 
+apeks = ApeksStaffData()
+
 
 def lessons_ical_exp(department_id, staff_id, month, year):
     """формирование данных для экспорта iCAl"""
@@ -134,9 +136,6 @@ def lessons_xlsx_exp(department_id, staff_id, month, year):
 
         workbook.close()
         return f"{apeks.staff_name(staff_id, department_id)} {month}-{year}.xlsx"
-
-
-apeks = ApeksStaffData()
 
 
 @bp.route("/schedule", methods=["GET", "POST"])

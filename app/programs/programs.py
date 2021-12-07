@@ -2,12 +2,38 @@ from flask import render_template, request, redirect, url_for
 from flask_login import login_required
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.programs import bp
-from app.programs.forms import WorkProgramDatesUpdate, FieldsForm, ChoosePlan
+from app.programs.forms import WorkProgramDatesUpdate, FieldsForm, ChoosePlan, DepartmentWPCheck
 from app.programs.func import wp_update_list, wp_dates_update
-from app.programs.models import WorkProgramBunchData
+from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgramDeptData
+
+apeks = ApeksDeptData()
 
 
-@bp.route("/choose_plan", methods=["GET", "POST"])
+@bp.route("/dept_check", methods=["GET", "POST"])
+def dept_check():
+    form = DepartmentWPCheck()
+    form.department.choices = list(apeks.departments.items())
+    form.edu_spec.choices = list(education_specialty().items())
+    if request.method == "POST":
+        wp_data = {}
+        edu_spec = request.form.get("edu_spec")
+        department = request.form.get("department")
+        year = request.form.get("year")
+        wp_field = request.form.get("wp_fields")
+        plan_list = education_plans(edu_spec, year)
+        if plan_list:
+            for plan_id in plan_list:
+                plan_wp_dept = getattr(WorkProgramDeptData(plan_id, department), wp_field)
+                plan_wp_data = plan_wp_dept()
+                wp_data[plan_list[plan_id]] = plan_wp_data
+        else:
+            wp_data = {'Нет планов' : {'Нет дисциплин' : 'Информация отсутствует'}}
+        return render_template("programs/dept_check.html", active="programs", form=form, edu_spec=edu_spec,
+                               department=department, year=year, wp_fields=wp_field, wp_data=wp_data)
+    return render_template("programs/dept_check.html", active="programs", form=form)
+
+
+@bp.route("/choose_plan", endpoint='choose_plan', methods=["GET", "POST"])
 @login_required
 def choose_plan():
     form = ChoosePlan()
