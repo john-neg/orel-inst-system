@@ -77,15 +77,15 @@
 
       {% if current_user.is_authenticated %}
 
-<!--      <li>-->
-<!--          {% if active == "plans" %}-->
-<!--            <a href="{{ url_for('plans.competencies_load') }}" class='nav-link active text-white rounded collapsed' aria-current="page">-->
-<!--          {% else %}-->
-<!--            <a href="{{ url_for('plans.competencies_load') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">-->
-<!--          {% endif %}-->
-<!--          <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>-->
-<!--          Учебные планы</a>-->
-<!--      </li>-->
+      <li>
+          {% if active == "plans" %}
+            <a href="{{ url_for('plans.competencies_load') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+          {% else %}
+            <a href="{{ url_for('plans.competencies_load') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+          {% endif %}
+          <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
+          Учебные планы</a>
+      </li>
 <!--         {% if active == "plans" %}-->
 <!--             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
 <!--                 <li><a href="{{ url_for('plans.competencies_load') }}" class="text-white rounded">Загрузка компетенций</a></li>-->

@@ -37,7 +37,7 @@ def upload():
     return render_template('main/upload.html')
 
 
-@bp.route('/read_file', methods=['GET'])
+@bp.route('/read_file/<string:filename>', methods=['GET'])
 def read_uploaded_file():
     filename = secure_filename(request.args.get('filename'))
     try:

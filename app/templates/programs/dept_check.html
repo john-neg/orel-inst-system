@@ -8,26 +8,26 @@
     {{ form.hidden_tag() }}
 
     <div class="row mb-3 gy-3">
-      <div class="col-md-2">
+      <div class="col-sm-4 col-xl-2">
         <label class="form-label">{{ form.year.label }}</label>
         {{ form.year (class="form-select form-select-ld") }}
       </div>
 
-      <div class="col-md-5">
+      <div class="col-sm-8 col-xl-6">
         <label class="form-label">{{ form.edu_spec.label }}</label>
         {{ form.edu_spec (class="form-select form-select-ld") }}
       </div>
     </div>
 
     <div class="row mb-3 gy-3">
-      <div class="col-md-7">
+      <div class="col-xl-8">
         <label class="form-label">{{ form.department.label }}</label>
         {{ form.department (class="form-select form-select-ld") }}
       </div>
     </div>
 
     <div class="row mb-3 gy-3">
-      <div class="col-md-7">
+      <div class="col-xl-8">
         <label class="form-label">{{ form.wp_fields.label }}</label>
         {{ form.wp_fields(class="form-select form-select-ld") }}
       </div>
@@ -39,7 +39,7 @@
 
     {% if wp_data %}
 <div>
-    <table class="col-md-7 mt-3 table">
+    <table class="col-lg-7 mt-3 table">
         {% for plan in wp_data %}
                   <tr class="table-primary">
                       <td><b>{{ plan }}</b></td>
