@@ -72,7 +72,7 @@
             <div class="alert alert-success" role="alert">
                 <p>Обновлены:</p>
                 <p>{% for program in results %}
-                       {{ program }}</br>
+                       {{ program }}<br>
                    {% endfor %}</p>
             </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="alert alert-warning" role="alert">
                 <p>Не существуют:</p>
                 <p>{% for program in non_exist %}
-                       {{ non_exist[program][0] }} {{ non_exist[program][1] }}</br>
+                       {{ non_exist[program][0] }} {{ non_exist[program][1] }}<br>
                    {% endfor %}</p>
             </div>
         </div>

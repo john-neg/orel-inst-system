@@ -7,6 +7,7 @@ def get_disc_list():
     """getting general disciplines list"""
     return db_filter_req("plan_disciplines", "level", 3)
 
+
 def get_lessons(staff_id, month, year):
     """getting staff lessons"""
     params = {

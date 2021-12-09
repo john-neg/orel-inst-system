@@ -4,6 +4,7 @@ from flask_login import login_required
 from app.plans import bp
 from app.plans.forms import ChoosePlan
 from app.main.func import education_specialty, education_plans, db_filter_req
+from app.plans.models import EducationPlan
 from config import ApeksAPI
 
 
@@ -28,9 +29,10 @@ def competencies_load():
     form = ChoosePlan()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
-        if request.form.get("plan_choose") and request.form.get("edu_spec"):
+        if request.form.get("comp_check"):
             edu_spec = request.form.get("edu_spec")
             edu_plan = request.form.get("edu_plan")
+            plan = EducationPlan(edu_plan)
             form.edu_plan.choices = list(education_plans(edu_spec).items())
             return render_template(
                 "plans/competencies_load.html",
@@ -38,11 +40,27 @@ def competencies_load():
                 form=form,
                 edu_plan=edu_plan,
                 edu_spec=edu_spec,
+                plan=plan.competencies,
+                data='request.form.get(comp_check)',
+            )
+        elif request.form.get("plan_choose") and request.form.get("edu_spec"):
+            edu_spec = request.form.get("edu_spec")
+            edu_plan = request.form.get("edu_plan")
+            plan = EducationPlan(edu_plan)
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            return render_template(
+                "plans/competencies_load.html",
+                active="plans",
+                form=form,
+                edu_plan=edu_plan,
+                edu_spec=edu_spec,
+                plan=plan,
+                data='request.form.get(plan_choose) and request.form.get(edu_spec)',
             )
         elif request.form.get("edu_spec"):
             edu_spec = request.form.get("edu_spec")
             form.edu_plan.choices = list(education_plans(edu_spec).items())
             return render_template(
-                "plans/competencies_load.html", active="plans", form=form, edu_spec=edu_spec
+                "plans/competencies_load.html", active="plans", form=form, edu_spec=edu_spec, data='request.form.get(edu_spec)',
             )
     return render_template("plans/competencies_load.html", active="plans", form=form)

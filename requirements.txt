@@ -6,3 +6,5 @@ Flask~=2.0.2
 Flask-Login
 Flask-SQLAlchemy
 Flask-WTF
+pandas~=1.3.4
+numpy~=1.21.4

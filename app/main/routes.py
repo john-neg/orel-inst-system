@@ -15,14 +15,15 @@ def index():
 @bp.route("/<string:filename>", methods=["GET"])
 def getfile(filename):
     """Send file and delete it from server"""
+    file = FlaskConfig.EXPORT_FILE_DIR + filename
     return (
         send_file(
-            FlaskConfig.EXPORT_FILE_DIR + filename,
+            file,
             mimetype="text/plain",
             attachment_filename=filename,
             as_attachment=True,
         ),
-        os.remove(FlaskConfig.EXPORT_FILE_DIR + filename),
+        os.remove(file),
     )
 
 
@@ -37,13 +38,13 @@ def upload():
     return render_template('main/upload.html')
 
 
-@bp.route('/read_file/<string:filename>', methods=['GET'])
-def read_uploaded_file():
-    filename = secure_filename(request.args.get('filename'))
-    try:
-        if filename and allowed_file(filename):
-            with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
-                return f.read()
-    except IOError:
-        pass
-    return "Unable to read file"
+# @bp.route('/read_file/<string:filename>', methods=['GET'])
+# def read_uploaded_file():
+#     filename = secure_filename(request.args.get('filename'))
+#     try:
+#         if filename and allowed_file(filename):
+#             with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
+#                 return f.read()
+#     except IOError:
+#         pass
+#     return "Unable to read file"

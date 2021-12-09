@@ -36,12 +36,10 @@
             <input type="submit" name="comp_delete" value="Удаление компетенций из плана" class="btn btn-danger">
         </div>
 
-        <form enctype=multipart/form-data class="d-grid col-md-7">
             <div class="mb-3 col-xl-8">
                 <label for="formFile" class="form-label">Выберите файл для загрузки</label>
-                <input class="form-control" type="file" id="formFile">
+                <input class="form-control" type="file" value="comp_file" id="formFile">
             </div>
-        </form>
 
         <div class="d-grid col-xl-8">
             <input type="submit" name="comp_check" value="Проверка файла" class="btn btn-secondary">
@@ -55,5 +53,25 @@
 
     {% else %}
     {% endif %}
+
+    {% if plan %}
+        <table class="col-lg-7 mt-5 gy-5 table">
+        <tr class="table-success">
+            <td></td>
+            <td><span>Компетенции в выбранном плане</span></td>
+        </tr>
+            {% for comp in plan %}
+              <tr class="">
+                <td><span style="white-space: pre-line">{{ comp['code'] }}</span></td>
+                <td><span style="white-space: pre-line">{{ comp['description'] }}</span></td>
+              </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if data %}
+    {{ data }}
+    {% endif %}
+
 </form>
     {% endblock %}
