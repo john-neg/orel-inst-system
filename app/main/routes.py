@@ -52,13 +52,13 @@ def upload():
     return render_template('main/upload.html')
 
 
-# @bp.route('/read_file/<string:filename>', methods=['GET'])
-# def read_uploaded_file():
-#     filename = secure_filename(request.args.get('filename'))
-#     try:
-#         if filename and allowed_file(filename):
-#             with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
-#                 return f.read()
-#     except IOError:
-#         pass
-#     return "Unable to read file"
+@bp.route('/read_file/', methods=['GET'])
+def read_uploaded_file():
+    filename = secure_filename(request.args.get('filename'))
+    try:
+        if filename and allowed_file(filename):
+            with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
+                return f.read()
+    except IOError:
+        pass
+    return "Unable to read file"

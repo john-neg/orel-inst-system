@@ -1,5 +1,5 @@
 XlsxWriter~=3.0.2
-WTForms==3.0.0
+WTForms~=3.0.0
 requests~=2.26.0
 Werkzeug~=2.0.2
 Flask~=2.0.2

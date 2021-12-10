@@ -1,6 +1,7 @@
 import requests
+from openpyxl import load_workbook
 from app.main.func import db_filter_req
-from config import ApeksAPI
+from config import ApeksAPI, FlaskConfig
 
 
 def disciplines_comp_load(curriculum_discipline_id, competency_id):
@@ -48,3 +49,17 @@ def comp_delete(education_plan_id):
         requests.delete(
             ApeksAPI.URL + "/api/call/system-database/delete", params=params
         )
+
+
+def comps_file_processing(filename):
+    """Обработка загруженного файла"""
+    wb = load_workbook(filename)
+    ws = wb.active
+
+    def iter_rows(ws):
+        for row in ws.iter_rows():
+            yield [cell.value for cell in row]
+
+    comps = list(iter_rows(ws))
+    del comps[0]
+    return comps

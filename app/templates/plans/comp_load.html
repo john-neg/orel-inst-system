@@ -7,7 +7,7 @@
 
     <h2 class="h5 mt-3 fw-normal"><b>{{ plan_name }}</b></h2>
 
-<form action="" method="post">
+<form action="" enctype="multipart/form-data" method="post">
     {{ form.hidden_tag() }}
 
     <div class="row mt-3 gy-3">
@@ -30,7 +30,7 @@
     <div class="row mb-3 gy-3">
         <div class="col-xl-8">
             <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
-            <input class="form-control" type="file" value="comp_file" id="formFile">
+            <input class="form-control" type="file" name="comp_file" id="formFile">
         </div>
     </div>
     <div class="row mb-3 gy-3">
@@ -38,15 +38,29 @@
             <input type="submit" name="comp_check" value="Проверка файла" class="btn btn-secondary">
         </div>
     </div>
-    <div class="row mb-3 gy-3">
 
+    {% if comps %}
+        <table class="col-lg-7 gy-5 table">
+        <tr>
+            <td></td>
+            <td><b>Компетенции для загрузки:</b></td>
+        </tr>
+        {% for comp in comps %}
+          <tr class="">
+            <td><span style="white-space: pre-line">{{ comp[0] }}</span></td>
+            <td><span style="white-space: pre-line">{{ comp[1] }}</span></td>
+          </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+
+    <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-8">
             <input type="submit" name="comp_load" value="Загрузка компетенций" class="btn btn-success">
         </div>
     </div>
 
-    {% if file %}
-    {% endif %}
+
 
     {% if plan_comp %}
         <table class="col-lg-7 mt-5 gy-5 table">

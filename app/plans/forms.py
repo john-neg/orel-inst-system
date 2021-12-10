@@ -7,5 +7,6 @@ class ChoosePlan(FlaskForm):
     edu_spec = SelectField("Специальность:", coerce=str, validators=[DataRequired()])
     edu_plan = SelectField("План:", coerce=str, validators=[DataRequired()])
 
+
 class FileForm(FlaskForm):
-    file = FileField('xlsx')
+    file = FileField('comp_file')
