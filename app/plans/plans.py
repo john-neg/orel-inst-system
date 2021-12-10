@@ -36,7 +36,7 @@ def comp_load(plan_id):
     if request.method == "POST":
         if request.form.get("comp_load_temp"):
             # Шаблон
-            return redirect(url_for("main.get_temp_file", filename="comp.xlsx"))
+            return redirect(url_for("main.get_temp_file", filename="comp_load_temp.xlsx"))
         if request.form.get("comp_delete"):
             # Полная очистка
             plan.disciplines_all_comp_del()
@@ -69,6 +69,13 @@ def comp_check(plan_id, filename):
     form = FileForm()
     comps = comps_file_processing(file)
     plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
+    if request.form.get("comp_load_temp"):
+        # Шаблон
+        return redirect(url_for("main.get_temp_file", filename="comp_load_temp.xlsx"))
+    if request.form.get("comp_delete"):
+        # Полная очистка
+        plan.disciplines_all_comp_del()
+        return redirect(url_for("plans.comp_check", plan_id=plan_id, filename=filename))
     if request.form.get("comp_load"):
         # Загрузка компетенций
         return redirect(url_for("plans.comp_update", plan_id=plan_id, filename=filename))
