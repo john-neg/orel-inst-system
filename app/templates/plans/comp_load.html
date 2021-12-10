@@ -64,9 +64,14 @@
 
     {% if plan_comp %}
         <table class="col-lg-7 mt-5 gy-5 table">
+            <tr class="table-primary">
+                <td></td>
+                <td><b>Компетенций в текущем плане (очистить перед загрузкой!)</b></td>
+            </tr>
+
         <tr class="table-success">
             <td>Код</td>
-            <td>Содержание компетенций в текущем плане (очистить перед загрузкой!)</td>
+            <td>Содержание</td>
         </tr>
         {% for comp in plan_comp %}
           <tr class="">
