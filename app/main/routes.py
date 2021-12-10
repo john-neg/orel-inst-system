@@ -27,13 +27,27 @@ def getfile(filename):
     )
 
 
+@bp.route("/templates/<string:filename>", methods=["GET"])
+def get_temp_file(filename):
+    """Send template file from server"""
+    file = FlaskConfig.TEMP_FILE_DIR + filename
+    return (
+        send_file(
+            file,
+            mimetype="text/plain",
+            attachment_filename=filename,
+            as_attachment=True,
+        )
+    )
+
+
 @bp.route("/upload", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
         file = request.files["user_file"]
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(FlaskConfig.UPLOAD_FOLDER, filename))
+            file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
             return filename
     return render_template('main/upload.html')
 

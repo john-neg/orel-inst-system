@@ -1,9 +1,3 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <h1 class="display-6" xmlns="http://www.w3.org/1999/html">{% block title %} Сводная информация по полям рабочих программ плана {% endblock %}</h1>
-    <p></p>
-
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
 
@@ -29,5 +23,3 @@
 
     {% endif %}
 </form>
-
-{% endblock %}

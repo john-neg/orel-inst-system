@@ -79,16 +79,16 @@
 
       <li>
           {% if active == "plans" %}
-            <a href="{{ url_for('plans.competencies_load') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+            <a href="{{ url_for('plans.comp_choose_plan') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
           {% else %}
-            <a href="{{ url_for('plans.competencies_load') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
           Учебные планы</a>
       </li>
 <!--         {% if active == "plans" %}-->
 <!--             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
-<!--                 <li><a href="{{ url_for('plans.competencies_load') }}" class="text-white rounded">Загрузка компетенций</a></li>-->
+<!--                 <li><a href="{{ url_for('plans.comp_choose_plan') }}" class="text-white rounded">Загрузка компетенций</a></li>-->
 <!--&lt;!&ndash;                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>&ndash;&gt;-->
 <!--             </ul>-->
 <!--         {% endif %}-->
@@ -109,7 +109,7 @@
                  <li><a href="{{ url_for('programs.dept_check') }}" class="text-white rounded">Проверка по кафедре</a></li>
 
                  <li><a href="{{ url_for('programs.dates_update') }}" class="text-white rounded">Обновление дат</a></li>
-                 <li><a href="{{ url_for('programs.choose_plan') }}" class="text-white rounded">Значения полей</a></li>
+                 <li><a href="{{ url_for('programs.fields_choose_plan') }}" class="text-white rounded">Значения полей</a></li>
                  {% endif %}
              </ul>
          {% endif %}

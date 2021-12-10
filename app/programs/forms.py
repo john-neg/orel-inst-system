@@ -6,8 +6,7 @@ from wtforms.validators import DataRequired, Length, NumberRange
 
 class ChoosePlan(FlaskForm):
     edu_spec = SelectField("Специальность:", coerce=str, validators=[DataRequired()])
-    edu_plan = SelectField(
-        "План:", coerce=str, validators=[DataRequired()])
+    edu_plan = SelectField("План:", coerce=str, validators=[DataRequired()])
 
 
 class FieldsForm(FlaskForm):

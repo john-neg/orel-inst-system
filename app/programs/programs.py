@@ -48,9 +48,9 @@ def dept_check():
     return render_template("programs/dept_check.html", active="programs", form=form)
 
 
-@bp.route("/choose_plan", endpoint="choose_plan", methods=["GET", "POST"])
+@bp.route("/fields_choose_plan", endpoint="fields_choose_plan", methods=["GET", "POST"])
 @login_required
-def choose_plan():
+def fields_choose_plan():
     form = ChoosePlan()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
@@ -60,9 +60,9 @@ def choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("programs.fields_data", plan_id=edu_plan))
         return render_template(
-            "programs/choose_plan.html", active="programs", form=form, edu_spec=edu_spec
+            "programs/fields_choose_plan.html", active="programs", form=form, edu_spec=edu_spec
         )
-    return render_template("programs/choose_plan.html", active="programs", form=form)
+    return render_template("programs/fields_choose_plan.html", active="programs", form=form)
 
 
 @bp.route("/fields_data/<int:plan_id>", methods=["GET", "POST"])
