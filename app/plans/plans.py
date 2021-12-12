@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from app.plans import bp
 from app.main.forms import ChoosePlan, FileForm
-from app.main.func import education_specialty, education_plans, db_filter_req, allowed_file
+from app.main.func import education_specialty, education_plans, allowed_file
 from app.plans.func import comps_file_processing
 from app.plans.models import CompPlan
 from config import FlaskConfig
@@ -158,7 +158,8 @@ def mtrx_sim_load(plan_id):
         "plans/mtrx_sim_load.html",
         active="plans",
         form=form,
-        plan_name=plan.name
+        plan_name=plan.name,
+        plan_relations=plan.disciplines_comp_dict(),
     )
 
 
@@ -168,7 +169,7 @@ def mtrx_sim_check(plan_id, filename):
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     form = FileForm()
-
+    report, comp_code_errors = plan.matrix_simple_file_check(file)
     if request.method == "POST":
         if request.files["file"]:
             file = request.files["file"]
@@ -190,11 +191,24 @@ def mtrx_sim_check(plan_id, filename):
             # Загрузка связей
             return redirect(url_for("plans.mtrx_sim_update", plan_id=plan_id, filename=filename))
     return render_template(
-        "plans/comp_load.html",
+        "plans/mtrx_sim_load.html",
         active="plans",
         form=form,
-        plan_name=plan.name
+        plan_name=plan.name,
+        plan_relations=plan.disciplines_comp_dict(),
+        report=report,
+        comp_code_errors=comp_code_errors,
     )
+
+
+@bp.route("/mtrx_sim_update/<int:plan_id>/<string:filename>", methods=["GET"])
+@login_required
+def mtrx_sim_update(plan_id, filename):
+    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    plan = CompPlan(plan_id)
+    plan.matrix_simple_upload(file)
+    os.remove(file)
+    return redirect(url_for("plans.mtrx_sim_load", plan_id=plan_id))
 
 
 @bp.route("/mtrx_ind_load/<int:plan_id>", methods=["GET", "POST"])

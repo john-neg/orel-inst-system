@@ -4,17 +4,19 @@
 
     <h1 class="display-6">{% block title %} Загрузка списка литературы {% endblock %}</h1>
     <p>в рабочие программы дисциплин учебного плана:</p>
-    <div class="h4 mt-1 mb-3 text-white bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    </div>
 
 <form action="" enctype="multipart/form-data" method="post">
     {{ form.hidden_tag() }}
 
-    <div class="row mt-3 gy-3">
+    <div class="row">
         <div class="d-grid col-xl-4">
             <input type="submit" name="library_load_temp" value="Шаблон" class="btn btn-warning bg-opacity-75">
         </div>
         <div class="d-grid col-xl-4">
-            <input type="submit" name="library_plan_content" value="Содержимое плана" class="btn btn-primary bg-opacity-75">
+            <input type="submit" name="library_plan_content" value="Литература в РПД плана" class="btn btn-primary bg-opacity-75">
         </div>
     </div>
     <div class="row mb-4 gy-3">
@@ -22,7 +24,7 @@
             (Скачать образец заполнения файла для загрузки)
         </div>
         <div class="d-grid col-xl-4 text-center text-wrap">
-            (Сформировать таблицу с содержимым плана)
+            (Таблица с литературой из рабочих программ плана)
         </div>
     </div>
 

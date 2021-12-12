@@ -5,12 +5,14 @@
         {% block title %} Сводная информация по полям рабочих программ плана {% endblock %}
     </h1>
 
-    <div class="h4 mt-1 mb-3 text-white bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    </div>
 
 <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
 
-    <div class="row mb-3 gy-3">
+    <div class="row mb-2">
       <div class="col-xl-8">
         <label class="form-label">{{ form.wp_fields.label }}</label>
         {{ form.wp_fields(class="form-select form-select-ld") }}
@@ -18,6 +20,7 @@
     </div>
 
     {{ form.fields_data (class="btn btn-secondary mb-2") }}
+
 </form>
 
 

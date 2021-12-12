@@ -1,12 +1,12 @@
 import pandas as pd
 import requests
 from numpy import matrix
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, Font
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
-from app.main.func import db_filter_req, db_request
+from app.main.func import db_filter_req, db_request, xlsx_iter_rows
 from app.main.models import EducationPlan, ExcelStyle
-from app.plans.func import disciplines_wp_clean
+from app.plans.func import disciplines_wp_clean, disciplines_comp_load, disciplines_comp_del
 from config import ApeksAPI, FlaskConfig
 
 
@@ -22,14 +22,20 @@ class CompPlan(EducationPlan):
     def get_comp_code_by_id(self, comp_id):
         """Получение кода компетенции по id"""
         for comp in self.competencies:
-            if comp['id'] == comp_id:
-                return comp["code"]
+            if comp.get('id') == comp_id:
+                return comp.get("code")
 
     def get_comp_by_id(self, comp_id):
         """Получение кода компетенции по id"""
         for comp in self.competencies:
-            if comp['id'] == comp_id:
-                return f'{comp["code"]} - {comp["description"]}'
+            if comp.get("id") == comp_id:
+                return f'{comp.get("code")} - {comp.get("description")}'
+
+    def get_comp_id_by_code(self, comp_code):
+        """Получение id компетенции по коду"""
+        for comp in self.competencies:
+            if comp.get('code') == comp_code:
+                return comp.get("id")
 
     def load_comp(self, code, description, left_node, right_node):
         """Добавление компетенции и места в списке"""
@@ -94,9 +100,11 @@ class CompPlan(EducationPlan):
             for wp in work_program_list:
                 if wp.get('id'):
                     disciplines_wp_clean(wp.get('id'))
+            disciplines_comp_del(curriculum_discipline_id)
             self.del_comp()
 
     def matrix_generate(self):
+        """Формирование матрицы компетенций плана в формате Excel"""
         disc_list = db_request("plan_disciplines")
         plan_data = db_filter_req("plan_curriculum_disciplines", "education_plan_id", self.education_plan_id)
         relations = self.disciplines_comp()
@@ -173,10 +181,52 @@ class CompPlan(EducationPlan):
             for wp in work_program_list:
                 if wp.get('id'):
                     disciplines_wp_clean(wp.get('id'))
-            params = {'token': ApeksAPI.TOKEN,
-                      'table': 'plan_curriculum_discipline_competencies',
-                      'filter[curriculum_discipline_id]': curriculum_discipline_id}
-            requests.delete(ApeksAPI.URL + '/api/call/system-database/delete', params=params)
+            disciplines_comp_del(curriculum_discipline_id)
+            # params = {'token': ApeksAPI.TOKEN,
+            #           'table': 'plan_curriculum_discipline_competencies',
+            #           'filter[curriculum_discipline_id]': curriculum_discipline_id}
+            # requests.delete(ApeksAPI.URL + '/api/call/system-database/delete', params=params)
+
+    def matrix_simple_file_check(self, filename):
+        """Проверка файла простой матрицы"""
+        wb = load_workbook(filename)
+        ws = wb.active
+        liblist = list(xlsx_iter_rows(ws))
+        report = {}
+        comp_code_errors = []
+        for disc in self.disciplines:
+            report[self.disciplines[disc][1]] = []
+            for line in liblist:
+                if self.disciplines[disc][1] == line[1]:
+                    for i in range(2, len(line)):
+                        if str(line[i]) == "+":
+                            report[self.disciplines[disc][1]].append(liblist[0][i])
+                    if not report[self.disciplines[disc][1]]:
+                        report[self.disciplines[disc][1]] = None
+        for i in range(2, len(liblist[0])):
+            if not self.get_comp_id_by_code(liblist[0][i]):
+                comp_code_errors.append(liblist[0][i])
+        return report, comp_code_errors
+
+    def matrix_simple_upload(self, filename):
+        """Загрузка связей из файла простой матрицы"""
+        wb = load_workbook(filename)
+        ws = wb.active
+        liblist = list(xlsx_iter_rows(ws))
+        load_data = {}
+        for disc in self.disciplines:
+            load_data[disc] = []
+            for line in liblist:
+                if self.disciplines[disc][1] == line[1]:
+                    for i in range(2, len(line)):
+                        if str(line[i]) == "+":
+                            load_data[disc].append(self.get_comp_id_by_code(liblist[0][i]))
+        for data in load_data:
+            if load_data.get(data):
+                for comp in load_data.get(data):
+                    if comp is not None:
+                        disciplines_comp_load(data, comp)
+
 
 class CompMatrix:
     def __init__(self, filename):

@@ -4,15 +4,35 @@
     <h1 class="display-6">
         {% block title %} Загрузка связей компетенций в учебный план {% endblock %}
     </h1>
-
-    <div class="h4 mt-1 mb-4 text-white bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    </div>
 
     {% if plan_relations %}
         <div class="d-grid col-xl-8">
-            <div class="alert alert-warning text-center" role="alert">
-              План содержит связи (сформируйте матрицу для просмотра)
+            <div class="alert alert-primary text-center" role="alert">
+              План содержит связи дисциплин и компетенций (перед загрузкой их необходимо очистить)
             </div>
         </div>
+
+    <div class="row">
+        <div class="d-grid col-xl-4">
+          <button class="btn btn-secondary" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Показать связи
+          </button>
+        </div>
+        </div>
+        <div class="collapse col-xl-8" id="collapseExample">
+          <div class="card card-body">
+              {% for relation in plan_relations %}
+              <b>{{ relation }}</b>
+              <span style="white-space: pre-line">{{ "\n".join(plan_relations[relation]) }}</span>
+              {% endfor %}
+          </div>
+        </div>
+
+
     {% else %}
         <div class="d-grid col-xl-8">
             <div class="alert alert-primary text-center" role="alert">
@@ -24,7 +44,7 @@
 <form action="" enctype="multipart/form-data" method="post">
     {{ form.hidden_tag() }}
 
-    <div class="row mt-2 gy-3">
+    <div class="row mt-3 gy-3">
         <div class="d-grid col-xl-4">
             <input type="submit" name="mtrx_download" value="Сформировать матрицу" class="btn btn-primary bg-opacity-75">
         </div>
@@ -53,20 +73,41 @@
         </div>
     </div>
 
-    {% if comps %}
-        <table class="col-lg-7 gy-5 table">
+
+    {% if comp_code_errors %}
+        <div class="d-grid col-xl-8">
+            <div class="alert alert-danger text-center" role="alert">
+                <b>Коды компетенций файла, которые не найдены в плане</b><br>
+                {{ ', '.join(comp_code_errors) }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if report %}
+    <div class="row mb-3 gy-3">
+        <div class="d-grid col-xl-8">
+        <table class="table">
         <tr>
+            <td><b>Связи из файла:</b></td>
             <td></td>
-            <td><b>Компетенции для загрузки:</b></td>
         </tr>
-        {% for comp in comps %}
-          <tr class="">
-            <td><span style="white-space: pre-line">{{ comp[0] }}</span></td>
-            <td><span style="white-space: pre-line">{{ comp[1] }}</span></td>
+        {% for disc in report %}
+          <tr>
+            <td class="col-xl-5"><span style="white-space: pre-line">{{ disc }}</span></td>
+              {% if report[disc] == None %}
+            <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Нет связей в файле</b></span></td>
+              {% elif not report[disc] %}
+            <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Отсутствует в файле</b></span></td>
+              {% else %}
+            <td class="col-xl-3"><span style="white-space: pre-line">{{ ', '.join(report[disc]) }}</span></td>
+              {% endif %}
           </tr>
         {% endfor %}
         </table>
+    </div>
+    </div>
     {% endif %}
+
 
     <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-8">
