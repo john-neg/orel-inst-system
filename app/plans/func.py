@@ -56,7 +56,7 @@ def comps_file_processing(filename):
     wb = load_workbook(filename)
     ws = wb.active
 
-    replace_dict = {'  ': ' ', '–': '-', '. - ': ' - ', 'K': 'К', 'O': 'О'}
+    replace_dict = {"  ": " ", "–": "-", ". - ": " - ", "K": "К", "O": "О"}
     ws = xlsx_normalize(ws, replace_dict)
 
     comps = list(xlsx_iter_rows(ws))

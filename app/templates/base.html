@@ -86,12 +86,13 @@
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
           Учебные планы</a>
       </li>
-<!--         {% if active == "plans" %}-->
-<!--             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
-<!--                 <li><a href="{{ url_for('plans.comp_choose_plan') }}" class="text-white rounded">Загрузка компетенций</a></li>-->
-<!--                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>-->
-<!--             </ul>-->
-<!--         {% endif %}-->
+         {% if active == "plans" %}
+             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                 <li><a href="{{ url_for('plans.comp_choose_plan') }}" class="text-white rounded">Загрузка компетенций</a></li>
+                 <li><a href="{{ url_for('plans.mtrx_sim_choose_plan') }}" class="text-white rounded">Простая матрица</a></li>
+                 <li><a href="{{ url_for('plans.mtrx_ind_choose_plan') }}" class="text-white rounded">Матрица c индикаторами</a></li>
+             </ul>
+         {% endif %}
       {% endif %}
 
       <li>
@@ -161,9 +162,9 @@
       {% with messages = get_flashed_messages() %}
           {% if messages %}
               <div class="row mb-3 gy-3">
-                  <div class="d-grid col-xl-8">
+                  <div class="d-grid col-xl-8 text-center">
                       {% for message in messages %}
-                          <div class="alert alert-warning" role="alert">
+                          <div class="alert alert-info" role="alert">
                             {{ message }}
                           </div>
                       {% endfor %}

@@ -1,10 +1,13 @@
 import pandas as pd
 import requests
 from numpy import matrix
-from app.main.func import db_filter_req
-from app.main.models import EducationPlan
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font
+from openpyxl.utils import get_column_letter
+from app.main.func import db_filter_req, db_request
+from app.main.models import EducationPlan, ExcelStyle
 from app.plans.func import disciplines_wp_clean
-from config import ApeksAPI
+from config import ApeksAPI, FlaskConfig
 
 
 class CompPlan(EducationPlan):
@@ -15,6 +18,18 @@ class CompPlan(EducationPlan):
     def get_comp(self):
         """Получение списка компетенций плана"""
         return db_filter_req('plan_competencies', 'education_plan_id', self.education_plan_id)
+
+    def get_comp_code_by_id(self, comp_id):
+        """Получение кода компетенции по id"""
+        for comp in self.competencies:
+            if comp['id'] == comp_id:
+                return comp["code"]
+
+    def get_comp_by_id(self, comp_id):
+        """Получение кода компетенции по id"""
+        for comp in self.competencies:
+            if comp['id'] == comp_id:
+                return f'{comp["code"]} - {comp["description"]}'
 
     def load_comp(self, code, description, left_node, right_node):
         """Добавление компетенции и места в списке"""
@@ -56,8 +71,24 @@ class CompPlan(EducationPlan):
                 message += resp.json()['data']
         return message
 
+    def disciplines_comp_dict(self):
+        """Получение связей дисциплин и компетенций c названиями"""
+        data = self.disciplines_comp()
+        mtrx_dict = {}
+        dics_id = 0
+        if data:
+            for i in data:
+                if dics_id == i['curriculum_discipline_id']:
+                    mtrx_dict[self.discipline_name(i['curriculum_discipline_id'])].append(
+                        self.get_comp_by_id(i['competency_id']))
+                else:
+                    mtrx_dict[self.discipline_name(i['curriculum_discipline_id'])] = [
+                        self.get_comp_by_id(i['competency_id'])]
+                    dics_id = i['curriculum_discipline_id']
+        return mtrx_dict
+
     def disciplines_all_comp_del(self):
-        """Удаление всех связей дисциплин, компетенций и их содержания в РП"""
+        """Удаление компетенций, всех связей с дисциплинами и содержания из РП"""
         for curriculum_discipline_id in self.disciplines.keys():
             work_program_list = db_filter_req('mm_work_programs', 'curriculum_discipline_id', curriculum_discipline_id)
             for wp in work_program_list:
@@ -65,6 +96,87 @@ class CompPlan(EducationPlan):
                     disciplines_wp_clean(wp.get('id'))
             self.del_comp()
 
+    def matrix_generate(self):
+        disc_list = db_request("plan_disciplines")
+        plan_data = db_filter_req("plan_curriculum_disciplines", "education_plan_id", self.education_plan_id)
+        relations = self.disciplines_comp()
+
+        # Сортировка
+        plan_disc = {}
+        for disc in plan_data:
+            plan_disc[int(disc["left_node"])] = {
+                "id": disc["id"],
+                "code": disc["code"],
+                "discipline_id": disc["discipline_id"],
+                "level": disc["level"],
+            }
+        plan_comp = {}
+        for comp in self.competencies:
+            plan_comp[int(comp["left_node"])] = {"id": comp["id"], "code": comp["code"]}
+
+        def disc_name(discipline_id):
+            for discipline in disc_list:
+                if discipline.get("id") == discipline_id:
+                    return discipline["name"]
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Матрица компетенций"
+        ws.cell(1, 1).value = "Код"
+        ws.cell(1, 1).style = ExcelStyle.Header
+        ws.column_dimensions[get_column_letter(1)].width = 14
+        ws.cell(1, 2).value = "Название дисциплины"
+        ws.cell(1, 2).style = ExcelStyle.Header
+        ws.column_dimensions[get_column_letter(2)].width = 60
+
+        row = 2
+        for disc in sorted(plan_disc):
+            ws.cell(row, 1).value = plan_disc[disc]["code"]
+            ws.cell(row, 1).style = ExcelStyle.Base
+            ws.cell(row, 2).value = disc_name(plan_disc[disc]["discipline_id"])
+            ws.cell(row, 2).style = ExcelStyle.Base
+            column = 3
+            for comp in sorted(plan_comp):
+                ws.cell(1, column).value = plan_comp[comp]["code"]
+                ws.cell(1, column).style = ExcelStyle.Header
+                ws.cell(1, column).alignment = Alignment(text_rotation=90)
+                ws.column_dimensions[get_column_letter(column)].width = 4
+                ws.cell(row, column).style = ExcelStyle.Base
+                ws.cell(row, column).alignment = Alignment(
+                    horizontal="center", vertical="center"
+                )
+                if plan_disc[disc]["level"] != "3":
+                    ws.cell(row, 1).style = ExcelStyle.BaseBold
+                    ws.cell(row, 1).fill = ExcelStyle.GreyFill
+                    ws.cell(row, 2).style = ExcelStyle.BaseBold
+                    ws.cell(row, 2).fill = ExcelStyle.GreyFill
+                    ws.cell(row, column).style = ExcelStyle.BaseBold
+                    ws.cell(row, column).fill = ExcelStyle.GreyFill
+                for relation in relations:
+                    if (
+                        plan_disc[disc]["id"] == relation["curriculum_discipline_id"]
+                        and plan_comp[comp]["id"] == relation["competency_id"]
+                    ):
+                        ws.cell(row, column).value = "+"
+                column += 1
+            row += 1
+
+        filename = "Матрица - " + self.name + ".xlsx"
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        return filename
+
+    def matrix_delete(self):
+        """Удаление связей дисциплин и компетенций и их содержания в РП"""
+        for curriculum_discipline_id in self.disciplines.keys():
+            work_program_list = db_filter_req('mm_work_programs', 'curriculum_discipline_id',
+                                              curriculum_discipline_id)
+            for wp in work_program_list:
+                if wp.get('id'):
+                    disciplines_wp_clean(wp.get('id'))
+            params = {'token': ApeksAPI.TOKEN,
+                      'table': 'plan_curriculum_discipline_competencies',
+                      'filter[curriculum_discipline_id]': curriculum_discipline_id}
+            requests.delete(ApeksAPI.URL + '/api/call/system-database/delete', params=params)
 
 class CompMatrix:
     def __init__(self, filename):

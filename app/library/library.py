@@ -1,9 +1,7 @@
 import os
-
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from openpyxl import load_workbook
-
 from app.library import bp
 from app.library.func import library_file_processing, load_bibl
 from app.library.models import LibraryPlan
@@ -136,9 +134,7 @@ def library_update(plan_id, filename):
                 load_bibl(wp_id, LibConfig.BIBL_ADD, lib_data[disc][1])
                 load_bibl(wp_id, LibConfig.BIBL_NP, lib_data[disc][2])
     flash(f"Данные из файла - {filename}: успешно загружены")
-    return redirect(
-                url_for("library.library_upload", plan_id=plan_id)
-    )
+    return redirect(url_for("library.library_upload", plan_id=plan_id))
 
 
 @bp.route("/library_export/<int:plan_id>", methods=["GET", "POST"])
@@ -157,4 +153,4 @@ def library_export(plan_id):
         ws.cell(row=start_row, column=4).value = lib_data[data][2]
         start_row += 1
     wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
-    return redirect(url_for("main.getfile", filename=filename))
+    return redirect(url_for("main.get_file", filename=filename))

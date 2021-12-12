@@ -165,7 +165,7 @@ def schedule():
                     error=error,
                 )
             else:
-                return redirect(url_for("main.getfile", filename=filename))
+                return redirect(url_for("main.get_file", filename=filename))
         elif request.form["dept_choose"]:
             department = request.form.get("department")
             form.prepod.choices = list(apeks.get_staff(department).items())

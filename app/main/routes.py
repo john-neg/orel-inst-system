@@ -13,7 +13,7 @@ def index():
 
 
 @bp.route("/<string:filename>", methods=["GET"])
-def getfile(filename):
+def get_file(filename):
     """Send file and delete it from server"""
     file = FlaskConfig.EXPORT_FILE_DIR + filename
     return (

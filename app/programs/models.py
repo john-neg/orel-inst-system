@@ -183,6 +183,21 @@ class WorkProgramData:
         field_id = 16
         return self.mm_work_programs_data(field_id)
 
+    def library_main(self):
+        """Основная литератураа"""
+        field_id = 1
+        return self.mm_work_programs_data(field_id)
+
+    def library_add(self):
+        """Дополнительная литература"""
+        field_id = 2
+        return self.mm_work_programs_data(field_id)
+
+    def library_np(self):
+        """Научная продукция"""
+        field_id = 3
+        return self.mm_work_programs_data(field_id)
+
     def internet(self):
         """Ресурсы информационно-телекоммуникационной сети Интернет"""
         field_id = 18
