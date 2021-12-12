@@ -5,17 +5,17 @@
         {% block title %} Загрузка компетенций в учебный план {% endblock %}
     </h1>
 
-    <h2 class="h5 mt-3 fw-normal"><b>{{ plan_name }}</b></h2>
+    <div class="h4 mt-1 mb-3 text-white bg-dark fw-normal"><b>{{ plan_name }}</b></div>
 
 <form action="" enctype="multipart/form-data" method="post">
     {{ form.hidden_tag() }}
 
     <div class="row mt-3 gy-3">
         <div class="d-grid col-xl-4">
-            <input type="submit" name="comp_load_temp" value="Шаблон" class="btn btn-warning">
+            <input type="submit" name="comp_load_temp" value="Шаблон" class="btn btn-warning bg-opacity-75">
         </div>
         <div class="d-grid col-xl-4">
-            <input type="submit" name="comp_delete" value="Полная очистка" class="btn btn-danger">
+            <input type="submit" name="comp_delete" value="Полная очистка" class="btn btn-danger bg-opacity-75">
         </div>
     </div>
     <div class="row mb-4 gy-3">
@@ -30,7 +30,7 @@
     <div class="row mb-3 gy-3">
         <div class="col-xl-8">
             <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
-            <input class="form-control" type="file" name="comp_file" id="formFile">
+            <input class="form-control" type="file" name="file" id="formFile">
         </div>
     </div>
     <div class="row mb-3 gy-3">

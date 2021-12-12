@@ -1,7 +1,7 @@
 import requests
 from openpyxl import load_workbook
-from app.main.func import db_filter_req
-from config import ApeksAPI, FlaskConfig
+from app.main.func import db_filter_req, xlsx_normalize, xlsx_iter_rows
+from config import ApeksAPI
 
 
 def disciplines_comp_load(curriculum_discipline_id, competency_id):
@@ -52,14 +52,13 @@ def comp_delete(education_plan_id):
 
 
 def comps_file_processing(filename):
-    """Обработка загруженного файла"""
+    """Обработка загруженного файла c компетенциями (to list without first string)"""
     wb = load_workbook(filename)
     ws = wb.active
 
-    def iter_rows(ws):
-        for row in ws.iter_rows():
-            yield [cell.value for cell in row]
+    replace_dict = {'  ': ' ', '–': '-', '. - ': ' - ', 'K': 'К', 'O': 'О'}
+    ws = xlsx_normalize(ws, replace_dict)
 
-    comps = list(iter_rows(ws))
+    comps = list(xlsx_iter_rows(ws))
     del comps[0]
     return comps

@@ -79,9 +79,9 @@
 
       <li>
           {% if active == "plans" %}
-            <a href="{{ url_for('plans.comp_choose_plan') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link active text-white" aria-current="page">
           {% else %}
-            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link text-secondary" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
           Учебные планы</a>
@@ -89,41 +89,42 @@
 <!--         {% if active == "plans" %}-->
 <!--             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
 <!--                 <li><a href="{{ url_for('plans.comp_choose_plan') }}" class="text-white rounded">Загрузка компетенций</a></li>-->
-<!--&lt;!&ndash;                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>&ndash;&gt;-->
+<!--                 <li><a href="#" class="text-white rounded">Справочник индикаторов</a></li>-->
 <!--             </ul>-->
 <!--         {% endif %}-->
       {% endif %}
 
       <li>
           {% if active == "programs" %}
-            <a href="{{ url_for('programs.dept_check') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+            <a href="{{ url_for('programs.dept_check') }}" class='nav-link active text-white' aria-current="page">
           {% else %}
-            <a href="{{ url_for('programs.dept_check') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+            <a href="{{ url_for('programs.dept_check') }}" class="nav-link text-secondary" aria-current="page">
           {% endif %}
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
           Программы</a>
       </li>
+
          {% if current_user.is_authenticated %}
-         {% if active == "programs" %}
+            {% if active == "programs" %}
              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                  <li><a href="{{ url_for('programs.dept_check') }}" class="text-white rounded">Проверка по кафедре</a></li>
-
                  <li><a href="{{ url_for('programs.dates_update') }}" class="text-white rounded">Обновление дат</a></li>
                  <li><a href="{{ url_for('programs.fields_choose_plan') }}" class="text-white rounded">Значения полей</a></li>
-                 {% endif %}
              </ul>
+            {% endif %}
          {% endif %}
 
-<!--        <li>-->
-<!--          {% if active == "library" %}-->
-<!--            <a href="{{ url_for('library.library') }}" class="nav-link active text-white" aria-current="page">-->
-<!--          {% else %}-->
-<!--            <a href="{{ url_for('library.library') }}" class="nav-link text-secondary" aria-current="page">-->
-<!--          {% endif %}-->
-<!--          <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>-->
-<!--          Библиотека</a>-->
-<!--        </li>-->
-
+        {% if current_user.is_authenticated %}
+        <li>
+          {% if active == "library" %}
+            <a href="{{ url_for('library.library_choose_plan') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
+          {% else %}
+            <a href="{{ url_for('library.library_choose_plan') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
+          {% endif %}
+          <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>
+          Литература</a>
+        </li>
+        {% endif %}
 
     </ul>
 
@@ -152,11 +153,28 @@
 
   </div>
 
-      <div class="b-divider"></div>
+  <div class="b-divider"></div>
 
-      <div class="container-fluid mt-3 overflow-scroll">
+    <div class="container-fluid mt-4 overflow-scroll">
       {% block content %} {% endblock %}
+
+      {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              <div class="row mb-3 gy-3">
+                  <div class="d-grid col-xl-8">
+                      {% for message in messages %}
+                          <div class="alert alert-warning" role="alert">
+                            {{ message }}
+                          </div>
+                      {% endfor %}
+                  </div>
+              </div>
+          {% endif %}
+      {% endwith %}
+
     </div>
+
+
 
 </main>
 

@@ -2,11 +2,7 @@ from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length, NumberRange
-
-
-class ChoosePlan(FlaskForm):
-    edu_spec = SelectField("Специальность:", coerce=str, validators=[DataRequired()])
-    edu_plan = SelectField("План:", coerce=str, validators=[DataRequired()])
+from app.main.forms import ChoosePlan
 
 
 class FieldsForm(FlaskForm):

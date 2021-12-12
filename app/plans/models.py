@@ -2,28 +2,15 @@ import pandas as pd
 import requests
 from numpy import matrix
 from app.main.func import db_filter_req
+from app.main.models import EducationPlan
 from app.plans.func import disciplines_wp_clean
 from config import ApeksAPI
 
 
-class EducationPlan:
+class CompPlan(EducationPlan):
     def __init__(self, education_plan_id):
-        self.education_plan_id = education_plan_id
-        self.disciplines = self.disciplines_list()
+        super().__init__(education_plan_id)
         self.competencies = self.get_comp()
-
-    def disciplines_list(self):
-        """Получение списка ID, кодов и названий дисциплин плана"""
-        disciplines = {}
-        for disc in db_filter_req('plan_curriculum_disciplines', 'education_plan_id', self.education_plan_id):
-            if disc['level'] == '3':
-                disciplines[disc['id']] = [disc['code'],
-                                           db_filter_req('plan_disciplines', 'id', disc['discipline_id'])[0]['name']]
-        return disciplines
-
-    def discipline_name(self, curriculum_discipline_id):
-        """Получение кода и названия дисциплины"""
-        return f'{self.disciplines[str(curriculum_discipline_id)][0]} {self.disciplines[str(curriculum_discipline_id)][1]}'
 
     def get_comp(self):
         """Получение списка компетенций плана"""

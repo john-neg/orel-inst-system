@@ -84,21 +84,46 @@ def education_plans(education_specialty_id, year=0):
             if i.get("custom_start_year") == year:
                 plans[i.get("id")] = i.get("name")
             elif i.get("custom_start_year") is None:
-                if db_filter_req('plan_semesters', 'education_plan_id', i.get("id"))[0]['start_date'].split('-')[0] == year:
+                if (
+                    db_filter_req("plan_semesters", "education_plan_id", i.get("id"))[
+                        0
+                    ]["start_date"].split("-")[0]
+                    == year
+                ):
                     plans[i.get("id")] = i.get("name")
         return plans
 
 
 def plan_curriculum_disciplines(education_plan_id):
-    """Getting disciplines info as dict (disc_ID:[disc_code:disc_name])"""
+    """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name])"""
+
+    def disc_name(discipline_id):
+        for discipline in disc_list:
+            if discipline.get("id") == discipline_id:
+                return discipline["name"]
+
     disciplines = {}
-    resp = db_filter_req(
+    disc_list = db_request("plan_disciplines")
+    plan_disc = db_filter_req(
         "plan_curriculum_disciplines", "education_plan_id", education_plan_id
     )
-    for disc in resp:
+    for disc in plan_disc:
         if disc["level"] == "3":
-            disciplines[disc["id"]] = [
-                disc["code"],
-                db_filter_req("plan_disciplines", "id", disc["discipline_id"])[0]["name"],
-            ]
+            disciplines[disc["id"]] = [disc["code"], disc_name(disc["discipline_id"])]
     return disciplines
+
+
+def xlsx_iter_rows(ws):
+    """Reading imported XLSX file row by row"""
+    for row in ws.iter_rows():
+        yield [cell.value for cell in row]
+
+
+def xlsx_normalize(worksheet, replace_dict):
+    """Function to replace symbols in table"""
+    for key, val in replace_dict.items():
+        for r in range(1, worksheet.max_row + 1):
+            for c in range(1, 2):
+                s = str(worksheet.cell(r, c).value)
+                worksheet.cell(r, c).value = s.replace(key, val)
+    return worksheet

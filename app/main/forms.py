@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, FileField, SubmitField
+from wtforms import SelectField, FileField
 from wtforms.validators import DataRequired
 
 
@@ -9,4 +9,4 @@ class ChoosePlan(FlaskForm):
 
 
 class FileForm(FlaskForm):
-    file = FileField('comp_file')
+    file = FileField('file')

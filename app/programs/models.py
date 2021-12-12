@@ -97,7 +97,7 @@ class WorkProgramData:
         return self.mm_sections("place_in_structure")
 
     def mm_work_programs_data(self, field_id):
-        """Метод для работы с таблицей mmm_work_programs_data (произвольные поля программ)"""
+        """Метод для работы с таблицей mm_work_programs_data (произвольные поля программ)"""
         response = {}
         for disc in self.disc_list:
             try:
