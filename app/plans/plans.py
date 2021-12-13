@@ -29,6 +29,7 @@ def comp_choose_plan():
 @bp.route("/mtrx_sim_choose_plan", endpoint="mtrx_sim_choose_plan", methods=["GET", "POST"])
 @login_required
 def mtrx_sim_choose_plan():
+    title = "Матрица компетенций (с индикаторами)"
     form = ChoosePlan()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":

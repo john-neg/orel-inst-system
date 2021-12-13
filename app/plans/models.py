@@ -132,7 +132,7 @@ class CompPlan(EducationPlan):
         ws.title = "Матрица компетенций"
         ws.cell(1, 1).value = "Код"
         ws.cell(1, 1).style = ExcelStyle.Header
-        ws.column_dimensions[get_column_letter(1)].width = 14
+        ws.column_dimensions[get_column_letter(1)].width = 15
         ws.cell(1, 2).value = "Название дисциплины"
         ws.cell(1, 2).style = ExcelStyle.Header
         ws.column_dimensions[get_column_letter(2)].width = 60
@@ -182,10 +182,6 @@ class CompPlan(EducationPlan):
                 if wp.get('id'):
                     disciplines_wp_clean(wp.get('id'))
             disciplines_comp_del(curriculum_discipline_id)
-            # params = {'token': ApeksAPI.TOKEN,
-            #           'table': 'plan_curriculum_discipline_competencies',
-            #           'filter[curriculum_discipline_id]': curriculum_discipline_id}
-            # requests.delete(ApeksAPI.URL + '/api/call/system-database/delete', params=params)
 
     def matrix_simple_file_check(self, filename):
         """Проверка файла простой матрицы"""
@@ -202,7 +198,7 @@ class CompPlan(EducationPlan):
                         if str(line[i]) == "+":
                             report[self.disciplines[disc][1]].append(liblist[0][i])
                     if not report[self.disciplines[disc][1]]:
-                        report[self.disciplines[disc][1]] = None
+                        report[self.disciplines[disc][1]] = ['None']
         for i in range(2, len(liblist[0])):
             if not self.get_comp_id_by_code(liblist[0][i]):
                 comp_code_errors.append(liblist[0][i])

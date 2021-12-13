@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1 class="display-6">
-        {% block title %} Матрица компетенций (простая) {% endblock %}
+        {% block title %} Матрица компетенций (с индикаторами) {% endblock %}
     </h1>
     <div class="d-grid col-xl-8">
     <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
@@ -94,7 +94,7 @@
         {% for disc in report %}
           <tr>
             <td class="col-xl-5"><span style="white-space: pre-line">{{ disc }}</span></td>
-              {% if report[disc] == ['None'] %}
+              {% if report[disc] == None %}
             <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Нет связей в файле</b></span></td>
               {% elif not report[disc] %}
             <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Отсутствует в файле</b></span></td>
