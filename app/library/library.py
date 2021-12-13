@@ -106,9 +106,11 @@ def library_check(plan_id, filename):
                 url_for("library.library_update", plan_id=plan_id, filename=filename)
             )
     # Check if program in uploaded file
-    no_data = []
+    work_programs, no_data = [], []
     for wp_id in plan.work_programs:
-        if plan.work_programs.get(wp_id) not in lib_data:
+        if plan.work_programs.get(wp_id) in lib_data:
+            work_programs.append(plan.work_programs.get(wp_id))
+        else:
             no_data.append(plan.work_programs.get(wp_id))
     return render_template(
         "library/library_upload.html",
@@ -117,7 +119,7 @@ def library_check(plan_id, filename):
         plan_name=plan_name,
         no_data=no_data,
         no_program=plan.non_exist,
-        work_programs=plan.work_programs,
+        work_programs=work_programs,
     )
 
 

@@ -195,7 +195,7 @@ class CompPlan(EducationPlan):
             for line in liblist:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
-                        if str(line[i]) == "+":
+                        if str(line[i]) == "+" or "*":
                             report[self.disciplines[disc][1]].append(liblist[0][i])
                     if not report[self.disciplines[disc][1]]:
                         report[self.disciplines[disc][1]] = ['None']
@@ -203,6 +203,16 @@ class CompPlan(EducationPlan):
             if not self.get_comp_id_by_code(liblist[0][i]):
                 comp_code_errors.append(liblist[0][i])
         return report, comp_code_errors
+
+    def matrix_ind_file_check(self, filename):
+        """Проверка файла матрицы с индикаторами"""
+        wb = load_workbook(filename)
+        ws = wb.active
+        liblist = list(xlsx_iter_rows(ws))
+        report = {}
+        comp_code_errors = []
+        ind_errors = []
+
 
     def matrix_simple_upload(self, filename):
         """Загрузка связей из файла простой матрицы"""
@@ -215,7 +225,7 @@ class CompPlan(EducationPlan):
             for line in liblist:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
-                        if str(line[i]) == "+":
+                        if str(line[i]) == "+" or "*":
                             load_data[disc].append(self.get_comp_id_by_code(liblist[0][i]))
         for data in load_data:
             if load_data.get(data):

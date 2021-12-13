@@ -46,13 +46,23 @@
 
     <div class="row mt-3 gy-3">
         <div class="d-grid col-xl-4">
-            <input type="submit" name="mtrx_download" value="Сформировать матрицу" class="btn btn-primary bg-opacity-75">
-        </div>
-        <div class="d-grid col-xl-4">
-            <input type="submit" name="mtrx_delete" value="Удаление связей" class="btn btn-danger bg-opacity-75">
+            <input type="submit" name="mtrx_ind_temp" value="Образец файла" class="btn btn-warning bg-opacity-75">
         </div>
     </div>
-    <div class="row mb-4 gy-3">
+    <div class="row mb-3 gy-3">
+        <div class="d-grid col-xl-4 text-center text-wrap">
+            (Образец файла для загрузки из GoogleDocs)
+        </div>
+    </div>
+    <div class="row gy-3">
+        <div class="d-grid col-xl-4">
+            <input type="submit" name="mtrx_download" value="Сформировать простую матрицу" class="btn btn-primary bg-opacity-75">
+        </div>
+        <div class="d-grid col-xl-4">
+            <input type="submit" name="mtrx_delete" value="Удаление данных" class="btn btn-danger bg-opacity-75">
+        </div>
+    </div>
+    <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-4 text-center text-wrap">
             (Скачать текущую матрицу в формате Excel)
         </div>
@@ -111,7 +121,17 @@
 
     <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-8">
-            <input type="submit" name="mtrx_sim_load" value="Загрузка связей" class="btn btn-success">
+            <div class="form-check form-switch">
+            <input class="form-check-input" name="switch_relations" type="checkbox" id="flexSwitchRelations" checked>
+            <label class="form-check-label" for="flexSwitchRelations">Загружать связи</label>
+            </div>
+            <div class="form-check form-switch">
+            <input class="form-check-input" name="switch_programs" type="checkbox" id="flexSwitchPrograms" checked>
+            <label class="form-check-label" for="flexSwitchPrograms">Загружать индикаторы в программы</label>
+            </div>
+        </div>
+        <div class="d-grid col-xl-8">
+            <input type="submit" name="mtrx_ind_load" value="Загрузить" class="btn btn-success">
         </div>
     </div>
 
