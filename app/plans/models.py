@@ -195,7 +195,7 @@ class CompPlan(EducationPlan):
             for line in liblist:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
-                        if str(line[i]) == "+" or "*":
+                        if str(line[i]) == "+":
                             report[self.disciplines[disc][1]].append(liblist[0][i])
                     if not report[self.disciplines[disc][1]]:
                         report[self.disciplines[disc][1]] = ['None']
@@ -225,7 +225,7 @@ class CompPlan(EducationPlan):
             for line in liblist:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
-                        if str(line[i]) == "+" or "*":
+                        if str(line[i]) == "+":
                             load_data[disc].append(self.get_comp_id_by_code(liblist[0][i]))
         for data in load_data:
             if load_data.get(data):
