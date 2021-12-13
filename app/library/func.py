@@ -8,15 +8,15 @@ def library_file_processing(filename):
     """Обработка загруженного файла c литературой (to dict without first string)"""
     wb = load_workbook(filename)
     ws = wb.active
-
     replace_dict = {"  ": " ", "–": "-", "\t": ""}
     xlsx_normalize(ws, replace_dict)
-
     liblist = list(xlsx_iter_rows(ws))
     del liblist[0]
     lib_dict = {}
     for lib in liblist:
-        lib_dict[lib[0]] = [lib[1], lib[2], lib[3]]
+        lib_dict[lib[0]] = []
+        for i in range(1, len(lib)):
+            lib_dict[lib[0]].append(lib[i])
     return lib_dict
 
 

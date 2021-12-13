@@ -5,7 +5,7 @@ from app.plans import bp
 from app.main.forms import ChoosePlan, FileForm
 from app.main.func import education_specialty, education_plans, allowed_file
 from app.plans.func import comps_file_processing
-from app.plans.models import CompPlan
+from app.plans.models import CompPlan, MatrixIndicatorsFile
 from config import FlaskConfig
 
 
@@ -319,3 +319,26 @@ def matrix_simple_update(plan_id, filename):
     plan.matrix_simple_upload(file)
     os.remove(file)
     return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
+
+
+@bp.route("/matrix_indicator_export/", methods=["GET", "POST"])
+@login_required
+def matrix_indicator_export():
+    form = FileForm()
+    if request.method == "POST":
+        if request.files["xlsx_file"]:
+            file = request.files["xlsx_file"]
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file_path = FlaskConfig.UPLOAD_FILE_DIR + filename
+                if request.form.get("mtrx_indicator_export"):
+                    matrix = MatrixIndicatorsFile(file_path)
+                    filename = matrix.list_to_word()
+                    os.remove(file_path)
+                    return redirect(url_for("main.get_file", filename=filename))
+    return render_template(
+        "plans/matrix_indicator_export.html",
+        active="plans",
+        form=form,
+    )

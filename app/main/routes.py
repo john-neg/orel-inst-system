@@ -46,7 +46,8 @@ def upload():
     if request.method == "POST":
         file = request.files["user_file"]
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            filename = file.filename
+            # filename = secure_filename(file.filename)
             file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
             return filename
     return render_template('main/upload.html')
