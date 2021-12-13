@@ -187,21 +187,21 @@ class CompPlan(EducationPlan):
         """Проверка файла простой матрицы"""
         wb = load_workbook(filename)
         ws = wb.active
-        liblist = list(xlsx_iter_rows(ws))
+        file_data = list(xlsx_iter_rows(ws))
         report = {}
         comp_code_errors = []
         for disc in self.disciplines:
             report[self.disciplines[disc][1]] = []
-            for line in liblist:
+            for line in file_data:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
                         if str(line[i]) == "+":
-                            report[self.disciplines[disc][1]].append(liblist[0][i])
+                            report[self.disciplines[disc][1]].append(file_data[0][i])
                     if not report[self.disciplines[disc][1]]:
                         report[self.disciplines[disc][1]] = ['None']
-        for i in range(2, len(liblist[0])):
-            if not self.get_comp_id_by_code(liblist[0][i]):
-                comp_code_errors.append(liblist[0][i])
+        for i in range(2, len(file_data[0])):
+            if not self.get_comp_id_by_code(file_data[0][i]):
+                comp_code_errors.append(file_data[0][i])
         return report, comp_code_errors
 
     def matrix_ind_file_check(self, filename):
@@ -218,15 +218,15 @@ class CompPlan(EducationPlan):
         """Загрузка связей из файла простой матрицы"""
         wb = load_workbook(filename)
         ws = wb.active
-        liblist = list(xlsx_iter_rows(ws))
+        file_data = list(xlsx_iter_rows(ws))
         load_data = {}
         for disc in self.disciplines:
             load_data[disc] = []
-            for line in liblist:
+            for line in file_data:
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
                         if str(line[i]) == "+":
-                            load_data[disc].append(self.get_comp_id_by_code(liblist[0][i]))
+                            load_data[disc].append(self.get_comp_id_by_code(file_data[0][i]))
         for data in load_data:
             if load_data.get(data):
                 for comp in load_data.get(data):
@@ -234,7 +234,7 @@ class CompPlan(EducationPlan):
                         disciplines_comp_load(data, comp)
 
 
-class CompMatrix:
+class MatrixIndicator:
     def __init__(self, filename):
 
         self.df = pd.read_excel(filename, engine='openpyxl', header=None).transpose().drop([0])

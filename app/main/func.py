@@ -122,8 +122,8 @@ def xlsx_iter_rows(ws):
 def xlsx_normalize(worksheet, replace_dict):
     """Function to replace symbols in table"""
     for key, val in replace_dict.items():
-        for r in range(1, worksheet.max_row + 1):
-            for c in range(1, 2):
+        for r in range(1, worksheet.max_row):
+            for c in range(1, worksheet.max_column):
                 s = str(worksheet.cell(r, c).value)
                 worksheet.cell(r, c).value = s.replace(key, val)
     return worksheet
