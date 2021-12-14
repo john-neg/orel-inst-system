@@ -7,6 +7,7 @@
 
 <form method="POST" enctype=multipart/form-data action ="">
 
+
     <div class="row mb-4 gy-3">
         <div class="col-xl-8">
             <label for="formFile" class="form-label">Выберите файл Excel с индикаторами (из Google форм)</label>
@@ -20,19 +21,22 @@
         </div>
     </div>
 
+
+
     {% if file_errors %}
         <div class="d-grid col-xl-8">
             <div class="alert alert-danger text-center" role="alert">
+                <p><b>Загруженный файл:</b><br>{{ filename }}</p>
                 <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
                 {{ '\n'.join(file_errors) }}
             </div>
         </div>
-
     {% else %}
         {% if message %}
         <div class="d-grid col-xl-8">
             <div class="alert alert-success text-center" role="alert">
-                <b>{{ message }}</b><br>
+                <p><b>Загруженный файл:</b><br>{{ filename }}</p>
+                {{ message }}<br>
             </div>
         </div>
 
@@ -41,7 +45,6 @@
                 <input type="submit" name="mtrx_indicator_export" value="Сгенерировать индикаторы по дисциплинам" class="btn btn-success">
             </div>
         </div>
-
         {% endif %}
     {% endif %}
 

@@ -384,4 +384,5 @@ def matrix_indicator_file_check(filename):
         file_errors=matrix.file_errors(),
         message="Ошибки не обнаружены",
         form=form,
+        filename=filename,
     )
