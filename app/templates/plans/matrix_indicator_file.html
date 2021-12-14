@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-6">
+        {% block title %} Экспорт индикаторов по дисциплинам {% endblock %}
+    </h1>
+
+<form method="POST" enctype=multipart/form-data action ="">
+
+    <div class="row mb-4 gy-3">
+        <div class="col-xl-8">
+            <label for="formFile" class="form-label">Выберите файл Excel с индикаторами (из Google форм)</label>
+            <input class="form-control" type="file" name="xlsx_file" id="formFile">
+        </div>
+    </div>
+
+    <div class="row mb-3 gy-3">
+        <div class="d-grid col-xl-8">
+            <input type="submit" name="mtrx_file_check" value="Проверка файла" class="btn btn-secondary">
+        </div>
+    </div>
+
+    {% if file_errors %}
+        <div class="d-grid col-xl-8">
+            <div class="alert alert-danger text-center" role="alert">
+                <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
+                {{ '\n'.join(file_errors) }}
+            </div>
+        </div>
+
+    {% else %}
+        {% if message %}
+        <div class="d-grid col-xl-8">
+            <div class="alert alert-success text-center" role="alert">
+                <b>{{ message }}</b><br>
+            </div>
+        </div>
+
+        <div class="row mb-4 gy-3">
+            <div class="d-grid col-xl-8">
+                <input type="submit" name="mtrx_indicator_export" value="Сгенерировать индикаторы по дисциплинам" class="btn btn-success">
+            </div>
+        </div>
+
+        {% endif %}
+    {% endif %}
+
+
+</form>
+    {% endblock %}

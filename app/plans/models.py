@@ -1,5 +1,4 @@
 import os
-
 import requests
 from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
@@ -330,9 +329,6 @@ class MatrixIndicatorsFile:
                             complist[comp]["abilities"] += [load_data]
                         elif self.file_data[row][col] == "+" and ".в." in str(data):
                             complist[comp]["ownerships"] += [load_data]
-                            # complist[comp]["ownerships"] += [
-                            #     load_data.replace("  ", " ").replace(". (", " (")
-                            # ]
         return complist
 
     def list_to_word(self):

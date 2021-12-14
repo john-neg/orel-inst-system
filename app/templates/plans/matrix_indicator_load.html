@@ -79,16 +79,16 @@
     </div>
     <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-8">
-            <input type="submit" name="mtrx_sim_check" value="Проверка файла" class="btn btn-secondary">
+            <input type="submit" name="mtrx_ind_check" value="Проверка файла" class="btn btn-secondary">
         </div>
     </div>
 
 
-    {% if comp_code_errors %}
+    {% if file_errors %}
         <div class="d-grid col-xl-8">
             <div class="alert alert-danger text-center" role="alert">
-                <b>Коды компетенций файла, которые не найдены в плане</b><br>
-                {{ ', '.join(comp_code_errors) }}
+                <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
+                {{ '\n'.join(file_errors) }}
             </div>
         </div>
     {% endif %}
@@ -104,7 +104,7 @@
         {% for disc in report %}
           <tr>
             <td class="col-xl-5"><span style="white-space: pre-line">{{ disc }}</span></td>
-              {% if report[disc] == None %}
+              {% if report[disc] == ['None'] %}
             <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Нет связей в файле</b></span></td>
               {% elif not report[disc] %}
             <td class="text-danger col-xl-3"><span style="white-space: pre-line"><b>Отсутствует в файле</b></span></td>

@@ -252,8 +252,21 @@ def matrix_simple_check(plan_id, filename):
 def matrix_indicator_check(plan_id, filename):
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
+    matrix = MatrixIndicatorsFile(file)
+    # File check
+    report = {}
+    for disc_id in plan.disciplines:
+        discipline_name = plan.discipline_name(disc_id)
+        if matrix.find_discipline(discipline_name):
+            comp_data = matrix.disc_comp(discipline_name)
+            if comp_data:
+                report[discipline_name] = list(comp_data.keys())
+            else:
+                report[discipline_name] = ["None"]
+        else:
+            report[discipline_name] = []
     form = FileForm()
-    report, comp_code_errors, ind_errors = plan.matrix_ind_file_check(file)
+    # report, comp_code_errors, ind_errors = plan.matrix_ind_file_check(file)
     if request.method == "POST":
         if request.form.get("mtrx_ind_temp"):
             # Шаблон
@@ -288,10 +301,11 @@ def matrix_indicator_check(plan_id, filename):
         "plans/matrix_indicator_load.html",
         active="plans",
         form=form,
+        filename=filename,
         plan_name=plan.name,
         plan_relations=plan.disciplines_comp_dict(),
         report=report,
-        comp_code_errors=comp_code_errors,
+        file_errors=matrix.file_errors(),
     )
 
 @bp.route("/comp_update/<int:plan_id>/<string:filename>", methods=["GET"])
@@ -321,9 +335,9 @@ def matrix_simple_update(plan_id, filename):
     return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
 
 
-@bp.route("/matrix_indicator_export/", methods=["GET", "POST"])
+@bp.route("/matrix_indicator_file_upload", methods=["GET", "POST"])
 @login_required
-def matrix_indicator_export():
+def matrix_indicator_file_upload():
     form = FileForm()
     if request.method == "POST":
         if request.files["xlsx_file"]:
@@ -331,14 +345,43 @@ def matrix_indicator_export():
             if file and allowed_file(file.filename):
                 filename = file.filename
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                if request.form.get("mtrx_file_check"):
+                    return redirect(url_for("plans.matrix_indicator_file_check", filename=filename))
+    return render_template(
+        "plans/matrix_indicator_file.html",
+        active="plans",
+        form=form,
+    )
+
+@bp.route("/matrix_indicator_file_check/<string:filename>", methods=["GET", "POST"])
+@login_required
+def matrix_indicator_file_check(filename):
+    form = FileForm()
+    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    matrix = MatrixIndicatorsFile(file)
+    if request.method == "POST":
+        if request.files["xlsx_file"]:
+            file = request.files["xlsx_file"]
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                 file_path = FlaskConfig.UPLOAD_FILE_DIR + filename
+                if request.form.get("mtrx_file_check"):
+                    return redirect(url_for("plans.matrix_indicator_file_check", filename=filename))
                 if request.form.get("mtrx_indicator_export"):
                     matrix = MatrixIndicatorsFile(file_path)
                     filename = matrix.list_to_word()
                     os.remove(file_path)
                     return redirect(url_for("main.get_file", filename=filename))
+    if request.form.get("mtrx_indicator_export"):
+        matrix = MatrixIndicatorsFile(file)
+        filename = matrix.list_to_word()
+        os.remove(file)
+        return redirect(url_for("main.get_file", filename=filename))
     return render_template(
-        "plans/matrix_indicator_export.html",
+        "plans/matrix_indicator_file.html",
         active="plans",
+        file_errors=matrix.file_errors(),
+        message="Ошибки не обнаружены",
         form=form,
     )
