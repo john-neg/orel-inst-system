@@ -108,7 +108,7 @@ def plan_curriculum_disciplines(education_plan_id):
         "plan_curriculum_disciplines", "education_plan_id", education_plan_id
     )
     for disc in plan_disc:
-        if disc["level"] == "3":
+        if disc["level"] == "3" and not disc['type'] == '16':  # type 16 - группы дисциплин
             disciplines[disc["id"]] = [disc["code"], disc_name(disc["discipline_id"])]
     return disciplines
 

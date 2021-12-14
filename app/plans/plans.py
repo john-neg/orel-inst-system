@@ -374,7 +374,6 @@ def matrix_indicator_file_check(filename):
                     os.remove(file_path)
                     return redirect(url_for("main.get_file", filename=filename))
     if request.form.get("mtrx_indicator_export"):
-        matrix = MatrixIndicatorsFile(file)
         filename = matrix.list_to_word()
         os.remove(file)
         return redirect(url_for("main.get_file", filename=filename))

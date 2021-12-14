@@ -281,23 +281,30 @@ class MatrixIndicatorsFile:
             ".з .": ".з.",
             ".у .": ".у.",
             ".в .": ".в.",
+            "None": "",
         }
         xlsx_normalize(self.ws, replace_dict)
+
 
     def file_errors(self):
         """Проверка матрицы на ошибки распознавания индикаторов знать, уметь, владеть)"""
         not_found = []
         extensions_to_check = [".з.", ".у.", ".в."]
         for k in range(2, len(self.file_data[0])):
-            if all(ext not in self.file_data[0][k] for ext in extensions_to_check):
-                not_found.append(self.file_data[0][k])
+            if self.file_data[0][k] and self.file_data[0][k] != 'None':
+                if all(ext not in self.file_data[0][k] for ext in extensions_to_check):
+                    not_found.append(self.file_data[0][k])
         return not_found
 
     def get_disciplines_list(self):
         """Получение списка дисциплин загруженного файла"""
         disc_list = []
-        for row in range(2, self.ws.max_row):
-            disc_list.append(self.ws.cell(row, 2).value)
+        for row in range(1, len(self.file_data)):
+            if self.file_data[row][1] and self.file_data[row][1] != 'None':
+                disc_list.append(self.file_data[row][1])
+        # for row in range(2, self.ws.max_row):
+        #     if self.ws.cell(row, 2).value != 'None':
+        #         disc_list.append(self.ws.cell(row, 2).value)
         return disc_list
 
     def find_discipline(self, discipline_name):
@@ -307,31 +314,33 @@ class MatrixIndicatorsFile:
     def disc_comp(self, discipline_name):
         """Компетенция и ее индикаторы для дисциплины"""
         comp, complist = "", {}
-        for row in range(1, len(self.file_data)):
-            if discipline_name == self.file_data[row][1]:
-                for col in range(len(self.file_data[0])):
-                    if self.file_data[row][col] == "+":
-                        # Получаем компетенцию
-                        if comp != self.file_data[0][col].split(".")[0]:
-                            comp = self.file_data[0][col].split(".")[0]
-                            complist[comp] = {
-                                "knowledge": [],
-                                "abilities": [],
-                                "ownerships": [],
-                            }
-                        # Получаем индикатор
-                        data = self.file_data[0][col]
-                        load_data = f"{data.split(' - ')[1]} ({data.split(' - ')[0]})"  # f"- { - тире
-                        load_data = load_data.replace("  ", " ").replace(". (", " (")
-                        if self.file_data[row][col] == "+" and ".з." in str(data):
-                            complist[comp]["knowledge"] += [load_data]
-                        elif self.file_data[row][col] == "+" and ".у." in str(data):
-                            complist[comp]["abilities"] += [load_data]
-                        elif self.file_data[row][col] == "+" and ".в." in str(data):
-                            complist[comp]["ownerships"] += [load_data]
+        for row in range(1, len(self.disciplines_list) + 1):
+            if self.file_data[row][1]:
+                if discipline_name == self.file_data[row][1]:
+                    for col in range(len(self.file_data[0])):
+                        if self.file_data[row][col] == "+":
+                            # Получаем компетенцию
+                            if comp != self.file_data[0][col].split(".")[0]:
+                                comp = self.file_data[0][col].split(".")[0]
+                                complist[comp] = {
+                                    "knowledge": [],
+                                    "abilities": [],
+                                    "ownerships": [],
+                                }
+                            # Получаем индикатор
+                            data = self.file_data[0][col]
+                            load_data = f"{data.split(' - ')[1]} ({data.split(' - ')[0]})"  # f"- { - тире
+                            load_data = load_data.replace("  ", " ").replace(". (", " (")
+                            if self.file_data[row][col] == "+" and ".з." in str(data):
+                                complist[comp]["knowledge"] += [load_data]
+                            elif self.file_data[row][col] == "+" and ".у." in str(data):
+                                complist[comp]["abilities"] += [load_data]
+                            elif self.file_data[row][col] == "+" and ".в." in str(data):
+                                complist[comp]["ownerships"] += [load_data]
         return complist
 
     def list_to_word(self):
+        """"Конвертация файла xlsx в Word (Индикаторы по дисциплинам)"""
         document = Document()
         section = document.sections[-1]
         section.top_margin = Cm(1)  # Верхний отступ
@@ -349,7 +358,7 @@ class MatrixIndicatorsFile:
         font.size = Pt(12)
         document.add_heading(self.title_name, 0)  # Заголовок
         document.add_paragraph("Индикаторы компетенций по дисциплинам")
-        for row in range(1, len(self.file_data)):
+        for row in range(1, len(self.disciplines_list) + 1):
             document.add_page_break()
             document.add_heading(self.file_data[row][1], level=1)
             # Список компетенций
