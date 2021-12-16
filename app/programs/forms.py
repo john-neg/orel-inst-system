@@ -1,6 +1,6 @@
 from datetime import date
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, IntegerField
+from wtforms import SelectField, StringField, SubmitField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Length, NumberRange
 from app.main.forms import ChoosePlan
 
@@ -34,7 +34,7 @@ class FieldsForm(FlaskForm):
             ('materials_base', "Описание материально-технической базы"),
         ],
             validators=[DataRequired()])
-    fields_data = SubmitField("Сформировать")
+    fields_data = SubmitField("Выбрать")
 
 
 class DepartmentWPCheck(FieldsForm):
@@ -79,3 +79,8 @@ class WorkProgramDatesUpdate(ChoosePlan):  # добавить валидатор
         validators=[Length(min=10, max=10, message="Формат даты - ГГГГ-ММ-ДД")],
     )
     wp_dates_update = SubmitField("Обновить данные")
+
+
+class WorkProgramFieldUpdate(FieldsForm):
+    wp_field_edit = TextAreaField("Данные поля программы")
+    field_update = SubmitField("Обновить")

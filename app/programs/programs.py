@@ -6,10 +6,10 @@ from app.programs.forms import (
     WorkProgramDatesUpdate,
     FieldsForm,
     ChoosePlan,
-    DepartmentWPCheck,
+    DepartmentWPCheck, WorkProgramFieldUpdate,
 )
 from app.programs.func import wp_update_list, wp_dates_update
-from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgramDeptData
+from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgram
 
 apeks = ApeksDeptData()
 
@@ -28,11 +28,8 @@ def dept_check():
         plan_list = education_plans(edu_spec, year)
         if plan_list:
             for plan_id in plan_list:
-                plan_wp_dept = getattr(
-                    WorkProgramDeptData(plan_id, department), wp_field
-                )
-                plan_wp_data = plan_wp_dept()
-                wp_data[plan_list[plan_id]] = plan_wp_data
+                plan_wp_data = WorkProgramBunchData(plan_id, wp_field)
+                wp_data[plan_list[plan_id]] = plan_wp_data.department(department)
         else:
             wp_data = {"Нет планов": {"Нет дисциплин": "Информация отсутствует"}}
         return render_template(
@@ -72,8 +69,8 @@ def fields_data(plan_id):
     plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
     if request.method == "POST":
         wp_field = request.form.get("wp_fields")
-        wp_method = getattr(WorkProgramBunchData(plan_id), wp_field)
-        wp_data = wp_method()
+        wp_plan_data = WorkProgramBunchData(plan_id, wp_field)
+        wp_data = wp_plan_data.all()
         return render_template(
             "programs/fields_data.html",
             active="programs",
@@ -86,6 +83,18 @@ def fields_data(plan_id):
         "programs/fields_data.html", active="programs", form=form, plan_name=plan_name
     )
 
+@bp.route("/wp_field_edit/<string:disc_id>/<string:parameter>", methods=["GET", "POST"])
+@login_required
+def wp_field_edit(disc_id, parameter):
+    form = WorkProgramFieldUpdate()
+    wpdata = WorkProgram(disc_id)
+    return render_template(
+        "programs/wp_field_edit.html",
+        active="programs",
+        form=form,
+        wp_name=wpdata.get('name'),
+        wp_data=wpdata.get(parameter)
+    )
 
 @bp.route("/dates_update", methods=["GET", "POST"])
 @login_required
