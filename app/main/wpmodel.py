@@ -13,20 +13,20 @@ class WorkProgram:
         self.name = self.mm_work_programs[0]["name"]
 
         self.mm_work_programs_items = {
-            "name": "name",
-            "reviewers_ext": "reviewers_ext",
+            "name": "name",  # Название программы
+            "reviewers_ext": "reviewers_ext",  # Рецензенты
             "date_approval": "date_approval",
-            "date_department": "date_department",
-            "document_department": "document_department",
+            "date_department": "date_department",  # Дата заседания кафедры
+            "document_department": "document_department",  # Протокол заседания кафедры
             "date_methodical": "date_methodical",
             "document_methodical": "document_methodical",
             "date_academic": "date_academic",
             "document_academic": "document_academic",
         }
         self.mm_sections_items = {
-            "purposes": "purposes",
-            "tasks": "tasks",
-            "place_in_structure": "place_in_structure",
+            "purposes": "purposes",  # Цели
+            "tasks": "tasks",  # Задачи
+            "place_in_structure": "place_in_structure",  # Место в структуре ООП
         }
         self.mm_work_programs_data_items = {
             "authorprint": 29,  # Автор(ы) рабочей программы (для печати)
@@ -72,6 +72,8 @@ class WorkProgram:
                 ).json()["data"][-1]["data"]
             except IndexError:
                 return ""
+        else:
+            return "Wrong parameter"
 
     def edit(self, parameter, load_data):
         if parameter in self.mm_work_programs_items:
@@ -121,3 +123,5 @@ class WorkProgram:
                 data=data,
             )
             return r.json()
+        else:
+            return "Wrong parameter"
