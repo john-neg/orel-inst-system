@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.programs import bp
@@ -76,25 +76,41 @@ def fields_data(plan_id):
             active="programs",
             form=form,
             plan_name=plan_name,
-            wp_fields=wp_field,
+            wp_field=wp_field,
             wp_data=wp_data,
         )
     return render_template(
         "programs/fields_data.html", active="programs", form=form, plan_name=plan_name
     )
 
-@bp.route("/wp_field_edit/<string:disc_id>/<string:parameter>", methods=["GET", "POST"])
+
+@bp.route("/wp_field_edit", methods=["GET", "POST"])
 @login_required
-def wp_field_edit(disc_id, parameter):
+def wp_field_edit():
     form = WorkProgramFieldUpdate()
-    wpdata = WorkProgram(disc_id)
+    disc_id = request.args.get('disc_id')
+    parameter = request.args.get('parameter')
+    wp_data = WorkProgram(disc_id)
+    if request.method == "POST":
+        parameter = request.form.get("wp_fields")
+        if request.form.get("field_update") and form.validate_on_submit():
+            load_data = request.form.get("wp_field_edit")
+            wp_data.edit(parameter, load_data)
+            flash('Данные обновлены')
+    form.wp_fields.data = parameter
+    try:
+        wp_field_data = wp_data.get(parameter)
+    except IndexError:
+        wp_field_data = ""
+    form.wp_field_edit.data = wp_field_data
+
     return render_template(
         "programs/wp_field_edit.html",
         active="programs",
         form=form,
-        wp_name=wpdata.get('name'),
-        wp_data=wpdata.get(parameter)
+        wp_name=wp_data.get('name'),
     )
+
 
 @bp.route("/dates_update", methods=["GET", "POST"])
 @login_required

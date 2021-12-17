@@ -29,13 +29,22 @@
     <table class="col-md-7 mt-3 table">
         {% for wp in wp_data %}
               <tr class="table-success">
-                  <td>{{ wp }}</td>
+                  <td>{{ wp }}
+                    {% if wp_data[wp][0] != "-->Программа отсутствует<--" %}
+                    <a href="{{url_for('programs.wp_field_edit')}}?disc_id={{ wp_data[wp][1] }}&parameter={{ wp_field }}"
+                       target="_blank"
+                       class="btn btn-success btn-block p-0"
+                       role="button">Edit</a>
+                    {% endif %}
+                  </td>
               </tr>
               <tr>
-                <td><span style="white-space: pre-line">{{ wp_data[wp] }}</span></td>
+                <td><span style="white-space: pre-line">{{ wp_data[wp][0] }}</span></td>
               </tr>
               <tr>
-                <td></td>
+                <td>
+
+                </td>
               </tr>
         {% endfor %}
     </table>

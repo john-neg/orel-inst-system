@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 import requests
 from app.main.func import (
     plan_curriculum_disciplines,
@@ -38,8 +40,8 @@ class WorkProgram:
             "document_department": "document_department",  # Протокол заседания кафедры
         }
         self.mm_sections_items = {
-            "purposes": "purposes",  # Цели
-            "tasks": "tasks",  # Задачи
+            "purposes": "purposes",  # Цели дисциплины
+            "tasks": "tasks",  # Задачи дисциплины
             "place_in_structure": "place_in_structure",  # Место в структуре ООП
         }
         self.mm_work_programs_data_items = {
@@ -65,23 +67,38 @@ class WorkProgram:
         }
 
     def get(self, parameter):
+        """Get work program field data"""
         if parameter in self.mm_work_programs_items:
             return self.mm_work_programs[0][self.mm_work_programs_items.get(parameter)]
         elif parameter in self.special:
             date_department = self.mm_work_programs[-1]["date_department"]
             document_department = self.mm_work_programs[-1]["document_department"]
             if date_department:
-                date = date_department.split("-")
-                date_department = f"{date[-1]}.{date[-2]}.{date[-3]}"
+                d = date_department.split("-")
+                date_department = f"{d[-1]}.{d[-2]}.{d[-3]}"
             else:
                 date_department = "[Не заполнена]"
             if document_department is None:
                 document_department = "[Отсутствует]"
             return f"Дата заседания кафедры: {date_department}\r\nПротокол № {document_department}"
         elif parameter in self.mm_sections_items:
-            return db_filter_req(
-                "mm_sections", "work_program_id", self.work_program_id
-            )[-1][self.mm_sections_items.get(parameter)]
+            try:
+                data = db_filter_req(
+                    "mm_sections", "work_program_id", self.work_program_id
+                )[-1][self.mm_sections_items.get(parameter)]
+                return data
+            except IndexError:
+                params = {"token": ApeksAPI.TOKEN}
+                data = {
+                    "table": "mm_sections",
+                    "fields[work_program_id]": self.work_program_id,
+                }
+                requests.post(
+                    ApeksAPI.URL + "/api/call/system-database/add",
+                    params=params,
+                    data=data,
+                )
+                return ""
         elif parameter in self.mm_work_programs_data_items:
             try:
                 params = {
@@ -101,19 +118,18 @@ class WorkProgram:
             return "Wrong parameter"
 
     def edit(self, parameter, load_data):
-        def mm_work_programs_items(parameter, load_data):
-            params = {"token": ApeksAPI.TOKEN}
-            data = {
+        """Edit work program field data"""
+        def mm_work_programs_items(f_param, f_data):
+            prm = {"token": ApeksAPI.TOKEN}
+            dte = {
                 "table": "mm_work_programs",
                 "filter[id]": self.work_program_id,
-                "fields["
-                + self.mm_work_programs_items.get(parameter)
-                + "]": str(load_data),
+                "fields[" + f_param + "]": str(f_data),
             }
             requests.post(
                 ApeksAPI.URL + "/api/call/system-database/edit",
-                params=params,
-                data=data,
+                params=prm,
+                data=dte,
             )
         if parameter in self.mm_work_programs_items:
             mm_work_programs_items(parameter, load_data)
@@ -123,12 +139,16 @@ class WorkProgram:
                 self.curriculum_discipline_id,
             )
         elif parameter in self.special:
-            ## Проверить!!!
-            count = 0
-            for param in self.special:
-                data = load_data.split(" ")[count]
-                mm_work_programs_items(param, data)
-                count += 1
+            param = 'date_department'
+            d = load_data.split("\r\n")[0].replace("Дата заседания кафедры:", "").replace(" ", "")
+            d = datetime.strptime(d, '%d.%m.%Y')
+            data = date.isoformat(d)
+            mm_work_programs_items(param, data)
+
+            param = 'document_department'
+            data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
+            mm_work_programs_items(param, data)
+
             self.mm_work_programs = db_filter_req(
                 "mm_work_programs",
                 "curriculum_discipline_id",
@@ -184,10 +204,10 @@ class WorkProgramBunchData:
             try:
                 wp = WorkProgram(disc)
             except IndexError:
-                result[" ".join(disc_list[disc])] = "-->Программа отсутствует<--"
+                result[" ".join(disc_list[disc])] = ["-->Программа отсутствует<--", disc]
                 break
             try:
-                result[" ".join(disc_list[disc])] = wp.get(self.parameter)
+                result[" ".join(disc_list[disc])] = [wp.get(self.parameter), disc]
             except IndexError:
-                result[" ".join(disc_list[disc])] = ""
+                result[" ".join(disc_list[disc])] = ["", disc]
         return result

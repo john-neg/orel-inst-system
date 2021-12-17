@@ -7,11 +7,11 @@ from app.main.forms import ChoosePlan
 
 class FieldsForm(FlaskForm):
     wp_fields = SelectField("Поле рабочей программы:", coerce=str, choices=[
-            ('names', "Название программы"),
+            ('name', "Название программы"),
             ('date_department', 'Дата и протокол заседания кафедры'),
             ('reviewers_ext', 'Рецензенты'),
-            ('purposes', "Цели"),
-            ('tasks', "Задачи"),
+            ('purposes', "Цели дисциплины"),
+            ('tasks', "Задачи дисциплины"),
             ('place_in_structure', "Место в структуре ООП"),
             ('no_next_disc', "Пояснение к таблице с последующими дисциплинами (информация об отсутствии)"),
             ('templan_info', "Примечание к тематическому плану"),
@@ -22,7 +22,7 @@ class FieldsForm(FlaskForm):
             ('practice', "Практикум"),
             ('control_works', "Тематика контрольных работ"),
             ('exam_form_desc', "Примерные оц. средства для пров. пром. атт. обучающихся по дисциплине"),
-            ('task_works', "Задачи"),
+            ('task_works', "Задачи учебные"),
             ('tests', "Тесты"),
             ('regulations', "Нормативные акты"),
             ('library_main', "Основная литература"),
