@@ -12,6 +12,7 @@ class EducationPlan:
         self.name = self.get_name()
 
     def get_name(self):
+        """Get education plan name"""
         return db_filter_req("plan_education_plans", "id", self.education_plan_id)[0]["name"]
 
     def discipline_name(self, curriculum_discipline_id):

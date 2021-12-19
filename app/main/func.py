@@ -127,3 +127,12 @@ def xlsx_normalize(worksheet, replace_dict):
                 s = str(worksheet.cell(r, c).value)
                 worksheet.cell(r, c).value = s.replace(key, val)
     return worksheet
+
+
+def get_system_user_name(user_id):
+    """Get name of system user by Id"""
+    resp = db_filter_req('state_staff', 'user_id', user_id)
+    if resp:
+        return f'{resp[0]["family_name"]} {resp[0]["name"][0]}.{resp[0]["surname"][0]}.'
+    else:
+        return "Пользователь не существует"

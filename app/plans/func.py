@@ -62,3 +62,37 @@ def comps_file_processing(filename):
     comps = list(xlsx_iter_rows(ws))
     del comps[0]
     return comps
+
+
+def create_wp(curriculum_discipline_id):
+    """Cоздание программы"""
+    params = {"token": ApeksAPI.TOKEN}
+    data = {
+        "table": "mm_work_programs",
+        "fields[curriculum_discipline_id]": curriculum_discipline_id,
+        "fields[name]": get_wp_name(curriculum_discipline_id),
+        "fields[user_id]": get_main_staff_id(curriculum_discipline_id),
+    }
+    requests.post(
+        ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+    )
+
+
+def get_wp_name(curriculum_discipline_id):
+    """Название программы как у дисциплины плана"""
+    disc_id = db_filter_req(
+        "plan_curriculum_disciplines", "id", curriculum_discipline_id
+    )[0]["discipline_id"]
+    return db_filter_req("plan_disciplines", "id", disc_id)[0]["name"]
+
+
+def get_main_staff_id(curriculum_discipline_id):
+    """Получение идентификатора начальника кафедры или самого старшего на момент запроса"""
+    department_id = db_filter_req(
+        "plan_curriculum_disciplines", "id", curriculum_discipline_id
+    )[0]["department_id"]
+    state_staff_id = db_filter_req(
+        "state_staff_history", "department_id", department_id
+    )[0]["staff_id"]
+    user_id = db_filter_req("state_staff", "id", state_staff_id)[0]["user_id"]
+    return user_id

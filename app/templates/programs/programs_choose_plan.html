@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-6" xmlns="http://www.w3.org/1999/html">{% block title %} {{ title }} {% endblock %}</h1>
+    <p></p>
+
+{% include '/main/choose_plan.html' %}
+
+{% endblock %}

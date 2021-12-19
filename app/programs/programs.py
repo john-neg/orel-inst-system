@@ -1,6 +1,8 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from app.main.func import education_specialty, education_plans, db_filter_req
+from app.main.models import EducationPlan
+from app.plans.func import create_wp
 from app.programs import bp
 from app.programs.forms import (
     WorkProgramDatesUpdate,
@@ -48,6 +50,7 @@ def dept_check():
 @bp.route("/fields_choose_plan", endpoint="fields_choose_plan", methods=["GET", "POST"])
 @login_required
 def fields_choose_plan():
+    title = "Сводная информация по полям рабочих программ плана"
     form = ChoosePlan()
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
@@ -57,9 +60,9 @@ def fields_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("programs.fields_data", plan_id=edu_plan))
         return render_template(
-            "programs/fields_choose_plan.html", active="programs", form=form, edu_spec=edu_spec
+            "programs/programs_choose_plan.html", active="programs", form=form, title=title, edu_spec=edu_spec
         )
-    return render_template("programs/fields_choose_plan.html", active="programs", form=form)
+    return render_template("programs/programs_choose_plan.html", active="programs", title=title, form=form)
 
 
 @bp.route("/fields_data/<int:plan_id>", methods=["GET", "POST"])
@@ -177,3 +180,43 @@ def dates_update():
                 edu_spec=edu_spec,
             )
     return render_template("programs/dates_update.html", active="programs", form=form)
+
+
+@bp.route("/wp_data_choose_plan", methods=["GET", "POST"])
+@login_required
+def wp_data_choose_plan():
+    title = "Информация по рабочим программам учебного плана"
+    form = ChoosePlan()
+    form.edu_spec.choices = list(education_specialty().items())
+    if request.method == "POST":
+        edu_spec = request.form.get("edu_spec")
+        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        if request.form.get("edu_plan") and form.validate_on_submit():
+            edu_plan = request.form.get("edu_plan")
+            return redirect(url_for("programs.wp_data", plan_id=edu_plan))
+        return render_template(
+            "programs/programs_choose_plan.html", active="programs", form=form, title=title, edu_spec=edu_spec
+        )
+    return render_template("programs/programs_choose_plan.html", active="programs", title=title, form=form)
+
+
+@bp.route("/wp_data/<int:plan_id>", methods=["GET", "POST"])
+@login_required
+def wp_data(plan_id):
+    plan = EducationPlan(plan_id)
+    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
+    wp_list = {}
+    no_program = {}
+    for disc in plan.disciplines:
+        try:
+            wp = WorkProgram(disc)
+            wp_list[disc] = [wp.name, wp.get_signs()]
+        except IndexError:
+            if request.method == 'POST':
+                create_wp(disc)
+                wp = WorkProgram(disc)
+                wp_list[disc] = wp.name
+            else:
+                no_program[disc] = plan.discipline_name(disc)
+    return render_template("programs/wp_data.html", active="programs", wp_list=wp_list,
+                           no_program=no_program, plan_name=plan_name)

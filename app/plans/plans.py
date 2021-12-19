@@ -155,16 +155,6 @@ def matrix_indicator_load(plan_id):
                 if request.form.get("mtrx_ind_check"):
                     # Проверка файла
                     return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
-                if request.form.get("mtrx_ind_load"):
-                    if request.form.get("switch_relations") and request.form.get("switch_programs"):
-                        return "switch_relations & switch_programs"
-                    elif request.form.get("switch_relations"):
-                        return "switch_relations"
-                    elif request.form.get("switch_programs"):
-                        return "switch_programs"
-                    else:
-                        flash('Ничего не загружено, т.к. все опции были выключены')
-                        return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
     return render_template(
         "plans/matrix_indicator_load.html",
         active="plans",
@@ -266,7 +256,7 @@ def matrix_indicator_check(plan_id, filename):
         else:
             report[discipline_name] = []
     form = FileForm()
-    # report, comp_code_errors, ind_errors = plan.matrix_ind_file_check(file)
+
     if request.method == "POST":
         if request.form.get("mtrx_ind_temp"):
             # Шаблон
@@ -287,16 +277,16 @@ def matrix_indicator_check(plan_id, filename):
                 if request.form.get("mtrx_ind_check"):
                     # Проверка файла
                     return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
-                if request.form.get("mtrx_ind_load"):
-                    if request.form.get("switch_relations") and request.form.get("switch_programs"):
-                        return "switch_relations & switch_programs"
-                    elif request.form.get("switch_relations"):
-                        return "switch_relations"
-                    elif request.form.get("switch_programs"):
-                        return "switch_programs"
-                    else:
-                        flash('Ничего не загружено, т.к. все опции были выключены')
-                        return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
+        if request.form.get("mtrx_ind_load"):
+            if request.form.get("switch_relations") and request.form.get("switch_programs"):
+                return "switch_relations & switch_programs"
+            elif request.form.get("switch_relations"):
+                return "switch_relations"
+            elif request.form.get("switch_programs"):
+                return "switch_programs"
+            else:
+                flash('Ничего не загружено, т.к. все опции были выключены')
+                return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
     return render_template(
         "plans/matrix_indicator_load.html",
         active="plans",

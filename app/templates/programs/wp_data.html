@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-6">
+        {% block title %} Информация по рабочим программам учебного плана {% endblock %}
+    </h1>
+
+    <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+    </div>
+
+    {% if wp_list %}
+    <div class="d-grid col-xl-8">
+        <table class="col-md-7 mt-3 table">
+          <tr class="table-success">
+              <td>Список созданных рабочих программ:</td>
+              <td>Согласование:</td>
+          </tr>
+
+            {% for prog in wp_list %}
+              <tr>
+                <td><span style="white-space: pre-line"><b>{{ wp_list[prog][0] }}</b></span></td>
+                <td>
+                    {% for sign in wp_list[prog][1] %}
+                    {{ sign }}
+                    {% endfor %}
+                </td>
+              </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if no_program %}
+    <div class="d-grid col-xl-8">
+        <table class="col-md-7 mt-3 table">
+          <tr class="table-warning">
+              <td>В плане отсутствуют рабочие программы:</td>
+          </tr>
+            {% for disc in no_program %}
+              <tr>
+                <td><span style="white-space: pre-line"><b>{{ no_program[disc] }}</b></span></td>
+              </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <form action="" method="post">
+        <div class="d-grid mt-3 mb-3 col-xl-8">
+            <input type="submit" name="create_wp" value="Создать отсутствующие программы" class="btn btn-success">
+        </div>
+    </form>
+
+    {% endif %}
+{% endblock %}
