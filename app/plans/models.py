@@ -27,6 +27,12 @@ class CompPlan(EducationPlan):
             "plan_competencies", "education_plan_id", self.education_plan_id
         )
 
+    def get_comp_list(self):
+        comp_list = []
+        for comp in self.competencies:
+            comp_list.append(comp.get('code'))
+        return comp_list
+
     def get_comp_code_by_id(self, comp_id):
         """Получение кода компетенции по id"""
         for comp in self.competencies:
@@ -34,7 +40,7 @@ class CompPlan(EducationPlan):
                 return comp.get("code")
 
     def get_comp_by_id(self, comp_id):
-        """Получение кода компетенции по id"""
+        """Получение кода и названия компетенции по id"""
         for comp in self.competencies:
             if comp.get("id") == comp_id:
                 return f'{comp.get("code")} - {comp.get("description")}'
@@ -285,7 +291,6 @@ class MatrixIndicatorsFile:
         }
         xlsx_normalize(self.ws, replace_dict)
 
-
     def file_errors(self):
         """Проверка матрицы на ошибки распознавания индикаторов знать, уметь, владеть)"""
         not_found = []
@@ -313,7 +318,7 @@ class MatrixIndicatorsFile:
 
     def disc_comp(self, discipline_name):
         """Компетенция и ее индикаторы для дисциплины"""
-        comp, complist = "", {}
+        comp, disc_comp = "", {}
         for row in range(1, len(self.disciplines_list) + 1):
             if self.file_data[row][1]:
                 if discipline_name == self.file_data[row][1]:
@@ -322,7 +327,7 @@ class MatrixIndicatorsFile:
                             # Получаем компетенцию
                             if comp != self.file_data[0][col].split(".")[0]:
                                 comp = self.file_data[0][col].split(".")[0]
-                                complist[comp] = {
+                                disc_comp[comp] = {
                                     "knowledge": [],
                                     "abilities": [],
                                     "ownerships": [],
@@ -332,12 +337,21 @@ class MatrixIndicatorsFile:
                             load_data = f"{data.split(' - ')[1]} ({data.split(' - ')[0]})"  # f"- { - тире
                             load_data = load_data.replace("  ", " ").replace(". (", " (")
                             if self.file_data[row][col] == "+" and ".з." in str(data):
-                                complist[comp]["knowledge"] += [load_data]
+                                disc_comp[comp]["knowledge"] += [load_data]
                             elif self.file_data[row][col] == "+" and ".у." in str(data):
-                                complist[comp]["abilities"] += [load_data]
+                                disc_comp[comp]["abilities"] += [load_data]
                             elif self.file_data[row][col] == "+" and ".в." in str(data):
-                                complist[comp]["ownerships"] += [load_data]
-        return complist
+                                disc_comp[comp]["ownerships"] += [load_data]
+        return disc_comp
+
+    def comp_list(self):
+        comp, comp_list = "", []
+        """Список компетенций присутствующих в матрице"""
+        for col in range(2, len(self.file_data[0])):
+            if comp != self.file_data[0][col].split(".")[0]:
+                comp = self.file_data[0][col].split(".")[0]
+                comp_list.append(comp)
+        return comp_list
 
     def list_to_word(self):
         """"Конвертация файла xlsx в Word (Индикаторы по дисциплинам)"""

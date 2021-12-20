@@ -83,12 +83,22 @@
         </div>
     </div>
 
+{{ load_data }}
 
     {% if file_errors %}
         <div class="d-grid col-xl-8">
             <div class="alert alert-danger text-center" role="alert">
                 <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
                 {{ '\n'.join(file_errors) }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if no_comp_list %}
+        <div class="d-grid col-xl-8">
+            <div class="alert alert-danger text-center" role="alert">
+                <b>Компетенции которые есть в файле, но отсутствуют в плане:</b><br>
+                {{ '\n'.join(no_comp_list) }}
             </div>
         </div>
     {% endif %}

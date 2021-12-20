@@ -1,11 +1,12 @@
 import os
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
-from app.plans import bp
 from app.main.forms import ChoosePlan, FileForm
 from app.main.func import education_specialty, education_plans, allowed_file
-from app.plans.func import comps_file_processing
+from app.plans import bp
+from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
+from app.programs.models import WorkProgramProcessing
 from config import FlaskConfig
 
 
@@ -237,12 +238,15 @@ def matrix_simple_check(plan_id, filename):
         comp_code_errors=comp_code_errors,
     )
 
+
 @bp.route("/matrix_indicator_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"])
 @login_required
 def matrix_indicator_check(plan_id, filename):
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     matrix = MatrixIndicatorsFile(file)
+    form = FileForm()
+
     # File check
     report = {}
     for disc_id in plan.disciplines:
@@ -255,7 +259,53 @@ def matrix_indicator_check(plan_id, filename):
                 report[discipline_name] = ["None"]
         else:
             report[discipline_name] = []
-    form = FileForm()
+    # Comp check
+    no_comp_list = []
+    matrix_comp_list = matrix.comp_list()
+    plan_comp_list = plan.get_comp_list()
+    for comp in matrix_comp_list:
+        if comp not in plan_comp_list:
+            no_comp_list.append(comp)
+
+    def disc_load_ids(curriculum_discipline_id):
+        """получение ID компетенций плана для дисциплины для загрузки """
+        disc_comp_load = []
+        disc_name = plan.discipline_name(curriculum_discipline_id)
+        comp_data = matrix.disc_comp(disc_name)
+        for comp in comp_data:
+            for v in range(len(plan.competencies)):
+                if comp == plan.competencies[v]['code']:
+                    disc_comp_load.append(plan.competencies[v]['id'])
+        return disc_comp_load
+
+    def disc_comp_upload(curriculum_discipline_id):
+        """Загрузка связей дисциплин и компетенций из файла в план"""
+        for comp in disc_load_ids(curriculum_discipline_id):
+            disciplines_comp_load(curriculum_discipline_id, comp)
+
+    def work_program_load(curriculum_discipline_id):
+        """Загрузка индикаторов в программу"""
+        wp = WorkProgramProcessing(curriculum_discipline_id)
+        wp.comp_data_del()
+        disc_name = plan.discipline_name(curriculum_discipline_id)
+        comp_data = matrix.disc_comp(disc_name)
+        fields = {1: 'knowledge', 2: 'abilities', 3: 'ownerships'}
+        knowledge, abilities, ownerships = [], [], []
+
+        for comp in comp_data.keys():
+            for v in range(len(plan.competencies)):
+                if comp == plan.competencies[v]['code']:
+                    competency_id = plan.competencies[v]['id']
+                    for f in fields:
+                        value = ';\n'.join(comp_data[comp][fields[f]])
+                        if value:
+                            wp.comp_data_add(competency_id, f, value)
+
+            knowledge += comp_data[comp]['knowledge']
+            abilities += comp_data[comp]['abilities']
+            ownerships += comp_data[comp]['ownerships']
+
+        wp.comp_level_edit(';\n'.join(knowledge), ';\n'.join(knowledge), ';\n'.join(knowledge))
 
     if request.method == "POST":
         if request.form.get("mtrx_ind_temp"):
@@ -279,14 +329,22 @@ def matrix_indicator_check(plan_id, filename):
                     return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
         if request.form.get("mtrx_ind_load"):
             if request.form.get("switch_relations") and request.form.get("switch_programs"):
-                return "switch_relations & switch_programs"
+                for disc_id in plan.disciplines.keys():
+                    disc_comp_upload(disc_id)
+                    work_program_load(disc_id)
+                flash("Связи и программы обновлены")
             elif request.form.get("switch_relations"):
-                return "switch_relations"
+                for disc_id in plan.disciplines.keys():
+                    disc_comp_upload(disc_id)
+                flash("Связи обновлены")
             elif request.form.get("switch_programs"):
-                return "switch_programs"
+                for disc_id in plan.disciplines.keys():
+                    work_program_load(disc_id)
+                flash("Программы обновлены")
             else:
                 flash('Ничего не загружено, т.к. все опции были выключены')
-                return redirect(url_for("plans.matrix_indicator_check", plan_id=plan_id, filename=filename))
+            os.remove(file)
+            return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
     return render_template(
         "plans/matrix_indicator_load.html",
         active="plans",
@@ -296,7 +354,9 @@ def matrix_indicator_check(plan_id, filename):
         plan_relations=plan.disciplines_comp_dict(),
         report=report,
         file_errors=matrix.file_errors(),
+        no_comp_list=no_comp_list,
     )
+
 
 @bp.route("/comp_update/<int:plan_id>/<string:filename>", methods=["GET"])
 @login_required
@@ -342,6 +402,7 @@ def matrix_indicator_file_upload():
         active="plans",
         form=form,
     )
+
 
 @bp.route("/matrix_indicator_file_check/<string:filename>", methods=["GET", "POST"])
 @login_required

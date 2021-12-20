@@ -204,9 +204,7 @@ class WorkProgramProcessing:
         if not self.wp_data:
             create_wp(self.curriculum_discipline_id)
             self.wp_data = self.wp_data_get()
-        self.control_data = db_filter_req(
-            "plan_control_works", "curriculum_discipline_id", curriculum_discipline_id
-        )
+        self.control_data = self.control_data()
         self.comp_level = self.comp_level_get()
         if not self.comp_level:
             self.comp_level_add()
@@ -216,6 +214,23 @@ class WorkProgramProcessing:
         return db_filter_req(
             "mm_work_programs", "curriculum_discipline_id", self.curriculum_discipline_id
         )
+
+    def control_data(self):
+        """Получение последней формы контроля и семестра дисциплины"""
+        control_type_id = {1: [], 2: [], 6: [],
+                           14: []}  # 1: ["зкзамен"], 2: ["Зачет"], 6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"]
+        apeks_data = db_filter_req(
+            "plan_control_works", "curriculum_discipline_id", self.curriculum_discipline_id
+        )
+        for data in apeks_data:
+            if int(data['control_type_id']) in list(control_type_id.keys()):
+                control_type_id[int(data.get('control_type_id'))].append(int(data.get('semester_id')))
+        for control in control_type_id:
+            if control_type_id[control]:
+                semester = sorted(control_type_id[control])[-1]
+                return control, semester
+            else:
+                return None
 
     def comp_level_get(self):
         return db_filter_req(
@@ -229,8 +244,8 @@ class WorkProgramProcessing:
             data = {
                 "table": "mm_competency_levels",
                 "fields[work_program_id]": self.wp_data[0]["id"],
-                "fields[semester_id]": self.control_data[-1]["semester_id"],
-                "fields[control_type_id]": self.control_data[-1]["control_type_id"],
+                "fields[control_type_id]": self.control_data[0],
+                "fields[semester_id]": self.control_data[1],
                 "fields[level]": "1",
             }
             requests.post(
@@ -256,17 +271,17 @@ class WorkProgramProcessing:
                     )
 
         if self.control_data:
-            """Проверка заполненности плана т.к. нужен семестр"""
+            """Проверка заполненности плана т.к. нужен семестр, выбор последнего семестка и формы контроля"""
             params = {"token": ApeksAPI.TOKEN}
             data = {
                 "table": "mm_competency_levels",
                 "filter[work_program_id]": self.wp_data[0]["id"],
                 "filter[level]": "1",
+                "fields[semester_id]": self.control_data[1],
+                "fields[control_type_id]": self.control_data[0],
                 "fields[knowledge]": knowledge,
                 "fields[abilities]": abilities,
                 "fields[ownerships]": ownerships,
-                "fields[semester_id]": self.control_data[-1]["semester_id"],
-                "fields[control_type_id]": self.control_data[-1]["control_type_id"],
             }
             requests.post(
                 ApeksAPI.URL + "/api/call/system-database/edit",
