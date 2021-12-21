@@ -351,11 +351,10 @@ class WorkProgramBunchData:
         for disc in disc_list:
             try:
                 wp = WorkProgram(disc)
+                try:
+                    result[" ".join(disc_list[disc])] = [wp.get(self.parameter), disc]
+                except IndexError:
+                    result[" ".join(disc_list[disc])] = ["", disc]
             except IndexError:
                 result[" ".join(disc_list[disc])] = ["-->Программа отсутствует<--", disc]
-                break
-            try:
-                result[" ".join(disc_list[disc])] = [wp.get(self.parameter), disc]
-            except IndexError:
-                result[" ".join(disc_list[disc])] = ["", disc]
         return result
