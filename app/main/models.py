@@ -21,22 +21,34 @@ class EducationPlan:
 
 
 class EducationStaff:
-    def __init__(self, year, month, department_id):
+    def __init__(self, year, month):
         self.year = year
         self.month = month
-        self.department_id = str(department_id)
-        self.state_staff_history = db_filter_req('state_staff_history', 'department_id', self.department_id)
+        self.state_staff_history = db_request('state_staff_history')
+        self.state_staff = self.get_state_staff()
+        self.state_staff_positions = db_request('state_staff_positions')
 
-    def staff_list(self):
+    def get_state_staff(self):
+        staff_list = {}
+        resp = db_request('state_staff')
+        for staff in resp:
+            staff_list[staff.get('id')] = f'{staff.get("family_name")} {staff.get("name")[0]}.{staff.get("surname")[0]}.'
+        return staff_list
+
+    def staff_list(self, department_id):
         """List of department workers which was active on selected month"""
         staff_list = []
-        state_staff_positions = db_request('state_staff_positions')
         exclude_list = {'12': "инструктора произв. обучения",
                         '13': "начальник кабинета",
                         '14': "специалист по УМР",
                         '15': "зав. кабинетом", }
 
-        for staff in self.state_staff_history:
+        dept_history = []
+        for record in self.state_staff_history:
+            if record.get('department_id') == str(department_id):
+                dept_history.append(record)
+
+        for staff in dept_history:
             if staff.get('position_id') not in exclude_list:
                 if staff.get('end_date') is not None:
                     if date.fromisoformat(staff.get('end_date')) > date(self.year, self.month, 1):
@@ -52,14 +64,9 @@ class EducationStaff:
             for sort_staff in staff_list:
                 if sort_staff.get("staff_id") == str(staff_id):
                     position_id = sort_staff.get("position_id")
-            for k in state_staff_positions:
+            for k in self.state_staff_positions:
                 if k.get("id") == position_id:
                     return k.get("sort")
-
-        def staff_name(staff_id):
-            """getting staff name from DB"""
-            resp = db_filter_req("state_staff", "id", staff_id)
-            return f'{resp[0].get("family_name")} {resp[0].get("name")[0]}.{resp[0].get("surname")[0]}.'
 
         sort_dict = {}
         for i in staff_list:
@@ -67,7 +74,7 @@ class EducationStaff:
         a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
         prepod_dict = {}
         for i in range(len(a)):
-            prepod_dict[a[i][0]] = staff_name(a[i][0])
+            prepod_dict[a[i][0]] = self.state_staff.get(a[i][0])
         return prepod_dict
 
 
