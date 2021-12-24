@@ -96,6 +96,11 @@ class ExcelStyle(object):
     Base.border = AllBorder
     Base.alignment = Alignment(wrap_text=True)
 
+    Number = NamedStyle(name="number")
+    Number.font = Font(name="Times New Roman", size=10)
+    Number.border = AllBorder
+    Number.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+
     BaseBold = NamedStyle(name="base_bold")
     BaseBold.font = Font(name="Times New Roman", size=11, bold=True)
     BaseBold.border = AllBorder
