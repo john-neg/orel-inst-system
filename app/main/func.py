@@ -38,12 +38,12 @@ def get_active_staff_id():
 
 
 def get_departments():
-    """Getting list of department as dict id:[name, short_name]"""
-    dept_list = {}
+    """Getting dict of department as dict id:[name, short_name]"""
+    dept_dict = {}
     resp = db_filter_req('state_departments', 'parent_id', ApeksAPI.APEKS_DEPT_ID)
     for dept in resp:
-        dept_list[dept['id']] = [dept['name'], dept['name_short']]
-    return dept_list
+        dept_dict[dept['id']] = [dept['name'], dept['name_short']]
+    return dept_dict
 
 
 def get_data(active_staff_id):

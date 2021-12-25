@@ -24,6 +24,9 @@ def create_app(config_class=FlaskConfig):
     from app.schedule import bp as schedule_bp
     app.register_blueprint(schedule_bp)
 
+    from app.load import bp as load_bp
+    app.register_blueprint(load_bp)
+
     from app.plans import bp as plans_bp
     app.register_blueprint(plans_bp, url_prefix='/plans')
 
