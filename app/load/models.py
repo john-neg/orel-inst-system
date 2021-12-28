@@ -169,9 +169,9 @@ class LoadReport:
                 else:
                     self.unprocessed.append(control)
         self.data = self.dept_load.load
+        self.filename = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}.xlsx'
 
     def generate_report(self):
-        filename = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}.xlsx'
         wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
         ws.title = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}'
@@ -220,4 +220,4 @@ class LoadReport:
                 ws.cell(row, col).value = "=IF(SUM("+letter+"8:"+letter+str(row-1)+")>0,SUM("+letter+"8:"+letter+str(row-1)+"),\"\")"
                 ws.cell(row, col).style = ExcelStyle.Number
                 ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)
