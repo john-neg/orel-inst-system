@@ -87,8 +87,8 @@ def get_lesson_type(lesson):
         or lesson.get("control_type_id") == "10"
     ):  # Зачет, зачет с оценкой, итоговая письменная аудиторная к/р
         l_type = "zachet"
-    elif lesson.get("control_type_id") == "1":  # Экзамен
-        l_type = "exams"
+    elif lesson.get("control_type_id") == "1" or lesson.get("control_type_id") == "16":  # Экзамен
+        l_type = "exam"
     elif lesson.get("control_type_id") == "14":  # Итоговая аттестация
         l_type = "final_att"
     else:

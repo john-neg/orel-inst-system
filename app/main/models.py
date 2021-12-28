@@ -97,7 +97,7 @@ class ExcelStyle(object):
     Base.alignment = Alignment(wrap_text=True)
 
     Number = NamedStyle(name="number")
-    Number.font = Font(name="Times New Roman", size=10)
+    Number.font = Font(name="Times New Roman", size=9)
     Number.border = AllBorder
     Number.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
 

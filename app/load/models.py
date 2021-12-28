@@ -1,8 +1,6 @@
 from copy import copy
-
 from openpyxl import load_workbook
 from openpyxl.styles import Font
-
 from app.load.func import lessons_staff, load_subgroups, load_groups, plan_education_plans_education_forms, \
     plan_education_plans, get_lessons, get_lesson_type, get_student_type
 from app.main.func import get_departments
@@ -22,6 +20,7 @@ class LoadData:
         self.plan_education_plans_education_forms = plan_education_plans_education_forms()
         self.plan_education_plans = plan_education_plans()
         self.structured_lessons = self.process_lessons()
+        self.control_lessons = self.control_lessons()
 
     def prepod_dept_structure(self):
         """Department Id for prepod in current month ( {staff_id:department_id} )"""
@@ -51,31 +50,79 @@ class LoadData:
                     less_copy = copy(lesson)
                     less_copy['staff_id'] = prep
                     less_copy['department_id'] = self.prepod_dept_structure.get(prep)
+                    less_copy['hours'] = 2
                     structured_lessons.append(less_copy)
         return structured_lessons
+
+    def control_lessons(self):
+        """Control lessons (1-экз, 2-зач, 6-зач.оц, 14-ИА, 16-канд.экз)"""
+        def check_and_process(lesson):
+            lookup = ['staff_id', 'discipline_id', 'group_id', 'control_type_id', 'date']
+            counter = 0
+            for c in control_less:
+                if [lesson[val] for val in lookup] == [c[val] for val in lookup]:
+                    c['hours'] += 2
+                    c['lesson_time_id'] = c.get('lesson_time_id') + ", " + lesson.get('lesson_time_id')
+                    counter += 1
+            if counter != 0:
+                return True
+            else:
+                return False
+        control_less = []
+        for l in self.structured_lessons:
+            if l.get('control_type_id') in ['1', '2', '6', '14', '16']:
+                if not check_and_process(l):
+                    control_less.append(copy(l))
+        return control_less
+
+    def get_control_hours(self, contr_less):
+        """Getting hours for control lessons depending on students number, education type etc..."""
+        adj_kf = 1
+        zach_kf = 0.25
+        exam_kf = 0.3
+        final_kf = 0.5
+        cont_type = get_lesson_type(contr_less)
+        stud_type = get_student_type(contr_less)
+        group_id = contr_less.get('group_id')
+        people_count = self.load_groups[group_id].get('people_count')
+        if stud_type == 'prof_p' or stud_type == 'dpo':
+            return contr_less['hours']
+        elif stud_type == 'adj' and (contr_less.get('control_type_id') == '14' or contr_less.get('control_type_id') == '16'):
+            value = int(people_count) * adj_kf
+            return 8 if value > 8 else value
+        elif cont_type == 'zachet':
+            value = int(people_count) * zach_kf
+            return 6 if value > 6 else value
+        elif cont_type == 'exam':
+            value = int(people_count) * exam_kf
+            return 8 if value > 8 else value
+        elif cont_type == 'final_att':
+            value = int(people_count) * final_kf
+            return 8 if value > 8 else value
+        # ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
+        # 'zachet', 'exam', 'final_att']
 
     def unknown_lessons(self):
         """Lessons with inactive staff (which doesn't work in department in selected time)"""
         unknown = []
-        for les in self.structured_lessons:
-            if not les.get('department_id'):
-                unknown.append(les)
+        for l in self.structured_lessons:
+            if not l.get('department_id'):
+                unknown.append(l)
         return unknown
 
     def department_lessons(self, department_id):
         """Select department lessons for load report"""
         dept_lessons = []
-        for les in self.structured_lessons:
-            if les.get('department_id') == str(department_id):
-                dept_lessons.append(les)
+        for l in self.structured_lessons:
+            if l.get('department_id') == str(department_id):
+                dept_lessons.append(l)
         return dept_lessons
-
 
 class DeptPrepodLoad:
     def __init__(self, staff_list):
         self.load = {}
         self.staff_list = staff_list
-        lesson_types = ['lecture', 'seminar', 'pract', 'group_cons', 'zachet', 'exams', 'final_att']
+        lesson_types = ['lecture', 'seminar', 'pract', 'group_cons', 'zachet', 'exam', 'final_att']
         student_types = ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
         for staff_id in staff_list:
             self.load[staff_id] = {}
@@ -90,7 +137,6 @@ class DeptPrepodLoad:
     def get_load(self, staff_id):
         prep_load = {self.staff_list[staff_id]: self.load[staff_id]}
         return prep_load
-
 
 class LoadReport:
     def __init__(self, year, month, department_id):
@@ -107,13 +153,25 @@ class LoadReport:
                 l_type = get_lesson_type(lesson)
                 s_type = get_student_type(lesson)
                 if staff_id and l_type and s_type:
-                    self.dept_load.add_load(staff_id, l_type, s_type)
+                    if l_type in ['lecture', 'seminar', 'pract', 'group_cons']:
+                        self.dept_load.add_load(staff_id, l_type, s_type)
                 else:
                     self.unprocessed.append(lesson)
+        for control in self.load.control_lessons:
+            if control.get('department_id') == self.department_id:
+                staff_id = control.get('staff_id')
+                l_type = get_lesson_type(control)
+                s_type = get_student_type(control)
+                if staff_id and l_type and s_type:
+                    if l_type in ['zachet', 'exam', 'final_att']:
+                        value = self.load.get_control_hours(control)
+                        self.dept_load.add_load(staff_id, l_type, s_type, value)
+                else:
+                    self.unprocessed.append(control)
         self.data = self.dept_load.load
-        self.filename = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}.xlsx'
 
     def generate_report(self):
+        filename = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}.xlsx'
         wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
         ws.title = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}'
@@ -121,7 +179,7 @@ class LoadReport:
         ws.cell(2, 1).value = f'отчет о нагрузке за {self.month} - {self.year}'
         row = 8
         for prepod in self.data:
-            # Style apply
+            #Style apply
             for i in range(2, 73):
                 ws.cell(row, i).style = ExcelStyle.Number
             # Prepod Name
@@ -140,21 +198,21 @@ class LoadReport:
                         del self.data[prepod][l_type]['dpo']
                 elif l_type == 'zachet':
                     column = 29
-                elif l_type == 'exams':
+                elif l_type == 'exam':
                     column = 35
                 elif l_type == 'final_att':
                     column = 59
                 else:
                     column = 73
                 for key, val in self.data[prepod][l_type].items():
-                    val = "" if val == 0 else val
+                    val="" if val == 0 else val
                     ws.cell(row, column).value = val
                     if val and val % 1 > 0:
                         ws.cell(row, column).number_format = '0.00'
                     column += 1
             ws.cell(row, 72).value = "=SUM(B"+str(row)+":BS"+str(row)+")"
             row += 1
-            # Total
+            #Total
             ws.cell(row, 1).value = "Итого"
             ws.cell(row, 1).style = ExcelStyle.BaseBold
             for col in range(2, 73):
@@ -162,4 +220,4 @@ class LoadReport:
                 ws.cell(row, col).value = "=IF(SUM("+letter+"8:"+letter+str(row-1)+")>0,SUM("+letter+"8:"+letter+str(row-1)+"),\"\")"
                 ws.cell(row, col).style = ExcelStyle.Number
                 ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
