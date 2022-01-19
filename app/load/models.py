@@ -186,7 +186,7 @@ class LoadReport:
         wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
         ws.title = f'{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}'
-        ws.cell(1, 1).value = self.load.departments.get(self.department_id)[0]
+        ws.cell(1, 1).value = 'кафедра ' + self.load.departments.get(self.department_id)[0]
         ws.cell(2, 1).value = f'отчет о нагрузке за {self.month} - {self.year}'
         row = 8
         for prepod in self.data:
