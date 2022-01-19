@@ -90,7 +90,7 @@ class LoadData:
         final_kf = 0.5
         cont_type = get_lesson_type(contr_less)
         stud_type = get_student_type(contr_less)
-        if contr_less.get('subgroup_id'):
+        if contr_less.get('subgroup_id'):  # If subgroup - get people count from it
             subgroup_id = contr_less.get('subgroup_id')
             people_count = self.load_subgroups[subgroup_id].get('people_count')
         else:
