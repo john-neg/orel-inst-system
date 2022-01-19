@@ -23,7 +23,15 @@ class EducationPlan:
 class EducationStaff:
     def __init__(self, year, month):
         self.year = year
-        self.month = month
+        if month == 'январь-август':
+            self.start_month = 1
+            self.end_month = 8
+        elif month == 'сентябрь-декабрь':
+            self.start_month = 9
+            self.end_month = 12
+        else:
+            self.start_month = int(month)
+            self.end_month = int(month)
         self.state_staff_history = db_request('state_staff_history')
         self.state_staff = self.get_state_staff()
         self.state_staff_positions = db_request('state_staff_positions')
@@ -51,11 +59,11 @@ class EducationStaff:
         for staff in dept_history:
             if staff.get('position_id') not in exclude_list:
                 if staff.get('end_date') is not None:
-                    if date.fromisoformat(staff.get('end_date')) > date(self.year, self.month, 1):
+                    if date.fromisoformat(staff.get('end_date')) > date(self.year, self.start_month, 1):
                         staff_list.append(staff)
                 else:
-                    if date.fromisoformat(staff.get('start_date')) <= date(self.year, self.month,
-                                                                           monthrange(self.year, self.month)[1]):
+                    if date.fromisoformat(staff.get('start_date')) <= date(self.year, self.end_month,
+                                                                           monthrange(self.year, self.end_month)[1]):
                         staff_list.append(staff)
 
         def staff_sort(staff_id):

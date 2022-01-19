@@ -18,7 +18,7 @@ def load_report():
         return redirect(url_for("load.load_report_export", year=year, month=month, department=department))
     return render_template("load/load_report.html", active="load", form=form)
 
-@bp.route("/load_report/<int:year>/<int:month>/<int:department>", methods=["GET", "POST"])
+@bp.route("/load_report/<int:year>/<string:month>/<int:department>", methods=["GET", "POST"])
 def load_report_export(year, month, department):
     report = LoadReport(year, month, department)
     report.generate_report()

@@ -35,23 +35,30 @@ class LoadData:
     def process_lessons(self):
         """Current month lessons list with all data for load report"""
         structured_lessons = []
-        for lesson in get_lessons(self.year, self.month):
-            if not lesson.get('group_id'):
-                if lesson.get('subgroup_id'):
-                    lesson['group_id'] = self.load_subgroups.get(lesson['subgroup_id'])
-            education_plan_id = self.load_groups.get(lesson.get('group_id'))['education_plan_id']
-            education_form_id = self.plan_education_plans_education_forms.get(education_plan_id)
-            education_level_id = self.plan_education_plans.get(education_plan_id)['education_level_id']
-            lesson['education_plan_id'] = education_plan_id
-            lesson['education_form_id'] = education_form_id
-            lesson['education_level_id'] = education_level_id
-            if lesson.get('id') in self.lesson_staff:
-                for prep in self.lesson_staff[lesson['id']]:
-                    less_copy = copy(lesson)
-                    less_copy['staff_id'] = prep
-                    less_copy['department_id'] = self.prepod_dept_structure.get(prep)
-                    less_copy['hours'] = 2
-                    structured_lessons.append(less_copy)
+        if self.month == 'январь-август':
+            month_list = [1, 2, 3, 4, 5, 6, 7, 8]
+        elif self.month == 'сентябрь-декабрь':
+            month_list = [9, 10, 11, 12]
+        else:
+            month_list = [int(self.month)]
+        for month in month_list:
+            for lesson in get_lessons(self.year, month):
+                if not lesson.get('group_id'):
+                    if lesson.get('subgroup_id'):
+                        lesson['group_id'] = self.load_subgroups.get(lesson['subgroup_id'])
+                education_plan_id = self.load_groups.get(lesson.get('group_id'))['education_plan_id']
+                education_form_id = self.plan_education_plans_education_forms.get(education_plan_id)
+                education_level_id = self.plan_education_plans.get(education_plan_id)['education_level_id']
+                lesson['education_plan_id'] = education_plan_id
+                lesson['education_form_id'] = education_form_id
+                lesson['education_level_id'] = education_level_id
+                if lesson.get('id') in self.lesson_staff:
+                    for prep in self.lesson_staff[lesson['id']]:
+                        less_copy = copy(lesson)
+                        less_copy['staff_id'] = prep
+                        less_copy['department_id'] = self.prepod_dept_structure.get(prep)
+                        less_copy['hours'] = 2
+                        structured_lessons.append(less_copy)
         return structured_lessons
 
     def control_lessons(self):
@@ -212,12 +219,12 @@ class LoadReport:
                     column += 1
             ws.cell(row, 72).value = "=SUM(B"+str(row)+":BS"+str(row)+")"
             row += 1
-            #Total
-            ws.cell(row, 1).value = "Итого"
-            ws.cell(row, 1).style = ExcelStyle.BaseBold
-            for col in range(2, 73):
-                letter = ws.cell(row, col).column_letter
-                ws.cell(row, col).value = "=IF(SUM("+letter+"8:"+letter+str(row-1)+")>0,SUM("+letter+"8:"+letter+str(row-1)+"),\"\")"
-                ws.cell(row, col).style = ExcelStyle.Number
-                ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
+        #Total
+        ws.cell(row, 1).value = "Итого"
+        ws.cell(row, 1).style = ExcelStyle.BaseBold
+        for col in range(2, 73):
+            letter = ws.cell(row, col).column_letter
+            ws.cell(row, col).value = "=IF(SUM("+letter+"8:"+letter+str(row-1)+")>0,SUM("+letter+"8:"+letter+str(row-1)+"),\"\")"
+            ws.cell(row, col).style = ExcelStyle.Number
+            ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
         wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)
