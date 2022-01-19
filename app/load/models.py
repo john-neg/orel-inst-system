@@ -45,7 +45,7 @@ class LoadData:
             for lesson in get_lessons(self.year, month):
                 if not lesson.get('group_id'):
                     if lesson.get('subgroup_id'):
-                        lesson['group_id'] = self.load_subgroups.get(lesson['subgroup_id'])
+                        lesson['group_id'] = self.load_subgroups[lesson.get('subgroup_id')].get('group_id')
                 education_plan_id = self.load_groups.get(lesson.get('group_id'))['education_plan_id']
                 education_form_id = self.plan_education_plans_education_forms.get(education_plan_id)
                 education_level_id = self.plan_education_plans.get(education_plan_id)['education_level_id']
@@ -90,8 +90,12 @@ class LoadData:
         final_kf = 0.5
         cont_type = get_lesson_type(contr_less)
         stud_type = get_student_type(contr_less)
-        group_id = contr_less.get('group_id')
-        people_count = self.load_groups[group_id].get('people_count')
+        if contr_less.get('subgroup_id'):
+            subgroup_id = contr_less.get('subgroup_id')
+            people_count = self.load_subgroups[subgroup_id].get('people_count')
+        else:
+            group_id = contr_less.get('group_id')
+            people_count = self.load_groups[group_id].get('people_count')
         if stud_type == 'prof_p' or stud_type == 'dpo':
             return contr_less['hours']
         elif stud_type == 'adj' and (contr_less.get('control_type_id') == '14' or contr_less.get('control_type_id') == '16'):

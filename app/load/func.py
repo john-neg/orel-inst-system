@@ -37,7 +37,7 @@ def load_subgroups():
     subgroups = {}
     resp = db_request('load_subgroups')
     for sub in resp:
-        subgroups[sub.get('id')] = sub.get('group_id')
+        subgroups[sub.get('id')] = sub
     return subgroups
 
 
