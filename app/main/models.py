@@ -40,7 +40,13 @@ class EducationStaff:
         staff_list = {}
         resp = db_request('state_staff')
         for staff in resp:
-            staff_list[staff.get('id')] = f'{staff.get("family_name")} {staff.get("name")[0]}.{staff.get("surname")[0]}.'
+            family_name = staff.get("family_name")
+            family_name = family_name if family_name else 'X'
+            first_name = staff.get("name")
+            first_name = first_name[0] if first_name else 'X'
+            second_name = staff.get("surname")
+            second_name = second_name[0] if second_name else 'X'
+            staff_list[staff.get('id')] = f'{family_name} {first_name}.{second_name}.'
         return staff_list
 
     def staff_list(self, department_id):
