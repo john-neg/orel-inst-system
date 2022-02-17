@@ -1,6 +1,6 @@
 import config
 from app import db
-from app.login.models import User
+from app.auth.models import User
 
 # Create base users
 u = User(username='admin', role=config.ROLE_ADMIN)
