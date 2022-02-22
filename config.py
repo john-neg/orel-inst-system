@@ -5,8 +5,8 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 class ApeksAPI(object):
     """Apeks Vuz API data"""
-    URL = ''
-    TOKEN = ''
+    URL = 'https://avtorvuz.orurinst.site'
+    TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
     APEKS_DEPT_ID = '4'  # ID of Department divisions type
 
 
