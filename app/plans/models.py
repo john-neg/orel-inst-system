@@ -299,6 +299,8 @@ class MatrixIndicatorsFile:
             if self.file_data[0][k] and self.file_data[0][k] != 'None':
                 if all(ext not in self.file_data[0][k] for ext in extensions_to_check):
                     not_found.append(self.file_data[0][k])
+                if ' - ' not in self.file_data[0][k]:
+                    not_found.append('Проверьте разделитель " - " ' + self.file_data[0][k])
         return not_found
 
     def get_disciplines_list(self):
