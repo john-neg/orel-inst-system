@@ -279,7 +279,6 @@ class MatrixIndicatorsFile:
             "  ": " ",
             "–": "-",
             ". - ": " - ",
-            "- ": " - ",
             "K": "К",  # Eng to RUS
             "O": "О",
             ". з.": ".з.",
