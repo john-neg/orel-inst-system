@@ -19,3 +19,16 @@ def get_lessons(staff_id, month, year):
     return requests.get(
         ApeksAPI.URL + "/api/call/schedule-schedule/staff", params=params
     ).json()["data"]["lessons"]
+
+
+def get_edu_lessons(group_id, month, year):
+    """getting staff lessons"""
+    params = {
+        "token": ApeksAPI.TOKEN,
+        "group_id": str(group_id),
+        "month": str(month),
+        "year": str(year),
+    }
+    return requests.get(
+        ApeksAPI.URL + "/api/call/schedule-schedule/student", params=params
+    ).json()["data"]["lessons"]

@@ -97,7 +97,9 @@ def get_lesson_type(lesson):
 
 
 def get_student_type(lesson):
-    if lesson.get("education_form_id") == "1" and (
+    if lesson.get("education_form_id") == "7" or lesson.get("discipline_id") == "549":  # проф подготовка (+ Цифр. грам - 549)
+        s_type = "prof_p"
+    elif lesson.get("education_form_id") == "1" and (
         lesson.get("education_level_id") == "3"
         or lesson.get("education_level_id") == "5"
     ):  # Очно, бакалавр или специалитет
@@ -114,8 +116,6 @@ def get_student_type(lesson):
         s_type = "zo_mid"
     elif lesson.get("education_level_id") == "7":  # адъюнктура
         s_type = "adj"
-    elif lesson.get("education_form_id") == "7":  # проф подготовка
-        s_type = "prof_p"
     elif lesson.get("education_form_id") == "5":  # дополнительное проф образование
         s_type = "dpo"
     else:

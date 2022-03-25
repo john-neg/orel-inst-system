@@ -129,6 +129,7 @@ class LoadData:
                 dept_lessons.append(l)
         return dept_lessons
 
+
 class DeptPrepodLoad:
     def __init__(self, staff_list):
         self.load = {}
@@ -148,6 +149,7 @@ class DeptPrepodLoad:
     def get_load(self, staff_id):
         prep_load = {self.staff_list[staff_id]: self.load[staff_id]}
         return prep_load
+
 
 class LoadReport:
     def __init__(self, year, month, department_id):
