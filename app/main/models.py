@@ -13,11 +13,16 @@ class EducationPlan:
 
     def get_name(self):
         """Get education plan name"""
-        return db_filter_req("plan_education_plans", "id", self.education_plan_id)[0]["name"]
+        return db_filter_req(
+            "plan_education_plans",
+            "id",
+            self.education_plan_id
+        )[0]["name"]
 
     def discipline_name(self, curriculum_discipline_id):
         """Get code and discipline name"""
-        return f"{self.disciplines[str(curriculum_discipline_id)][0]} {self.disciplines[str(curriculum_discipline_id)][1]}"
+        return f"{self.disciplines[str(curriculum_discipline_id)][0]} " \
+               f"{self.disciplines[str(curriculum_discipline_id)][1]}"
 
 
 class EducationStaff:
@@ -46,7 +51,8 @@ class EducationStaff:
             first_name = first_name[0] if first_name else 'X'
             second_name = staff.get("surname")
             second_name = second_name[0] if second_name else 'X'
-            staff_list[staff.get('id')] = f'{family_name} {first_name}.{second_name}.'
+            staff_list[staff.get('id')] = f'{family_name} ' \
+                                          f'{first_name}.{second_name}.'
         return staff_list
 
     def staff_list(self, department_id):
@@ -65,11 +71,18 @@ class EducationStaff:
         for staff in dept_history:
             if staff.get('position_id') not in exclude_list:
                 if staff.get('end_date') is not None:
-                    if date.fromisoformat(staff.get('end_date')) > date(self.year, self.start_month, 1):
+                    if date.fromisoformat(staff.get('end_date')) > date(
+                            self.year,
+                            self.start_month,
+                            1
+                    ):
                         staff_list.append(staff)
                 else:
-                    if date.fromisoformat(staff.get('start_date')) <= date(self.year, self.end_month,
-                                                                           monthrange(self.year, self.end_month)[1]):
+                    if date.fromisoformat(staff.get('start_date')) <= date(
+                            self.year,
+                            self.end_month,
+                            monthrange(self.year, self.end_month)[1]
+                    ):
                         staff_list.append(staff)
 
         def staff_sort(staff_id):
@@ -113,7 +126,12 @@ class ExcelStyle(object):
     Number = NamedStyle(name="number")
     Number.font = Font(name="Times New Roman", size=9)
     Number.border = AllBorder
-    Number.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True)
+    Number.alignment = Alignment(
+        horizontal="center",
+        vertical="center",
+        wrap_text=True,
+        shrink_to_fit=True
+    )
 
     BaseBold = NamedStyle(name="base_bold")
     BaseBold.font = Font(name="Times New Roman", size=11, bold=True)

@@ -8,7 +8,8 @@ from app.programs.forms import (
     WorkProgramDatesUpdate,
     FieldsForm,
     ChoosePlan,
-    DepartmentWPCheck, WorkProgramFieldUpdate,
+    DepartmentWPCheck,
+    WorkProgramFieldUpdate,
 )
 from app.programs.func import wp_update_list, wp_dates_update
 from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgram
@@ -60,9 +61,18 @@ def fields_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("programs.fields_data", plan_id=edu_plan))
         return render_template(
-            "programs/programs_choose_plan.html", active="programs", form=form, title=title, edu_spec=edu_spec
+            "programs/programs_choose_plan.html",
+            active="programs",
+            form=form,
+            title=title,
+            edu_spec=edu_spec
         )
-    return render_template("programs/programs_choose_plan.html", active="programs", title=title, form=form)
+    return render_template(
+        "programs/programs_choose_plan.html",
+        active="programs",
+        title=title,
+        form=form
+    )
 
 
 @bp.route("/fields_data/<int:plan_id>", methods=["GET", "POST"])
@@ -195,9 +205,18 @@ def wp_data_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("programs.wp_data", plan_id=edu_plan))
         return render_template(
-            "programs/programs_choose_plan.html", active="programs", form=form, title=title, edu_spec=edu_spec
+            "programs/programs_choose_plan.html",
+            active="programs",
+            form=form,
+            title=title,
+            edu_spec=edu_spec,
         )
-    return render_template("programs/programs_choose_plan.html", active="programs", title=title, form=form)
+    return render_template(
+        "programs/programs_choose_plan.html",
+        active="programs",
+        title=title,
+        form=form,
+    )
 
 
 @bp.route("/wp_data/<int:plan_id>", methods=["GET", "POST"])
