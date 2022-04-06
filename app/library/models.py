@@ -41,7 +41,9 @@ class LibraryPlan(EducationPlan):
                     lib_data(LibConfig.BIBL_MAIN),
                     lib_data(LibConfig.BIBL_ADD),
                     lib_data(LibConfig.BIBL_NP),
+                    lib_data(LibConfig.BIBL_INT),
+                    lib_data(LibConfig.BIBL_DB),
                 ]
             else:
-                content[self.disciplines[disc][1]] = ['Нет программы', 'Нет программы', 'Нет программы']
+                content[self.disciplines[disc][1]] = ['Нет программы'] * 5
         return content

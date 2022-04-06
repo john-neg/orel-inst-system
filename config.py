@@ -35,3 +35,5 @@ class LibConfig(object):
     BIBL_MAIN = 1
     BIBL_ADD = 2
     BIBL_NP = 3
+    BIBL_INT = 18
+    BIBL_DB = 17

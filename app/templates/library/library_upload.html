@@ -16,7 +16,7 @@
             <input type="submit" name="library_load_temp" value="Шаблон" class="btn btn-warning bg-opacity-75">
         </div>
         <div class="d-grid col-xl-4">
-            <input type="submit" name="library_plan_content" value="Литература в РПД плана" class="btn btn-primary bg-opacity-75">
+            <input type="submit" name="library_plan_content" value="{{ lib_type_name }} в РПД плана" class="btn btn-primary bg-opacity-75">
         </div>
     </div>
     <div class="row mb-4 gy-3">
@@ -24,7 +24,7 @@
             (Скачать образец заполнения файла для загрузки)
         </div>
         <div class="d-grid col-xl-4 text-center text-wrap">
-            (Таблица с литературой из рабочих программ плана)
+            (Таблица с данными из рабочих программ плана)
         </div>
     </div>
 
@@ -74,7 +74,7 @@
     <div>
         <table class="col-md-7 mt-3 table">
           <tr class="table-success">
-              <td>Будет загружена литература для следующих программ:</td>
+              <td>Будет загружена <b>{{ lib_type_name }}</b> для следующих программ:</td>
           </tr>
             {% for prog in work_programs %}
               <tr>
@@ -88,7 +88,7 @@
 
     <div class="row mb-3 gy-3">
         <div class="d-grid col-xl-8">
-            <input type="submit" name="library_update" value="Загрузка литературы" class="btn btn-success">
+            <input type="submit" name="library_update" value="Загрузить данные" class="btn btn-success">
         </div>
     </div>
 </form>
