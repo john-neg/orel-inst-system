@@ -45,11 +45,13 @@
         </table>
     </div>
 
-    <form action="" method="post">
-        <div class="d-grid mt-3 mb-3 col-xl-8">
-            <input type="submit" name="create_wp" value="Создать отсутствующие программы" class="btn btn-success">
-        </div>
-    </form>
+    {% if current_user.get_id() in ['1'] %}
+        <form action="" method="post">
+            <div class="d-grid mt-3 mb-3 col-xl-8">
+                <input type="submit" name="create_wp" value="Создать отсутствующие программы" class="btn btn-success">
+            </div>
+        </form>
+    {% endif %}
 
     {% endif %}
 {% endblock %}
