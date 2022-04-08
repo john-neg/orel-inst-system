@@ -61,33 +61,27 @@
 
       <!-- Главная -->
       <li class="nav-item">
-         {% if active == "index" %}
-           <a href="/" class="nav-link active text-white" aria-current="page">
-         {% else %}
-           <a href="/" class="nav-link text-secondary" aria-current="page">
-         {% endif %}
+       <a href="/"
+          class="nav-link {% if active == 'index' %} active text-white {% else %} text-secondary {% endif %}"
+          aria-current="page">
          <svg class="bi me-2" width="16" height="16"><use xlink:href="#home"/></svg>
          Главная</a>
       </li>
 
       <!-- Расписание -->
       <li>
-         {% if active == "schedule" %}
-           <a href="{{ url_for('schedule.schedule') }}" class="nav-link active text-white" aria-current="page">
-         {% else %}
-           <a href="{{ url_for('schedule.schedule') }}" class="nav-link text-secondary" aria-current="page">
-         {% endif %}
+           <a href="{{ url_for('schedule.schedule') }}"
+              class="nav-link {% if active == 'schedule' %} active text-white {% else %} text-secondary {% endif %}"
+              aria-current="page">
          <svg class="bi me-2" width="16" height="16"><use xlink:href="#schedule"/></svg>
          Расписание</a>
       </li>
 
       <!-- Отчет о нагрузке -->
       <li>
-         {% if active == "load" %}
-           <a href="{{ url_for('load.load_report') }}" class="nav-link active text-white" aria-current="page">
-         {% else %}
-           <a href="{{ url_for('load.load_report') }}" class="nav-link text-secondary" aria-current="page">
-         {% endif %}
+       <a href="{{ url_for('load.load_report') }}"
+          class="nav-link {% if active == 'load' %} active text-white {% else %} text-secondary {% endif %}"
+          aria-current="page">
          <svg class="bi me-2" width="16" height="16"><use xlink:href="#load"/></svg>
          Отчет о нагрузке</a>
       </li>
@@ -95,11 +89,9 @@
       <!-- Учебные планы -->
       {% if current_user.is_authenticated and current_user.get_id() in ['1', '3'] %}
       <li>
-          {% if active == "plans" %}
-            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link active text-white" aria-current="page">
-          {% else %}
-            <a href="{{ url_for('plans.comp_choose_plan') }}" class="nav-link text-secondary" aria-current="page">
-          {% endif %}
+        <a href="{{ url_for('plans.comp_choose_plan') }}"
+           class="nav-link {% if active == 'plans' %} active text-white {% else %} text-secondary {% endif %}"
+           aria-current="page">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#plans"/></svg>
           Учебные планы</a>
       </li>
@@ -119,11 +111,9 @@
 
       <!-- Программы -->
       <li>
-          {% if active == "programs" %}
-            <a href="{{ url_for('programs.dept_check') }}" class='nav-link active text-white' aria-current="page">
-          {% else %}
-            <a href="{{ url_for('programs.dept_check') }}" class="nav-link text-secondary" aria-current="page">
-          {% endif %}
+        <a href="{{ url_for('programs.dept_check') }}"
+           class="nav-link {% if active == 'programs' %} active text-white {% else %} text-secondary {% endif %}"
+           aria-current="page">
           <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
           Программы</a>
       </li>
@@ -145,26 +135,26 @@
 
         <!-- Обеспечение -->
         {% if current_user.is_authenticated and current_user.get_id() in ['1', '3', '4'] %}
-        <li>
-          {% if active == "library" and current_user.get_id() in ['1', '4'] %}
-            <a href="{{ url_for('library.library_choose_plan') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
-          {% elif current_user.get_id() in ['1', '4'] %}
-            <a href="{{ url_for('library.library_choose_plan') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
-          {% elif active == "library" and current_user.get_id() in ['3'] %}
-            <a href="{{ url_for('library.library_np_choose_plan') }}" class='nav-link active text-white rounded collapsed' aria-current="page">
-          {% elif current_user.get_id() in ['3'] %}
-            <a href="{{ url_for('library.library_np_choose_plan') }}" class="nav-link text-secondary rounded collapsed" aria-current="page">
-          {% endif %}
-          <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>
-          Обеспечение</a>
-        </li>
+            <li>
+              <a href="{% if current_user.get_id() in ['1', '4'] %}
+                         {{ url_for('library.library_choose_plan') }}
+                       {% elif current_user.get_id() in ['3'] %}
+                         {{ url_for('library.library_np_choose_plan') }}
+                       {% endif %}"
+                 class="nav-link {% if active == 'library' %} active text-white {% else %} text-secondary {% endif %}"
+                 aria-current="page">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#book"/></svg>
+                Обеспечение
+              </a>
+            </li>
         {% endif %}
-
          {% if current_user.is_authenticated %}
             {% if active == "library" %}
              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                {% if current_user.get_id() in ['1', '4'] %}
                  <li><a href="{{ url_for('library.library_choose_plan') }}" class="text-white rounded">Список литературы</a></li>
+                 <li><a href="{{ url_for('library.library_int_choose_plan') }}" class="text-white rounded">Интернет ресурсы</a></li>
+                 <li><a href="{{ url_for('library.library_db_choose_plan') }}" class="text-white rounded">Базы и справочные системы</a></li>
                {% endif %}
                {% if current_user.get_id() in ['1', '3'] %}
                  <li><a href="{{ url_for('library.library_np_choose_plan') }}" class="text-white rounded">Научная продукция</a></li>

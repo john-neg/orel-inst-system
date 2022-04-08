@@ -1,11 +1,13 @@
 import os
 import requests
+
 from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Cm, Pt
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
+
 from app.main.func import db_filter_req, db_request, xlsx_iter_rows, xlsx_normalize
 from app.main.models import EducationPlan, ExcelStyle
 from app.plans.func import (

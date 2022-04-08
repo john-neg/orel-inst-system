@@ -1,3 +1,4 @@
+from app.library.func import add_bibl_field
 from app.main.func import db_filter_req
 from app.main.models import EducationPlan
 from config import LibConfig
@@ -23,6 +24,15 @@ class LibraryPlan(EducationPlan):
         return work_programs, non_exist
 
     def library_content(self):
+
+        library_fields = (
+            LibConfig.BIBL_MAIN,
+            LibConfig.BIBL_ADD,
+            LibConfig.BIBL_NP,
+            LibConfig.BIBL_INT,
+            LibConfig.BIBL_DB,
+        )
+
         def lib_data(field_id):
             for field in reversed(wp_fields):
                 if field.get("field_id") == str(field_id):
@@ -37,13 +47,19 @@ class LibraryPlan(EducationPlan):
                 wp_fields = db_filter_req(
                     "mm_work_programs_data", "work_program_id", wp_data[0]["id"]
                 )
-                content[wp_data[-1]["name"]] = [
-                    lib_data(LibConfig.BIBL_MAIN),
-                    lib_data(LibConfig.BIBL_ADD),
-                    lib_data(LibConfig.BIBL_NP),
-                    lib_data(LibConfig.BIBL_INT),
-                    lib_data(LibConfig.BIBL_DB),
-                ]
+                if not wp_fields:
+                    for field in library_fields:
+                        add_bibl_field(wp_data[0]["id"], field)
+
+                field_dict = {}
+                for field in library_fields:
+                    field_dict[field] = lib_data(field)
+                # [-1] - это костыль т.к. в бд бывает дублирование и нужен именно последний объект
+                content[wp_data[-1]["name"]] = field_dict
+
             else:
-                content[self.disciplines[disc][1]] = ['Нет программы'] * 5
+                field_dict = {}
+                for field in library_fields:
+                    field_dict[field] = 'Нет программы'
+                content[self.disciplines[disc][1]] = field_dict
         return content

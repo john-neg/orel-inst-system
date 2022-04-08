@@ -30,3 +30,15 @@ def load_bibl(work_program_id, field_id, load_data):
         "fields[data]": load_data,
     }
     requests.post(ApeksAPI.URL + "/api/call/system-database/edit", params=params, data=data)
+
+
+def add_bibl_field(work_program_id, field_id):
+    """Добавление полей в рабочую программу в случае их отсутствия"""
+    params = {"token": ApeksAPI.TOKEN}
+    data = {
+        "table": "mm_work_programs_data",
+        "fields[work_program_id]": work_program_id,
+        "fields[field_id]": field_id,
+        "fields[data]": "",
+    }
+    requests.post(ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data)
