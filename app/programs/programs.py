@@ -14,11 +14,10 @@ from app.programs.forms import (
 from app.programs.func import wp_update_list, wp_dates_update
 from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgram
 
-apeks = ApeksDeptData()
-
 
 @bp.route("/dept_check", methods=["GET", "POST"])
 def dept_check():
+    apeks = ApeksDeptData()
     form = DepartmentWPCheck()
     form.department.choices = list(apeks.departments.items())
     form.edu_spec.choices = list(education_specialty().items())
@@ -223,19 +222,29 @@ def wp_data_choose_plan():
 @login_required
 def wp_data(plan_id):
     plan = EducationPlan(plan_id)
-    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
+    plan_name = plan.name
+    # db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
     wp_list = {}
     no_program = {}
     for disc in plan.disciplines:
         try:
             wp = WorkProgram(disc)
-            wp_list[disc] = [wp.name, wp.get_signs()]
+            wp_list[disc] = [wp.name, wp.get_signs(), wp.get('status')]
+            if request.method == 'POST' and request.form.get("wp_status_0"):
+                wp.wp_status_change(0)
+#            elif request.method == 'POST' and request.form.get("wp_status_1"):
+#                wp.edit('status', 1)
         except IndexError:
-            if request.method == 'POST':
+            if request.method == 'POST' and request.form.get("create_wp"):
                 create_wp(disc)
                 wp = WorkProgram(disc)
                 wp_list[disc] = wp.name
             else:
                 no_program[disc] = plan.discipline_name(disc)
-    return render_template("programs/wp_data.html", active="programs", wp_list=wp_list,
-                           no_program=no_program, plan_name=plan_name)
+    return render_template(
+        "programs/wp_data.html",
+        active="programs",
+        wp_list=wp_list,
+        no_program=no_program,
+        plan_name=plan_name
+    )

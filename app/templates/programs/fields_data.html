@@ -1,54 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="display-6">
-        {% block title %} Сводная информация по полям рабочих программ плана {% endblock %}
-    </h1>
+<h1 class="display-6">
+  {% block title %} Сводная информация по полям рабочих программ плана {% endblock %}
+</h1>
 
-    <div class="d-grid col-xl-8">
-    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
-    </div>
+<div class="d-grid col-xl-8">
+  <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+</div>
 
 <form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-
-    <div class="row mb-2">
-      <div class="col-xl-8">
-        <label class="form-label">{{ form.wp_fields.label }}</label>
-        {{ form.wp_fields(class="form-select form-select-ld") }}
-      </div>
+  {{ form.hidden_tag() }}
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      <label class="form-label">{{ form.wp_fields.label }}</label>
+      {{ form.wp_fields(class="form-select form-select-ld") }}
     </div>
-
-    {{ form.fields_data (class="btn btn-secondary mb-2") }}
-
+  </div>
+  {{ form.fields_data (class="btn btn-secondary mb-2") }}
 </form>
 
-
-    {% if wp_data %}
-<div>
+{% if wp_data %}
+  <div>
     <table class="col-md-7 mt-3 table">
-        {% for wp in wp_data %}
-              <tr class="table-success">
-                  <td>{{ wp }}
-                    {% if wp_data[wp][0] != "-->Программа отсутствует<--" and current_user.get_id() in ['1'] %}
-                    <a href="{{url_for('programs.wp_field_edit')}}?disc_id={{ wp_data[wp][1] }}&parameter={{ wp_field }}"
-                       target="_blank"
-                       class="btn btn-success btn-block p-0"
-                       role="button">Edit</a>
-                    {% endif %}
-                  </td>
-              </tr>
-              <tr>
-                <td><span style="white-space: pre-line">{{ wp_data[wp][0] }}</span></td>
-              </tr>
-              <tr>
-                <td>
-
-                </td>
-              </tr>
-        {% endfor %}
+      {% for wp in wp_data %}
+        <tr class="table-success">
+          <td>{{ wp }}
+            {% if wp_data[wp][0] != "-->Программа отсутствует<--" and current_user.get_id() in ['1'] %}
+            <a href="{{url_for('programs.wp_field_edit')}}?disc_id={{ wp_data[wp][1] }}&parameter={{ wp_field }}"
+               target="_blank"
+               class="btn btn-success btn-block p-0"
+               role="button">Edit</a>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td><span style="white-space: pre-line">{{ wp_data[wp][0] }}</span></td>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
+      {% endfor %}
     </table>
-</div>
-    {% endif %}
+  </div>
+{% endif %}
 
 {% endblock %}

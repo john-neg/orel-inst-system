@@ -35,6 +35,7 @@ class WorkProgram:
             "document_methodical": "document_methodical",
             "date_academic": "date_academic",
             "document_academic": "document_academic",
+            "status": "status",
         }
         self.special = {
             "date_department": "date_department",  # Дата заседания кафедры
@@ -121,16 +122,16 @@ class WorkProgram:
     def edit(self, parameter, load_data):
         """Edit work program field data"""
         def mm_work_programs_items(f_param, f_data):
-            prm = {"token": ApeksAPI.TOKEN}
-            dte = {
+            params = {"token": ApeksAPI.TOKEN}
+            data = {
                 "table": "mm_work_programs",
                 "filter[id]": self.work_program_id,
                 "fields[" + f_param + "]": str(f_data),
             }
             requests.post(
                 ApeksAPI.URL + "/api/call/system-database/edit",
-                params=prm,
-                data=dte,
+                params=params,
+                data=data,
             )
         if parameter in self.mm_work_programs_items:
             mm_work_programs_items(parameter, load_data)
@@ -187,7 +188,11 @@ class WorkProgram:
 
     def get_signs(self):
         """Получение информации о согласовании программы"""
-        signs_data = db_filter_req('mm_work_programs_signs', 'work_program_id', self.work_program_id)
+        signs_data = db_filter_req(
+            'mm_work_programs_signs',
+            'work_program_id',
+            self.work_program_id
+        )
         signs = []
         if signs_data:
             for sign in signs_data:
@@ -195,6 +200,17 @@ class WorkProgram:
         else:
             signs.append("Не согласована")
         return signs
+
+    def wp_status_change(self, status):
+        """Статус утверждения программы (status = 1-утв, 2-неутв)"""
+        params = {"token": ApeksAPI.TOKEN}
+        data = {
+            "table": "mm_work_programs",
+            "filter[id]": self.work_program_id,
+            "fields[status]": str(status),
+        }
+        requests.post(ApeksAPI.URL + "/api/call/system-database/edit",
+                      params=params, data=data)
 
 
 class WorkProgramProcessing:
