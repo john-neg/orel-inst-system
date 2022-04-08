@@ -32,7 +32,7 @@
             {% endfor %}
           </td>
           <td>
-            {% if wp_list[prog][2] %}
+            {% if wp_list[prog][2] == '1' %}
               Утверждена
             {% else %}
               <b>Не утвержд.</b>
@@ -75,6 +75,13 @@
                name="wp_status_0"
                value="Разутвердить все программы плана"
                class="btn btn-primary"
+        >
+      </div>
+      <div class="d-grid mt-3 mb-3 col-xl-8">
+        <input type="submit"
+               name="wp_status_1"
+               value="Утвердить все программы плана"
+               class="btn btn-success"
         >
       </div>
     </form>

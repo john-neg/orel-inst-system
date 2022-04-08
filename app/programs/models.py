@@ -23,7 +23,9 @@ class WorkProgram:
     def __init__(self, curriculum_discipline_id):
         self.curriculum_discipline_id = curriculum_discipline_id
         self.mm_work_programs = db_filter_req(
-            "mm_work_programs", "curriculum_discipline_id", curriculum_discipline_id
+            "mm_work_programs",
+            "curriculum_discipline_id",
+            curriculum_discipline_id
         )
         self.work_program_id = self.mm_work_programs[0]["id"]
         self.name = self.mm_work_programs[0]["name"]
@@ -112,7 +114,8 @@ class WorkProgram:
                     ),
                 }
                 return requests.get(
-                    ApeksAPI.URL + "/api/call/system-database/get", params=params
+                    ApeksAPI.URL + "/api/call/system-database/get",
+                    params=params
                 ).json()["data"][-1]["data"]
             except IndexError:
                 return ""
@@ -126,7 +129,7 @@ class WorkProgram:
             data = {
                 "table": "mm_work_programs",
                 "filter[id]": self.work_program_id,
-                "fields[" + f_param + "]": str(f_data),
+                "fields[" + f_param + "]": f_data,
             }
             requests.post(
                 ApeksAPI.URL + "/api/call/system-database/edit",
@@ -142,13 +145,17 @@ class WorkProgram:
             )
         elif parameter in self.special:
             param = 'date_department'
-            d = load_data.split("\r\n")[0].replace("Дата заседания кафедры:", "").replace(" ", "")
+            d = load_data.split("\r\n")[0].replace(
+                "Дата заседания кафедры:", ""
+            ).replace(" ", "")
             d = datetime.strptime(d, '%d.%m.%Y')
             data = date.isoformat(d)
             mm_work_programs_items(param, data)
 
             param = 'document_department'
-            data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
+            data = load_data.split("\r\n")[1].replace(
+                "Протокол №", ""
+            ).replace(" ", "")
             mm_work_programs_items(param, data)
 
             self.mm_work_programs = db_filter_req(
@@ -161,20 +168,23 @@ class WorkProgram:
             data = {
                 "table": "mm_sections",
                 "filter[work_program_id]": self.work_program_id,
-                "fields[" + self.mm_sections_items.get(parameter) + "]": str(load_data),
+                "fields[" + self.mm_sections_items.get(parameter) +
+                "]": str(load_data),
             }
-            r = requests.post(
+            resp = requests.post(
                 ApeksAPI.URL + "/api/call/system-database/edit",
                 params=params,
                 data=data,
             )
-            return r.json()
+            return resp.json()
         elif parameter in self.mm_work_programs_data_items:
             params = {"token": ApeksAPI.TOKEN}
             data = {
                 "table": "mm_work_programs_data",
                 "filter[work_program_id]": self.work_program_id,
-                "filter[field_id]": self.mm_work_programs_data_items.get(parameter),
+                "filter[field_id]": self.mm_work_programs_data_items.get(
+                    parameter
+                ),
                 "fields[data]": str(load_data),
             }
             r = requests.post(
@@ -196,13 +206,16 @@ class WorkProgram:
         signs = []
         if signs_data:
             for sign in signs_data:
-                signs.append(f'{get_system_user_name(sign["user_id"])} ({sign["timestamp"]})')
+                signs.append(
+                    f'{get_system_user_name(sign["user_id"])}\r\n' +
+                    f'({sign["timestamp"]})'
+                )
         else:
             signs.append("Не согласована")
         return signs
 
     def wp_status_change(self, status):
-        """Статус утверждения программы (status = 1-утв, 2-неутв)"""
+        """Статус утверждения программы (status = 1-утв, 0-неутв)"""
         params = {"token": ApeksAPI.TOKEN}
         data = {
             "table": "mm_work_programs",
@@ -228,19 +241,29 @@ class WorkProgramProcessing:
 
     def wp_data_get(self):
         return db_filter_req(
-            "mm_work_programs", "curriculum_discipline_id", self.curriculum_discipline_id
+            "mm_work_programs",
+            "curriculum_discipline_id",
+            self.curriculum_discipline_id
         )
 
     def control_data(self):
-        """Получение последней формы контроля и семестра дисциплины"""
+        """
+        Получение последней формы контроля и семестра дисциплины
+        1: ["зкзамен"], 2: ["Зачет"],
+        6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"]
+        """
         control_type_id = {1: [], 2: [], 6: [],
-                           14: []}  # 1: ["зкзамен"], 2: ["Зачет"], 6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"]
+                           14: []}
         apeks_data = db_filter_req(
-            "plan_control_works", "curriculum_discipline_id", self.curriculum_discipline_id
+            "plan_control_works",
+            "curriculum_discipline_id",
+            self.curriculum_discipline_id
         )
         for data in apeks_data:
             if int(data['control_type_id']) in list(control_type_id.keys()):
-                control_type_id[int(data.get('control_type_id'))].append(int(data.get('semester_id')))
+                control_type_id[
+                    int(data.get('control_type_id'))
+                ].append(int(data.get('semester_id')))
         for control in control_type_id:
             if control_type_id[control]:
                 semester = sorted(control_type_id[control])[-1]
@@ -250,11 +273,16 @@ class WorkProgramProcessing:
 
     def comp_level_get(self):
         return db_filter_req(
-            "mm_competency_levels", "work_program_id", self.wp_data[0]["id"]
+            "mm_competency_levels",
+            "work_program_id",
+            self.wp_data[0]["id"]
         )
 
     def comp_level_add(self):
-        """Создание уровня сформированности компетенций (последний семестр [-1])"""
+        """
+        Создание уровня сформированности компетенций
+        (последний семестр [-1])
+        """
         if self.control_data:
             params = {"token": ApeksAPI.TOKEN}
             data = {
@@ -265,7 +293,9 @@ class WorkProgramProcessing:
                 "fields[level]": "1",
             }
             requests.post(
-                ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+                ApeksAPI.URL + "/api/call/system-database/add",
+                params=params,
+                data=data
             )
             return "Уровень создан"
         else:
@@ -283,11 +313,15 @@ class WorkProgramProcessing:
                         "filter[level]": i["level"],
                     }
                     requests.delete(
-                        ApeksAPI.URL + "/api/call/system-database/delete", params=params
+                        ApeksAPI.URL + "/api/call/system-database/delete",
+                        params=params
                     )
 
         if self.control_data:
-            """Проверка заполненности плана т.к. нужен семестр, выбор последнего семестка и формы контроля"""
+            """
+            Проверка заполненности плана 
+            т.к. нужен семестр, выбор последнего семестра и формы контроля
+            """
             params = {"token": ApeksAPI.TOKEN}
             data = {
                 "table": "mm_competency_levels",
@@ -314,7 +348,10 @@ class WorkProgramProcessing:
         )
 
     def comp_data_add(self, competency_id, field_id, value):
-        """Загрузка данных компетенции (field_id 1-знать, 2-уметь, 3-владеть)"""
+        """
+        Загрузка данных компетенции
+        (field_id 1-знать, 2-уметь, 3-владеть)
+        """
         params = {"token": ApeksAPI.TOKEN}
         data = {
             "table": "mm_work_programs_competencies_data",
@@ -324,17 +361,23 @@ class WorkProgramProcessing:
             "fields[value]": value,
         }
         requests.post(
-            ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+            ApeksAPI.URL + "/api/call/system-database/add",
+            params=params,
+            data=data
         )
 
-    #     def comp_data_edit(self, competency_id, field_id, value): # Редактирование заполненных данных
+    #     def comp_data_edit(self, competency_id, field_id, value):
+    # Редактирование заполненных данных
     #         data = {'token': ApeksAPI.TOKEN,
     #                 'table': 'mm_work_programs_competencies_data',
     #                 'filter[work_program_id]': self.wp_data[0]['id'],
     #                 'filter[competency_id]': competency_id,
     #                 'filter[field_id]': field_id,
     #                 'fields[value]': value,}
-    #         requests.post(ApeksAPI.URL + '/api/call/system-database/edit', data=data)
+    #         requests.post(
+    #         ApeksAPI.URL + '/api/call/system-database/edit',
+    #         data=data
+    #         )
     #         self.comp_data = self.comp_data_get()
 
     def comp_data_del(self):
@@ -345,7 +388,8 @@ class WorkProgramProcessing:
             "filter[work_program_id]": self.wp_data[0]["id"],
         }
         requests.delete(
-            ApeksAPI.URL + "/api/call/system-database/delete", params=params
+            ApeksAPI.URL + "/api/call/system-database/delete",
+            params=params
         )
 
 
@@ -359,7 +403,10 @@ class WorkProgramBunchData:
         return self.wp_list_processing(disc_list)
 
     def department(self, department_id):
-        disc_list = plan_department_disciplines(self.education_plan_id, department_id)
+        disc_list = plan_department_disciplines(
+            self.education_plan_id,
+            department_id
+        )
         return self.wp_list_processing(disc_list)
 
     def wp_list_processing(self, disc_list):
@@ -368,9 +415,15 @@ class WorkProgramBunchData:
             try:
                 wp = WorkProgram(disc)
                 try:
-                    result[" ".join(disc_list[disc])] = [wp.get(self.parameter), disc]
+                    result[" ".join(disc_list[disc])] = [
+                        wp.get(self.parameter),
+                        disc
+                    ]
                 except IndexError:
                     result[" ".join(disc_list[disc])] = ["", disc]
             except IndexError:
-                result[" ".join(disc_list[disc])] = ["-->Программа отсутствует<--", disc]
+                result[" ".join(disc_list[disc])] = [
+                    "-->Программа отсутствует<--",
+                    disc
+                ]
         return result

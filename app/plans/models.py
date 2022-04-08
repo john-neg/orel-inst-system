@@ -66,14 +66,19 @@ class CompPlan(EducationPlan):
             "fields[right_node]": str(right_node),
         }
         load = requests.post(
-            ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+            ApeksAPI.URL + "/api/call/system-database/add",
+            params=params,
+            data=data
         )
         if load.json()["status"] == 0:
             return f"{code} {description} {load.json()['message']}"
         self.competencies = self.get_comp()
 
     def del_comp(self):
-        """Удаляет все компетенции из плана (если нельзя (связаны), то сообщение)"""
+        """
+        Удаляет все компетенции из плана
+        (если нельзя (связаны), то сообщение)
+        """
         message = []
         for i in range(len(self.competencies)):
             params = {
@@ -82,11 +87,13 @@ class CompPlan(EducationPlan):
                 "filter[id]": self.competencies[i]["id"],
             }
             remove = requests.delete(
-                ApeksAPI.URL + "/api/call/system-database/delete", params=params
+                ApeksAPI.URL + "/api/call/system-database/delete",
+                params=params
             )
             if remove.json()["status"] == 0:
                 message.append(
-                    f"{self.competencies[i]['code']} {remove.json()['message']}"
+                    f"{self.competencies[i]['code']} " +
+                    f"{remove.json()['message']}"
                 )
         self.competencies = self.get_comp()
         return message
@@ -101,35 +108,40 @@ class CompPlan(EducationPlan):
                 "filter[curriculum_discipline_id]": disc,
             }
             resp = requests.get(
-                ApeksAPI.URL + "/api/call/system-database/get", params=params
+                ApeksAPI.URL + "/api/call/system-database/get",
+                params=params
             )
             if resp.json()["data"]:
                 message += resp.json()["data"]
         return message
 
     def disciplines_comp_dict(self):
-        """Получение связей дисциплин и компетенций c названиями"""
+        """Получение связей дисциплин и компетенций с названиями"""
         data = self.disciplines_comp()
         mtrx_dict = {}
-        dics_id = 0
+        disc_id = 0
         if data:
             for i in data:
-                if dics_id == i["curriculum_discipline_id"]:
+                if disc_id == i["curriculum_discipline_id"]:
                     mtrx_dict[
                         self.discipline_name(i["curriculum_discipline_id"])
                     ].append(self.get_comp_by_id(i["competency_id"]))
                 else:
-                    mtrx_dict[self.discipline_name(i["curriculum_discipline_id"])] = [
-                        self.get_comp_by_id(i["competency_id"])
-                    ]
-                    dics_id = i["curriculum_discipline_id"]
+                    mtrx_dict[
+                        self.discipline_name(i["curriculum_discipline_id"])
+                    ] = [self.get_comp_by_id(i["competency_id"])]
+                    disc_id = i["curriculum_discipline_id"]
         return mtrx_dict
 
     def disciplines_all_comp_del(self):
-        """Удаление компетенций, всех связей с дисциплинами и содержания из РП"""
+        """
+        Удаление компетенций, всех связей с дисциплинами и содержания из РП.
+        """
         for curriculum_discipline_id in self.disciplines.keys():
             work_program_list = db_filter_req(
-                "mm_work_programs", "curriculum_discipline_id", curriculum_discipline_id
+                "mm_work_programs",
+                "curriculum_discipline_id",
+                curriculum_discipline_id
             )
             for wp in work_program_list:
                 if wp.get("id"):
@@ -141,7 +153,9 @@ class CompPlan(EducationPlan):
         """Формирование матрицы компетенций плана в формате Excel"""
         disc_list = db_request("plan_disciplines")
         plan_data = db_filter_req(
-            "plan_curriculum_disciplines", "education_plan_id", self.education_plan_id
+            "plan_curriculum_disciplines",
+            "education_plan_id",
+            self.education_plan_id
         )
         relations = self.disciplines_comp()
 
@@ -156,7 +170,10 @@ class CompPlan(EducationPlan):
             }
         plan_comp = {}
         for comp in self.competencies:
-            plan_comp[int(comp["left_node"])] = {"id": comp["id"], "code": comp["code"]}
+            plan_comp[int(comp["left_node"])] = {
+                "id": comp["id"],
+                "code": comp["code"]
+            }
 
         def disc_name(discipline_id):
             for discipline in disc_list:
@@ -187,7 +204,8 @@ class CompPlan(EducationPlan):
                 ws.column_dimensions[get_column_letter(column)].width = 4
                 ws.cell(row, column).style = ExcelStyle.Base
                 ws.cell(row, column).alignment = Alignment(
-                    horizontal="center", vertical="center"
+                    horizontal="center",
+                    vertical="center"
                 )
                 if plan_disc[disc]["level"] != "3":
                     ws.cell(row, 1).style = ExcelStyle.BaseBold
@@ -198,8 +216,10 @@ class CompPlan(EducationPlan):
                     ws.cell(row, column).fill = ExcelStyle.GreyFill
                 for relation in relations:
                     if (
-                        plan_disc[disc]["id"] == relation["curriculum_discipline_id"]
-                        and plan_comp[comp]["id"] == relation["competency_id"]
+                        plan_disc[disc]["id"] ==
+                            relation["curriculum_discipline_id"]
+                            and plan_comp[comp]["id"] ==
+                            relation["competency_id"]
                     ):
                         ws.cell(row, column).value = "+"
                 column += 1
@@ -213,7 +233,9 @@ class CompPlan(EducationPlan):
         """Удаление связей дисциплин и компетенций и их содержания в РП"""
         for curriculum_discipline_id in self.disciplines.keys():
             work_program_list = db_filter_req(
-                "mm_work_programs", "curriculum_discipline_id", curriculum_discipline_id
+                "mm_work_programs",
+                "curriculum_discipline_id",
+                curriculum_discipline_id
             )
             for wp in work_program_list:
                 if wp.get("id"):
@@ -233,7 +255,9 @@ class CompPlan(EducationPlan):
                 if self.disciplines[disc][1] == line[1]:
                     for i in range(2, len(line)):
                         if str(line[i]) == "+":
-                            report[self.disciplines[disc][1]].append(file_data[0][i])
+                            report[self.disciplines[disc][1]].append(
+                                file_data[0][i]
+                            )
                     if not report[self.disciplines[disc][1]]:
                         report[self.disciplines[disc][1]] = ["None"]
         for i in range(2, len(file_data[0])):
@@ -294,19 +318,26 @@ class MatrixIndicatorsFile:
         xlsx_normalize(self.ws, replace_dict)
 
     def file_errors(self):
-        """Проверка матрицы на ошибки распознавания индикаторов знать, уметь, владеть)"""
+        """
+        Проверка матрицы на ошибки распознавания индикаторов
+        (знать, уметь, владеть).
+        """
         not_found = []
-        extensions_to_check = [".з.", ".у.", ".в."]
+        ext_to_check = [".з.", ".у.", ".в."]
         for k in range(2, len(self.file_data[0])):
             if self.file_data[0][k] and self.file_data[0][k] != 'None':
-                if all(ext not in self.file_data[0][k] for ext in extensions_to_check):
+                if all(
+                        ext not in self.file_data[0][k] for ext in ext_to_check
+                ):
                     not_found.append(self.file_data[0][k])
                 if ' - ' not in self.file_data[0][k]:
-                    not_found.append('Проверьте разделитель " - " ' + self.file_data[0][k])
+                    not_found.append(
+                        'Проверьте разделитель " - " ' + self.file_data[0][k]
+                    )
         return not_found
 
     def get_disciplines_list(self):
-        """Получение списка дисциплин загруженного файла"""
+        """Получение списка дисциплин загруженного файла."""
         disc_list = []
         for row in range(1, len(self.file_data)):
             if self.file_data[row][1] and self.file_data[row][1] != 'None':
@@ -317,11 +348,13 @@ class MatrixIndicatorsFile:
         return disc_list
 
     def find_discipline(self, discipline_name):
-        """Проверяем есть ли дисциплина в загруженной матрице (Google Sheets)"""
+        """
+        Проверяем есть ли дисциплина в загруженной матрице (Google Sheets).
+        """
         return True if discipline_name in self.disciplines_list else False
 
     def disc_comp(self, discipline_name):
-        """Компетенция и ее индикаторы для дисциплины"""
+        """Компетенция и ее индикаторы для дисциплины."""
         comp, disc_comp = "", {}
         for row in range(1, len(self.disciplines_list) + 1):
             if self.file_data[row][1]:
@@ -338,8 +371,13 @@ class MatrixIndicatorsFile:
                                 }
                             # Получаем индикатор
                             data = self.file_data[0][col]
-                            load_data = f"{data.split(' - ')[1]} ({data.split(' - ')[0]})"  # f"- { - тире
-                            load_data = load_data.replace("  ", " ").replace(". (", " (")
+                            load_data = f"{data.split(' - ')[1]} " \
+                                        f"({data.split(' - ')[0]})"
+                            load_data = load_data.replace(
+                                "  ", " "
+                            ).replace(
+                                ". (", " ("
+                            )
                             if self.file_data[row][col] == "+" and ".з." in str(data):
                                 disc_comp[comp]["knowledge"] += [load_data]
                             elif self.file_data[row][col] == "+" and ".у." in str(data):

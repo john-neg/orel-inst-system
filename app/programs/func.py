@@ -6,17 +6,21 @@ from config import ApeksAPI
 def wp_update_list(education_plan_id):
     """Getting ID and names of plan work programs"""
     disciplines = plan_curriculum_disciplines(education_plan_id)
-    workprogram = {}
+    work_program = {}
     not_exist = {}
     for disc in disciplines:
-        response = db_filter_req("mm_work_programs", "curriculum_discipline_id", disc)
+        response = db_filter_req(
+            "mm_work_programs",
+            "curriculum_discipline_id",
+            disc
+        )
         if response:
             wp_id = response[0]["id"]
             wp_name = response[0]["name"]
-            workprogram[wp_id] = wp_name
+            work_program[wp_id] = wp_name
         else:
             not_exist[disc] = disciplines[str(disc)]
-    return workprogram, not_exist
+    return work_program, not_exist
 
 
 def wp_dates_update(
@@ -27,7 +31,7 @@ def wp_dates_update(
     document_academic,
     date_approval,
 ):
-    """Update workprogram signature dates"""
+    """Update work program signature dates"""
     params = {'token': ApeksAPI.TOKEN}
     data = {
         "table": "mm_work_programs",
@@ -39,20 +43,32 @@ def wp_dates_update(
         "fields[date_approval]": date_approval,
     }
     send = requests.post(
-        ApeksAPI.URL + "/api/call/system-database/edit", params=params, data=data)
+        ApeksAPI.URL + "/api/call/system-database/edit",
+        params=params,
+        data=data
+    )
     return send.json()["data"]
 
 
 def plan_department_disciplines(education_plan_id, department_id):
-    """Getting department disciplines info as dict (disc_ID:[disc_code:disc_name])"""
+    """
+    Getting department disciplines info as dict
+    (disc_ID:[disc_code:disc_name])
+    """
     disciplines = {}
     resp = db_filter_req(
         "plan_curriculum_disciplines", "education_plan_id", education_plan_id
     )
     for disc in resp:
-        if disc["level"] == "3" and disc["department_id"] == str(department_id):
+        if disc["level"] == "3" and disc["department_id"] == str(
+                department_id
+        ):
             disciplines[disc["id"]] = [
                 disc["code"],
-                db_filter_req("plan_disciplines", "id", disc["discipline_id"])[0]["name"],
+                db_filter_req(
+                    "plan_disciplines",
+                    "id",
+                    disc["discipline_id"]
+                )[0]["name"],
             ]
     return disciplines

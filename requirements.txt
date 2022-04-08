@@ -1,8 +1,8 @@
 XlsxWriter~=3.0.2
 WTForms~=3.0.0
-requests~=2.26.0
-Werkzeug~=2.0.2
-Flask~=2.0.2
+requests==2.27.1
+Werkzeug~=2.0.3
+Flask~=2.0.3
 Flask-Login
 Flask-SQLAlchemy
 Flask-WTF

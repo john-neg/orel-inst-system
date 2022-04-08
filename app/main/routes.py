@@ -58,7 +58,9 @@ def read_uploaded_file():
     filename = secure_filename(request.args.get('filename'))
     try:
         if filename and allowed_file(filename):
-            with open(os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)) as f:
+            with open(
+                    os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)
+            ) as f:
                 return f.read()
     except IOError:
         pass
