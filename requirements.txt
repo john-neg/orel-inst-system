@@ -4,6 +4,7 @@ requests==2.27.1
 Werkzeug~=2.0.3
 Flask~=2.0.3
 Flask-Login
+Flask-Admin
 Flask-SQLAlchemy
 Flask-WTF
 openpyxl~=3.0.9
