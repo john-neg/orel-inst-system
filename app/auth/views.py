@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_admin.contrib.sqla import ModelView
 from flask_login import logout_user, login_user, current_user, login_required
-
+from flask_admin.menu import MenuLink
 from app import db, admin
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
@@ -37,7 +37,12 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         # return redirect(url_for('main.index'))
-    return render_template("auth/register.html", title="Регистрация нового пользователя", form=form)
+    return render_template(
+        "auth/register.html",
+        title="Регистрация нового пользователя",
+        form=form,
+        active="admin",
+    )
 
 
 @bp.route("/logout")
@@ -47,5 +52,5 @@ def logout():
     return redirect(url_for("main.index"))
 
 
+admin.add_link(MenuLink(name='Вернуться на основной сайт', category='', url='/'))
 admin.add_view(ModelView(User, db.session))
-
