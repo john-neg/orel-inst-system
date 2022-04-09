@@ -1,11 +1,23 @@
-from flask import Flask
-from flask_login import LoginManager
+from flask import Flask, url_for
+from flask_admin import Admin, AdminIndexView
+from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import redirect
+
 from config import FlaskConfig
 
 db = SQLAlchemy()
 login = LoginManager()
 login.login_view = "auth.login"
+admin = Admin()
+
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.role == 1
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('main.index'))
 
 
 def create_app(config_class=FlaskConfig):
@@ -14,6 +26,7 @@ def create_app(config_class=FlaskConfig):
 
     db.init_app(app)
     login.init_app(app)
+    admin.init_app(app, index_view=MyAdminIndexView())
 
     from app.auth import bp as login_bp
     app.register_blueprint(login_bp)

@@ -18,16 +18,25 @@
         <span style="color: red;">[{{ error }}]</span>
       {% endfor %}
     </div>
-      {% if error %}
-        <div class="mb-3 fw-normal text-danger">
-          {{ error }}
-        </div>
-      {% endif %}
-    <div class="checkbox mb-3">
-      <label>
-        {{ form.remember_me() }} {{ form.remember_me.label }}
-      </label>
+    <div class="mb-3 form-floating">
+      {{ form.password2(class="form-control") }}
+      <label>{{ form.password2.label }}</label>
+      {% for error in form.password2.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+      {% endfor %}
     </div>
+    <div class="mb-3 form-floating">
+      {{ form.role(class="form-control") }}
+      <label>{{ form.role.label }}</label>
+      {% for error in form.role.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+      {% endfor %}
+    </div>
+    {% if error %}
+      <div class="mb-3 fw-normal text-danger">
+        {{ error }}
+      </div>
+    {% endif %}
     {{ form.submit(class="w-100 btn btn-lg btn-primary") }}
   </form>
 </main>
