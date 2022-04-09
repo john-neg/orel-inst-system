@@ -59,7 +59,7 @@
     </div>
   {% endif %}
 
-  {% if current_user.get_id() in ['1'] %}
+  {% if current_user.role in [1] %}
     <form action="" method="post">
       {% if no_program %}
         <div class="d-grid mt-3 mb-3 col-xl-8">

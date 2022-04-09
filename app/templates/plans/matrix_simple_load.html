@@ -48,7 +48,7 @@
         <div class="d-grid col-xl-4">
             <input type="submit" name="mtrx_download" value="Сформировать матрицу" class="btn btn-primary bg-opacity-75">
         </div>
-      {% if current_user.get_id() in ['1'] %}
+      {% if current_user.role in [1] %}
         <div class="d-grid col-xl-4">
             <input type="submit" name="mtrx_delete" value="Удаление связей" class="btn btn-danger bg-opacity-75">
         </div>
@@ -58,13 +58,13 @@
         <div class="d-grid col-xl-4 text-center text-wrap">
             (Скачать текущую матрицу в формате Excel)
         </div>
-      {% if current_user.get_id() in ['1'] %}
+      {% if current_user.role in [1] %}
         <div class="d-grid col-xl-4 text-center text-wrap">
             (Удаление связей дисциплин и компетенций, и их содержимого из рабочих программ)
         </div>
       {% endif %}
     </div>
-    {% if current_user.get_id() in ['1'] %}
+    {% if current_user.role in [1] %}
         <div class="row mb-3 gy-3">
             <div class="col-xl-8">
                 <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
