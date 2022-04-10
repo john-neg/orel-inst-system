@@ -1,63 +1,64 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1 class="display-6" xmlns="http://www.w3.org/1999/html">{% block title %} Сводная информация по полям рабочих программ {% endblock %}</h1>
-    <p></p>
+<h1 class="display-6" xmlns="http://www.w3.org/1999/html">
+  {% block title %}
+    Сводная информация по полям рабочих программ
+  {% endblock %}
+</h1>
+<p></p>
 
 <form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
+  {{ form.hidden_tag() }}
 
-    <div class="row mb-3 gy-3">
-      <div class="col-sm-4 col-xl-2">
-        <label class="form-label">{{ form.year.label }}</label>
-        {{ form.year (class="form-select form-select-ld") }}
-      </div>
-
-      <div class="col-sm-8 col-xl-6">
-        <label class="form-label">{{ form.edu_spec.label }}</label>
-        {{ form.edu_spec (class="form-select form-select-ld") }}
-      </div>
+  <div class="row mb-3 gy-3">
+    <div class="col-sm-4 col-xl-2">
+      <label class="form-label">{{ form.year.label }}</label>
+      {{ form.year (class="form-select form-select-ld") }}
     </div>
 
-    <div class="row mb-3 gy-3">
-      <div class="col-xl-8">
-        <label class="form-label">{{ form.department.label }}</label>
-        {{ form.department (class="form-select form-select-ld") }}
-      </div>
+    <div class="col-sm-8 col-xl-6">
+      <label class="form-label">{{ form.edu_spec.label }}</label>
+      {{ form.edu_spec (class="form-select form-select-ld") }}
     </div>
+  </div>
 
-    <div class="row mb-3 gy-3">
-      <div class="col-xl-8">
-        <label class="form-label">{{ form.wp_fields.label }}</label>
-        {{ form.wp_fields(class="form-select form-select-ld") }}
-      </div>
+  <div class="row mb-3 gy-3">
+    <div class="col-xl-8">
+      <label class="form-label">{{ form.department.label }}</label>
+      {{ form.department (class="form-select form-select-ld") }}
     </div>
+  </div>
 
-    {{ form.fields_data (class="btn btn-secondary mb-2") }}
+  <div class="row mb-3 gy-3">
+    <div class="col-xl-8">
+      <label class="form-label">{{ form.wp_fields.label }}</label>
+      {{ form.wp_fields(class="form-select form-select-ld") }}
+    </div>
+  </div>
+
+  {{ form.fields_data (class="btn btn-secondary mb-2") }}
 </form>
 
-
-    {% if wp_data %}
-<div>
+{% if wp_data %}
+  <div>
     <table class="col-lg-7 mt-3 table">
-        {% for plan in wp_data %}
-                  <tr class="table-primary">
-                      <td><b>{{ plan }}</b></td>
-                  </tr>
-              {% for wp in wp_data[plan] %}
-                  <tr class="table-success">
-                    <td><span style="white-space: pre-line">{{ wp }}</span></td>
-                  </tr>
-                  <tr>
-                    <td><span style="white-space: pre-line">{{ wp_data[plan][wp][0] }}</span></td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                  </tr>
-              {% endfor %}
+      {% for plan in wp_data %}
+        <tr class="table-primary">
+          <td><b>{{ plan }}</b></td>
+        </tr>
+        {% for wp in wp_data[plan] %}
+          <tr class="table-success">
+            <td><span style="white-space: pre-line">{{ wp }}</span></td>
+          </tr>
+          <tr>
+            <td><span style="white-space: pre-line">{{ wp_data[plan][wp][0] }}</span></td>
+          </tr>
+          <tr>
+            <td></td>
+          </tr>
         {% endfor %}
+      {% endfor %}
     </table>
-</div>
-    {% endif %}
-
+  </div>
+{% endif %}
 {% endblock %}
