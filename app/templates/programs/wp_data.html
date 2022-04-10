@@ -16,15 +16,13 @@
     <table class="col-md-7 mt-3 table">
       <tr class="table-success">
         <td>Список созданных рабочих программ:</td>
-        <td>Согласование:</td>
+            <td>Согласование:</td>
         <td>Утверждение:</td>
       </tr>
       {% for prog in wp_list %}
         <tr>
           <td>
-            <span style="white-space: pre-line">
-              <b>{{ wp_list[prog][0] }}</b>
-            </span>
+            <span style="white-space: pre-line"><b>{{ wp_list[prog][0] }}</b></span>
           </td>
           <td>
             {% for sign in wp_list[prog][1] %}

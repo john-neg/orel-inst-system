@@ -1,115 +1,118 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="display-6">
-        {% block title %} Матрица компетенций (с индикаторами) {% endblock %}
-    </h1>
+  <h1 class="display-6">
+    {% block title %} Матрица компетенций (с индикаторами) {% endblock %}
+  </h1>
+  <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal">
+      <b>{{ plan_name }}</b>
+    </div>
+  </div>
+
+  {% if plan_relations %}
     <div class="d-grid col-xl-8">
-    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+      <div class="alert alert-primary text-center" role="alert">
+        План содержит связи дисциплин и компетенций (перед загрузкой их необходимо очистить)
+      </div>
     </div>
 
-    {% if plan_relations %}
-        <div class="d-grid col-xl-8">
-            <div class="alert alert-primary text-center" role="alert">
-              План содержит связи дисциплин и компетенций (перед загрузкой их необходимо очистить)
-            </div>
-        </div>
-
     <div class="row">
-        <div class="d-grid col-xl-4">
-          <button class="btn btn-secondary" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Показать связи
-          </button>
+      <div class="d-grid col-xl-4">
+        <button class="btn btn-secondary" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapseExample"
+                aria-expanded="false" aria-controls="collapseExample">
+          Показать связи
+        </button>
+      </div>
+      </div>
+      <div class="collapse col-xl-8" id="collapseExample">
+        <div class="card card-body">
+          {% for relation in plan_relations %}
+          <b>{{ relation }}</b>
+          <span style="white-space: pre-line">{{ "\n".join(plan_relations[relation]) }}</span>
+          {% endfor %}
         </div>
-        </div>
-        <div class="collapse col-xl-8" id="collapseExample">
-          <div class="card card-body">
-              {% for relation in plan_relations %}
-              <b>{{ relation }}</b>
-              <span style="white-space: pre-line">{{ "\n".join(plan_relations[relation]) }}</span>
-              {% endfor %}
-          </div>
-        </div>
+      </div>
 
 
     {% else %}
-        <div class="d-grid col-xl-8">
-            <div class="alert alert-primary text-center" role="alert">
-              Текущий план не содержит связей
-            </div>
+      <div class="d-grid col-xl-8">
+        <div class="alert alert-primary text-center" role="alert">
+          Текущий план не содержит связей
         </div>
+      </div>
     {% endif %}
 
 <form action="" enctype="multipart/form-data" method="post">
     {{ form.hidden_tag() }}
 
-    <div class="row mt-3 gy-3">
-        <div class="d-grid col-xl-4">
-            <input type="submit" name="mtrx_ind_temp" value="Образец файла" class="btn btn-warning bg-opacity-75">
-        </div>
+  <div class="row mt-3 gy-3">
+    <div class="d-grid col-xl-4">
+      <input type="submit" name="mtrx_ind_temp" value="Образец файла" class="btn btn-warning bg-opacity-75">
     </div>
-    <div class="row mb-3 gy-3">
-        <div class="d-grid col-xl-4 text-center text-wrap">
-            (Образец файла для загрузки из GoogleDocs)
-        </div>
+  </div>
+  <div class="row mb-3 gy-3">
+    <div class="d-grid col-xl-4 text-center text-wrap">
+      (Образец файла для загрузки из GoogleDocs)
     </div>
-    <div class="row gy-3">
-        <div class="d-grid col-xl-4">
-            <input type="submit" name="mtrx_download" value="Сформировать простую матрицу" class="btn btn-primary bg-opacity-75">
-        </div>
-        <div class="d-grid col-xl-4">
-            <input type="submit" name="mtrx_delete" value="Удаление данных" class="btn btn-danger bg-opacity-75">
-        </div>
+  </div>
+  <div class="row gy-3">
+    <div class="d-grid col-xl-4">
+      <input type="submit" name="mtrx_download" value="Сформировать простую матрицу" class="btn btn-primary bg-opacity-75">
     </div>
-    <div class="row mb-3 gy-3">
-        <div class="d-grid col-xl-4 text-center text-wrap">
-            (Скачать текущую матрицу в формате Excel)
-        </div>
-        <div class="d-grid col-xl-4 text-center text-wrap">
-            (Удаление связей дисциплин и компетенций, и их содержимого из рабочих программ)
-        </div>
+    <div class="d-grid col-xl-4">
+      <input type="submit" name="mtrx_delete" value="Удаление данных" class="btn btn-danger bg-opacity-75">
     </div>
+  </div>
+  <div class="row mb-3 gy-3">
+    <div class="d-grid col-xl-4 text-center text-wrap">
+      (Скачать текущую матрицу в формате Excel)
+    </div>
+    <div class="d-grid col-xl-4 text-center text-wrap">
+      (Удаление связей дисциплин и компетенций, и их содержимого из рабочих программ)
+    </div>
+  </div>
 
     <div class="row mb-3 gy-3">
-        <div class="col-xl-8">
-            <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
-            <input class="form-control" type="file" name="file" id="formFile">
-        </div>
+      <div class="col-xl-8">
+        <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
+        <input class="form-control" type="file" name="file" id="formFile">
+      </div>
     </div>
     <div class="row mb-3 gy-3">
-        <div class="d-grid col-xl-8">
-            <input type="submit" name="mtrx_ind_check" value="Проверка файла" class="btn btn-secondary">
-        </div>
+      <div class="d-grid col-xl-8">
+        <input type="submit" name="mtrx_ind_check" value="Проверка файла" class="btn btn-secondary">
+      </div>
     </div>
 
-{{ load_data }}
+  {{ load_data }}
 
-    {% if file_errors %}
-        <div class="d-grid col-xl-8">
-            <div class="alert alert-danger text-center" role="alert">
-                <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
-                {{ '\n'.join(file_errors) }}
-            </div>
-        </div>
-    {% endif %}
+  {% if file_errors %}
+    <div class="d-grid col-xl-8">
+      <div class="alert alert-danger text-center" role="alert">
+        <b>Индикаторы файла, которые не удалось прочитать (необходимо исправить):</b><br>
+        {{ '\n'.join(file_errors) }}
+      </div>
+    </div>
+  {% endif %}
 
-    {% if no_comp_list %}
-        <div class="d-grid col-xl-8">
-            <div class="alert alert-danger text-center" role="alert">
-                <b>Компетенции которые есть в файле, но отсутствуют в плане:</b><br>
-                {{ '\n'.join(no_comp_list) }}
-            </div>
-        </div>
-    {% endif %}
+  {% if no_comp_list %}
+    <div class="d-grid col-xl-8">
+      <div class="alert alert-danger text-center" role="alert">
+        <b>Компетенции которые есть в файле, но отсутствуют в плане:</b><br>
+        {{ '\n'.join(no_comp_list) }}
+      </div>
+    </div>
+  {% endif %}
 
-    {% if report %}
+  {% if report %}
     <div class="row mb-3 gy-3">
-        <div class="d-grid col-xl-8">
+      <div class="d-grid col-xl-8">
         <table class="table">
         <tr>
-            <td><b>Связи из файла:</b></td>
-            <td></td>
+          <td><b>Связи из файла:</b></td>
+          <td></td>
         </tr>
         {% for disc in report %}
           <tr>
@@ -124,26 +127,24 @@
           </tr>
         {% endfor %}
         </table>
+      </div>
     </div>
-    </div>
-
-
 
     <div class="row mb-3 gy-3">
-        <div class="d-grid col-xl-8">
-            <div class="form-check form-switch">
-            <input class="form-check-input" name="switch_relations" type="checkbox" id="flexSwitchRelations" checked>
-            <label class="form-check-label" for="flexSwitchRelations">Загружать связи</label>
-            </div>
-            <div class="form-check form-switch">
-            <input class="form-check-input" name="switch_programs" type="checkbox" id="flexSwitchPrograms" checked>
-            <label class="form-check-label" for="flexSwitchPrograms">Загружать индикаторы в программы</label>
-            </div>
+      <div class="d-grid col-xl-8">
+        <div class="form-check form-switch">
+          <input class="form-check-input" name="switch_relations" type="checkbox" id="flexSwitchRelations" checked>
+          <label class="form-check-label" for="flexSwitchRelations">Загружать связи</label>
         </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" name="switch_programs" type="checkbox" id="flexSwitchPrograms" checked>
+          <label class="form-check-label" for="flexSwitchPrograms">Загружать индикаторы в программы</label>
+        </div>
+      </div>
         <div class="d-grid col-xl-8">
-            <input type="submit" name="mtrx_ind_load" value="Загрузить" class="btn btn-success">
+          <input type="submit" name="mtrx_ind_load" value="Загрузить" class="btn btn-success">
         </div>
     </div>
-    {% endif %}
+  {% endif %}
 </form>
-    {% endblock %}
+{% endblock %}
