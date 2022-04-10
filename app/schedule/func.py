@@ -4,12 +4,12 @@ from config import ApeksAPI
 
 
 def get_disc_list():
-    """getting general disciplines list"""
+    """Getting general disciplines list."""
     return db_filter_req("plan_disciplines", "level", 3)
 
 
 def get_lessons(staff_id, month, year):
-    """getting staff lessons"""
+    """Getting staff lessons."""
     params = {
         "token": ApeksAPI.TOKEN,
         "staff_id": str(staff_id),
@@ -22,7 +22,7 @@ def get_lessons(staff_id, month, year):
 
 
 def get_edu_lessons(group_id, month, year):
-    """getting staff lessons"""
+    """Getting staff lessons."""
     params = {
         "token": ApeksAPI.TOKEN,
         "group_id": str(group_id),

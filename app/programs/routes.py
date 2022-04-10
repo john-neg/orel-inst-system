@@ -34,9 +34,7 @@ def dept_check():
                 plan_wp_data = WorkProgramBunchData(plan_id, wp_field)
                 wp_data[plan_list[plan_id]] = plan_wp_data.department(department)
         else:
-            wp_data = {
-                "Нет планов": {"Нет дисциплин": "Информация отсутствует"}
-            }
+            wp_data = {"Нет планов": {"Нет дисциплин": "Информация отсутствует"}}
         return render_template(
             "programs/dept_check.html",
             active="programs",
@@ -47,18 +45,10 @@ def dept_check():
             wp_field=wp_field,
             wp_data=wp_data,
         )
-    return render_template(
-        "programs/dept_check.html",
-        active="programs",
-        form=form
-    )
+    return render_template("programs/dept_check.html", active="programs", form=form)
 
 
-@bp.route(
-    "/fields_choose_plan",
-    endpoint="fields_choose_plan",
-    methods=["GET", "POST"]
-)
+@bp.route("/fields_choose_plan", endpoint="fields_choose_plan", methods=["GET", "POST"])
 @login_required
 def fields_choose_plan():
     title = "Сводная информация по полям рабочих программ плана"
@@ -75,13 +65,10 @@ def fields_choose_plan():
             active="programs",
             form=form,
             title=title,
-            edu_spec=edu_spec
+            edu_spec=edu_spec,
         )
     return render_template(
-        "programs/programs_choose_plan.html",
-        active="programs",
-        title=title,
-        form=form
+        "programs/programs_choose_plan.html", active="programs", title=title, form=form
     )
 
 
@@ -103,10 +90,7 @@ def fields_data(plan_id):
             wp_data=wp_data,
         )
     return render_template(
-        "programs/fields_data.html",
-        active="programs",
-        form=form,
-        plan_name=plan_name
+        "programs/fields_data.html", active="programs", form=form, plan_name=plan_name
     )
 
 
@@ -114,15 +98,15 @@ def fields_data(plan_id):
 @login_required
 def wp_field_edit():
     form = WorkProgramFieldUpdate()
-    disc_id = request.args.get('disc_id')
-    parameter = request.args.get('parameter')
+    disc_id = request.args.get("disc_id")
+    parameter = request.args.get("parameter")
     wp_data = WorkProgram(disc_id)
     if request.method == "POST":
         parameter = request.form.get("wp_fields")
         if request.form.get("field_update") and form.validate_on_submit():
             load_data = request.form.get("wp_field_edit")
             wp_data.edit(parameter, load_data)
-            flash('Данные обновлены')
+            flash("Данные обновлены")
     form.wp_fields.data = parameter
     try:
         wp_field_data = wp_data.get(parameter)
@@ -134,7 +118,7 @@ def wp_field_edit():
         "programs/wp_field_edit.html",
         active="programs",
         form=form,
-        wp_name=wp_data.get('name'),
+        wp_name=wp_data.get("name"),
     )
 
 
@@ -202,11 +186,7 @@ def dates_update():
                 form=form,
                 edu_spec=edu_spec,
             )
-    return render_template(
-        "programs/dates_update.html",
-        active="programs",
-        form=form
-    )
+    return render_template("programs/dates_update.html", active="programs", form=form)
 
 
 @bp.route("/wp_data_choose_plan", methods=["GET", "POST"])
@@ -240,26 +220,26 @@ def wp_data_choose_plan():
 @login_required
 def wp_data(plan_id):
     plan = EducationPlan(plan_id)
-    button = ''
+    button = ""
     plan_name = plan.name
     wp_list = {}
     no_program = {}
     for disc in plan.disciplines:
         try:
             wp = WorkProgram(disc)
-            if request.method == 'POST' and request.form.get("wp_status_0"):
+            if request.method == "POST" and request.form.get("wp_status_0"):
                 button = "wp_status_0"
-                wp.edit('status', 0)
-            elif request.method == 'POST' and request.form.get("wp_status_1"):
-                wp.edit('status', 1)
+                wp.edit("status", 0)
+            elif request.method == "POST" and request.form.get("wp_status_1"):
+                wp.edit("status", 1)
                 button = "wp_status_1"
-            wp_list[disc] = [wp.name, wp.get_signs(), wp.get('status')]
+            wp_list[disc] = [wp.name, wp.get_signs(), wp.get("status")]
         except IndexError:
-            if request.method == 'POST' and request.form.get("create_wp"):
+            if request.method == "POST" and request.form.get("create_wp"):
                 button = "create_wp"
                 create_wp(disc)
                 wp = WorkProgram(disc)
-                wp_list[disc] = [wp.name, wp.get_signs(), wp.get('status')]
+                wp_list[disc] = [wp.name, wp.get_signs(), wp.get("status")]
             else:
                 no_program[disc] = plan.discipline_name(disc)
     return render_template(
@@ -268,5 +248,5 @@ def wp_data(plan_id):
         wp_list=wp_list,
         no_program=no_program,
         plan_name=plan_name,
-        button=button
+        button=button,
     )

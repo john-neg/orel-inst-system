@@ -36,9 +36,7 @@ def load_bibl(work_program_id, field_id, load_data):
         "fields[data]": load_data,
     }
     requests.post(
-        ApeksAPI.URL + "/api/call/system-database/edit",
-        params=params,
-        data=data
+        ApeksAPI.URL + "/api/call/system-database/edit", params=params, data=data
     )
 
 
@@ -52,7 +50,5 @@ def add_bibl_field(work_program_id, field_id):
         "fields[data]": "",
     }
     requests.post(
-        ApeksAPI.URL + "/api/call/system-database/add",
-        params=params,
-        data=data
+        ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
     )

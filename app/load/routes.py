@@ -12,23 +12,19 @@ def load_report():
     form = LoadReportForm()
     form.department.choices = [(d[0], d[1][0]) for d in get_departments().items()]
     if request.method == "POST" and form.validate_on_submit():
-        year = request.form.get('year')
-        month = request.form.get('month')
-        department = request.form.get('department')
+        year = request.form.get("year")
+        month = request.form.get("month")
+        department = request.form.get("department")
         return redirect(
             url_for(
-                "load.load_report_export",
-                year=year,
-                month=month,
-                department=department
+                "load.load_report_export", year=year, month=month, department=department
             )
         )
     return render_template("load/load_report.html", active="load", form=form)
 
 
 @bp.route(
-    "/load_report/<int:year>/<string:month>/<int:department>",
-    methods=["GET", "POST"]
+    "/load_report/<int:year>/<string:month>/<int:department>", methods=["GET", "POST"]
 )
 def load_report_export(year, month, department):
     report = LoadReport(year, month, department)

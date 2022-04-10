@@ -36,7 +36,7 @@ class LibraryPlan(EducationPlan):
         def lib_data(field_id):
             for field in reversed(wp_fields):
                 if field.get("field_id") == str(field_id):
-                    return '' if field.get("data") is None else field.get("data")
+                    return "" if field.get("data") is None else field.get("data")
 
         content = {}
         for disc in self.disciplines:
@@ -60,6 +60,6 @@ class LibraryPlan(EducationPlan):
             else:
                 field_dict = {}
                 for field in library_fields:
-                    field_dict[field] = 'Нет программы'
+                    field_dict[field] = "Нет программы"
                 content[self.disciplines[disc][1]] = field_dict
         return content

@@ -71,7 +71,7 @@ class WorkProgram:
         }
 
     def get(self, parameter):
-        """Get work program field data"""
+        """Get work program field data."""
         if parameter in self.mm_work_programs_items:
             return self.mm_work_programs[0][self.mm_work_programs_items.get(parameter)]
         elif parameter in self.special:
@@ -123,7 +123,7 @@ class WorkProgram:
             return "Wrong parameter"
 
     def edit(self, parameter, load_data):
-        """Edit work program field data"""
+        """Edit work program field data."""
         def mm_work_programs_items(f_param, f_data):
             params = {"token": ApeksAPI.TOKEN}
             data = {
@@ -197,7 +197,7 @@ class WorkProgram:
             return "Wrong parameter"
 
     def get_signs(self):
-        """Получение информации о согласовании программы"""
+        """Получение информации о согласовании программы."""
         signs_data = db_filter_req(
             'mm_work_programs_signs',
             'work_program_id',
@@ -250,7 +250,7 @@ class WorkProgramProcessing:
         """
         Получение последней формы контроля и семестра дисциплины
         1: ["зкзамен"], 2: ["Зачет"],
-        6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"]
+        6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"].
         """
         control_type_id = {1: [], 2: [], 6: [],
                            14: []}
@@ -281,7 +281,7 @@ class WorkProgramProcessing:
     def comp_level_add(self):
         """
         Создание уровня сформированности компетенций
-        (последний семестр [-1])
+        (последний семестр [-1]).
         """
         if self.control_data:
             params = {"token": ApeksAPI.TOKEN}
@@ -302,7 +302,7 @@ class WorkProgramProcessing:
             return "Не заполнен план"
 
     def comp_level_edit(self, knowledge, abilities, ownerships):
-        """Редактирование индикаторов в таблице Уровни сформированности"""
+        """Редактирование индикаторов в таблице Уровни сформированности."""
         if len(self.comp_level) > 1:  # Удаляем уровни если больше 1
             for i in self.comp_level:
                 if i["level"] != "1":
@@ -318,10 +318,8 @@ class WorkProgramProcessing:
                     )
 
         if self.control_data:
-            """
-            Проверка заполненности плана 
-            т.к. нужен семестр, выбор последнего семестра и формы контроля
-            """
+            # Проверка заполненности плана
+            # т.к. нужен семестр, выбор последнего семестра и формы контроля
             params = {"token": ApeksAPI.TOKEN}
             data = {
                 "table": "mm_competency_levels",
@@ -340,7 +338,7 @@ class WorkProgramProcessing:
             )
 
     def comp_data_get(self):
-        """Получение данных о заполненных данных компетенций"""
+        """Получение данных о заполненных данных компетенций."""
         return db_filter_req(
             "mm_work_programs_competencies_data",
             "work_program_id",
@@ -350,7 +348,7 @@ class WorkProgramProcessing:
     def comp_data_add(self, competency_id, field_id, value):
         """
         Загрузка данных компетенции
-        (field_id 1-знать, 2-уметь, 3-владеть)
+        (field_id 1-знать, 2-уметь, 3-владеть).
         """
         params = {"token": ApeksAPI.TOKEN}
         data = {
@@ -381,7 +379,7 @@ class WorkProgramProcessing:
     #         self.comp_data = self.comp_data_get()
 
     def comp_data_del(self):
-        """Удаление содержания компетенций"""
+        """Удаление содержания компетенций."""
         params = {
             "token": ApeksAPI.TOKEN,
             "table": "mm_work_programs_competencies_data",

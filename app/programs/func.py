@@ -4,7 +4,7 @@ from config import ApeksAPI
 
 
 def wp_update_list(education_plan_id):
-    """Getting ID and names of plan work programs"""
+    """Getting ID and names of plan work programs."""
     disciplines = plan_curriculum_disciplines(education_plan_id)
     work_program = {}
     not_exist = {}
@@ -31,7 +31,7 @@ def wp_dates_update(
     document_academic,
     date_approval,
 ):
-    """Update work program signature dates"""
+    """Update work program signature dates."""
     params = {'token': ApeksAPI.TOKEN}
     data = {
         "table": "mm_work_programs",
@@ -53,7 +53,7 @@ def wp_dates_update(
 def plan_department_disciplines(education_plan_id, department_id):
     """
     Getting department disciplines info as dict
-    (disc_ID:[disc_code:disc_name])
+    (disc_ID:[disc_code:disc_name]).
     """
     disciplines = {}
     resp = db_filter_req(

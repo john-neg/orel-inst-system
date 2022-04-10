@@ -19,15 +19,15 @@ from config import FlaskConfig, LibConfig
 
 
 LIB_TYPES = {
-    'library': [LibConfig.BIBL_MAIN, LibConfig.BIBL_ADD],
-    'library_np': [LibConfig.BIBL_NP],
-    'library_int': [LibConfig.BIBL_INT],
-    'library_db': [LibConfig.BIBL_DB]
+    "library": [LibConfig.BIBL_MAIN, LibConfig.BIBL_ADD],
+    "library_np": [LibConfig.BIBL_NP],
+    "library_int": [LibConfig.BIBL_INT],
+    "library_db": [LibConfig.BIBL_DB],
 }
 
 
 class ChoosePlanView(View):
-    methods = ['GET', 'POST']
+    methods = ["GET", "POST"]
 
     def __init__(self, lib_type, title, lib_type_name):
         self.template_name = "library/library_choose_plan.html"
@@ -68,7 +68,7 @@ class ChoosePlanView(View):
 bp.add_url_rule(
     "/library_choose_plan",
     view_func=ChoosePlanView.as_view(
-        'library_choose_plan',
+        "library_choose_plan",
         lib_type="library",
         lib_type_name="Литература",
         title="Загрузка списка литературы",
@@ -77,7 +77,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_np_choose_plan",
     view_func=ChoosePlanView.as_view(
-        'library_np_choose_plan',
+        "library_np_choose_plan",
         lib_type="library_np",
         lib_type_name="Научная продукция",
         title="Загрузка списка научной продукции",
@@ -86,7 +86,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_int_choose_plan",
     view_func=ChoosePlanView.as_view(
-        'library_int_choose_plan',
+        "library_int_choose_plan",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
         title="Загрузка ресурсов сети Интернет",
@@ -95,7 +95,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_db_choose_plan",
     view_func=ChoosePlanView.as_view(
-        'library_db_choose_plan',
+        "library_db_choose_plan",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",
         title="Загрузка ресурсов баз данных и инф.-справ. систем",
@@ -104,7 +104,7 @@ bp.add_url_rule(
 
 
 class LibraryUploadView(View):
-    methods = ['GET', 'POST']
+    methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name, title):
         self.template_name = "library/library_upload.html"
@@ -119,8 +119,9 @@ class LibraryUploadView(View):
         if request.method == "POST":
             if request.form.get("library_load_temp"):
                 return redirect(
-                    url_for("main.get_temp_file",
-                            filename=f"{self.lib_type}_load_temp.xlsx")
+                    url_for(
+                        "main.get_temp_file", filename=f"{self.lib_type}_load_temp.xlsx"
+                    )
                 )
             if request.form.get("library_plan_content"):
                 return redirect(
@@ -130,8 +131,7 @@ class LibraryUploadView(View):
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
-                    file.save(
-                        os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                    file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                     if request.form.get("library_check"):
                         # Проверка данных
                         return redirect(
@@ -163,25 +163,25 @@ class LibraryUploadView(View):
 bp.add_url_rule(
     "/library_upload/<int:plan_id>",
     view_func=LibraryUploadView.as_view(
-        'library_upload',
+        "library_upload",
         lib_type="library",
         lib_type_name="Литература",
-        title="Загрузка списка литературы"
+        title="Загрузка списка литературы",
     ),
 )
 bp.add_url_rule(
     "/library_np_upload/<int:plan_id>",
     view_func=LibraryUploadView.as_view(
-        'library_np_upload',
+        "library_np_upload",
         lib_type="library_np",
         lib_type_name="Научная продукция",
-        title="Загрузка списка научной продукции"
+        title="Загрузка списка научной продукции",
     ),
 )
 bp.add_url_rule(
     "/library_int_upload/<int:plan_id>",
     view_func=LibraryUploadView.as_view(
-        'library_int_upload',
+        "library_int_upload",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
         title="Загрузка ресурсов сети Интернет",
@@ -190,7 +190,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_db_upload/<int:plan_id>",
     view_func=LibraryUploadView.as_view(
-        'library_db_upload',
+        "library_db_upload",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",
         title="Загрузка ресурсов баз данных и инф.-справ. систем",
@@ -199,7 +199,7 @@ bp.add_url_rule(
 
 
 class LibraryCheckView(View):
-    methods = ['GET', 'POST']
+    methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name, title):
         self.template_name = "library/library_upload.html"
@@ -218,9 +218,7 @@ class LibraryCheckView(View):
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
-                    file.save(
-                        os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
-                    )
+                    file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                     if request.form.get("library_check"):
                         return redirect(
                             url_for(
@@ -231,8 +229,9 @@ class LibraryCheckView(View):
                         )
             if request.form.get("library_load_temp"):
                 return redirect(
-                    url_for("main.get_temp_file",
-                            filename=f"{self.lib_type}_load_temp.xlsx")
+                    url_for(
+                        "main.get_temp_file", filename=f"{self.lib_type}_load_temp.xlsx"
+                    )
                 )
             if request.form.get("library_plan_content"):
                 return redirect(
@@ -269,25 +268,25 @@ class LibraryCheckView(View):
 bp.add_url_rule(
     "/library_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
-        'library_check',
+        "library_check",
         lib_type="library",
         lib_type_name="Литература",
-        title="Загрузка списка литературы"
+        title="Загрузка списка литературы",
     ),
 )
 bp.add_url_rule(
     "/library_np_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
-        'library_np_check',
+        "library_np_check",
         lib_type="library_np",
         lib_type_name="Научная продукция",
-        title="Загрузка списка научной продукции"
+        title="Загрузка списка научной продукции",
     ),
 )
 bp.add_url_rule(
     "/library_int_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
-        'library_int_check',
+        "library_int_check",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
         title="Загрузка ресурсов сети Интернет",
@@ -296,7 +295,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_db_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
-        'library_db_check',
+        "library_db_check",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",
         title="Загрузка ресурсов баз данных и инф.-справ. систем",
@@ -305,7 +304,7 @@ bp.add_url_rule(
 
 
 class LibraryUpdateView(View):
-    methods = ['GET', 'POST']
+    methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name):
         self.lib_type = lib_type
@@ -323,14 +322,14 @@ class LibraryUpdateView(View):
                     for bibl in LIB_TYPES[self.lib_type]:
                         load_bibl(wp_id, bibl, file_data[disc][counter])
                     counter += 1
-        flash(f'Данные из файла - {filename}: успешно загружены')
+        flash(f"Данные из файла - {filename}: успешно загружены")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 
 
 bp.add_url_rule(
     "/library_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
-        'library_update',
+        "library_update",
         lib_type="library",
         lib_type_name="Литература",
     ),
@@ -338,7 +337,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_np_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
-        'library_np_update',
+        "library_np_update",
         lib_type="library_np",
         lib_type_name="Научная продукция",
     ),
@@ -346,7 +345,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_int_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
-        'library_int_update',
+        "library_int_update",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
     ),
@@ -354,7 +353,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_db_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
-        'library_db_update',
+        "library_db_update",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",
     ),
@@ -362,7 +361,7 @@ bp.add_url_rule(
 
 
 class LibraryExportView(View):
-    methods = ['GET', 'POST']
+    methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name):
         self.lib_type = lib_type
@@ -373,14 +372,16 @@ class LibraryExportView(View):
         plan = LibraryPlan(plan_id)
         lib_data = plan.library_content()
         filename = f'{self.lib_type_name} - {db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]}.xlsx'
-        wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + f"{self.lib_type}_load_temp.xlsx")
+        wb = load_workbook(
+            FlaskConfig.TEMP_FILE_DIR + f"{self.lib_type}_load_temp.xlsx"
+        )
         ws = wb.active
         start_row = 2
         for data in lib_data:
             ws.cell(row=start_row, column=1).value = data
             counter = 0
             for bibl in LIB_TYPES[self.lib_type]:
-                ws.cell(row=start_row, column=counter+2).value = lib_data[data][bibl]
+                ws.cell(row=start_row, column=counter + 2).value = lib_data[data][bibl]
                 counter += 1
             start_row += 1
         wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
@@ -390,7 +391,7 @@ class LibraryExportView(View):
 bp.add_url_rule(
     "/library_export/<int:plan_id>",
     view_func=LibraryExportView.as_view(
-        'library_export',
+        "library_export",
         lib_type="library",
         lib_type_name="Литература",
     ),
@@ -398,7 +399,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_np_export/<int:plan_id>",
     view_func=LibraryExportView.as_view(
-        'library_np_export',
+        "library_np_export",
         lib_type="library_np",
         lib_type_name="Научная продукция",
     ),
@@ -406,7 +407,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_int_export/<int:plan_id>",
     view_func=LibraryExportView.as_view(
-        'library_int_export',
+        "library_int_export",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
     ),
@@ -414,7 +415,7 @@ bp.add_url_rule(
 bp.add_url_rule(
     "/library_db_export/<int:plan_id>",
     view_func=LibraryExportView.as_view(
-        'library_db_export',
+        "library_db_export",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",
     ),

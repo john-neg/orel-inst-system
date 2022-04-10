@@ -10,10 +10,10 @@ class ApeksStaffData:
         self.departments = self.data["departments"]
 
     def get_staff(self, department_id):
-        """getting staff ID and sorting them by position at the department"""
+        """Getting staff ID and sorting them by position at the department."""
 
         def staff_sort(staff_id):
-            """getting sorting code by position"""
+            """Getting sorting code by position."""
             position_id = ""
             for history in state_staff_history:
                 if history.get("staff_id") == str(staff_id):
@@ -36,7 +36,7 @@ class ApeksStaffData:
         return prepod_dict
 
     def staff_name(self, staff_id, department_id):
-        """short staff name without rank"""
+        """Short staff name without rank."""
         if self.staff[str(department_id)][str(staff_id)]["specialRank"] is None:
             return self.staff[str(department_id)][str(staff_id)]["shortName"]
         else:
@@ -54,7 +54,7 @@ class ApeksLessons:
         self.plan_disciplines = get_disc_list()
 
     def calendarname(self, lesson):
-        """combined topic + discipline name for calendar"""
+        """Combined topic + discipline name for calendar."""
         class_type_name = self.data[lesson]["class_type_name"]
         text = (
             class_type_name
@@ -66,13 +66,13 @@ class ApeksLessons:
         return text
 
     def timestart_xlsx(self, lesson):
-        """time start lesson for xlsx"""
+        """Time start lesson for xlsx."""
         time = self.data[lesson]["lessonTime"].split(" - ")
         fulltime = self.data[lesson]["date"] + " " + time[0]
         return fulltime
 
     def timestart_ical(self, lesson):
-        """time start lesson for iCal"""
+        """Time start lesson for iCal."""
         date = self.data[lesson]["date"].split(".")
         time = self.data[lesson]["lessonTime"].split(" - ")[0]
         utffix = str(int(time.split(":")[0]) - 3)
@@ -81,7 +81,7 @@ class ApeksLessons:
         return date[2] + date[1] + date[0] + "T" + utffix + time.split(":")[1] + "00Z"
 
     def timeend_ical(self, lesson):
-        """time end lesson for iCal"""
+        """Time end lesson for iCal."""
         date = self.data[lesson]["date"].split(".")
         time = self.data[lesson]["lessonTime"].split(" - ")[1]
         utffix = str(int(time.split(":")[0]) - 3)
@@ -90,7 +90,7 @@ class ApeksLessons:
         return date[2] + date[1] + date[0] + "T" + utffix + time.split(":")[1] + "00Z"
 
     def topic_name(self, lesson):
-        """get topic name"""
+        """Get topic name."""
         if self.data[lesson]["topic_name"] is None:
             name = " "
         else:
@@ -98,7 +98,7 @@ class ApeksLessons:
         return name
 
     def topic_code(self, lesson):
-        """get topic number"""
+        """Get topic number."""
         if (
             self.data[lesson]["topic_code"] != ""
             and self.data[lesson]["topic_code"] is not None
@@ -109,7 +109,7 @@ class ApeksLessons:
         return code
 
     def shortdiscname(self, discipline_id):
-        """get discipline short name"""
+        """Get discipline short name."""
         data = self.plan_disciplines
         for i in range(len(data)):
             if data[i]["id"] == str(discipline_id):

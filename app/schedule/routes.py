@@ -46,8 +46,8 @@ def schedule():
             ]
 
             with open(
-                    f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)} {month}-{year}.ics",
-                    "w",
+                f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)} {month}-{year}.ics",
+                "w",
             ) as f:
                 for line in lines:
                     f.write(line)
@@ -89,7 +89,9 @@ def schedule():
             workbook = xlsxwriter.Workbook(
                 f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)} {month}-{year}.xlsx"
             )
-            worksheet = workbook.add_worksheet(apeks.staff_name(staff_id, department_id))
+            worksheet = workbook.add_worksheet(
+                apeks.staff_name(staff_id, department_id)
+            )
 
             bold = workbook.add_format({"bold": True})
             worksheet.write(
@@ -112,7 +114,6 @@ def schedule():
             worksheet.set_column(3, 4, 50)
 
             # Some data we want to write to the worksheet.
-
             lessonexport = ()
             for lesson in range(len(lessons.data)):
                 export = (

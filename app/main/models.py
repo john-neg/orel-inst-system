@@ -13,76 +13,77 @@ class EducationPlan:
 
     def get_name(self):
         """Get education plan name."""
-        return db_filter_req(
-            "plan_education_plans",
-            "id",
-            self.education_plan_id
-        )[0]["name"]
+        return db_filter_req("plan_education_plans", "id", self.education_plan_id)[0][
+            "name"
+        ]
 
     def discipline_name(self, curriculum_discipline_id):
         """Get code and discipline name."""
-        return f"{self.disciplines[str(curriculum_discipline_id)][0]} " \
-               f"{self.disciplines[str(curriculum_discipline_id)][1]}"
+        return (
+            f"{self.disciplines[str(curriculum_discipline_id)][0]} "
+            f"{self.disciplines[str(curriculum_discipline_id)][1]}"
+        )
 
 
 class EducationStaff:
     def __init__(self, year, month):
         self.year = year
-        if month == 'январь-август':
+        if month == "январь-август":
             self.start_month = 1
             self.end_month = 8
-        elif month == 'сентябрь-декабрь':
+        elif month == "сентябрь-декабрь":
             self.start_month = 9
             self.end_month = 12
         else:
             self.start_month = int(month)
             self.end_month = int(month)
-        self.state_staff_history = db_request('state_staff_history')
+        self.state_staff_history = db_request("state_staff_history")
         self.state_staff = self.get_state_staff()
-        self.state_staff_positions = db_request('state_staff_positions')
+        self.state_staff_positions = db_request("state_staff_positions")
 
     def get_state_staff(self):
         """Get staff names with short names."""
         staff_list = {}
-        resp = db_request('state_staff')
+        resp = db_request("state_staff")
         for staff in resp:
             family_name = staff.get("family_name")
-            family_name = family_name if family_name else 'X'
+            family_name = family_name if family_name else "X"
             first_name = staff.get("name")
-            first_name = first_name[0] if first_name else 'X'
+            first_name = first_name[0] if first_name else "X"
             second_name = staff.get("surname")
-            second_name = second_name[0] if second_name else 'X'
-            staff_list[staff.get('id')] = f'{family_name} ' \
-                                          f'{first_name}.{second_name}.'
+            second_name = second_name[0] if second_name else "X"
+            staff_list[staff.get("id")] = (
+                f"{family_name} " f"{first_name}.{second_name}."
+            )
         return staff_list
 
     def staff_list(self, department_id):
         """List of department workers which was active on selected month."""
         staff_list = []
-        exclude_list = {'12': "инструктора произв. обучения",
-                        '13': "начальник кабинета",
-                        '14': "специалист по УМР",
-                        '15': "зав. кабинетом", }
+        exclude_list = {
+            "12": "инструктора произв. обучения",
+            "13": "начальник кабинета",
+            "14": "специалист по УМР",
+            "15": "зав. кабинетом",
+        }
 
         dept_history = []
         for record in self.state_staff_history:
-            if record.get('department_id') == str(department_id):
+            if record.get("department_id") == str(department_id):
                 dept_history.append(record)
 
         for staff in dept_history:
-            if staff.get('position_id') not in exclude_list:
-                if staff.get('end_date') is not None:
-                    if date.fromisoformat(staff.get('end_date')) > date(
-                            self.year,
-                            self.start_month,
-                            1
+            if staff.get("position_id") not in exclude_list:
+                if staff.get("end_date") is not None:
+                    if date.fromisoformat(staff.get("end_date")) > date(
+                        self.year, self.start_month, 1
                     ):
                         staff_list.append(staff)
                 else:
-                    if date.fromisoformat(staff.get('start_date')) <= date(
-                            self.year,
-                            self.end_month,
-                            monthrange(self.year, self.end_month)[1]
+                    if date.fromisoformat(staff.get("start_date")) <= date(
+                        self.year,
+                        self.end_month,
+                        monthrange(self.year, self.end_month)[1],
                     ):
                         staff_list.append(staff)
 
@@ -98,7 +99,7 @@ class EducationStaff:
 
         sort_dict = {}
         for i in staff_list:
-            sort_dict[i['staff_id']] = int(staff_sort(i['staff_id']))
+            sort_dict[i["staff_id"]] = int(staff_sort(i["staff_id"]))
         a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
         prepod_dict = {}
         for i in range(len(a)):
@@ -108,6 +109,7 @@ class EducationStaff:
 
 class ExcelStyle(object):
     """Styles for Excel export."""
+
     ThinBorder = Side(style="thin", color="000000")
     ThickBorder = Side(style="thick", color="000000")
     AllBorder = Border(
@@ -128,10 +130,7 @@ class ExcelStyle(object):
     Number.font = Font(name="Times New Roman", size=9)
     Number.border = AllBorder
     Number.alignment = Alignment(
-        horizontal="center",
-        vertical="center",
-        wrap_text=True,
-        shrink_to_fit=True
+        horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=True
     )
 
     BaseBold = NamedStyle(name="base_bold")
@@ -139,6 +138,4 @@ class ExcelStyle(object):
     BaseBold.border = AllBorder
     BaseBold.alignment = Alignment(wrap_text=True)
 
-    GreyFill = PatternFill(
-        start_color="CCCCCC", end_color="CCCCCC", fill_type="solid"
-    )
+    GreyFill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")

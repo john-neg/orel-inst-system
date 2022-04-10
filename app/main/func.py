@@ -4,14 +4,14 @@ from config import ApeksAPI, FlaskConfig
 
 
 def allowed_file(filename):
-    """Check if file extension in allowed list in Config"""
+    """Check if file extension in allowed list in Config."""
     return (
         "." in filename and filename.rsplit(".", 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
     )
 
 
 def db_request(dbname):
-    """DB request function without filter"""
+    """DB request function without filter."""
     params = {"token": ApeksAPI.TOKEN, "table": dbname}
     response = requests.get(
         ApeksAPI.URL + "/api/call/system-database/get", params=params
@@ -20,7 +20,7 @@ def db_request(dbname):
 
 
 def db_filter_req(dbname, sqltable, sqlvalue):
-    """Filtered DB request (DB table, filter, value)"""
+    """Filtered DB request (DB table, filter, value)."""
     params = {
         "token": ApeksAPI.TOKEN,
         "table": dbname,
@@ -33,21 +33,21 @@ def db_filter_req(dbname, sqltable, sqlvalue):
 
 
 def get_active_staff_id():
-    """getting Apeks ID of first active user (need to make general API data request)"""
+    """Getting Apeks ID of first active user (need to make general API data request)."""
     return db_filter_req("state_staff", "active", 1)[0]["id"]
 
 
 def get_departments():
-    """Getting dict of department as dict id:[name, short_name]"""
+    """Getting dict of department as dict id:[name, short_name]."""
     dept_dict = {}
-    resp = db_filter_req('state_departments', 'parent_id', ApeksAPI.APEKS_DEPT_ID)
+    resp = db_filter_req("state_departments", "parent_id", ApeksAPI.APEKS_DEPT_ID)
     for dept in resp:
-        dept_dict[dept['id']] = [dept['name'], dept['name_short']]
+        dept_dict[dept["id"]] = [dept["name"], dept["name_short"]]
     return dept_dict
 
 
 def get_data(active_staff_id):
-    """getting Apeks data about organization structure"""
+    """Getting Apeks data about organization structure."""
     params = {
         "token": ApeksAPI.TOKEN,
         "staff_id": active_staff_id,
@@ -60,7 +60,7 @@ def get_data(active_staff_id):
 
 
 def education_specialty():
-    """Getting education_speciality data"""
+    """Getting education_speciality data."""
     payload = {"token": ApeksAPI.TOKEN, "table": "plan_education_specialties"}
     request = requests.get(
         ApeksAPI.URL + "/api/call/system-database/get", params=payload
@@ -72,7 +72,7 @@ def education_specialty():
 
 
 def education_plans(education_specialty_id, year=0):
-    """Getting education plans with selected speciality"""
+    """Getting education plans with selected speciality."""
     payload = {
         "token": ApeksAPI.TOKEN,
         "table": "plan_education_plans",
@@ -104,7 +104,7 @@ def education_plans(education_specialty_id, year=0):
 
 
 def plan_curriculum_disciplines(education_plan_id):
-    """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name])"""
+    """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name])."""
 
     def disc_name(discipline_id):
         for discipline in disc_list:
@@ -117,19 +117,21 @@ def plan_curriculum_disciplines(education_plan_id):
         "plan_curriculum_disciplines", "education_plan_id", education_plan_id
     )
     for disc in plan_disc:
-        if disc["level"] == "3" and not disc['type'] == '16':  # type 16 - группы дисциплин
+        if (
+            disc["level"] == "3" and not disc["type"] == "16"
+        ):  # type 16 - группы дисциплин
             disciplines[disc["id"]] = [disc["code"], disc_name(disc["discipline_id"])]
     return disciplines
 
 
 def xlsx_iter_rows(ws):
-    """Reading imported XLSX file row by row"""
+    """Reading imported XLSX file row by row."""
     for row in ws.iter_rows():
         yield [cell.value for cell in row]
 
 
 def xlsx_normalize(worksheet, replace_dict):
-    """Function to replace symbols in table"""
+    """Function to replace symbols in table."""
     for key, val in replace_dict.items():
         for r in range(1, worksheet.max_row + 1):
             for c in range(1, worksheet.max_column + 1):
@@ -139,8 +141,8 @@ def xlsx_normalize(worksheet, replace_dict):
 
 
 def get_system_user_name(user_id):
-    """Get name of system user by Id"""
-    resp = db_filter_req('state_staff', 'user_id', user_id)
+    """Get name of system user by ID."""
+    resp = db_filter_req("state_staff", "user_id", user_id)
     if resp:
         return f'{resp[0]["family_name"]} {resp[0]["name"][0]}.{resp[0]["surname"][0]}.'
     else:

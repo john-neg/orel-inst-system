@@ -16,7 +16,7 @@ def index():
 
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
-    """Send file and delete it from server"""
+    """Send file and delete it from server."""
     file = FlaskConfig.EXPORT_FILE_DIR + filename
     return (
         send_file(
@@ -31,15 +31,13 @@ def get_file(filename):
 
 @bp.route("/templates/<string:filename>", methods=["GET"])
 def get_temp_file(filename):
-    """Send template file from server"""
+    """Send template file from server."""
     file = FlaskConfig.TEMP_FILE_DIR + filename
-    return (
-        send_file(
-            file,
-            mimetype="text/plain",
-            attachment_filename=filename,
-            as_attachment=True,
-        )
+    return send_file(
+        file,
+        mimetype="text/plain",
+        attachment_filename=filename,
+        as_attachment=True,
     )
 
 
@@ -52,17 +50,15 @@ def upload():
             # filename = secure_filename(file.filename)
             file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
             return filename
-    return render_template('main/upload.html')
+    return render_template("main/upload.html")
 
 
-@bp.route('/read_file/', methods=['GET'])
+@bp.route("/read_file/", methods=["GET"])
 def read_uploaded_file():
-    filename = secure_filename(request.args.get('filename'))
+    filename = secure_filename(request.args.get("filename"))
     try:
         if filename and allowed_file(filename):
-            with open(
-                    os.path.join(FlaskConfig['UPLOAD_FOLDER'], filename)
-            ) as f:
+            with open(os.path.join(FlaskConfig["UPLOAD_FOLDER"], filename)) as f:
                 return f.read()
     except IOError:
         pass
