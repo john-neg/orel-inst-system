@@ -214,16 +214,16 @@ class WorkProgram:
             signs.append("Не согласована")
         return signs
 
-    def wp_status_change(self, status):
-        """Статус утверждения программы (status = 1-утв, 0-неутв)"""
-        params = {"token": ApeksAPI.TOKEN}
-        data = {
-            "table": "mm_work_programs",
-            "filter[id]": self.work_program_id,
-            "fields[status]": str(status),
-        }
-        requests.post(ApeksAPI.URL + "/api/call/system-database/edit",
-                      params=params, data=data)
+    # def wp_status_change(self, status):
+    #     """Статус утверждения программы (status = 1-утв, 0-неутв)"""
+    #     params = {"token": ApeksAPI.TOKEN}
+    #     data = {
+    #         "table": "mm_work_programs",
+    #         "filter[id]": self.work_program_id,
+    #         "fields[status]": str(status),
+    #     }
+    #     requests.post(ApeksAPI.URL + "/api/call/system-database/edit",
+    #                   params=params, data=data)
 
 
 class WorkProgramProcessing:

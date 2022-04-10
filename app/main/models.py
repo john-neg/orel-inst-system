@@ -12,7 +12,7 @@ class EducationPlan:
         self.name = self.get_name()
 
     def get_name(self):
-        """Get education plan name"""
+        """Get education plan name."""
         return db_filter_req(
             "plan_education_plans",
             "id",
@@ -20,7 +20,7 @@ class EducationPlan:
         )[0]["name"]
 
     def discipline_name(self, curriculum_discipline_id):
-        """Get code and discipline name"""
+        """Get code and discipline name."""
         return f"{self.disciplines[str(curriculum_discipline_id)][0]} " \
                f"{self.disciplines[str(curriculum_discipline_id)][1]}"
 
@@ -42,6 +42,7 @@ class EducationStaff:
         self.state_staff_positions = db_request('state_staff_positions')
 
     def get_state_staff(self):
+        """Get staff names with short names."""
         staff_list = {}
         resp = db_request('state_staff')
         for staff in resp:
@@ -56,7 +57,7 @@ class EducationStaff:
         return staff_list
 
     def staff_list(self, department_id):
-        """List of department workers which was active on selected month"""
+        """List of department workers which was active on selected month."""
         staff_list = []
         exclude_list = {'12': "инструктора произв. обучения",
                         '13': "начальник кабинета",
@@ -86,7 +87,7 @@ class EducationStaff:
                         staff_list.append(staff)
 
         def staff_sort(staff_id):
-            """getting sorting code by position"""
+            """Getting sorting code by position."""
             position_id = ""
             for sort_staff in staff_list:
                 if sort_staff.get("staff_id") == str(staff_id):
@@ -106,7 +107,7 @@ class EducationStaff:
 
 
 class ExcelStyle(object):
-    """Styles for Excel export"""
+    """Styles for Excel export."""
     ThinBorder = Side(style="thin", color="000000")
     ThickBorder = Side(style="thick", color="000000")
     AllBorder = Border(

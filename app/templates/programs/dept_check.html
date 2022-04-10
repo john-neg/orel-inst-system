@@ -48,7 +48,15 @@
         </tr>
         {% for wp in wp_data[plan] %}
           <tr class="table-success">
-            <td><span style="white-space: pre-line">{{ wp }}</span></td>
+            <td>
+              <span style="white-space: pre-line">{{ wp }}</span>
+              {% if wp_data[plan][0] != "-->Программа отсутствует<--" and current_user.role in [1] %}
+                <a href="{{url_for('programs.wp_field_edit')}}?disc_id={{ wp_data[plan][wp][1] }}&parameter={{ wp_field }}"
+                   target="_blank"
+                   class="btn btn-success btn-block p-0"
+                   role="button">Edit</a>
+              {% endif %}
+            </td>
           </tr>
           <tr>
             <td><span style="white-space: pre-line">{{ wp_data[plan][wp][0] }}</span></td>

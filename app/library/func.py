@@ -5,7 +5,10 @@ from config import ApeksAPI
 
 
 def library_file_processing(filename):
-    """Обработка загруженного файла c литературой (to dict without first string)"""
+    """
+    Обработка загруженного файла c литературой
+    (to dict without first string).
+    """
     wb = load_workbook(filename)
     ws = wb.active
     replace_dict = {"  ": " ", "–": "-", "\t": ""}
@@ -21,7 +24,10 @@ def library_file_processing(filename):
 
 
 def load_bibl(work_program_id, field_id, load_data):
-    """Загрузка Литетратуры в программу (field_id = 1-осн, 2-доп, 3-науч прод)"""
+    """
+    Загрузка Литетратуры в программу
+    (field_id = 1-осн, 2-доп...).
+    """
     params = {"token": ApeksAPI.TOKEN}
     data = {
         "table": "mm_work_programs_data",
@@ -29,11 +35,15 @@ def load_bibl(work_program_id, field_id, load_data):
         "filter[field_id]": field_id,
         "fields[data]": load_data,
     }
-    requests.post(ApeksAPI.URL + "/api/call/system-database/edit", params=params, data=data)
+    requests.post(
+        ApeksAPI.URL + "/api/call/system-database/edit",
+        params=params,
+        data=data
+    )
 
 
 def add_bibl_field(work_program_id, field_id):
-    """Добавление полей в рабочую программу в случае их отсутствия"""
+    """Добавление полей в рабочую программу в случае их отсутствия."""
     params = {"token": ApeksAPI.TOKEN}
     data = {
         "table": "mm_work_programs_data",
@@ -41,4 +51,8 @@ def add_bibl_field(work_program_id, field_id):
         "fields[field_id]": field_id,
         "fields[data]": "",
     }
-    requests.post(ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data)
+    requests.post(
+        ApeksAPI.URL + "/api/call/system-database/add",
+        params=params,
+        data=data
+    )

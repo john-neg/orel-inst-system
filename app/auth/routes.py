@@ -36,7 +36,6 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
-        # return redirect(url_for('main.index'))
     return render_template(
         "auth/register.html",
         title="Регистрация нового пользователя",
@@ -52,5 +51,9 @@ def logout():
     return redirect(url_for("main.index"))
 
 
-admin.add_link(MenuLink(name='Вернуться на основной сайт', category='', url='/'))
+admin.add_link(MenuLink(
+    name='Вернуться на основной сайт',
+    category='',
+    url='/'
+))
 admin.add_view(ModelView(User, db.session))

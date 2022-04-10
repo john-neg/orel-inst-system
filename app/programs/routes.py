@@ -44,7 +44,7 @@ def dept_check():
             edu_spec=edu_spec,
             department=department,
             year=year,
-            wp_fields=wp_field,
+            wp_field=wp_field,
             wp_data=wp_data,
         )
     return render_template(

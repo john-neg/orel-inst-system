@@ -11,7 +11,7 @@ def schedule():
     apeks = ApeksStaffData()
 
     def lessons_ical_exp(department_id, staff_id, month, year):
-        """формирование данных для экспорта iCAl"""
+        """Формирование данных для экспорта iCAl."""
         lessons = ApeksLessons(staff_id, month, year)
 
         if not lessons.data:
@@ -80,7 +80,7 @@ def schedule():
         return f"{apeks.staff_name(staff_id, department_id)} {month}-{year}.ics"
 
     def lessons_xlsx_exp(department_id, staff_id, month, year):
-        """выгрузка занятий в формате xlsx"""
+        """Выгрузка занятий в формате xlsx."""
         lessons = ApeksLessons(staff_id, month, year)
 
         if not lessons.data:

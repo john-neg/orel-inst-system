@@ -25,6 +25,7 @@ def load_report():
         )
     return render_template("load/load_report.html", active="load", form=form)
 
+
 @bp.route(
     "/load_report/<int:year>/<string:month>/<int:department>",
     methods=["GET", "POST"]

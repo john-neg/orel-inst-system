@@ -23,7 +23,10 @@ class LoadData:
         self.control_lessons = self.control_lessons()
 
     def prepod_dept_structure(self):
-        """Department Id for prepod in current month ( {staff_id:department_id} )"""
+        """
+        Department Id for prepod in current month
+        {staff_id:department_id}.
+        """
         structure = {}
         staff = EducationStaff(self.year, self.month)
         for d in self.departments:
@@ -83,7 +86,10 @@ class LoadData:
         return control_less
 
     def get_control_hours(self, contr_less):
-        """Getting hours for control lessons depending on students number, education type etc..."""
+        """
+        Getting hours for control lessons depending on students number,
+        education type etc...
+        """
         adj_kf = 1
         zach_kf = 0.25
         exam_kf = 0.3
