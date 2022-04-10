@@ -94,9 +94,9 @@
           </li>
           <!-- Отчет о нагрузке -->
           <li>
-           <a href="{{ url_for('load.load_report') }}"
-              class="nav-link {% if active == 'load' %} active text-white {% else %} text-secondary {% endif %}"
-              aria-current="page">
+          <a href="{{ url_for('load.load_report') }}"
+             class="nav-link {% if active == 'load' %} active text-white {% else %} text-secondary {% endif %}"
+             aria-current="page">
              <svg class="bi me-2" width="16" height="16"><use xlink:href="#load"/></svg>
              Отчет о нагрузке</a>
           </li>
@@ -178,30 +178,32 @@
         <hr>
 
         {% if current_user.is_anonymous %}
-        <div>
-          <a href="{{ url_for('auth.login') }}" class="d-flex align-items-center text-white text-decoration-none">
-            <img src="{{url_for('static', filename='images/login.png')}}" alt="" width="32" height="32" class="rounded-circle me-2">
-            <strong>Войти</strong>
-          </a>
-        </div>
+          <div>
+            <a href="{{ url_for('auth.login') }}" class="d-flex align-items-center text-white text-decoration-none">
+              <img src="{{url_for('static', filename='images/login.png')}}" alt="" width="32" height="32" class="rounded-circle me-2">
+              <strong>Войти</strong>
+            </a>
+          </div>
         {% endif %}
 
         {% if current_user.is_authenticated %}
-         <div class="dropdown">
+          <div class="dropdown">
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="user" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="{{url_for('static', filename='images/auth.png')}}" alt="" width="32" height="32" class="rounded-circle me-2">
               <strong>{{ current_user }}</strong>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="user">
-              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
-            </ul>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="user">
+                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Выйти</a></li>
+              </ul>
           </div>
         {% endif %}
       </div>
       <div class="b-divider"></div>
       <div class="container-fluid mt-4 overflow-scroll">
+
         {% block content %}
         {% endblock %}
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <div class="row mb-3 gy-3">
@@ -219,6 +221,5 @@
     </main>
     <!-- Optional JavaScript -->
     <script src="{{url_for('static', filename='bootstrap5/js/bootstrap.bundle.min.js')}}"></script>
-    <!--    <script src="sidebars.js"></script>-->
   </body>
 </html>
