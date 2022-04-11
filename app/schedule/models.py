@@ -1,5 +1,6 @@
 from app.main.func import db_request, db_filter_req, get_active_staff_id, get_data
 from app.schedule.func import get_lessons, get_disc_list
+from config import FlaskConfig as Config
 
 
 class ApeksStaffData:
@@ -53,38 +54,38 @@ class ApeksLessons:
         self.data = get_lessons(staff_id, month, year)
         self.plan_disciplines = get_disc_list()
 
-    def calendarname(self, lesson):
+    def calendar_name(self, lesson):
         """Combined topic + discipline name for calendar."""
         class_type_name = self.data[lesson]["class_type_name"]
         text = (
             class_type_name
             + self.topic_code(lesson)
-            + self.shortdiscname(self.data[lesson]["discipline_id"])
+            + self.short_disc_name(self.data[lesson]["discipline_id"])
             + " "
             + self.data[lesson]["groupName"]
         )
         return text
 
-    def timestart_xlsx(self, lesson):
+    def time_start_xlsx(self, lesson):
         """Time start lesson for xlsx."""
         time = self.data[lesson]["lessonTime"].split(" - ")
         fulltime = self.data[lesson]["date"] + " " + time[0]
         return fulltime
 
-    def timestart_ical(self, lesson):
+    def time_start_ical(self, lesson):
         """Time start lesson for iCal."""
         date = self.data[lesson]["date"].split(".")
         time = self.data[lesson]["lessonTime"].split(" - ")[0]
-        utffix = str(int(time.split(":")[0]) - 3)
+        utffix = str(int(time.split(":")[0]) - Config.TIMEZONE)
         if len(utffix) < 2:
             utffix = f"0{utffix}"
         return date[2] + date[1] + date[0] + "T" + utffix + time.split(":")[1] + "00Z"
 
-    def timeend_ical(self, lesson):
+    def time_end_ical(self, lesson):
         """Time end lesson for iCal."""
         date = self.data[lesson]["date"].split(".")
         time = self.data[lesson]["lessonTime"].split(" - ")[1]
-        utffix = str(int(time.split(":")[0]) - 3)
+        utffix = str(int(time.split(":")[0]) - Config.TIMEZONE)
         if len(utffix) < 2:
             utffix = f"0{utffix}"
         return date[2] + date[1] + date[0] + "T" + utffix + time.split(":")[1] + "00Z"
@@ -108,7 +109,7 @@ class ApeksLessons:
             code = " "
         return code
 
-    def shortdiscname(self, discipline_id):
+    def short_disc_name(self, discipline_id):
         """Get discipline short name."""
         data = self.plan_disciplines
         for i in range(len(data)):

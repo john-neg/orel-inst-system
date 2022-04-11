@@ -13,7 +13,7 @@ from app.load.func import (
 )
 from app.main.func import get_departments
 from app.main.models import EducationStaff, ExcelStyle
-from config import FlaskConfig
+from config import FlaskConfig as Config
 
 
 class LoadData:
@@ -34,7 +34,7 @@ class LoadData:
 
     def prepod_dept_structure(self):
         """
-        Department Id for prepod in current month
+        Department ID for prepod in current month
         {staff_id:department_id}.
         """
         structure = {}
@@ -109,10 +109,10 @@ class LoadData:
                 return False
 
         control_less = []
-        for l in self.structured_lessons:
-            if l.get("control_type_id") in ["1", "2", "6", "14", "16"]:
-                if not check_and_process(l):
-                    control_less.append(copy(l))
+        for less in self.structured_lessons:
+            if less.get("control_type_id") in ["1", "2", "6", "14", "16"]:
+                if not check_and_process(less):
+                    control_less.append(copy(less))
         return control_less
 
     def get_control_hours(self, contr_less):
@@ -153,19 +153,22 @@ class LoadData:
         # 'zachet', 'exam', 'final_att']
 
     def unknown_lessons(self):
-        """Lessons with inactive staff (which doesn't work in department in selected time)"""
+        """
+        Lessons with inactive staff
+        (which doesn't work in department in selected time).
+        """
         unknown = []
-        for l in self.structured_lessons:
-            if not l.get("department_id"):
-                unknown.append(l)
+        for less in self.structured_lessons:
+            if not less.get("department_id"):
+                unknown.append(less)
         return unknown
 
     def department_lessons(self, department_id):
         """Select department lessons for load report"""
         dept_lessons = []
-        for l in self.structured_lessons:
-            if l.get("department_id") == str(department_id):
-                dept_lessons.append(l)
+        for less in self.structured_lessons:
+            if less.get("department_id") == str(department_id):
+                dept_lessons.append(less)
         return dept_lessons
 
 
@@ -229,12 +232,14 @@ class LoadReport:
                 else:
                     self.unprocessed.append(control)
         self.data = self.dept_load.load
-        self.filename = f"{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}.xlsx"
+        self.filename = f"{self.year}-{self.month} " \
+                        f"{self.load.departments.get(self.department_id)[1]}.xlsx"
 
     def generate_report(self):
-        wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
+        wb = load_workbook(Config.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
-        ws.title = f"{self.year}-{self.month} {self.load.departments.get(self.department_id)[1]}"
+        ws.title = f"{self.year}-{self.month} " \
+                   f"{self.load.departments.get(self.department_id)[1]}"
         ws.cell(1, 1).value = (
             "кафедра " + self.load.departments.get(self.department_id)[0]
         )
@@ -294,4 +299,4 @@ class LoadReport:
             )
             ws.cell(row, col).style = ExcelStyle.Number
             ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)
+        wb.save(Config.EXPORT_FILE_DIR + self.filename)

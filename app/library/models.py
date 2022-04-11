@@ -1,7 +1,6 @@
-from app.library.func import add_bibl_field
-from app.main.func import db_filter_req
+from app.main.func import db_filter_req, add_wp_field
 from app.main.models import EducationPlan
-from config import LibConfig
+from config import FlaskConfig as Config
 
 
 class LibraryPlan(EducationPlan):
@@ -24,19 +23,18 @@ class LibraryPlan(EducationPlan):
         return work_programs, non_exist
 
     def library_content(self):
-
         library_fields = (
-            LibConfig.BIBL_MAIN,
-            LibConfig.BIBL_ADD,
-            LibConfig.BIBL_NP,
-            LibConfig.BIBL_INT,
-            LibConfig.BIBL_DB,
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library'),
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_add'),
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_np'),
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('internet'),
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('ref_system'),
         )
 
         def lib_data(field_id):
-            for field in reversed(wp_fields):
-                if field.get("field_id") == str(field_id):
-                    return "" if field.get("data") is None else field.get("data")
+            for f in reversed(wp_fields):
+                if f.get("field_id") == str(field_id):
+                    return "" if f.get("data") is None else f.get("data")
 
         content = {}
         for disc in self.disciplines:
@@ -49,13 +47,14 @@ class LibraryPlan(EducationPlan):
                 )
                 if not wp_fields:
                     for field in library_fields:
-                        add_bibl_field(wp_data[0]["id"], field)
+                        add_wp_field(wp_data[0]["id"], field)
 
                 field_dict = {}
                 for field in library_fields:
                     field_dict[field] = lib_data(field)
-                # [-1] - это костыль т.к. в бд бывает дублирование и нужен именно последний объект
                 content[wp_data[-1]["name"]] = field_dict
+                # [-1] - это костыль т.к. в бд бывает
+                # дублирование и нужен именно последний объект
 
             else:
                 field_dict = {}

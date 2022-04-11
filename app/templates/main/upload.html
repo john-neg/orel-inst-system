@@ -5,7 +5,7 @@
     <title>upload</title>
   </head>
   <body>
-    <form method="POST" enctype=multipart/form-data action ="{{url_for('main.upload')}}">
+    <form method="POST" enctype=multipart/form-data action ="{{ url_for('main.upload') }}">
       <input type="file" name="user_file">
       <input type="submit">
     </form>

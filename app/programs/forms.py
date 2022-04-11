@@ -70,7 +70,8 @@ class DepartmentWPCheck(FieldsForm):
     )
 
 
-class WorkProgramDatesUpdate(ChoosePlan):  # добавить валидаторы для дат
+class WorkProgramDatesUpdate(ChoosePlan):
+    # TODO добавить валидаторы для дат
     date_methodical = StringField(
         "Дата методического совета",
         validators=[Length(min=10, max=10, message="Формат даты - ГГГГ-ММ-ДД")],

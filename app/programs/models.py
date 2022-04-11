@@ -1,15 +1,16 @@
 from datetime import datetime, date
 
 import requests
+
+from config import FlaskConfig as Config
 from app.main.func import (
     plan_curriculum_disciplines,
     db_filter_req,
     get_active_staff_id,
-    get_data, get_system_user_name,
+    get_data, get_system_user_name, add_wp_field,
 )
 from app.plans.func import create_wp
 from app.programs.func import plan_department_disciplines
-from config import ApeksAPI
 
 
 class ApeksDeptData:
@@ -48,27 +49,7 @@ class WorkProgram:
             "tasks": "tasks",  # Задачи дисциплины
             "place_in_structure": "place_in_structure",  # Место в структуре ООП
         }
-        self.mm_work_programs_data_items = {
-            "authorprint": 29,  # Автор(ы) рабочей программы (для печати)
-            "no_next_disc": 30,  # Пояснение к таблице с последующими дисциплинами (информация об отсутствии)
-            "templan_info": 31,  # Примечание к тематическому плану
-            "self_provision": 8,  # Обеспечение самостоятельной работы
-            "test_criteria": 32,  # Критерии оценки для сдачи промежуточной аттестации в форме тестирования
-            "course_works": 12,  # Тематика курсовых работ
-            "practice": 10,  # Практикум
-            "control_works": 13,  # Тематика контрольных работ
-            "exam_form_desc": 33,  # Примерные оценочные средства для проведения промежуточной аттестации
-            "task_works": 9,  # Задачи
-            "tests": 19,  # Тесты
-            "regulations": 16,  # Нормативные акты
-            "library_main": 1,  # Основная литература
-            "library_add": 2,  # Дополнительная литература
-            "library_np": 3,  # Научная продукция
-            "internet": 18,  # Ресурсы информационно-телекоммуникационной сети Интернет
-            "software": 15,  # Программное обеспечение
-            "ref_system": 17,  # Базы данных, информационно-справочные и поисковые системы
-            "materials_base": 20,  # Описание материально-технической базы
-        }
+        self.mm_work_programs_data_items = Config.MM_WORK_PROGRAMS_DATA_ITEMS
 
     def get(self, parameter):
         """Get work program field data."""
@@ -84,7 +65,8 @@ class WorkProgram:
                 date_department = "[Не заполнена]"
             if document_department is None:
                 document_department = "[Отсутствует]"
-            return f"Дата заседания кафедры: {date_department}\r\nПротокол № {document_department}"
+            return f"Дата заседания кафедры: {date_department}\r\n" \
+                   f"Протокол № {document_department}"
         elif parameter in self.mm_sections_items:
             try:
                 data = db_filter_req(
@@ -92,13 +74,13 @@ class WorkProgram:
                 )[-1][self.mm_sections_items.get(parameter)]
                 return data
             except IndexError:
-                params = {"token": ApeksAPI.TOKEN}
+                params = {"token": Config.APEKS_TOKEN}
                 data = {
                     "table": "mm_sections",
                     "fields[work_program_id]": self.work_program_id,
                 }
                 requests.post(
-                    ApeksAPI.URL + "/api/call/system-database/add",
+                    Config.APEKS_URL + "/api/call/system-database/add",
                     params=params,
                     data=data,
                 )
@@ -106,7 +88,7 @@ class WorkProgram:
         elif parameter in self.mm_work_programs_data_items:
             try:
                 params = {
-                    "token": ApeksAPI.TOKEN,
+                    "token": Config.APEKS_TOKEN,
                     "table": "mm_work_programs_data",
                     "filter[work_program_id]": self.work_program_id,
                     "filter[field_id]": str(
@@ -114,10 +96,14 @@ class WorkProgram:
                     ),
                 }
                 return requests.get(
-                    ApeksAPI.URL + "/api/call/system-database/get",
+                    Config.APEKS_URL + "/api/call/system-database/get",
                     params=params
                 ).json()["data"][-1]["data"]
             except IndexError:
+                add_wp_field(
+                    self.work_program_id,
+                    self.mm_work_programs_data_items.get(parameter)
+                )
                 return ""
         else:
             return "Wrong parameter"
@@ -125,14 +111,14 @@ class WorkProgram:
     def edit(self, parameter, load_data):
         """Edit work program field data."""
         def mm_work_programs_items(f_param, f_data):
-            params = {"token": ApeksAPI.TOKEN}
+            params = {"token": Config.APEKS_TOKEN}
             data = {
                 "table": "mm_work_programs",
                 "filter[id]": self.work_program_id,
                 "fields[" + f_param + "]": f_data,
             }
             requests.post(
-                ApeksAPI.URL + "/api/call/system-database/edit",
+                Config.APEKS_URL + "/api/call/system-database/edit",
                 params=params,
                 data=data,
             )
@@ -164,7 +150,7 @@ class WorkProgram:
                 self.curriculum_discipline_id,
             )
         elif parameter in self.mm_sections_items:
-            params = {"token": ApeksAPI.TOKEN}
+            params = {"token": Config.APEKS_TOKEN}
             data = {
                 "table": "mm_sections",
                 "filter[work_program_id]": self.work_program_id,
@@ -172,13 +158,13 @@ class WorkProgram:
                 "]": str(load_data),
             }
             resp = requests.post(
-                ApeksAPI.URL + "/api/call/system-database/edit",
+                Config.APEKS_URL + "/api/call/system-database/edit",
                 params=params,
                 data=data,
             )
             return resp.json()
         elif parameter in self.mm_work_programs_data_items:
-            params = {"token": ApeksAPI.TOKEN}
+            params = {"token": Config.APEKS_TOKEN}
             data = {
                 "table": "mm_work_programs_data",
                 "filter[work_program_id]": self.work_program_id,
@@ -188,7 +174,7 @@ class WorkProgram:
                 "fields[data]": str(load_data),
             }
             r = requests.post(
-                ApeksAPI.URL + "/api/call/system-database/edit",
+                Config.APEKS_URL + "/api/call/system-database/edit",
                 params=params,
                 data=data,
             )
@@ -214,17 +200,6 @@ class WorkProgram:
             signs.append("Не согласована")
         return signs
 
-    # def wp_status_change(self, status):
-    #     """Статус утверждения программы (status = 1-утв, 0-неутв)"""
-    #     params = {"token": ApeksAPI.TOKEN}
-    #     data = {
-    #         "table": "mm_work_programs",
-    #         "filter[id]": self.work_program_id,
-    #         "fields[status]": str(status),
-    #     }
-    #     requests.post(ApeksAPI.URL + "/api/call/system-database/edit",
-    #                   params=params, data=data)
-
 
 class WorkProgramProcessing:
     def __init__(self, curriculum_discipline_id):
@@ -249,7 +224,7 @@ class WorkProgramProcessing:
     def control_data(self):
         """
         Получение последней формы контроля и семестра дисциплины
-        1: ["зкзамен"], 2: ["Зачет"],
+        1: ["Экзамен"], 2: ["Зачет"],
         6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"].
         """
         control_type_id = {1: [], 2: [], 6: [],
@@ -284,7 +259,7 @@ class WorkProgramProcessing:
         (последний семестр [-1]).
         """
         if self.control_data:
-            params = {"token": ApeksAPI.TOKEN}
+            params = {"token": Config.APEKS_TOKEN}
             data = {
                 "table": "mm_competency_levels",
                 "fields[work_program_id]": self.wp_data[0]["id"],
@@ -293,7 +268,7 @@ class WorkProgramProcessing:
                 "fields[level]": "1",
             }
             requests.post(
-                ApeksAPI.URL + "/api/call/system-database/add",
+                Config.APEKS_URL + "/api/call/system-database/add",
                 params=params,
                 data=data
             )
@@ -307,20 +282,20 @@ class WorkProgramProcessing:
             for i in self.comp_level:
                 if i["level"] != "1":
                     params = {
-                        "token": ApeksAPI.TOKEN,
+                        "token": Config.APEKS_TOKEN,
                         "table": "mm_competency_levels",
                         "filter[work_program_id]": self.wp_data[0]["id"],
                         "filter[level]": i["level"],
                     }
                     requests.delete(
-                        ApeksAPI.URL + "/api/call/system-database/delete",
+                        Config.APEKS_URL + "/api/call/system-database/delete",
                         params=params
                     )
 
         if self.control_data:
             # Проверка заполненности плана
             # т.к. нужен семестр, выбор последнего семестра и формы контроля
-            params = {"token": ApeksAPI.TOKEN}
+            params = {"token": Config.APEKS_TOKEN}
             data = {
                 "table": "mm_competency_levels",
                 "filter[work_program_id]": self.wp_data[0]["id"],
@@ -332,7 +307,7 @@ class WorkProgramProcessing:
                 "fields[ownerships]": ownerships,
             }
             requests.post(
-                ApeksAPI.URL + "/api/call/system-database/edit",
+                Config.APEKS_URL + "/api/call/system-database/edit",
                 params=params,
                 data=data,
             )
@@ -350,7 +325,7 @@ class WorkProgramProcessing:
         Загрузка данных компетенции
         (field_id 1-знать, 2-уметь, 3-владеть).
         """
-        params = {"token": ApeksAPI.TOKEN}
+        params = {"token": Config.APEKS_TOKEN}
         data = {
             "table": "mm_work_programs_competencies_data",
             "fields[work_program_id]": self.wp_data[0]["id"],
@@ -359,34 +334,20 @@ class WorkProgramProcessing:
             "fields[value]": value,
         }
         requests.post(
-            ApeksAPI.URL + "/api/call/system-database/add",
+            Config.APEKS_URL + "/api/call/system-database/add",
             params=params,
             data=data
         )
 
-    #     def comp_data_edit(self, competency_id, field_id, value):
-    # Редактирование заполненных данных
-    #         data = {'token': ApeksAPI.TOKEN,
-    #                 'table': 'mm_work_programs_competencies_data',
-    #                 'filter[work_program_id]': self.wp_data[0]['id'],
-    #                 'filter[competency_id]': competency_id,
-    #                 'filter[field_id]': field_id,
-    #                 'fields[value]': value,}
-    #         requests.post(
-    #         ApeksAPI.URL + '/api/call/system-database/edit',
-    #         data=data
-    #         )
-    #         self.comp_data = self.comp_data_get()
-
     def comp_data_del(self):
         """Удаление содержания компетенций."""
         params = {
-            "token": ApeksAPI.TOKEN,
+            "token": Config.APEKS_TOKEN,
             "table": "mm_work_programs_competencies_data",
             "filter[work_program_id]": self.wp_data[0]["id"],
         }
         requests.delete(
-            ApeksAPI.URL + "/api/call/system-database/delete",
+            Config.APEKS_URL + "/api/call/system-database/delete",
             params=params
         )
 

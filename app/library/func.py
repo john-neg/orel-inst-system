@@ -1,7 +1,7 @@
 import requests
 from openpyxl import load_workbook
 from app.main.func import xlsx_iter_rows, xlsx_normalize
-from config import ApeksAPI
+from config import FlaskConfig as Config
 
 
 def library_file_processing(filename):
@@ -13,10 +13,10 @@ def library_file_processing(filename):
     ws = wb.active
     replace_dict = {"  ": " ", "–": "-", "\t": ""}
     xlsx_normalize(ws, replace_dict)
-    liblist = list(xlsx_iter_rows(ws))
-    del liblist[0]
+    lib_list = list(xlsx_iter_rows(ws))
+    del lib_list[0]
     lib_dict = {}
-    for lib in liblist:
+    for lib in lib_list:
         lib_dict[lib[0]] = []
         for i in range(1, len(lib)):
             lib_dict[lib[0]].append(lib[i])
@@ -25,10 +25,10 @@ def library_file_processing(filename):
 
 def load_bibl(work_program_id, field_id, load_data):
     """
-    Загрузка Литетратуры в программу
+    Загрузка Литературы в программу
     (field_id = 1-осн, 2-доп...).
     """
-    params = {"token": ApeksAPI.TOKEN}
+    params = {"token": Config.APEKS_TOKEN}
     data = {
         "table": "mm_work_programs_data",
         "filter[work_program_id]": work_program_id,
@@ -36,19 +36,5 @@ def load_bibl(work_program_id, field_id, load_data):
         "fields[data]": load_data,
     }
     requests.post(
-        ApeksAPI.URL + "/api/call/system-database/edit", params=params, data=data
-    )
-
-
-def add_bibl_field(work_program_id, field_id):
-    """Добавление полей в рабочую программу в случае их отсутствия."""
-    params = {"token": ApeksAPI.TOKEN}
-    data = {
-        "table": "mm_work_programs_data",
-        "fields[work_program_id]": work_program_id,
-        "fields[field_id]": field_id,
-        "fields[data]": "",
-    }
-    requests.post(
-        ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+        Config.APEKS_URL + "/api/call/system-database/edit", params=params, data=data
     )

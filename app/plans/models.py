@@ -15,7 +15,7 @@ from app.plans.func import (
     disciplines_comp_load,
     disciplines_comp_del,
 )
-from config import ApeksAPI, FlaskConfig
+from config import FlaskConfig as Config
 
 
 class CompPlan(EducationPlan):
@@ -55,7 +55,7 @@ class CompPlan(EducationPlan):
 
     def load_comp(self, code, description, left_node, right_node):
         """Добавление компетенции и места в списке"""
-        params = {"token": ApeksAPI.TOKEN}
+        params = {"token": Config.APEKS_TOKEN}
         data = {
             "table": "plan_competencies",
             "fields[education_plan_id]": self.education_plan_id,
@@ -66,7 +66,7 @@ class CompPlan(EducationPlan):
             "fields[right_node]": str(right_node),
         }
         load = requests.post(
-            ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+            Config.APEKS_URL + "/api/call/system-database/add", params=params, data=data
         )
         if load.json()["status"] == 0:
             return f"{code} {description} {load.json()['message']}"
@@ -80,12 +80,12 @@ class CompPlan(EducationPlan):
         message = []
         for i in range(len(self.competencies)):
             params = {
-                "token": ApeksAPI.TOKEN,
+                "token": Config.APEKS_TOKEN,
                 "table": "plan_competencies",
                 "filter[id]": self.competencies[i]["id"],
             }
             remove = requests.delete(
-                ApeksAPI.URL + "/api/call/system-database/delete", params=params
+                Config.APEKS_URL + "/api/call/system-database/delete", params=params
             )
             if remove.json()["status"] == 0:
                 message.append(
@@ -99,12 +99,12 @@ class CompPlan(EducationPlan):
         message = []
         for disc in self.disciplines.keys():
             params = {
-                "token": ApeksAPI.TOKEN,
+                "token": Config.APEKS_TOKEN,
                 "table": "plan_curriculum_discipline_competencies",
                 "filter[curriculum_discipline_id]": disc,
             }
             resp = requests.get(
-                ApeksAPI.URL + "/api/call/system-database/get", params=params
+                Config.APEKS_URL + "/api/call/system-database/get", params=params
             )
             if resp.json()["data"]:
                 message += resp.json()["data"]
@@ -211,7 +211,7 @@ class CompPlan(EducationPlan):
             row += 1
 
         filename = "Матрица - " + self.name + ".xlsx"
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        wb.save(Config.EXPORT_FILE_DIR + filename)
         return filename
 
     def matrix_delete(self):
@@ -415,5 +415,5 @@ class MatrixIndicatorsFile:
                         )
                         paragraph.add_run(";")
                         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-        document.save(FlaskConfig.EXPORT_FILE_DIR + self.title_name + ".docx")
+        document.save(Config.EXPORT_FILE_DIR + self.title_name + ".docx")
         return self.title_name + ".docx"

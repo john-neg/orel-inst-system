@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
 from app.schedule.models import ApeksStaffData, ApeksLessons
-from config import FlaskConfig
+from config import FlaskConfig as Config
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -46,7 +46,8 @@ def schedule():
             ]
 
             with open(
-                f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)} {month}-{year}.ics",
+                f"{Config.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
+                f" {month}-{year}.ics",
                 "w",
             ) as f:
                 for line in lines:
@@ -55,8 +56,8 @@ def schedule():
                 f.write("\n")
                 for lesson in range(len(lessons.data)):
                     f.write("BEGIN:VEVENT" + "\n")
-                    f.write("DTSTART:" + lessons.timestart_ical(lesson) + "\n")
-                    f.write("DTEND:" + lessons.timeend_ical(lesson) + "\n")
+                    f.write("DTSTART:" + lessons.time_start_ical(lesson) + "\n")
+                    f.write("DTEND:" + lessons.time_end_ical(lesson) + "\n")
                     f.write(
                         "DESCRIPTION:"
                         + lessons.topic_code(lesson)
@@ -66,7 +67,7 @@ def schedule():
                     f.write("LOCATION:" + lessons.data[lesson]["classroom"] + "\n")
                     f.write("SEQUENCE:0" + "\n")
                     f.write("STATUS:CONFIRMED" + "\n")
-                    f.write("SUMMARY:" + lessons.calendarname(lesson) + "\n")
+                    f.write("SUMMARY:" + lessons.calendar_name(lesson) + "\n")
                     f.write("TRANSP:OPAQUE" + "\n")
                     f.write("BEGIN:VALARM" + "\n")
                     f.write("ACTION:DISPLAY" + "\n")
@@ -87,7 +88,8 @@ def schedule():
             return "no data"
         else:
             workbook = xlsxwriter.Workbook(
-                f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)} {month}-{year}.xlsx"
+                f"{Config.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
+                f" {month}-{year}.xlsx"
             )
             worksheet = workbook.add_worksheet(
                 apeks.staff_name(staff_id, department_id)
@@ -114,24 +116,24 @@ def schedule():
             worksheet.set_column(3, 4, 50)
 
             # Some data we want to write to the worksheet.
-            lessonexport = ()
+            lesson_export = ()
             for lesson in range(len(lessons.data)):
                 export = (
                     [
-                        lessons.timestart_xlsx(lesson),
-                        lessons.calendarname(lesson),
+                        lessons.time_start_xlsx(lesson),
+                        lessons.calendar_name(lesson),
                         lessons.data[lesson]["classroom"],
                         lessons.topic_name(lesson),
                     ],
                 )
-                lessonexport += export
+                lesson_export += export
 
             # Start from the first cell below the headers.
             row = 3
             col = 0
 
             # Iterate over the data and write it out row by row.
-            for lesson in lessonexport:
+            for lesson in lesson_export:
                 for a in range(len(lesson)):
                     worksheet.write(row, col + a, lesson[a])
                 row += 1
@@ -155,7 +157,8 @@ def schedule():
             )
             if filename == "no data":
                 form.prepod.choices = list(apeks.get_staff(department).items())
-                error = f"{apeks.staff_name(prepod, department)} - нет занятий в указанный период"
+                error = f"{apeks.staff_name(prepod, department)}" \
+                        f" - нет занятий в указанный период"
                 return render_template(
                     "schedule/schedule.html",
                     active="schedule",

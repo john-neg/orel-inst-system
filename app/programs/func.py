@@ -1,6 +1,6 @@
 import requests
 from app.main.func import db_filter_req, plan_curriculum_disciplines
-from config import ApeksAPI
+from config import FlaskConfig as Config
 
 
 def wp_update_list(education_plan_id):
@@ -32,7 +32,7 @@ def wp_dates_update(
     date_approval,
 ):
     """Update work program signature dates."""
-    params = {'token': ApeksAPI.TOKEN}
+    params = {'token': Config.APEKS_TOKEN}
     data = {
         "table": "mm_work_programs",
         "filter[id]": wp_id,
@@ -43,7 +43,7 @@ def wp_dates_update(
         "fields[date_approval]": date_approval,
     }
     send = requests.post(
-        ApeksAPI.URL + "/api/call/system-database/edit",
+        Config.APEKS_URL + "/api/call/system-database/edit",
         params=params,
         data=data
     )

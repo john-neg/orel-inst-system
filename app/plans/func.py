@@ -1,40 +1,44 @@
 import requests
 from openpyxl import load_workbook
 from app.main.func import db_filter_req, xlsx_normalize, xlsx_iter_rows
-from config import ApeksAPI
+from config import FlaskConfig as Config
 
 
 def disciplines_comp_load(curriculum_discipline_id, competency_id):
     """Загрузка связи дисциплины с компетенцией"""
-    params = {"token": ApeksAPI.TOKEN}
+    params = {"token": Config.APEKS_TOKEN}
     data = {
         "table": "plan_curriculum_discipline_competencies",
         "fields[curriculum_discipline_id]": curriculum_discipline_id,
         "fields[competency_id]": competency_id,
     }
     requests.post(
-        ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+        Config.APEKS_URL + "/api/call/system-database/add", params=params, data=data
     )
 
 
 def disciplines_wp_clean(work_program_id):
     """Удаление записей о компетенциях в РП"""
     params = {
-        "token": ApeksAPI.TOKEN,
+        "token": Config.APEKS_TOKEN,
         "table": "mm_work_programs_competencies_data",
         "filter[work_program_id]": work_program_id,
     }
-    requests.delete(ApeksAPI.URL + "/api/call/system-database/delete", params=params)
+    requests.delete(
+        Config.APEKS_URL + "/api/call/system-database/delete", params=params
+    )
 
 
 def disciplines_comp_del(curriculum_discipline_id):
     """Удаление связей дисциплины и компетенций"""
     params = {
-        "token": ApeksAPI.TOKEN,
+        "token": Config.APEKS_TOKEN,
         "table": "plan_curriculum_discipline_competencies",
         "filter[curriculum_discipline_id]": curriculum_discipline_id,
     }
-    requests.delete(ApeksAPI.URL + "/api/call/system-database/delete", params=params)
+    requests.delete(
+        Config.APEKS_URL + "/api/call/system-database/delete", params=params
+    )
 
 
 def comp_delete(education_plan_id):
@@ -42,12 +46,12 @@ def comp_delete(education_plan_id):
     data = db_filter_req("plan_competencies", "education_plan_id", education_plan_id)
     for i in range(len(data)):
         params = {
-            "token": ApeksAPI.TOKEN,
+            "token": Config.APEKS_TOKEN,
             "table": "plan_competencies",
             "filter[id]": data[i]["id"],
         }
         requests.delete(
-            ApeksAPI.URL + "/api/call/system-database/delete", params=params
+            Config.APEKS_URL + "/api/call/system-database/delete", params=params
         )
 
 
@@ -65,8 +69,8 @@ def comps_file_processing(filename):
 
 
 def create_wp(curriculum_discipline_id):
-    """Cоздание программы"""
-    params = {"token": ApeksAPI.TOKEN}
+    """Создание программы"""
+    params = {"token": Config.APEKS_TOKEN}
     data = {
         "table": "mm_work_programs",
         "fields[curriculum_discipline_id]": curriculum_discipline_id,
@@ -74,7 +78,7 @@ def create_wp(curriculum_discipline_id):
         "fields[user_id]": get_main_staff_id(curriculum_discipline_id),
     }
     requests.post(
-        ApeksAPI.URL + "/api/call/system-database/add", params=params, data=data
+        Config.APEKS_URL + "/api/call/system-database/add", params=params, data=data
     )
 
 
@@ -87,7 +91,10 @@ def get_wp_name(curriculum_discipline_id):
 
 
 def get_main_staff_id(curriculum_discipline_id):
-    """Получение идентификатора начальника кафедры или самого старшего на момент запроса"""
+    """
+    Получение идентификатора начальника кафедры
+    или самого старшего на момент запроса.
+    """
     department_id = db_filter_req(
         "plan_curriculum_disciplines", "id", curriculum_discipline_id
     )[0]["department_id"]

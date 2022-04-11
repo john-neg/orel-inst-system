@@ -2,10 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from config import FlaskConfig, DbRoles
+from config import FlaskConfig as Config
 
 app = Flask(__name__)
-app.config.from_object(FlaskConfig)
+app.config.from_object(Config)
 db = SQLAlchemy(app)
 
 
@@ -14,7 +14,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    role = db.Column(db.Integer(), default=DbRoles.ROLE_METOD)
+    role = db.Column(db.Integer(), default=Config.ROLE_METOD)
 
     def __repr__(self):
         return "{}".format(self.username)
@@ -33,19 +33,19 @@ db.create_all()
 
 # Create base users
 
-u = User(username='admin', role=DbRoles.ROLE_ADMIN)
+u = User(username='admin', role=Config.ROLE_ADMIN)
 u.set_password('admin')
 db.session.add(u)
 
-u = User(username='user', role=DbRoles.ROLE_USER)
+u = User(username='user', role=Config.ROLE_USER)
 u.set_password('user')
 db.session.add(u)
 
-u = User(username='metod', role=DbRoles.ROLE_METOD)
+u = User(username='metod', role=Config.ROLE_METOD)
 u.set_password('metod')
 db.session.add(u)
 
-u = User(username='bibl', role=DbRoles.ROLE_BIBL)
+u = User(username='bibl', role=Config.ROLE_BIBL)
 u.set_password('bibl')
 db.session.add(u)
 

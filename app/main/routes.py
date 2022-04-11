@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 
 from app.main import bp
 from app.main.func import allowed_file
-from config import FlaskConfig
+from config import FlaskConfig as Config
 
 
 @bp.route("/")
@@ -17,7 +17,7 @@ def index():
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
     """Send file and delete it from server."""
-    file = FlaskConfig.EXPORT_FILE_DIR + filename
+    file = Config.EXPORT_FILE_DIR + filename
     return (
         send_file(
             file,
@@ -32,7 +32,7 @@ def get_file(filename):
 @bp.route("/templates/<string:filename>", methods=["GET"])
 def get_temp_file(filename):
     """Send template file from server."""
-    file = FlaskConfig.TEMP_FILE_DIR + filename
+    file = Config.TEMP_FILE_DIR + filename
     return send_file(
         file,
         mimetype="text/plain",
@@ -48,7 +48,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = file.filename
             # filename = secure_filename(file.filename)
-            file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+            file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
             return filename
     return render_template("main/upload.html")
 
@@ -58,7 +58,7 @@ def read_uploaded_file():
     filename = secure_filename(request.args.get("filename"))
     try:
         if filename and allowed_file(filename):
-            with open(os.path.join(FlaskConfig["UPLOAD_FOLDER"], filename)) as f:
+            with open(os.path.join(Config.UPLOAD_FILE_DIR, filename)) as f:
                 return f.read()
     except IOError:
         pass

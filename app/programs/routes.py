@@ -100,16 +100,17 @@ def wp_field_edit():
     form = WorkProgramFieldUpdate()
     disc_id = request.args.get("disc_id")
     parameter = request.args.get("parameter")
-    wp_data = WorkProgram(disc_id)
+    wp = WorkProgram(disc_id)
     if request.method == "POST":
         parameter = request.form.get("wp_fields")
+
         if request.form.get("field_update") and form.validate_on_submit():
             load_data = request.form.get("wp_field_edit")
-            wp_data.edit(parameter, load_data)
+            wp.edit(parameter, load_data)
             flash("Данные обновлены")
     form.wp_fields.data = parameter
     try:
-        wp_field_data = wp_data.get(parameter)
+        wp_field_data = wp.get(parameter)
     except IndexError:
         wp_field_data = ""
     form.wp_field_edit.data = wp_field_data
@@ -118,7 +119,7 @@ def wp_field_edit():
         "programs/wp_field_edit.html",
         active="programs",
         form=form,
-        wp_name=wp_data.get("name"),
+        wp_name=wp.get("name"),
     )
 
 
@@ -233,13 +234,17 @@ def wp_data(plan_id):
             elif request.method == "POST" and request.form.get("wp_status_1"):
                 wp.edit("status", 1)
                 button = "wp_status_1"
-            wp_list[disc] = [wp.name, wp.get_signs(), wp.get("status")]
+            wp_list[disc] = [
+                wp.name, wp.get_signs(), wp.get("status"), wp.work_program_id
+            ]
         except IndexError:
             if request.method == "POST" and request.form.get("create_wp"):
                 button = "create_wp"
                 create_wp(disc)
                 wp = WorkProgram(disc)
-                wp_list[disc] = [wp.name, wp.get_signs(), wp.get("status")]
+                wp_list[disc] = [
+                    wp.name, wp.get_signs(), wp.get("status"), wp.work_program_id
+                ]
             else:
                 no_program[disc] = plan.discipline_name(disc)
     return render_template(

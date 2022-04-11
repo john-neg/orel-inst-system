@@ -2,7 +2,7 @@ from calendar import monthrange
 from datetime import date
 import requests
 from app.main.func import db_request
-from config import ApeksAPI
+from config import FlaskConfig as Config
 
 
 def get_lessons(year, month):
@@ -11,7 +11,7 @@ def get_lessons(year, month):
     last_day = monthrange(year, month)[1]
 
     params = {
-        "token": ApeksAPI.TOKEN,
+        "token": Config.APEKS_TOKEN,
         "table": "schedule_day_schedule_lessons",
         "filter": "date between '"
         + date(year, month, first_day).isoformat()
@@ -19,7 +19,9 @@ def get_lessons(year, month):
         + date(year, month, last_day).isoformat()
         + "'",
     }
-    resp = requests.get(ApeksAPI.URL + "/api/call/system-database/get", params=params)
+    resp = requests.get(
+        Config.APEKS_URL + "/api/call/system-database/get", params=params
+    )
     return resp.json()["data"]
 
 
@@ -87,30 +89,40 @@ def plan_education_plans():
 
 
 def get_lesson_type(lesson):
-    if lesson.get("class_type_id") == "1":  # Лекция
+    """Распределение типов занятий и контролей по группам."""
+    if lesson.get("class_type_id") == str(Config.CLASS_TYPE_ID.get("lecture")):
         l_type = "lecture"
-    elif lesson.get("class_type_id") == "2":  # Семинар
+    elif lesson.get("class_type_id") == str(Config.CLASS_TYPE_ID.get("seminar")):
         l_type = "seminar"
     elif (
-        lesson.get("class_type_id") == "3"
-        or lesson.get("control_type_id") == "12"
-        or lesson.get("control_type_id") == "13"
-    ):  # п/з, входной, выходной контроль
+        lesson.get("class_type_id") == str(Config.CLASS_TYPE_ID.get("prakt"))
+        or lesson.get("control_type_id")
+        == str(Config.CONTROL_TYPE_ID.get("in_control"))
+        or lesson.get("control_type_id")
+        == str(Config.CONTROL_TYPE_ID.get("out_control"))
+    ):
         l_type = "pract"
-    elif lesson.get("control_type_id") == "15":  # Консультации
+    elif lesson.get("control_type_id") == str(Config.CONTROL_TYPE_ID.get("group_cons")):
         l_type = "group_cons"
     elif (
-        lesson.get("control_type_id") == "2"
-        or lesson.get("control_type_id") == "6"
-        or lesson.get("control_type_id") == "10"
-    ):  # Зачет, зачет с оценкой, итоговая письменная аудиторная к/р
+        lesson.get("control_type_id") == str(Config.CONTROL_TYPE_ID.get("zachet"))
+        or lesson.get("control_type_id")
+        == str(Config.CONTROL_TYPE_ID.get("zachet_mark"))
+        or lesson.get("control_type_id")
+        == str(Config.CONTROL_TYPE_ID.get("itog_kontr"))
+    ):
         l_type = "zachet"
-    elif (
-        lesson.get("control_type_id") == "1" or lesson.get("control_type_id") == "16"
-    ):  # Экзамен
+        # Зачет, зачет с оценкой, итоговая письменная аудиторная к/р
+    elif lesson.get("control_type_id") == str(
+        Config.CONTROL_TYPE_ID.get("exam")
+    ) or lesson.get("control_type_id") == str(
+        Config.CONTROL_TYPE_ID.get("kandidat_exam")
+    ):
         l_type = "exam"
-    elif lesson.get("control_type_id") == "14":  # Итоговая аттестация
+        # Экзамен
+    elif lesson.get("control_type_id") == str(Config.CONTROL_TYPE_ID.get("final_att")):
         l_type = "final_att"
+        # Итоговая аттестация
     else:
         l_type = None
     return l_type
@@ -118,28 +130,34 @@ def get_lesson_type(lesson):
 
 def get_student_type(lesson):
     if (
-        lesson.get("education_form_id") == "7" or lesson.get("discipline_id") == "549"
-    ):  # проф подготовка (+ Цифр. грам - 549)
-        s_type = "prof_p"
-    elif lesson.get("education_form_id") == "1" and (
-        lesson.get("education_level_id") == "3"
-        or lesson.get("education_level_id") == "5"
-    ):  # очно, бакалавр или специалитет
-        s_type = "och"
-    elif lesson.get("education_form_id") == "3" and (
-        lesson.get("education_level_id") == "3"
-        or lesson.get("education_level_id") == "5"
-    ):  # заочно, бакалавр или специалитет
-        s_type = "zo_high"
-    elif (
-        lesson.get("education_form_id") == "3"
-        and lesson.get("education_level_id") == "2"
-    ):  # заочно, среднее
-        s_type = "zo_mid"
-    elif lesson.get("education_level_id") == "7":  # адъюнктура
-        s_type = "adj"
-    elif lesson.get("education_form_id") == "5":  # дополнительное проф образование
-        s_type = "dpo"
+        lesson.get("education_form_id") == str(Config.EDUCATION_FORM_ID.get("prof_pod"))
+        or lesson.get("discipline_id") == "549"
+    ):
+        s_type = "prof_p"  # проф подготовка (+ костыль ПП Цифр. грамотность - id - 549)
+    elif lesson.get("education_form_id") == str(
+        Config.EDUCATION_FORM_ID.get("ochno")
+    ) and (
+        lesson.get("education_level_id") == str(Config.EDUCATION_LEVEL_ID.get("bak"))
+        or lesson.get("education_level_id")
+        == str(Config.EDUCATION_LEVEL_ID.get("spec"))
+    ):
+        s_type = "och"  # очно, бакалавр или специалитет
+    elif lesson.get("education_form_id") == str(
+        Config.EDUCATION_FORM_ID.get("zaochno")
+    ) and (
+        lesson.get("education_level_id") == str(Config.EDUCATION_LEVEL_ID.get("bak"))
+        or lesson.get("education_level_id")
+        == str(Config.EDUCATION_LEVEL_ID.get("spec"))
+    ):
+        s_type = "zo_high"  # заочно, бакалавр или специалитет
+    elif lesson.get("education_form_id") == str(
+        Config.EDUCATION_FORM_ID.get("zaochno")
+    ) and lesson.get("education_level_id") == str(Config.EDUCATION_LEVEL_ID.get("spo")):
+        s_type = "zo_mid"  # заочно, среднее
+    elif lesson.get("education_level_id") == str(Config.EDUCATION_LEVEL_ID.get("adj")):
+        s_type = "adj"  # адъюнктура
+    elif lesson.get("education_form_id") == str(Config.EDUCATION_FORM_ID.get("dpo")):
+        s_type = "dpo"  # дополнительное проф образование
     else:
         s_type = None
     return s_type

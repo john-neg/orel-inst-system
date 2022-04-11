@@ -15,14 +15,16 @@ from app.main.func import (
     db_filter_req,
     allowed_file,
 )
-from config import FlaskConfig, LibConfig
-
+from config import FlaskConfig as Config
 
 LIB_TYPES = {
-    "library": [LibConfig.BIBL_MAIN, LibConfig.BIBL_ADD],
-    "library_np": [LibConfig.BIBL_NP],
-    "library_int": [LibConfig.BIBL_INT],
-    "library_db": [LibConfig.BIBL_DB],
+    "library": [
+        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library"),
+        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
+    ],
+    "library_np": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
+    "library_int": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
+    "library_db": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
 }
 
 
@@ -131,7 +133,7 @@ class LibraryUploadView(View):
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
-                    file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                    file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                     if request.form.get("library_check"):
                         # Проверка данных
                         return redirect(
@@ -209,7 +211,7 @@ class LibraryCheckView(View):
 
     @login_required
     def dispatch_request(self, plan_id, filename):
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        file = Config.UPLOAD_FILE_DIR + filename
         form = FileForm()
         plan = LibraryPlan(plan_id)
         lib_data = library_file_processing(file)
@@ -218,7 +220,7 @@ class LibraryCheckView(View):
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
-                    file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                    file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                     if request.form.get("library_check"):
                         return redirect(
                             url_for(
@@ -312,15 +314,15 @@ class LibraryUpdateView(View):
 
     @login_required
     def dispatch_request(self, plan_id, filename):
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        file = Config.UPLOAD_FILE_DIR + filename
         plan = LibraryPlan(plan_id)
         file_data = library_file_processing(file)
         for disc in file_data:
             for wp_id in plan.work_programs:
                 if plan.work_programs.get(wp_id) == disc:
                     counter = 0
-                    for bibl in LIB_TYPES[self.lib_type]:
-                        load_bibl(wp_id, bibl, file_data[disc][counter])
+                    for bibl_type in LIB_TYPES[self.lib_type]:
+                        load_bibl(wp_id, bibl_type, file_data[disc][counter])
                     counter += 1
         flash(f"Данные из файла - {filename}: успешно загружены")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
@@ -371,10 +373,11 @@ class LibraryExportView(View):
     def dispatch_request(self, plan_id):
         plan = LibraryPlan(plan_id)
         lib_data = plan.library_content()
-        filename = f'{self.lib_type_name} - {db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]}.xlsx'
-        wb = load_workbook(
-            FlaskConfig.TEMP_FILE_DIR + f"{self.lib_type}_load_temp.xlsx"
+        filename = (
+            f'{self.lib_type_name} - '
+            f'{db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]}.xlsx'
         )
+        wb = load_workbook(Config.TEMP_FILE_DIR + f"{self.lib_type}_load_temp.xlsx")
         ws = wb.active
         start_row = 2
         for data in lib_data:
@@ -384,7 +387,7 @@ class LibraryExportView(View):
                 ws.cell(row=start_row, column=counter + 2).value = lib_data[data][bibl]
                 counter += 1
             start_row += 1
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        wb.save(Config.EXPORT_FILE_DIR + filename)
         return redirect(url_for("main.get_file", filename=filename))
 
 

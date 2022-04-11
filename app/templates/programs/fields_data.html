@@ -26,8 +26,8 @@
       {% for wp in wp_data %}
         <tr class="table-success">
           <td>{{ wp }}
-            {% if wp_data[wp][0] != "-->Программа отсутствует<--" and current_user.role in [1] %}
-            <a href="{{url_for('programs.wp_field_edit')}}?disc_id={{ wp_data[wp][1] }}&parameter={{ wp_field }}"
+            {% if wp_data[wp][0] != "-->Программа отсутствует<--" and current_user.role in [config.ROLE_ADMIN] %}
+            <a href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[wp][1] }}&parameter={{ wp_field }}"
                target="_blank"
                class="btn btn-success btn-block p-0"
                role="button">Edit</a>

@@ -7,7 +7,7 @@ from app.plans import bp
 from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
 from app.programs.models import WorkProgramProcessing
-from config import FlaskConfig
+from config import FlaskConfig as Config
 
 
 @bp.route("/comp_choose_plan", endpoint="comp_choose_plan", methods=["GET", "POST"])
@@ -110,7 +110,7 @@ def comp_load(plan_id):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("comp_check"):
                     # Проверка файла
                     return redirect(
@@ -148,7 +148,7 @@ def matrix_simple_load(plan_id):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("mtrx_sim_check"):
                     # Проверка файла
                     return redirect(
@@ -199,7 +199,7 @@ def matrix_indicator_load(plan_id):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("mtrx_ind_check"):
                     # Проверка файла
                     return redirect(
@@ -221,7 +221,7 @@ def matrix_indicator_load(plan_id):
 @bp.route("/comp_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"])
 @login_required
 def comp_check(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     form = FileForm()
     comps = comps_file_processing(file)
@@ -230,7 +230,7 @@ def comp_check(plan_id, filename):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("comp_check"):
                     # Проверка файла
                     return redirect(
@@ -267,7 +267,7 @@ def comp_check(plan_id, filename):
 )
 @login_required
 def matrix_simple_check(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     form = FileForm()
     report, comp_code_errors = plan.matrix_simple_file_check(file)
@@ -276,7 +276,7 @@ def matrix_simple_check(plan_id, filename):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("mtrx_sim_check"):
                     # Проверка файла
                     return redirect(
@@ -319,7 +319,7 @@ def matrix_simple_check(plan_id, filename):
 )
 @login_required
 def matrix_indicator_check(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     matrix = MatrixIndicatorsFile(file)
     form = FileForm()
@@ -404,7 +404,7 @@ def matrix_indicator_check(plan_id, filename):
             file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("mtrx_ind_check"):
                     # Проверка файла
                     return redirect(
@@ -450,7 +450,7 @@ def matrix_indicator_check(plan_id, filename):
 @bp.route("/comp_update/<int:plan_id>/<string:filename>", methods=["GET"])
 @login_required
 def comp_update(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     comps = comps_file_processing(file)
     left_node, right_node = 1, 2
@@ -467,7 +467,7 @@ def comp_update(plan_id, filename):
 @bp.route("/matrix_simple_update/<int:plan_id>/<string:filename>", methods=["GET"])
 @login_required
 def matrix_simple_update(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
     plan.matrix_simple_upload(file)
     os.remove(file)
@@ -483,7 +483,7 @@ def matrix_indicator_file_upload():
             file = request.files["xlsx_file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
                 if request.form.get("mtrx_file_check"):
                     return redirect(
                         url_for("plans.matrix_indicator_file_check", filename=filename)
@@ -499,15 +499,15 @@ def matrix_indicator_file_upload():
 @login_required
 def matrix_indicator_file_check(filename):
     form = FileForm()
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    file = Config.UPLOAD_FILE_DIR + filename
     matrix = MatrixIndicatorsFile(file)
     if request.method == "POST":
         if request.files["xlsx_file"]:
             file = request.files["xlsx_file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                file_path = FlaskConfig.UPLOAD_FILE_DIR + filename
+                file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
+                file_path = Config.UPLOAD_FILE_DIR + filename
                 if request.form.get("mtrx_file_check"):
                     return redirect(
                         url_for("plans.matrix_indicator_file_check", filename=filename)

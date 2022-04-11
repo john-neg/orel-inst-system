@@ -10,7 +10,6 @@
       <b>{{ plan_name }}</b>
     </div>
   </div>
-
   {% if wp_list %}
   <div class="d-grid col-xl-8">
     <table class="col-md-7 mt-3 table">
@@ -19,18 +18,19 @@
             <td>Согласование:</td>
         <td>Утверждение:</td>
       </tr>
-      {% for prog in wp_list %}
+      {% for disc in wp_list %}
         <tr>
           <td>
-            <span style="white-space: pre-line"><b>{{ wp_list[prog][0] }}</b></span>
+            <a href="{{ config.APEKS_URL }}/mm/materials/view-wp?id={{ disc }}&work_program_id={{ wp_list[disc][3] }}" target="_blank"><svg class="bi me-2" width="16" height="16"><use xlink:href="#open"/></svg></a>
+            <span style="white-space: pre-line"><b>{{ wp_list[disc][0] }}</b></span>
           </td>
           <td>
-            {% for sign in wp_list[prog][1] %}
+            {% for sign in wp_list[disc][1] %}
               {{ sign }}
             {% endfor %}
           </td>
           <td>
-            {% if wp_list[prog][2] == '1' %}
+            {% if wp_list[disc][2] == '1' %}
               Утверждена
             {% else %}
               <b>Не утвержд.</b>
@@ -56,10 +56,9 @@
       </table>
     </div>
   {% endif %}
-
-  {% if current_user.role in [1, 3] %}
+  {% if current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
     <form action="" method="post">
-      {% if no_program and current_user.role in [1] %}
+      {% if no_program and current_user.role in [config.ROLE_ADMIN] %}
         <div class="d-grid mt-3 mb-3 col-xl-8">
           <input type="submit"
                  name="create_wp"

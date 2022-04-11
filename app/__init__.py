@@ -4,7 +4,7 @@ from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import redirect
 
-from config import FlaskConfig
+from config import FlaskConfig as Config
 
 db = SQLAlchemy()
 login = LoginManager()
@@ -14,13 +14,13 @@ admin = Admin()
 
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.role == 1
+        return current_user.is_authenticated and current_user.role == Config.ROLE_ADMIN
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('main.index'))
 
 
-def create_app(config_class=FlaskConfig):
+def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
