@@ -4,7 +4,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class FlaskConfig(object):
-    """Flask configuration"""
+    """Конфигурация Flask."""
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'verysupersecretkeystring'
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL'
@@ -17,18 +17,18 @@ class FlaskConfig(object):
 
     TIMEZONE: int = 3
 
-    # ApeksVUZ API data
-    APEKS_URL = 'https://avtorvuz.orurinst.site'
-    APEKS_TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
-    APEKS_DEPT_ID = '4'  # ID of Department divisions type
-
-    # User roles
+    # Группы пользователей
     ROLE_ADMIN: int = 1
     ROLE_USER: int = 2
     ROLE_METOD: int = 3
     ROLE_BIBL: int = 4
 
-    # IDs of ApeksVUZ's fields in mm_work_programs_data_items table
+    # Данные API АпексВУЗ
+    APEKS_URL = 'https://avtorvuz.orurinst.site'
+    APEKS_TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
+    APEKS_DEPT_ID = '4'  # ID of Department divisions type
+
+    # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
     MM_WORK_PROGRAMS_DATA_ITEMS = {
         # Автор(ы) рабочей программы (для печати)
         "authorprint": 29,
@@ -70,7 +70,7 @@ class FlaskConfig(object):
         "materials_base": 20,
     }
 
-    # Идентификаторы видов занятий
+    # Идентификаторы видов занятий в таблице class_type_id
     CLASS_TYPE_ID = {
         # Лекция
         'lecture': 1,
@@ -80,7 +80,7 @@ class FlaskConfig(object):
         'prakt': 3,
     }
 
-    # Идентификаторы форм контроля
+    # Идентификаторы форм контроля в таблице control_type_id
     CONTROL_TYPE_ID = {
         # Экзамен
         'exam': 1,
@@ -102,7 +102,7 @@ class FlaskConfig(object):
         'kandidat_exam': 16,
     }
 
-    # Идентификаторы форм обучения
+    # Идентификаторы форм обучения в таблице education_form_id
     EDUCATION_FORM_ID = {
         # Очное обучение
         'ochno': 1,
@@ -114,7 +114,7 @@ class FlaskConfig(object):
         "prof_pod": 7,
     }
 
-    # Идентификаторы уровней обучения
+    # Идентификаторы уровней обучения в таблице education_level_id
     EDUCATION_LEVEL_ID = {
         # Среднее профессиональное образование
         'spo': 2,
@@ -124,4 +124,27 @@ class FlaskConfig(object):
         'spec': 5,
         # Адъюнктура
         'adj': 7,
+    }
+
+    # Коэффициенты для расчета нагрузки по формам контроля на обучающегося
+    # и максимальное значение
+    # Адъюнктура (итоговая аттестация, кандидатский экзамен)
+    ADJ_KF: float = 1
+    ADJ_KF_MAX: float = 8
+    # Зачет
+    ZACH_KF: float = 0.25
+    ZACH_KF_MAX: float = 6
+    # Экзамен
+    EXAM_KF: float = 0.3
+    EXAM_KF_MAX: float = 8
+    # Итоговая аттестация (ПП, ДПО)
+    FINAL_KF: float = 0.5
+    FINAL_KF_MAX: float = 8
+
+    # Список должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
+    EXCLUDE_LIST = {
+        "12": "инструктора произв. обучения",
+        "13": "начальник кабинета",
+        "14": "специалист по УМР",
+        "15": "зав. кабинетом",
     }

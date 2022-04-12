@@ -52,4 +52,4 @@ def create_app(config_class=Config):
     return app
 
 
-from app.main import routes
+#from app.main import views

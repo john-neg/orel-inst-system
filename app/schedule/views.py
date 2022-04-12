@@ -56,8 +56,8 @@ def schedule():
                 f.write("\n")
                 for lesson in range(len(lessons.data)):
                     f.write("BEGIN:VEVENT" + "\n")
-                    f.write("DTSTART:" + lessons.time_start_ical(lesson) + "\n")
-                    f.write("DTEND:" + lessons.time_end_ical(lesson) + "\n")
+                    f.write("DTSTART:" + lessons.time_ical('start', lesson) + "\n")
+                    f.write("DTEND:" + lessons.time_ical('end', lesson) + "\n")
                     f.write(
                         "DESCRIPTION:"
                         + lessons.topic_code(lesson)

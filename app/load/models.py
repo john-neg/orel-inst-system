@@ -110,7 +110,13 @@ class LoadData:
 
         control_less = []
         for less in self.structured_lessons:
-            if less.get("control_type_id") in ["1", "2", "6", "14", "16"]:
+            if less.get("control_type_id") in [
+                Config.CONTROL_TYPE_ID.get("exam"),
+                Config.CONTROL_TYPE_ID.get("zachet"),
+                Config.CONTROL_TYPE_ID.get("zachet_mark"),
+                Config.CONTROL_TYPE_ID.get("final_att"),
+                Config.CONTROL_TYPE_ID.get("kandidat_exam"),
+            ]:
                 if not check_and_process(less):
                     control_less.append(copy(less))
         return control_less
@@ -119,11 +125,8 @@ class LoadData:
         """
         Getting hours for control lessons depending on students number,
         education type etc...
+        Если значение больше максимального, возвращаем максимальное
         """
-        adj_kf = 1
-        zach_kf = 0.25
-        exam_kf = 0.3
-        final_kf = 0.5
         cont_type = get_lesson_type(contr_less)
         stud_type = get_student_type(contr_less)
         if contr_less.get("subgroup_id"):  # If subgroup - get people count from it
@@ -135,22 +138,21 @@ class LoadData:
         if stud_type == "prof_p" or stud_type == "dpo":
             return contr_less["hours"]
         elif stud_type == "adj" and (
-            contr_less.get("control_type_id") == "14"
-            or contr_less.get("control_type_id") == "16"
+            contr_less.get("control_type_id") == Config.CONTROL_TYPE_ID.get("final_att")
+            or contr_less.get("control_type_id")
+            == Config.CONTROL_TYPE_ID.get("kandidat_exam")
         ):
-            value = int(people_count) * adj_kf
-            return 8 if value > 8 else value
+            value = int(people_count) * Config.ADJ_KF
+            return Config.ADJ_KF_MAX if value > Config.ADJ_KF_MAX else value
         elif cont_type == "zachet":
-            value = int(people_count) * zach_kf
-            return 6 if value > 6 else value
+            value = int(people_count) * Config.ZACH_KF
+            return Config.ZACH_KF_MAX if value > Config.ZACH_KF_MAX else value
         elif cont_type == "exam":
-            value = int(people_count) * exam_kf
-            return 8 if value > 8 else value
+            value = int(people_count) * Config.EXAM_KF
+            return Config.EXAM_KF_MAX if value > Config.EXAM_KF_MAX else value
         elif cont_type == "final_att":
-            value = int(people_count) * final_kf
-            return 8 if value > 8 else value
-        # ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
-        # 'zachet', 'exam', 'final_att']
+            value = int(people_count) * Config.FINAL_KF
+            return Config.FINAL_KF_MAX if value > Config.FINAL_KF_MAX else value
 
     def unknown_lessons(self):
         """
@@ -232,14 +234,18 @@ class LoadReport:
                 else:
                     self.unprocessed.append(control)
         self.data = self.dept_load.load
-        self.filename = f"{self.year}-{self.month} " \
-                        f"{self.load.departments.get(self.department_id)[1]}.xlsx"
+        self.filename = (
+            f"{self.year}-{self.month} "
+            f"{self.load.departments.get(self.department_id)[1]}.xlsx"
+        )
 
     def generate_report(self):
         wb = load_workbook(Config.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
-        ws.title = f"{self.year}-{self.month} " \
-                   f"{self.load.departments.get(self.department_id)[1]}"
+        ws.title = (
+            f"{self.year}-{self.month} "
+            f"{self.load.departments.get(self.department_id)[1]}"
+        )
         ws.cell(1, 1).value = (
             "кафедра " + self.load.departments.get(self.department_id)[0]
         )

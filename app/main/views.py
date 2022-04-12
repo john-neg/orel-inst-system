@@ -48,6 +48,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = file.filename
             # filename = secure_filename(file.filename)
+            # (проблема с русскими названиями)
             file.save(os.path.join(Config.UPLOAD_FILE_DIR, filename))
             return filename
     return render_template("main/upload.html")

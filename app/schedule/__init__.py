@@ -2,4 +2,4 @@ from flask import Blueprint
 
 bp = Blueprint("schedule", __name__)
 
-from app.schedule import routes
+from app.schedule import views

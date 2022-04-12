@@ -3,6 +3,7 @@ from datetime import date
 
 from openpyxl.styles import Side, NamedStyle, Font, Border, Alignment, PatternFill
 from app.main.func import plan_curriculum_disciplines, db_filter_req, db_request
+from config import FlaskConfig as Config
 
 
 class EducationPlan:
@@ -60,20 +61,13 @@ class EducationStaff:
     def staff_list(self, department_id):
         """List of department workers which was active on selected month."""
         staff_list = []
-        exclude_list = {
-            "12": "инструктора произв. обучения",
-            "13": "начальник кабинета",
-            "14": "специалист по УМР",
-            "15": "зав. кабинетом",
-        }
-
         dept_history = []
         for record in self.state_staff_history:
             if record.get("department_id") == str(department_id):
                 dept_history.append(record)
 
         for staff in dept_history:
-            if staff.get("position_id") not in exclude_list:
+            if staff.get("position_id") not in Config.EXCLUDE_LIST:
                 if staff.get("end_date") is not None:
                     if date.fromisoformat(staff.get("end_date")) > date(
                         self.year, self.start_month, 1

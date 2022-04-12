@@ -53,8 +53,8 @@ class LibraryPlan(EducationPlan):
                 for field in library_fields:
                     field_dict[field] = lib_data(field)
                 content[wp_data[-1]["name"]] = field_dict
-                # [-1] - это костыль т.к. в бд бывает
-                # дублирование и нужен именно последний объект
+                # [-1] - это костыль т.к. в бд бывает дублирование,
+                # и тогда нужен именно последний объект
 
             else:
                 field_dict = {}

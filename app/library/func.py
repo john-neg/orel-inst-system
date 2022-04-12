@@ -4,10 +4,10 @@ from app.main.func import xlsx_iter_rows, xlsx_normalize
 from config import FlaskConfig as Config
 
 
-def library_file_processing(filename):
+def library_file_processing(filename) -> dict:
     """
     Обработка загруженного файла c литературой
-    (to dict without first string).
+    (словарь без первой строки файла).
     """
     wb = load_workbook(filename)
     ws = wb.active
