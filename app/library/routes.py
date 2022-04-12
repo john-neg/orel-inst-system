@@ -19,7 +19,7 @@ from config import FlaskConfig as Config
 
 LIB_TYPES = {
     "library": [
-        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library"),
+        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
         Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
     ],
     "library_np": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
@@ -323,7 +323,7 @@ class LibraryUpdateView(View):
                     counter = 0
                     for bibl_type in LIB_TYPES[self.lib_type]:
                         load_bibl(wp_id, bibl_type, file_data[disc][counter])
-                    counter += 1
+                        counter += 1
         flash(f"Данные из файла - {filename}: успешно загружены")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 

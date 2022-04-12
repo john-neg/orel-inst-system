@@ -23,13 +23,13 @@ class LibraryPlan(EducationPlan):
         return work_programs, non_exist
 
     def library_content(self):
-        library_fields = (
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library'),
+        library_fields = [
+            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_main'),
             Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_add'),
             Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_np'),
             Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('internet'),
             Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('ref_system'),
-        )
+        ]
 
         def lib_data(field_id):
             for f in reversed(wp_fields):
