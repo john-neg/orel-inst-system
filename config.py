@@ -13,6 +13,7 @@ class FlaskConfig(object):
     EXPORT_FILE_DIR = os.path.join(BASEDIR, 'app/files/export/')
     UPLOAD_FILE_DIR = os.path.join(BASEDIR, 'app/files/upload/')
     TEMP_FILE_DIR = os.path.join(BASEDIR, 'app/files/templates/')
+    STATIC_FILE_DIR = os.path.join(BASEDIR, 'app/static/')
     ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
 
     TIMEZONE: int = 3
