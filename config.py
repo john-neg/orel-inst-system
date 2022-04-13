@@ -16,8 +16,6 @@ class FlaskConfig(object):
     STATIC_FILE_DIR = os.path.join(BASEDIR, 'app/static/')
     ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
 
-    TIMEZONE: int = 3
-
     # Группы пользователей
     ROLE_ADMIN: int = 1
     ROLE_USER: int = 2
@@ -27,7 +25,7 @@ class FlaskConfig(object):
     # Данные API АпексВУЗ
     APEKS_URL = 'https://avtorvuz.orurinst.site'
     APEKS_TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
-    APEKS_DEPT_ID = '4'  # ID of Department divisions type
+    APEKS_DEPT_ID = 4  # ID типа подразделения "кафедра" в БД
 
     # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
     MM_WORK_PROGRAMS_DATA_ITEMS = {
@@ -127,6 +125,14 @@ class FlaskConfig(object):
         'adj': 7,
     }
 
+    # Список должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
+    EXCLUDE_LIST = {
+        "12": "инструктора произв. обучения",
+        "13": "начальник кабинета",
+        "14": "специалист по УМР",
+        "15": "зав. кабинетом",
+    }
+
     # Коэффициенты для расчета нагрузки по формам контроля на обучающегося
     # и максимальное значение
     # Адъюнктура (итоговая аттестация, кандидатский экзамен)
@@ -142,10 +148,5 @@ class FlaskConfig(object):
     FINAL_KF: float = 0.5
     FINAL_KF_MAX: float = 8
 
-    # Список должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
-    EXCLUDE_LIST = {
-        "12": "инструктора произв. обучения",
-        "13": "начальник кабинета",
-        "14": "специалист по УМР",
-        "15": "зав. кабинетом",
-    }
+    # Часовой пояс для правильного отображения времени занятий
+    TIMEZONE: int = 3
