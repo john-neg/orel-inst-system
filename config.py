@@ -1,4 +1,5 @@
 import os
+import credentials
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -23,8 +24,8 @@ class FlaskConfig(object):
     ROLE_BIBL: int = 4
 
     # Данные API АпексВУЗ
-    APEKS_URL = 'https://avtorvuz.orurinst.site'
-    APEKS_TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
+    APEKS_URL = credentials.APEKS_URL
+    APEKS_TOKEN = credentials.APEKS_TOKEN
     APEKS_DEPT_ID = 4  # ID типа подразделения "кафедра" в БД
 
     # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
