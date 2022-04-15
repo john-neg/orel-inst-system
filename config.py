@@ -23,7 +23,7 @@ class FlaskConfig(object):
     ROLE_BIBL: int = 4
 
     # Данные API АпексВУЗ
-    APEKS_URL = 'https://avtorvuz.orurinst.site'
+    APEKS_URL = 'https://apeks.orui-mvd.ru'
     APEKS_TOKEN = 'b41dfa22-0a72-477f-9f05-995b8409863a'
     APEKS_DEPT_ID = 4  # ID типа подразделения "кафедра" в БД
 
