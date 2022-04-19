@@ -1,23 +1,15 @@
 from copy import copy
 from openpyxl import load_workbook
 from openpyxl.styles import Font
-from app.load.func import (
-    lessons_staff,
-    load_subgroups,
-    load_groups,
-    plan_education_plans_education_forms,
-    plan_education_plans,
-    get_lessons,
-    get_lesson_type,
-    get_student_type,
-)
+
+from app.load.func import *
 from app.main.func import get_departments
 from app.main.models import EducationStaff, ExcelStyle
 from config import FlaskConfig as Config
 
 
 class LoadData:
-    def __init__(self, year, month):
+    def __init__(self, year: int, month: int):
         self.year = year
         self.month = month
         self.departments = get_departments()
@@ -85,14 +77,13 @@ class LoadData:
         return structured_lessons
 
     def control_lessons(self):
-        """Control lessons (1-экз, 2-зач, 6-зач.оц, 14-ИА, 16-канд.экз)"""
+        """Получения занятий типа контроль (зачет, экзамен)"""
 
         def check_and_process(lesson):
+            """Сверка типа занятия для определения типа контроль"""
             lookup = [
-                "staff_id",
-                "discipline_id",
-                "group_id",
-                "control_type_id",
+                "staff_id", "discipline_id",
+                "group_id", "control_type_id",
                 "date",
             ]
             counter = 0
@@ -111,11 +102,10 @@ class LoadData:
         control_less = []
         for less in self.structured_lessons:
             if less.get("control_type_id") in [
-                Config.CONTROL_TYPE_ID.get("exam"),
-                Config.CONTROL_TYPE_ID.get("zachet"),
-                Config.CONTROL_TYPE_ID.get("zachet_mark"),
-                Config.CONTROL_TYPE_ID.get("final_att"),
-                Config.CONTROL_TYPE_ID.get("kandidat_exam"),
+                str(Config.CONTROL_TYPE_ID.get(i)) for i in (
+                        "exam", "zachet", "zachet_mark",
+                        "final_att", "kandidat_exam"
+                )
             ]:
                 if not check_and_process(less):
                     control_less.append(copy(less))
@@ -175,17 +165,12 @@ class LoadData:
 
 
 class DeptPrepodLoad:
-    def __init__(self, staff_list):
+    def __init__(self, staff_list: list):
         self.load = {}
         self.staff_list = staff_list
         lesson_types = [
-            "lecture",
-            "seminar",
-            "pract",
-            "group_cons",
-            "zachet",
-            "exam",
-            "final_att",
+            "lecture", "seminar", "pract", "group_cons",
+            "zachet", "exam", "final_att",
         ]
         student_types = ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
         for staff_id in staff_list:
@@ -240,6 +225,8 @@ class LoadReport:
         )
 
     def generate_report(self):
+        """Формирование отчета о нагрузке в Excel."""
+
         wb = load_workbook(Config.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
         ws.title = (
