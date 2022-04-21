@@ -134,7 +134,7 @@
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
               Программы</a>
           </li>
-            {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
+            {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL] %}
               {% if active == "programs" %}
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li><a href="{{ url_for('programs.dept_check') }}" class="text-white rounded">Проверка по кафедре</a></li>
