@@ -69,7 +69,7 @@
              Главная</a>
           </li>
           <!-- Администрирование -->
-          {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN] %}
+          {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, ) %}
             <li>
               <a href="{{ url_for('auth.register') }}"
                  class="nav-link {% if active == 'admin' %} active text-white {% else %} text-secondary {% endif %}"
@@ -81,7 +81,7 @@
           {% if current_user.is_authenticated %}
             {% if active == "admin" %}
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                {% if current_user.role in [config.ROLE_ADMIN] %}
+                {% if current_user.role in (config.ROLE_ADMIN, ) %}
                   <li><a href="{{ url_for('auth.register') }}" class="text-white rounded">Регистрация</a></li>
                   <li><a href="{{ url_for('admin.index') + 'user' }}" class="text-white rounded">Управление</a></li>
                 {% endif %}
@@ -105,7 +105,7 @@
              Отчет о нагрузке</a>
           </li>
           <!-- Учебные планы -->
-          {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
+          {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
           <li>
             <a href="{{ url_for('plans.comp_choose_plan') }}"
                class="nav-link {% if active == 'plans' %} active text-white {% else %} text-secondary {% endif %}"
@@ -115,11 +115,11 @@
           </li>
             {% if active == "plans" %}
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                {% if current_user.role in [config.ROLE_ADMIN] %}
+                {% if current_user.role in (config.ROLE_ADMIN, ) %}
                   <li><a href="{{ url_for('plans.comp_choose_plan') }}" class="text-white rounded">Загрузка компетенций</a></li>
                 {% endif %}
                   <li><a href="{{ url_for('plans.matrix_simple_choose_plan') }}" class="text-white rounded">Матрица простая</a></li>
-                {% if current_user.role in [config.ROLE_ADMIN] %}
+                {% if current_user.role in (config.ROLE_ADMIN, ) %}
                   <li><a href="{{ url_for('plans.matrix_indicator_choose_plan') }}" class="text-white rounded">Матрица c индикаторами</a></li>
                 {% endif %}
                   <li><a href="{{ url_for('plans.matrix_indicator_file_upload') }}" class="text-white rounded">Индикаторы по дисциплинам</a></li>
@@ -134,26 +134,26 @@
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#programs"/></svg>
               Программы</a>
           </li>
-            {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL] %}
+            {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
               {% if active == "programs" %}
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                     <li><a href="{{ url_for('programs.dept_check') }}" class="text-white rounded">Проверка по кафедре</a></li>
-                  {% if current_user.role in [config.ROLE_ADMIN] %}
+                  {% if current_user.role in (config.ROLE_ADMIN, ) %}
                     <li><a href="{{ url_for('programs.dates_update') }}" class="text-white rounded">Обновление дат</a></li>
                   {% endif %}
                     <li><a href="{{ url_for('programs.fields_choose_plan') }}" class="text-white rounded">Значения полей</a></li>
-                  {% if current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
+                  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
                     <li><a href="{{ url_for('programs.wp_data_choose_plan') }}" class="text-white rounded">Общая информация</a></li>
                   {% endif %}
                 </ul>
               {% endif %}
             {% endif %}
             <!-- Обеспечение -->
-            {% if current_user.is_authenticated and current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL] %}
+            {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
               <li>
-                <a href="{% if current_user.role in [config.ROLE_ADMIN, config.ROLE_BIBL] %}
+                <a href="{% if current_user.role in (config.ROLE_ADMIN, config.ROLE_BIBL) %}
                            {{ url_for('library.library_choose_plan') }}
-                         {% elif current_user.role in [config.ROLE_METOD] %}
+                         {% elif current_user.role in (config.ROLE_METOD, ) %}
                            {{ url_for('library.library_np_choose_plan') }}
                          {% endif %}"
                    class="nav-link {% if active == 'library' %} active text-white {% else %} text-secondary {% endif %}"
@@ -166,12 +166,12 @@
             {% if current_user.is_authenticated %}
               {% if active == "library" %}
                 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                  {% if current_user.role in [config.ROLE_ADMIN, config.ROLE_BIBL] %}
+                  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_BIBL) %}
                     <li><a href="{{ url_for('library.library_choose_plan') }}" class="text-white rounded">Список литературы</a></li>
                     <li><a href="{{ url_for('library.library_int_choose_plan') }}" class="text-white rounded">Интернет ресурсы</a></li>
                     <li><a href="{{ url_for('library.library_db_choose_plan') }}" class="text-white rounded">Базы и справочные системы</a></li>
                   {% endif %}
-                  {% if current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
+                  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
                     <li><a href="{{ url_for('library.library_np_choose_plan') }}" class="text-white rounded">Научная продукция</a></li>
                   {% endif %}
                 </ul>

@@ -56,9 +56,9 @@
       </table>
     </div>
   {% endif %}
-  {% if current_user.role in [config.ROLE_ADMIN, config.ROLE_METOD] %}
+  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
     <form action="" method="post">
-      {% if no_program and current_user.role in [config.ROLE_ADMIN] %}
+      {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
         <div class="d-grid mt-3 mb-3 col-xl-8">
           <input type="submit"
                  name="create_wp"
