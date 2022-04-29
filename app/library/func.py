@@ -11,7 +11,14 @@ def library_file_processing(filename) -> dict:
     """
     wb = load_workbook(filename)
     ws = wb.active
-    replace_dict = {"  ": " ", "–": "-", "\t": ""}
+    replace_dict = {
+        "  ": " ",
+        "–": "-",
+        "\t": "",
+        "_x000D_": "",
+        "None": "",
+        "Нет программы": ""
+    }
     xlsx_normalize(ws, replace_dict)
     lib_list = list(xlsx_iter_rows(ws))
     del lib_list[0]
