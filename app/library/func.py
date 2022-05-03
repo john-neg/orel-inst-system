@@ -1,7 +1,7 @@
 import requests
 from openpyxl import load_workbook
 from app.main.func import xlsx_iter_rows, xlsx_normalize
-from config import ApeksConfig
+from config import ApeksConfig as Apeks
 
 
 def library_file_processing(filename) -> dict:
@@ -35,7 +35,7 @@ def load_bibl(work_program_id, field_id, load_data):
     Загрузка Литературы в программу
     (field_id = 1-осн, 2-доп...).
     """
-    params = {"token": ApeksConfig.TOKEN}
+    params = {"token": Apeks.TOKEN}
     data = {
         "table": "mm_work_programs_data",
         "filter[work_program_id]": work_program_id,
@@ -43,5 +43,5 @@ def load_bibl(work_program_id, field_id, load_data):
         "fields[data]": load_data,
     }
     requests.post(
-        ApeksConfig.URL + "/api/call/system-database/edit", params=params, data=data
+        Apeks.URL + "/api/call/system-database/edit", params=params, data=data
     )
