@@ -63,11 +63,9 @@ class ApeksLessons:
         """Combined topic + discipline name for calendar."""
         class_type_name = self.data[lesson]["class_type_name"]
         text = (
-            class_type_name
-            + self.topic_code(lesson)
-            + self.short_disc_name(self.data[lesson]["discipline_id"])
-            + " "
-            + self.data[lesson]["groupName"]
+                f'{class_type_name}{self.topic_code(lesson)}'
+                f'{self.short_disc_name(self.data[lesson]["discipline_id"])} '
+                f'{self.data[lesson]["groupName"]}'
         )
         return text
 

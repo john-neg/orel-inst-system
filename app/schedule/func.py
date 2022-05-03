@@ -22,7 +22,7 @@ def get_lessons(staff_id, month, year):
 
 
 def get_edu_lessons(group_id, month, year):
-    """Getting staff lessons."""
+    """Getting group lessons."""
     params = {
         "token": Apeks.TOKEN,
         "group_id": str(group_id),
