@@ -6,6 +6,7 @@ from app.load.func import *
 from app.main.func import get_departments
 from app.main.models import EducationStaff, ExcelStyle
 from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 class LoadData:
@@ -102,7 +103,7 @@ class LoadData:
         control_less = []
         for less in self.structured_lessons:
             if less.get("control_type_id") in [
-                str(Config.CONTROL_TYPE_ID.get(i)) for i in (
+                str(Apeks.CONTROL_TYPE_ID.get(i)) for i in (
                         "exam", "zachet", "zachet_mark",
                         "final_att", "kandidat_exam"
                 )
@@ -128,21 +129,21 @@ class LoadData:
         if stud_type == "prof_p" or stud_type == "dpo":
             return contr_less["hours"]
         elif stud_type == "adj" and (
-            contr_less.get("control_type_id") == Config.CONTROL_TYPE_ID.get("final_att")
+            contr_less.get("control_type_id") == Apeks.CONTROL_TYPE_ID.get("final_att")
             or contr_less.get("control_type_id")
-            == Config.CONTROL_TYPE_ID.get("kandidat_exam")
+            == Apeks.CONTROL_TYPE_ID.get("kandidat_exam")
         ):
-            value = int(people_count) * Config.ADJ_KF
-            return Config.ADJ_KF_MAX if value > Config.ADJ_KF_MAX else value
+            value = int(people_count) * Apeks.ADJ_KF
+            return Apeks.ADJ_KF_MAX if value > Apeks.ADJ_KF_MAX else value
         elif cont_type == "zachet":
-            value = int(people_count) * Config.ZACH_KF
-            return Config.ZACH_KF_MAX if value > Config.ZACH_KF_MAX else value
+            value = int(people_count) * Apeks.ZACH_KF
+            return Apeks.ZACH_KF_MAX if value > Apeks.ZACH_KF_MAX else value
         elif cont_type == "exam":
-            value = int(people_count) * Config.EXAM_KF
-            return Config.EXAM_KF_MAX if value > Config.EXAM_KF_MAX else value
+            value = int(people_count) * Apeks.EXAM_KF
+            return Apeks.EXAM_KF_MAX if value > Apeks.EXAM_KF_MAX else value
         elif cont_type == "final_att":
-            value = int(people_count) * Config.FINAL_KF
-            return Config.FINAL_KF_MAX if value > Config.FINAL_KF_MAX else value
+            value = int(people_count) * Apeks.FINAL_KF
+            return Apeks.FINAL_KF_MAX if value > Apeks.FINAL_KF_MAX else value
 
     def unknown_lessons(self):
         """

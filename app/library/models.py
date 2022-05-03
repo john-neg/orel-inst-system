@@ -1,6 +1,6 @@
 from app.main.func import db_filter_req, add_wp_field
 from app.main.models import EducationPlan
-from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 class LibraryPlan(EducationPlan):
@@ -24,11 +24,11 @@ class LibraryPlan(EducationPlan):
 
     def library_content(self):
         library_fields = [
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_main'),
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_add'),
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_np'),
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('internet'),
-            Config.MM_WORK_PROGRAMS_DATA_ITEMS.get('ref_system'),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_main'),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_add'),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get('library_np'),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get('internet'),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get('ref_system'),
         ]
 
         def lib_data(field_id):

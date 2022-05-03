@@ -1,6 +1,6 @@
 from app.main.func import db_request, db_filter_req, get_active_staff_id, get_data
 from app.schedule.func import get_lessons, get_disc_list
-from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 class ApeksStaffData:
@@ -18,7 +18,7 @@ class ApeksStaffData:
             position_id = ""
             for history in state_staff_history:
                 if history.get("staff_id") == str(staff_id):
-                    if history.get("position_id") in Config.EXCLUDE_LIST:
+                    if history.get("position_id") in Apeks.EXCLUDE_LIST:
                         return None
                     else:
                         position_id = history.get("position_id")
@@ -85,7 +85,7 @@ class ApeksLessons:
         i = 0 if pos == 'start' else 1 if pos == 'end' else None
         date = self.data[lesson]["date"].split(".")
         time = self.data[lesson]["lessonTime"].split(" - ")[i]
-        utf_fix = str(int(time.split(":")[0]) - Config.TIMEZONE)
+        utf_fix = str(int(time.split(":")[0]) - Apeks.TIMEZONE)
         if len(utf_fix) < 2:
             utf_fix = f"0{utf_fix}"
         return f"{date[2]}{date[1]}{date[0]}T{utf_fix}{time.split(':')[1]}00Z"

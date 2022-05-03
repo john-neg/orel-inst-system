@@ -1,12 +1,14 @@
 import os
-import credentials
 
+from dotenv import load_dotenv
+
+load_dotenv()
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class FlaskConfig(object):
     """Конфигурация Flask."""
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'verysupersecretkeystring'
+    SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL'
     ) or 'sqlite:///' + os.path.join(BASEDIR, 'app.db')
@@ -23,10 +25,16 @@ class FlaskConfig(object):
     ROLE_METOD: int = 3
     ROLE_BIBL: int = 4
 
+
+class ApeksConfig(object):
+    """Конфигурация для работы с API АпексВУЗ"""
+
     # Данные API АпексВУЗ
-    APEKS_URL = credentials.APEKS_URL
-    APEKS_TOKEN = credentials.APEKS_TOKEN
-    APEKS_DEPT_ID = 4  # ID типа подразделения "кафедра" в БД
+    URL = os.getenv('APEKS_URL')
+    TOKEN = os.getenv('APEKS_TOKEN')
+
+    # ID типа подразделения "кафедра" в БД
+    DEPT_ID = 4
 
     # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
     MM_WORK_PROGRAMS_DATA_ITEMS = {

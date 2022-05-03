@@ -1,6 +1,7 @@
 from datetime import date
 import requests
 from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 def allowed_file(filename):
@@ -12,9 +13,9 @@ def allowed_file(filename):
 
 def db_request(dbname):
     """DB request function without filter."""
-    params = {"token": Config.APEKS_TOKEN, "table": dbname}
+    params = {"token": Apeks.TOKEN, "table": dbname}
     response = requests.get(
-        Config.APEKS_URL + "/api/call/system-database/get", params=params
+        Apeks.URL + "/api/call/system-database/get", params=params
     )
     return response.json()["data"]
 
@@ -22,12 +23,12 @@ def db_request(dbname):
 def db_filter_req(dbname, sql_table, sql_value):
     """Filtered DB request (DB table, filter, value)."""
     params = {
-        "token": Config.APEKS_TOKEN,
+        "token": Apeks.TOKEN,
         "table": dbname,
         "filter[" + sql_table + "]": str(sql_value),
     }
     response = requests.get(
-        Config.APEKS_URL + "/api/call/system-database/get", params=params
+        Apeks.URL + "/api/call/system-database/get", params=params
     )
     return response.json()["data"]
 
@@ -40,7 +41,7 @@ def get_active_staff_id():
 def get_departments():
     """Getting dict of department as dict id:[name, short_name]."""
     dept_dict = {}
-    resp = db_filter_req("state_departments", "parent_id", Config.APEKS_DEPT_ID)
+    resp = db_filter_req("state_departments", "parent_id", Apeks.DEPT_ID)
     for dept in resp:
         dept_dict[dept["id"]] = [dept["name"], dept["name_short"]]
     return dept_dict
@@ -49,21 +50,21 @@ def get_departments():
 def get_data(active_staff_id):
     """Getting Apeks data about organization structure."""
     params = {
-        "token": Config.APEKS_TOKEN,
+        "token": Apeks.TOKEN,
         "staff_id": active_staff_id,
         "month": date.today().strftime("%m"),
         "year": date.today().strftime("%Y"),
     }
     return requests.get(
-        Config.APEKS_URL + "/api/call/schedule-schedule/staff", params=params
+        Apeks.URL + "/api/call/schedule-schedule/staff", params=params
     ).json()["data"]
 
 
 def education_specialty():
     """Getting education_speciality data."""
-    payload = {"token": Config.APEKS_TOKEN, "table": "plan_education_specialties"}
+    payload = {"token": Apeks.TOKEN, "table": "plan_education_specialties"}
     request = requests.get(
-        Config.APEKS_URL + "/api/call/system-database/get", params=payload
+        Apeks.URL + "/api/call/system-database/get", params=payload
     )
     specialties = {}
     for i in request.json()["data"]:
@@ -74,14 +75,14 @@ def education_specialty():
 def education_plans(education_specialty_id, year=0):
     """Getting education plans with selected speciality."""
     payload = {
-        "token": Config.APEKS_TOKEN,
+        "token": Apeks.TOKEN,
         "table": "plan_education_plans",
         "filter[data_type]": "plan",
         "filter[education_specialty_id]": education_specialty_id,
         "filter[active]": "1",
     }
     request = requests.get(
-        Config.APEKS_URL + "/api/call/system-database/get", params=payload
+        Apeks.URL + "/api/call/system-database/get", params=payload
     )
     plans = {}
     if year == 0:
@@ -152,7 +153,7 @@ def get_system_user_name(user_id):
 
 def add_wp_field(work_program_id, field_id):
     """Добавление пустых полей в рабочую программу в случае их отсутствия."""
-    params = {"token": Config.APEKS_TOKEN}
+    params = {"token": Apeks.TOKEN}
     data = {
         "table": "mm_work_programs_data",
         "fields[work_program_id]": work_program_id,
@@ -160,5 +161,5 @@ def add_wp_field(work_program_id, field_id):
         "fields[data]": "",
     }
     requests.post(
-        Config.APEKS_URL + "/api/call/system-database/add", params=params, data=data
+        Apeks.URL + "/api/call/system-database/add", params=params, data=data
     )

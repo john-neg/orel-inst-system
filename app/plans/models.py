@@ -16,6 +16,7 @@ from app.plans.func import (
     disciplines_comp_del,
 )
 from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 class CompPlan(EducationPlan):
@@ -55,7 +56,7 @@ class CompPlan(EducationPlan):
 
     def load_comp(self, code, description, left_node, right_node):
         """Добавление компетенции и места в списке"""
-        params = {"token": Config.APEKS_TOKEN}
+        params = {"token": Apeks.TOKEN}
         data = {
             "table": "plan_competencies",
             "fields[education_plan_id]": self.education_plan_id,
@@ -66,7 +67,7 @@ class CompPlan(EducationPlan):
             "fields[right_node]": str(right_node),
         }
         load = requests.post(
-            Config.APEKS_URL + "/api/call/system-database/add", params=params, data=data
+            Apeks.URL + "/api/call/system-database/add", params=params, data=data
         )
         if load.json()["status"] == 0:
             return f"{code} {description} {load.json()['message']}"
@@ -80,12 +81,12 @@ class CompPlan(EducationPlan):
         message = []
         for i in range(len(self.competencies)):
             params = {
-                "token": Config.APEKS_TOKEN,
+                "token": Apeks.TOKEN,
                 "table": "plan_competencies",
                 "filter[id]": self.competencies[i]["id"],
             }
             remove = requests.delete(
-                Config.APEKS_URL + "/api/call/system-database/delete", params=params
+                Apeks.URL + "/api/call/system-database/delete", params=params
             )
             if remove.json()["status"] == 0:
                 message.append(
@@ -99,12 +100,12 @@ class CompPlan(EducationPlan):
         message = []
         for disc in self.disciplines.keys():
             params = {
-                "token": Config.APEKS_TOKEN,
+                "token": Apeks.TOKEN,
                 "table": "plan_curriculum_discipline_competencies",
                 "filter[curriculum_discipline_id]": disc,
             }
             resp = requests.get(
-                Config.APEKS_URL + "/api/call/system-database/get", params=params
+                Apeks.URL + "/api/call/system-database/get", params=params
             )
             if resp.json()["data"]:
                 message += resp.json()["data"]

@@ -3,7 +3,7 @@ from datetime import date
 
 from openpyxl.styles import Side, NamedStyle, Font, Border, Alignment, PatternFill
 from app.main.func import plan_curriculum_disciplines, db_filter_req, db_request
-from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
 
 
 class EducationPlan:
@@ -67,7 +67,7 @@ class EducationStaff:
                 dept_history.append(record)
 
         for staff in dept_history:
-            if staff.get("position_id") not in Config.EXCLUDE_LIST:
+            if staff.get("position_id") not in Apeks.EXCLUDE_LIST:
                 if staff.get("end_date") is not None:
                     if date.fromisoformat(staff.get("end_date")) > date(
                         self.year, self.start_month, 1

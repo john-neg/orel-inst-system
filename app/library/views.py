@@ -16,15 +16,17 @@ from app.main.func import (
     allowed_file,
 )
 from config import FlaskConfig as Config
+from config import ApeksConfig as Apeks
+
 
 LIB_TYPES = {
     "library": [
-        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
-        Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
+        Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
+        Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
     ],
-    "library_np": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
-    "library_int": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
-    "library_db": [Config.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
+    "library_np": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
+    "library_int": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
+    "library_db": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
 }
 
 
