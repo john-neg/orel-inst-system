@@ -8,6 +8,7 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 class FlaskConfig(object):
     """Конфигурация Flask."""
+
     SECRET_KEY = os.getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL'

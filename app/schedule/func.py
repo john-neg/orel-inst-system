@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import requests
 from app.main.func import db_filter_req
 from config import ApeksConfig as Apeks
@@ -8,7 +10,7 @@ def get_disc_list():
     return db_filter_req("plan_disciplines", "level", 3)
 
 
-def get_lessons(staff_id, month, year):
+def get_lessons(staff_id, month: int | str, year: int | str):
     """Getting staff lessons."""
     params = {
         "token": Apeks.TOKEN,
