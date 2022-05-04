@@ -33,31 +33,24 @@ def create_app(config_class=FlaskConfig):
     admin.init_app(app, index_view=MyAdminIndexView())
 
     from app.auth import bp as login_bp
-
     app.register_blueprint(login_bp)
 
     from app.main import bp as main_bp
-
     app.register_blueprint(main_bp)
 
     from app.schedule import bp as schedule_bp
-
     app.register_blueprint(schedule_bp)
 
     from app.load import bp as load_bp
-
     app.register_blueprint(load_bp)
 
     from app.plans import bp as plans_bp
-
     app.register_blueprint(plans_bp, url_prefix="/plans")
 
     from app.programs import bp as programs_bp
-
     app.register_blueprint(programs_bp, url_prefix="/programs")
 
     from app.library import bp as library_bp
-
     app.register_blueprint(library_bp)
 
     return app

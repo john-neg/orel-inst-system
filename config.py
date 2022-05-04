@@ -42,6 +42,7 @@ class ApeksConfig(object):
     DEPT_ID = 4
 
     # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
+
     MM_WORK_PROGRAMS_DATA_ITEMS = {
         # Автор(ы) рабочей программы (для печати)
         "authorprint": 29,
@@ -166,6 +167,17 @@ class ApeksConfig(object):
     TIMEZONE: int = 3
 
 
+# Create directories
+for local_directory in (
+    FlaskConfig.EXPORT_FILE_DIR,
+    FlaskConfig.UPLOAD_FILE_DIR,
+    FlaskConfig.LOG_FILE_DIR,
+):
+    if not os.path.exists(local_directory):
+        os.mkdir(local_directory, 0o755)
+
+
+# Logger Configuration
 logging.basicConfig(
     level=logging.DEBUG,
     encoding="utf-8",
