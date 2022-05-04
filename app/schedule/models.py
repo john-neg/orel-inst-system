@@ -1,5 +1,5 @@
 from app.main.func import db_request, db_filter_req, get_active_staff_id, get_data
-from app.schedule.func import get_lessons, get_disc_list
+from app.schedule.func import apeks_api_get_staff_lessons, apeks_api_check_staff_lessons, get_disc_list
 from config import ApeksConfig as Apeks
 
 
@@ -56,10 +56,12 @@ class ApeksStaffData:
 
 class ApeksLessons:
     def __init__(self, staff_id, month, year):
-        self.data = get_lessons(staff_id, month, year)
+        self.data = apeks_api_check_staff_lessons(
+            apeks_api_get_staff_lessons(staff_id, month, year)
+        )
         self.plan_disciplines = get_disc_list()
 
-    def calendar_name(self, lesson):
+    def calendar_name(self, lesson: int):
         """Combined topic + discipline name for calendar."""
         class_type_name = self.data[lesson]["class_type_name"]
         text = (
@@ -69,13 +71,13 @@ class ApeksLessons:
         )
         return text
 
-    def time_start_xlsx(self, lesson) -> str:
+    def time_start_xlsx(self, lesson: int) -> str:
         """Time start lesson for xlsx."""
         time = self.data[lesson]["lessonTime"].split(" - ")
         fulltime = f"{self.data[lesson]['date']} {time[0]}"
         return fulltime
 
-    def time_ical(self, pos, lesson):
+    def time_ical(self, pos, lesson: int):
         """
         Время начала/конца занятия для формата iCal
         pos in ['start', 'end']
@@ -88,7 +90,7 @@ class ApeksLessons:
             utf_fix = f"0{utf_fix}"
         return f"{date[2]}{date[1]}{date[0]}T{utf_fix}{time.split(':')[1]}00Z"
 
-    def topic_name(self, lesson):
+    def topic_name(self, lesson: int):
         """Get topic name."""
         if self.data[lesson]["topic_name"] is None:
             name = " "
@@ -96,7 +98,7 @@ class ApeksLessons:
             name = self.data[lesson]["topic_name"]
         return name
 
-    def topic_code(self, lesson):
+    def topic_code(self, lesson: int):
         """Get topic number."""
         if (
             self.data[lesson]["topic_code"] != ""

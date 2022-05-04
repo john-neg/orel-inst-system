@@ -5,8 +5,7 @@ from openpyxl.styles import Font
 from app.load.func import *
 from app.main.func import get_departments
 from app.main.models import EducationStaff, ExcelStyle
-from config import FlaskConfig as Config
-from config import ApeksConfig as Apeks
+from config import FlaskConfig, ApeksConfig as Apeks
 
 
 class LoadData:
@@ -228,7 +227,7 @@ class LoadReport:
     def generate_report(self):
         """Формирование отчета о нагрузке в Excel."""
 
-        wb = load_workbook(Config.TEMP_FILE_DIR + "load_report_temp.xlsx")
+        wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
         ws.title = (
             f"{self.year}-{self.month} "
@@ -293,4 +292,4 @@ class LoadReport:
             )
             ws.cell(row, col).style = ExcelStyle.Number
             ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-        wb.save(Config.EXPORT_FILE_DIR + self.filename)
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)

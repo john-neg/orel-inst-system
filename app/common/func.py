@@ -2,33 +2,29 @@ from __future__ import annotations
 
 import logging
 from json import JSONDecodeError
+from pprint import pprint
 
 import requests
 
-from config import ApeksConfig as Apeks
+from app.common.exceptions import ApeksApiException
+from config import FlaskConfig, ApeksConfig as Apeks
 
-from pprint import pprint
 
-
-def apeks_api_get_lessons(
-        staff_id: int | str,
-        month: int | str,
-        year: int | str,
-) -> list:
+def apeks_api_db_request(table_name: str, **kwargs):
     """
-    Получаем список занятий по id преподавателя
-    за определенный месяц и год.
+    Запрос через API к таблице базы данных Апкес-ВУЗ
+    (имя_таблицы, **фильтр=значение(опционально).
     """
     params = {
         "token": Apeks.TOKEN,
-        "staff_id": str(staff_id),
-        "month": str(month),
-        "year": str(year),
+        "table": table_name,
     }
+    if kwargs:
+        for sql_filter, sql_value in kwargs.items():
+            params[f"filter[{sql_filter}]"] = str(sql_value)
     try:
         response = requests.get(
-            Apeks.URL + "/api/call/schedule-schedule/staff",
-            params=params,
+            Apeks.URL + "/api/call/system-database/get", params=params
         )
     except ConnectionError as error:
         logging.error(f'Ошибка при запросе к API Апекс-ВУЗ: "{error}"')
@@ -36,9 +32,18 @@ def apeks_api_get_lessons(
         try:
             resp_json = response.json()
         except JSONDecodeError as error:
-            logging.error(f'Ошибка конвертации ответа API Апекс-ВУЗ в JSON: "{error}"')
+            logging.error(f'Ошибка конвертации ответа '
+                          f'API Апекс-ВУЗ в JSON: "{error}"')
         else:
-            return resp_json #["data"]["lessons"]
+            logging.debug(
+                f"Запрос успешно выполнен: table_name:{table_name}, {kwargs}"
+            )
+            return resp_json["data"]
 
 
-pprint(apeks_api_get_lessons(33, 5, 2022))
+def get_disc_list():
+    """Получаем полный список дисциплин из справочника Апекс-ВУЗ"""
+    return apeks_api_db_request("plan_disciplines", level=3, id=570)
+
+
+pprint(get_disc_list())

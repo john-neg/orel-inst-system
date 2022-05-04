@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
 from app.schedule.models import ApeksStaffData, ApeksLessons
-from config import FlaskConfig as Config
+from config import FlaskConfig
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -46,7 +46,7 @@ def schedule():
             ]
 
             with open(
-                f"{Config.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
+                f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
                 f" {month}-{year}.ics",
                 "w",
             ) as f:
@@ -88,7 +88,7 @@ def schedule():
             return "no data"
         else:
             workbook = xlsxwriter.Workbook(
-                f"{Config.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
+                f"{FlaskConfig.EXPORT_FILE_DIR}{apeks.staff_name(staff_id, department_id)}"
                 f" {month}-{year}.xlsx"
             )
             worksheet = workbook.add_worksheet(

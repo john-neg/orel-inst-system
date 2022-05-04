@@ -15,8 +15,7 @@ from app.plans.func import (
     disciplines_comp_load,
     disciplines_comp_del,
 )
-from config import FlaskConfig as Config
-from config import ApeksConfig as Apeks
+from config import FlaskConfig, ApeksConfig as Apeks
 
 
 class CompPlan(EducationPlan):
@@ -212,7 +211,7 @@ class CompPlan(EducationPlan):
             row += 1
 
         filename = "Матрица - " + self.name + ".xlsx"
-        wb.save(Config.EXPORT_FILE_DIR + filename)
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
         return filename
 
     def matrix_delete(self):
@@ -416,5 +415,5 @@ class MatrixIndicatorsFile:
                         )
                         paragraph.add_run(";")
                         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
-        document.save(Config.EXPORT_FILE_DIR + self.title_name + ".docx")
+        document.save(FlaskConfig.EXPORT_FILE_DIR + self.title_name + ".docx")
         return self.title_name + ".docx"

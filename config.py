@@ -1,4 +1,7 @@
+import logging
 import os
+import sys
+from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 
@@ -16,6 +19,7 @@ class FlaskConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     EXPORT_FILE_DIR = os.path.join(BASEDIR, 'app/files/export/')
     UPLOAD_FILE_DIR = os.path.join(BASEDIR, 'app/files/upload/')
+    LOG_FILE_DIR = os.path.join(BASEDIR, 'logs/')
     TEMP_FILE_DIR = os.path.join(BASEDIR, 'app/files/templates/')
     STATIC_FILE_DIR = os.path.join(BASEDIR, 'app/static/')
     ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
@@ -160,3 +164,16 @@ class ApeksConfig(object):
 
     # Часовой пояс для правильного отображения времени занятий
     TIMEZONE: int = 3
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    encoding="utf-8",
+    format="%(asctime)s, [%(levelname)s], %(funcName)s, %(message)s",
+    handlers=[
+        logging.StreamHandler(stream=sys.stdout),
+        RotatingFileHandler(
+            FlaskConfig.LOG_FILE_DIR + "system.log", maxBytes=5000000, backupCount=5
+        ),
+    ],
+)

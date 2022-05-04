@@ -3,7 +3,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_login import logout_user, login_user, current_user, login_required
 from flask_admin.menu import MenuLink
 
-from config import FlaskConfig as Config
+from config import FlaskConfig
 from app import db, admin
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
@@ -29,7 +29,7 @@ def login():
 
 @bp.route("/register", methods=["GET", "POST"])
 def register():
-    if current_user.is_authenticated and current_user.role != Config.ROLE_ADMIN:
+    if current_user.is_authenticated and current_user.role != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = RegistrationForm()
     if form.validate_on_submit():
