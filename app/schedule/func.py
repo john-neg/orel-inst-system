@@ -24,6 +24,7 @@ def apeks_api_get_staff_lessons(
     Получаем список занятий по id преподавателя
     за определенный месяц и год.
     """
+    endpoint = f"{Apeks.URL}/api/call/schedule-schedule/staff"
     params = {
         "token": Apeks.TOKEN,
         "staff_id": str(staff_id),
@@ -31,10 +32,7 @@ def apeks_api_get_staff_lessons(
         "year": str(year),
     }
     try:
-        response = requests.get(
-            Apeks.URL + "/api/call/schedule-schedule/staff",
-            params=params,
-        )
+        response = requests.get(endpoint, params=params)
     except ConnectionError as error:
         logging.error(f'Ошибка при запросе к API Апекс-ВУЗ: "{error}"')
     else:
