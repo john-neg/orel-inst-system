@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 from calendar import monthrange
-from dataclasses import dataclass
 from datetime import date
 
 from app.common.func import apeks_api_db_get, check_api_db_response
 from config import ApeksConfig as Apeks
 
 
-@dataclass
 class EducationStaff:
     """
     Сведения о преподавательском составе по подразделениям.
