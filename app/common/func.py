@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import logging
-from http import HTTPStatus
 from json import JSONDecodeError
-from pprint import pprint
-
 
 import requests
 
 from app.common.exceptions import ApeksApiException
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks
 
 
 def apeks_api_db_get(table_name: str, **kwargs) -> dict:
@@ -20,8 +17,8 @@ def apeks_api_db_get(table_name: str, **kwargs) -> dict:
     endpoint = f"{Apeks.URL}/api/call/system-database/get"
     params = {"token": Apeks.TOKEN, "table": table_name}
     if kwargs:
-        for sql_filter, sql_value in kwargs.items():
-            params[f"filter[{sql_filter}]"] = str(sql_value)
+        for db_filter, db_value in kwargs.items():
+            params[f"filter[{db_filter}]"] = str(db_value)
     try:
         response = requests.get(endpoint, params=params)
     except ConnectionError as error:
