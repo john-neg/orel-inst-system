@@ -3,22 +3,21 @@ import requests
 
 
 @pytest.fixture
-def api_good_json(monkeypatch):
-    def mock_get(*args, **kwargs):
-        return {"status": 1,
-                "data": [
-                    {"id": "1",
-                     "name": "first name",
-                     "level": "1"},
-                    {"id": "2",
-                     "name": "second name",
-                     "level": "2"},
-                ]}
-    monkeypatch.setattr(requests, "get", mock_get)
+def api_response_json():
+    return {"status": 1,
+            "data": [
+                {"id": "1",
+                 "name": "first name",
+                 "level": "1"},
+                {"id": "2",
+                 "name": "second name",
+                 "level": "2"},
+            ]}
 
-@pytest.fixture
-def api_bad_json():
-    return {"status": 0, "message": "Нет доступа к указанной таблице."}
+
+# @pytest.fixture
+# def api_error_response_json():
+#     return {"status": 0, "message": "Нет доступа к указанной таблице."}
 
 
 # @pytest.fixture(autouse=True)

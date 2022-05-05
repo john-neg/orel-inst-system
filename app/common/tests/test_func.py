@@ -1,40 +1,85 @@
+import pytest
 import requests
 
-from app.common.func import apeks_api_db_request
+from app.common.exceptions import ApeksApiException
+from app.common.func import apeks_api_db_get, check_api_db_response
 
 
-# class MockResponseApiGet:
-#     @staticmethod
-#     def json():
-#         return {"status": 1,
-#                 "data": [
-#                     {"id": "1",
-#                      "name": "first name",
-#                      "level": "1"},
-#                     {"id": "2",
-#                      "name": "second name",
-#                      "level": "2"},
-#                 ]}
-#
-#
-# #{"status": 0, "message": "Нет доступа к указанной таблице."}
+class TestCheckApiResponse:
+    """Тесты для функции 'check_api_db_response'."""
 
+    func_name = "check_api_db_response"
 
-def test_apeks_api_db_request(api_good_json):
-    # def mock_apeks_api_db_request(*args, **kwargs):
-    #     return MockResponseApiGet()
+    def test_check_api_good_response(self, api_response_json):
+        result = check_api_db_response(api_response_json)
+        assert result == api_response_json.get(
+            "data"
+        ), f'Функция {self.func_name} вернула неверный ответ "data"'
+        assert isinstance(
+            result, list
+        ), f"Функция {self.func_name} должна возвращать список"
 
-    func_name = 'apeks_api_db_request'
+    def test_check_response_wrong_type(self, api_response_json):
+        response = [api_response_json]
 
-    # monkeypatch.setattr(requests, "get", api_good_json)
+        with pytest.raises(TypeError) as exc_info:
+            check_api_db_response(response)
 
-    # try:
-    #     apeks_api_db_request()
-    # except TypeError:
-    #     pass
-    # else:
-    #     assert False, (f'Убедитесь, что функция "{func_name}" возвращает ошибку '
-    #                    'при отсутствии обязательного параметра "table_name"')
+        assert exc_info.type == TypeError, (
+            f"Проверьте что функция {self.func_name} "
+            'возвращает ошибку при неверном типе данных "response"'
+        )
 
-    result = apeks_api_db_request('test')
-    assert result[0]["name"] == "first name"
+    def test_check_no_status_answer(self, api_response_json):
+        response = api_response_json
+        del response["status"]
+
+        try:
+            result = check_api_db_response(response)
+        except ApeksApiException:
+            pass
+        else:
+            assert result, (
+                f"Проверьте что функция {self.func_name} "
+                'возвращает ошибку при отсутствии "status" в ответе'
+            )
+
+    def test_check_zero_status_answer(self, api_response_json):
+        response = api_response_json
+        response["status"] = 0
+        try:
+            result = check_api_db_response(response)
+        except ApeksApiException:
+            pass
+        else:
+            assert result, (
+                f"Проверьте что функция {self.func_name} "
+                'возвращает ошибку при ответе "status: 0"'
+            )
+
+    def test_check_data_not_in_answer(self, api_response_json):
+        response = api_response_json
+        del response['data']
+
+        try:
+            result = check_api_db_response(response)
+        except KeyError:
+            pass
+        else:
+            assert result, (
+                f"Проверьте что функция {self.func_name} "
+                'возвращает ошибку при отсутствии "data" в ответе'
+            )
+
+    def test_check_data_is_list(self, api_response_json):
+        response = api_response_json
+        response['data'] = {'some': 'dict'}
+        try:
+            result = check_api_db_response(response)
+        except TypeError:
+            pass
+        else:
+            assert not result, (
+                f"Проверьте что функция {self.func_name} "
+                'возвращает ошибку при неверном типе данных "data"'
+            )
