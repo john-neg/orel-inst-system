@@ -180,7 +180,7 @@ for local_directory in (
 # Logger Configuration
 logging.basicConfig(
     level=logging.DEBUG,
-    encoding="utf-8",
+    # encoding="utf-8",
     format="%(asctime)s, [%(levelname)s], %(funcName)s, %(message)s",
     handlers=[
         logging.StreamHandler(stream=sys.stdout),

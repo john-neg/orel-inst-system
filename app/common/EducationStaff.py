@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from calendar import monthrange
 from datetime import date
 
@@ -27,7 +28,7 @@ class EducationStaff:
     Methods
     -------
     department_staff (department_id: int | str) -> dict
-        список преподавателей, работавших в указанном подразделении в заданный период.
+        список преподавателей, работавших в подразделении (id) в заданный период.
     """
 
     def __init__(self, year: int | str, month: int | str) -> None:
@@ -41,13 +42,17 @@ class EducationStaff:
         else:
             self.start_month = int(month)
             self.end_month = int(month)
-        self.state_staff_history = check_api_db_response(
-            apeks_api_db_get("state_staff_history")
-        )
-        self.state_staff = self.get_state_staff()
-        self.state_staff_positions = check_api_db_response(
-            apeks_api_db_get("state_staff_positions")
-        )
+        try:
+            self.state_staff_history = check_api_db_response(
+                apeks_api_db_get("state_staff_history")
+            )
+            self.state_staff = self.get_state_staff()
+            self.state_staff_positions = check_api_db_response(
+                apeks_api_db_get("state_staff_positions")
+            )
+        except Exception as error:
+            message = f'Произошла ошибка при получении информации от БД: {error}'
+            logging.error(message)
 
     @staticmethod
     def get_state_staff() -> dict:
@@ -82,10 +87,10 @@ class EducationStaff:
                 if k.get("id") == position_id:
                     return k.get("sort")
 
-        dept_history = []
-        for record in self.state_staff_history:
-            if record.get("department_id") == str(department_id):
-                dept_history.append(record)
+        dept_history = [
+            i for i in self.state_staff_history
+            if i.get("department_id") == str(department_id)
+        ]
 
         staff_list = []
         for staff in dept_history:
@@ -102,15 +107,18 @@ class EducationStaff:
                         monthrange(self.year, self.end_month)[1],
                     ):
                         staff_list.append(staff)
-        print(staff_list)
 
         sort_dict = {}
         for i in staff_list:
             sort_dict[i["staff_id"]] = int(staff_sort(i["staff_id"]))
         a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
-        print(sort_dict)
 
         prepod_dict = {}
         for i in range(len(a)):
             prepod_dict[a[i][0]] = self.state_staff.get(a[i][0])
+        logging.debug("Передана информация о составе подразделения: "
+                      f"department_id:{department_id}, "
+                      f"за период year:{self.year}, "
+                      f"start_month:{self.start_month}, "
+                      f"end_month:{self.end_month}")
         return prepod_dict
