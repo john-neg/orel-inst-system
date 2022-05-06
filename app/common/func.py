@@ -53,12 +53,14 @@ def check_api_db_response(response: dict) -> list:
                 logging.error(message)
                 raise KeyError(message)
             data = response.get("data")
-            if not isinstance(data, list):
+            if not isinstance(response, list):
                 message = "Ответ API содержит некорректный тип данных (list expected)"
                 logging.error(message)
                 raise TypeError(message)
-            logging.debug(f'Проверка вернула корректный список "data"')
-            return data
+            logging.debug(
+                f"Проверка выполнена успешно. Возвращен список по ключу: {data}"
+            )
+            return response
     else:
         message = f"Отсутствует статус ответа API"
         logging.error(message)
@@ -67,17 +69,5 @@ def check_api_db_response(response: dict) -> list:
 
 def get_disc_list() -> list:
     """Получаем полный список дисциплин из справочника Апекс-ВУЗ"""
-    response = apeks_api_db_get("plan_disciplines", level=3, id=570)
+    response = apeks_api_db_get("plan_disciplines", level=3)
     return check_api_db_response(response)
-
-
-# response = {"status": 1,
-#             "data":
-#                 {"id": "1",
-#                  "name": "first name",
-#                  "level": "1"}
-#             }
-#
-# check_api_db_response(response)
-
-# pprint(get_disc_list())

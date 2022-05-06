@@ -72,14 +72,18 @@ def apeks_api_check_staff_lessons(response: dict) -> list:
     return lessons
 
 
-def get_edu_lessons(group_id, month, year):
-    """Getting group lessons."""
-    params = {
-        "token": Apeks.TOKEN,
-        "group_id": str(group_id),
-        "month": str(month),
-        "year": str(year),
-    }
-    return requests.get(
-        Apeks.URL + "/api/call/schedule-schedule/student", params=params
-    ).json()["data"]["lessons"]
+# def get_edu_lessons(group_id, month, year):
+#     """Getting group lessons."""
+#     params = {
+#         "token": Apeks.TOKEN,
+#         "group_id": str(group_id),
+#         "month": str(month),
+#         "year": str(year),
+#     }
+#     return requests.get(
+#         Apeks.URL + "/api/call/schedule-schedule/student", params=params
+#     ).json()["data"]["lessons"]
+#
+#
+from pprint import pprint
+pprint(apeks_api_get_staff_lessons(32, 5, 2022))

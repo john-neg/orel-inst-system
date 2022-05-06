@@ -32,27 +32,46 @@ class EducationStaff:
     """
 
     def __init__(self, year: int | str, month: int | str) -> None:
-        self.year = int(year)
-        if month == "январь-август":
-            self.start_month = 1
-            self.end_month = 8
-        elif month == "сентябрь-декабрь":
-            self.start_month = 9
-            self.end_month = 12
-        else:
-            self.start_month = int(month)
-            self.end_month = int(month)
         try:
-            self.state_staff_history = check_api_db_response(
-                apeks_api_db_get("state_staff_history")
+            self.year = int(year)
+        except ValueError as error:
+            message = (
+                "Конструктор класса 'EducationStaff' "
+                f"не может принять несуществующий год: {year}. {error}"
             )
-            self.state_staff = self.get_state_staff()
-            self.state_staff_positions = check_api_db_response(
-                apeks_api_db_get("state_staff_positions")
-            )
-        except Exception as error:
-            message = f'Произошла ошибка при получении информации от БД: {error}'
             logging.error(message)
+            raise ValueError(message)
+
+        month_tuple = tuple(
+            [str(i) for i in range(1, 13)]
+            + ["0" + str(i) for i in range(1, 10)]
+            + ["январь-август", "сентябрь-декабрь"]
+        )
+        if str(month) in month_tuple:
+            if month == "январь-август":
+                self.start_month = 1
+                self.end_month = 8
+            elif month == "сентябрь-декабрь":
+                self.start_month = 9
+                self.end_month = 12
+            else:
+                self.start_month = int(month)
+                self.end_month = int(month)
+        else:
+            message = (
+                "Конструктор класса 'EducationStaff' "
+                f"не может принять несуществующий месяц: {month}."
+            )
+            logging.error(message)
+            raise ValueError(message)
+
+        self.state_staff_history = check_api_db_response(
+            apeks_api_db_get("state_staff_history")
+        )
+        self.state_staff = self.get_state_staff()
+        self.state_staff_positions = check_api_db_response(
+            apeks_api_db_get("state_staff_positions")
+        )
 
     @staticmethod
     def get_state_staff() -> dict:
@@ -66,9 +85,9 @@ class EducationStaff:
             first_name = first_name[0] if first_name else "?"
             second_name = staff.get("surname")
             second_name = second_name[0] if second_name else "?"
-            staff_short_dict[staff.get("id")] = (
-                f"{family_name} {first_name}.{second_name}."
-            )
+            staff_short_dict[
+                staff.get("id")
+            ] = f"{family_name} {first_name}.{second_name}."
         return staff_short_dict
 
     def department_staff(self, department_id: int | str) -> dict:
@@ -88,7 +107,8 @@ class EducationStaff:
                     return k.get("sort")
 
         dept_history = [
-            i for i in self.state_staff_history
+            i
+            for i in self.state_staff_history
             if i.get("department_id") == str(department_id)
         ]
 
@@ -116,9 +136,14 @@ class EducationStaff:
         prepod_dict = {}
         for i in range(len(a)):
             prepod_dict[a[i][0]] = self.state_staff.get(a[i][0])
-        logging.debug("Передана информация о составе подразделения: "
-                      f"department_id:{department_id}, "
-                      f"за период year:{self.year}, "
-                      f"start_month:{self.start_month}, "
-                      f"end_month:{self.end_month}")
+        logging.debug(
+            "Передана информация о составе подразделения: "
+            f"department_id:{department_id}, "
+            f"за период year:{self.year}, "
+            f"start_month:{self.start_month}, "
+            f"end_month:{self.end_month}"
+        )
         return prepod_dict
+
+# data = EducationStaff('2022', '05')
+# print(data.department_staff(12))
