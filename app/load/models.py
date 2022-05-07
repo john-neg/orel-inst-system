@@ -4,7 +4,8 @@ from openpyxl.styles import Font
 
 from app.load.func import *
 from app.main.func import get_departments
-from app.main.models import EducationStaff, ExcelStyle
+from app.common.EducationStaff import EducationStaff
+from app.common.ExcelStyle import ExcelStyle
 from config import FlaskConfig, ApeksConfig as Apeks
 
 

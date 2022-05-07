@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-import requests
 
 from app.common.exceptions import ApeksApiException
 from app.common.func import api_get_db_table, check_api_db_response

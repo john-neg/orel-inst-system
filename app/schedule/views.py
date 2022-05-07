@@ -11,10 +11,8 @@ from app.schedule.func import lessons_ical_exp, lessons_xlsx_exp
 
 @bp.route("/schedule", methods=["GET", "POST"])
 def schedule():
-
     form = CalendarForm()
     form.department.choices = [(k, v[0]) for k, v in get_departments().items()]
-
     if request.method == "POST":
         staff = EducationStaff(date.today().month, date.today().year)
         if request.form.get("ical_exp") or request.form.get("xlsx_exp"):

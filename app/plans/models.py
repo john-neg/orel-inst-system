@@ -8,8 +8,9 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
+from app.common.ExcelStyle import ExcelStyle
 from app.main.func import db_filter_req, db_request, xlsx_iter_rows, xlsx_normalize
-from app.main.models import EducationPlan, ExcelStyle
+from app.main.models import EducationPlan
 from app.plans.func import (
     disciplines_wp_clean,
     disciplines_comp_load,
@@ -210,7 +211,7 @@ class CompPlan(EducationPlan):
                 column += 1
             row += 1
 
-        filename = "Матрица - " + self.name + ".xlsx"
+        filename = f"Матрица - {self.name}.xlsx"
         wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
         return filename
 

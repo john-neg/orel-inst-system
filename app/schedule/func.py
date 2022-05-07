@@ -4,9 +4,11 @@ import logging
 from datetime import datetime, timedelta
 
 import pytz
-import xlsxwriter
 from icalendar import Calendar, Timezone, TimezoneStandard, Event, Alarm
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
+from app.common.ExcelStyle import ExcelStyle
 from app.common.ScheduleLessonsStaff import ScheduleLessonsStaff
 from config import FlaskConfig, ApeksConfig as Apeks
 
@@ -17,7 +19,6 @@ def lessons_ical_exp(
     """Формирование файла для экспорта занятий преподавателя в формате iCal."""
     lessons = ScheduleLessonsStaff(staff_id, month, year)
 
-    # TODO make exception here
     if not lessons.data:
         return "no data"
 
@@ -82,49 +83,40 @@ def lessons_xlsx_exp(
         return "no data"
     else:
         filename = f"{staff_name} {month}-{year}.xlsx"
-        workbook = xlsxwriter.Workbook(f"{FlaskConfig.EXPORT_FILE_DIR}{filename}")
-        worksheet = workbook.add_worksheet(staff_name)
-        bold = workbook.add_format({"bold": True})
-        worksheet.write("A1", staff_name, bold)
-        worksheet.write("B1", f"Расписание на месяц {str(month)}-{str(year)}", bold)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = staff_name
 
-        # Отступ сверху
-        a = str(3)
+        row = 1
+        ws.cell(row, 1).value = staff_name
+        ws.cell(row, 1).style = ExcelStyle.Header
+        ws.cell(row, 2).value = f"Расписание на месяц {str(month)}-{str(year)}"
+        ws.cell(row, 2).style = ExcelStyle.Header
 
-        # Заголовки.
-        worksheet.write("A" + a, "Дата/время", bold)
-        worksheet.write("B" + a, "Занятие", bold)
-        worksheet.write("C" + a, "Место", bold)
-        worksheet.write("D" + a, "Тема", bold)
+        row = 2
+        column = 1
+        headers = {"Дата/время": 15, "Занятие": 65, "Место": 15, "Тема": 80}
+        for key, val in headers.items():
+            ws.cell(row, column).value = key
+            ws.cell(row, column).style = ExcelStyle.Header
+            ws.cell(row, column).fill = ExcelStyle.GreyFill
+            ws.column_dimensions[get_column_letter(column)].width = val
+            column += 1
 
-        # Ширина столбцов
-        worksheet.set_column(0, 0, 15)
-        worksheet.set_column(1, 1, 60)
-        worksheet.set_column(2, 2, 15)
-        worksheet.set_column(3, 3, 70)
-
-        lesson_export = ()
-        for l_index in range(len(lessons.data)):
-            export = (
-                [
-                    lessons.time_start(l_index).strftime("%d.%m.%Y %H:%M"),
-                    lessons.calendar_name(l_index),
-                    lessons.data[l_index]["classroom"],
-                    lessons.data[l_index]["topic_name"],
-                ],
-            )
-            lesson_export += export
-
-        # Устанавливаем начальные ячейки для записи (начало с 0).
         row = 3
-        col = 0
-
-        # Итерация и запись данных построчно
-        for lesson in lesson_export:
-            for a in range(len(lesson)):
-                worksheet.write(row, col + a, lesson[a])
+        for l_index in range(len(lessons.data)):
+            ws.cell(row, 1).value = lessons.time_start(l_index).strftime(
+                "%d.%m.%Y %H:%M"
+            )
+            ws.cell(row, 1).style = ExcelStyle.Base_No_Wrap
+            ws.cell(row, 2).value = lessons.calendar_name(l_index)
+            ws.cell(row, 2).style = ExcelStyle.Base_No_Wrap
+            ws.cell(row, 3).value = lessons.data[l_index].get("classroom")
+            ws.cell(row, 3).style = ExcelStyle.Base_No_Wrap
+            ws.cell(row, 4).value = lessons.data[l_index].get("topic_name")
+            ws.cell(row, 4).style = ExcelStyle.Base_No_Wrap
             row += 1
 
-        workbook.close()
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
         logging.debug(f'Файл "{filename}" успешно сформирован')
         return filename

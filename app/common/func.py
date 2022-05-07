@@ -17,7 +17,7 @@ def api_get_request_handler(func):
         try:
             response = requests.get(endpoint, params=params)
         except ConnectionError as error:
-            message = f'{func.__name__}. Ошибка при запросе к API Апекс-ВУЗ: "{error}"'
+            message = f"{func.__name__}. Ошибка при запросе к API Апекс-ВУЗ: '{error}'"
             logging.error(message)
             raise ConnectionError(message)
         else:
@@ -29,7 +29,7 @@ def api_get_request_handler(func):
             except JSONDecodeError as error:
                 logging.error(
                     f"{func.__name__}. Ошибка конвертации "
-                    f'ответа API Апекс-ВУЗ в JSON: "{error}"'
+                    f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                 )
 
     return wrapper
@@ -82,7 +82,7 @@ def check_api_db_response(response: dict) -> list:
             raise ApeksApiException(message)
         else:
             if "data" not in response:
-                message = 'В ответе API отсутствует ключ "data"'
+                message = "В ответе API отсутствует ключ 'data'"
                 logging.error(message)
                 raise KeyError(message)
             data = response.get("data")
@@ -91,8 +91,8 @@ def check_api_db_response(response: dict) -> list:
                 logging.error(message)
                 raise TypeError(message)
             logging.debug(
-                'Проверка "response" выполнена успешно. '
-                'Возвращен список по ключу: "data"'
+                "Проверка 'response' выполнена успешно. "
+                "Возвращен список по ключу: 'data'"
             )
             return data
     else:
@@ -110,14 +110,14 @@ def check_api_staff_lessons_response(response: dict) -> list:
         message = "Ответ API содержит некорректный тип данных (dict expected)"
         raise TypeError(message)
     if "data" not in response:
-        message = 'В ответе API отсутствует ключ "data"'
+        message = "В ответе API отсутствует ключ 'data'"
         raise ApeksApiException(message)
     data = response.get("data")
     if not isinstance(data, dict):
         message = "Ответ API содержит некорректный тип данных (dict expected)"
         raise TypeError(message)
     if "lessons" not in data:
-        message = 'В ответе API отсутствует ключ "lessons"'
+        message = "В ответе API отсутствует ключ 'lessons'"
         raise ApeksApiException(message)
     lessons = data.get("lessons")
     if not isinstance(lessons, list):
@@ -149,8 +149,3 @@ def get_departments() -> dict:
     for dept in resp:
         dept_dict[dept["id"]] = [dept.get("name"), dept.get("name_short")]
     return dept_dict
-
-# from pprint import pprint
-# pprint(check_api_db_response(api_get_db_table("plan_disciplines", level=3)))
-# pprint(api_get_staff_lessons(32, 7, 2022))
-# print([(key, val[0]) for key, val in get_departments().items()])
