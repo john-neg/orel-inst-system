@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 
+from app.common.func import get_departments
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp
@@ -13,14 +14,13 @@ from app.programs.forms import (
     WorkProgramFieldUpdate,
 )
 from app.programs.func import wp_update_list, wp_dates_update
-from app.programs.models import WorkProgramBunchData, ApeksDeptData, WorkProgram
+from app.programs.models import WorkProgramBunchData, WorkProgram
 
 
 @bp.route("/dept_check", methods=["GET", "POST"])
 def dept_check():
-    apeks = ApeksDeptData()
     form = DepartmentWPCheck()
-    form.department.choices = list(apeks.departments.items())
+    form.department.choices = [(k, v[0]) for k, v in get_departments().items()]
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
         wp_data = {}

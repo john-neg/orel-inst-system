@@ -4,7 +4,7 @@ import logging
 from calendar import monthrange
 from datetime import date
 
-from app.common.func import apeks_api_db_get, check_api_db_response
+from app.common.func import api_get_db_table, check_api_db_response
 from config import ApeksConfig as Apeks
 
 
@@ -18,12 +18,12 @@ class EducationStaff:
 
     Attributes
     ----------
-    year: int | str
-        учебный год
     month: int | str
         месяц (также можно указывать 2 периода:
             "январь-август" (1 семестр),
             "сентябрь-декабрь" (2 семестр))
+    year: int | str
+        учебный год
 
     Methods
     -------
@@ -31,17 +31,11 @@ class EducationStaff:
         список преподавателей, работавших в подразделении (id) в заданный период.
     """
 
-    def __init__(self, year: int | str, month: int | str) -> None:
-        try:
-            self.year = int(year)
-        except ValueError as error:
-            message = (
-                "Конструктор класса 'EducationStaff' "
-                f"не может принять несуществующий год: {year}. {error}"
-            )
-            logging.error(message)
-            raise ValueError(message)
-
+    def __init__(
+        self,
+        month: int | str,
+        year: int | str,
+    ) -> None:
         month_tuple = tuple(
             [str(i) for i in range(1, 13)]
             + ["0" + str(i) for i in range(1, 10)]
@@ -64,20 +58,29 @@ class EducationStaff:
             )
             logging.error(message)
             raise ValueError(message)
+        try:
+            self.year = int(year)
+        except ValueError as error:
+            message = (
+                "Конструктор класса 'EducationStaff' "
+                f"не может принять несуществующий год: {year}. {error}"
+            )
+            logging.error(message)
+            raise ValueError(message)
 
         self.state_staff_history = check_api_db_response(
-            apeks_api_db_get("state_staff_history")
+            api_get_db_table(Apeks.tables.get("state_staff_history"))
         )
         self.state_staff = self.get_state_staff()
         self.state_staff_positions = check_api_db_response(
-            apeks_api_db_get("state_staff_positions")
+            api_get_db_table(Apeks.tables.get("state_staff_positions"))
         )
 
     @staticmethod
     def get_state_staff() -> dict:
         """Получение коротких имен преподавателей."""
         staff_short_dict = {}
-        resp = check_api_db_response(apeks_api_db_get("state_staff"))
+        resp = check_api_db_response(api_get_db_table(Apeks.tables.get("state_staff")))
         for staff in resp:
             family_name = staff.get("family_name")
             family_name = family_name if family_name else "??????"
@@ -144,6 +147,3 @@ class EducationStaff:
             f"end_month:{self.end_month}"
         )
         return prepod_dict
-
-# data = EducationStaff('2022', '05')
-# print(data.department_staff(12))

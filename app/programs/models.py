@@ -5,19 +5,12 @@ import requests
 from app.main.func import (
     plan_curriculum_disciplines,
     db_filter_req,
-    get_active_staff_id,
-    get_data, get_system_user_name, add_wp_field,
+    get_system_user_name,
+    add_wp_field,
 )
 from app.plans.func import create_wp
 from app.programs.func import plan_department_disciplines
 from config import ApeksConfig as Apeks
-
-
-class ApeksDeptData:
-    def __init__(self):
-        self.active_staff_id = get_active_staff_id()
-        self.data = get_data(self.active_staff_id)
-        self.departments = self.data["departments"]
 
 
 class WorkProgram:

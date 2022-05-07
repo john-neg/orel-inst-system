@@ -3,6 +3,7 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
+import pytz
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -164,7 +165,17 @@ class ApeksConfig(object):
     FINAL_KF_MAX: float = 8
 
     # Часовой пояс для правильного отображения времени занятий
-    TIMEZONE: int = 3
+    TIMEZONE = pytz.timezone('Europe/Moscow')
+    TIMEZONE_OFFSET: int = 3
+
+    # Таблицы базы данных, используемые в приложении
+    tables = {
+        'plan_disciplines': 'plan_disciplines',
+        'state_departments': 'state_departments',
+        'state_staff': 'state_staff',
+        'state_staff_history': 'state_staff_history',
+        'state_staff_positions': 'state_staff_positions',
+    }
 
 
 # Create directories

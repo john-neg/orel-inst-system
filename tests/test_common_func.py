@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from app.common.exceptions import ApeksApiException
-from app.common.func import apeks_api_db_get, check_api_db_response
+from app.common.func import api_get_db_table, check_api_db_response
 from config import ApeksConfig as Apeks
 
 
@@ -37,7 +37,7 @@ class TestApiGetApeksDb:
     func_name = "apeks_api_db_get"
 
     def test_get_returns_json(self, mock_response):
-        result = apeks_api_db_get("some_table")
+        result = api_get_db_table("some_table")
         print(result)
         assert result["status"] == 1
 

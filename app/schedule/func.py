@@ -1,89 +1,130 @@
 from __future__ import annotations
 
 import logging
-from json import JSONDecodeError
+from datetime import datetime, timedelta
 
-import requests
+import pytz
+import xlsxwriter
+from icalendar import Calendar, Timezone, TimezoneStandard, Event, Alarm
 
-from app.common.exceptions import ApeksApiException
-from app.main.func import db_filter_req
-from config import ApeksConfig as Apeks
-
-
-def get_disc_list():
-    """Получаем полный список дисциплин из справочника Апекс-ВУЗ"""
-    return db_filter_req("plan_disciplines", "level", 3)
+from app.common.ScheduleLessonsStaff import ScheduleLessonsStaff
+from config import FlaskConfig, ApeksConfig as Apeks
 
 
-def apeks_api_get_staff_lessons(
-    staff_id: int | str,
-    month: int | str,
-    year: int | str,
-) -> dict:
-    """
-    Получаем список занятий по id преподавателя
-    за определенный месяц и год.
-    """
-    endpoint = f"{Apeks.URL}/api/call/schedule-schedule/staff"
-    params = {
-        "token": Apeks.TOKEN,
-        "staff_id": str(staff_id),
-        "month": str(month),
-        "year": str(year),
-    }
-    try:
-        response = requests.get(endpoint, params=params)
-    except ConnectionError as error:
-        logging.error(f'Ошибка при запросе к API Апекс-ВУЗ: "{error}"')
+def lessons_ical_exp(
+    staff_id: int | str, staff_name: str, month: int | str, year: int | str
+) -> str:
+    """Формирование файла для экспорта занятий преподавателя в формате iCal."""
+    lessons = ScheduleLessonsStaff(staff_id, month, year)
+
+    # TODO make exception here
+    if not lessons.data:
+        return "no data"
+
+    cal = Calendar()
+    cal.add("calscale", "GREGORIAN")
+    cal.add("version", "2.0")
+    cal.add("prodid", "APEKS-VUZ-EXTENSION")
+    timezone = Timezone()
+    timezone.add("TZID", Apeks.TIMEZONE)
+    tz_standard = TimezoneStandard()
+    tz_standard.add("TZNAME", datetime.now(tz=Apeks.TIMEZONE).strftime("%Z"))
+    tz_standard.add("TZOFFSETFROM", timedelta(hours=Apeks.TIMEZONE_OFFSET))
+    tz_standard.add("TZOFFSETTO", timedelta(hours=Apeks.TIMEZONE_OFFSET))
+    timezone.add_component(tz_standard)
+    cal.add_component(timezone)
+
+    for l_index in range(len(lessons.data)):
+        event = Event()
+        event.add("dtstart", lessons.time_start(l_index).astimezone(pytz.utc))
+        event.add("dtend", lessons.time_end(l_index).astimezone(pytz.utc))
+        event.add("dtstamp", datetime.now().astimezone(pytz.utc))
+        event.add(
+            "description",
+            f"т.{lessons.data[l_index].get('topic_code')} "
+            f"{lessons.data[l_index].get('topic_name')}\n\n"
+            f"Данные актуальны на: {datetime.now()}",
+        )
+        event.add("location", lessons.data[l_index].get("classroom"))
+        event.add("status", "CONFIRMED")
+        event.add("summary", lessons.calendar_name(l_index))
+        event.add(
+            "uid",
+            f'apeks-id-{lessons.data[l_index].get("id")}'
+            f'journal-lesson-id-{lessons.data[l_index].get("journal_lesson_id")}',
+        )
+        alarm = Alarm()
+        alarm.add("action", "DISPLAY")
+        alarm.add("description", "Напоминание")
+        alarm.add("trigger", timedelta(minutes=-30))
+        event.add_component(alarm)
+        cal.add_component(event)
+
+    filename = f"{staff_name} {month}-{year}.ics"
+
+    with open(
+        f"{FlaskConfig.EXPORT_FILE_DIR}{filename}",
+        "wb",
+    ) as f:
+        f.write(cal.to_ical())
+        f.close()
+        logging.debug(f'Файл "{filename}" успешно сформирован')
+    return filename
+
+
+def lessons_xlsx_exp(
+    staff_id: int | str, staff_name: str, month: int | str, year: int | str
+) -> str:
+    """Формирование файла для экспорта занятий преподавателя в формате xlsx."""
+    lessons = ScheduleLessonsStaff(staff_id, month, year)
+
+    if not lessons.data:
+        return "no data"
     else:
-        try:
-            resp_json = response.json()
-        except JSONDecodeError as error:
-            logging.error(f'Ошибка конвертации ответа API Апекс-ВУЗ в JSON: "{error}"')
-        else:
-            logging.debug(
-                f"Запрос успешно выполнен: staff_id:{staff_id}, month:{month}, year:{year}"
+        filename = f"{staff_name} {month}-{year}.xlsx"
+        workbook = xlsxwriter.Workbook(f"{FlaskConfig.EXPORT_FILE_DIR}{filename}")
+        worksheet = workbook.add_worksheet(staff_name)
+        bold = workbook.add_format({"bold": True})
+        worksheet.write("A1", staff_name, bold)
+        worksheet.write("B1", f"Расписание на месяц {str(month)}-{str(year)}", bold)
+
+        # Отступ сверху
+        a = str(3)
+
+        # Заголовки.
+        worksheet.write("A" + a, "Дата/время", bold)
+        worksheet.write("B" + a, "Занятие", bold)
+        worksheet.write("C" + a, "Место", bold)
+        worksheet.write("D" + a, "Тема", bold)
+
+        # Ширина столбцов
+        worksheet.set_column(0, 0, 15)
+        worksheet.set_column(1, 1, 60)
+        worksheet.set_column(2, 2, 15)
+        worksheet.set_column(3, 3, 70)
+
+        lesson_export = ()
+        for l_index in range(len(lessons.data)):
+            export = (
+                [
+                    lessons.time_start(l_index).strftime("%d.%m.%Y %H:%M"),
+                    lessons.calendar_name(l_index),
+                    lessons.data[l_index]["classroom"],
+                    lessons.data[l_index]["topic_name"],
+                ],
             )
-            return resp_json
+            lesson_export += export
 
+        # Устанавливаем начальные ячейки для записи (начало с 0).
+        row = 3
+        col = 0
 
-def apeks_api_check_staff_lessons(response: dict) -> list:
-    """
-    Проверяем ответ API Апекс-ВУЗ со списком занятий
-    на наличие необходимых ключей и корректность данных.
-    """
-    if not isinstance(response, dict):
-        message = "Ответ API содержит некорректный тип данных (dict expected)"
-        raise TypeError(message)
-    if "data" not in response:
-        message = 'В ответе API отсутствует ключ "data"'
-        raise ApeksApiException(message)
-    data = response.get("data")
-    if not isinstance(data, dict):
-        message = "Ответ API содержит некорректный тип данных (dict expected)"
-        raise TypeError(message)
-    if "lessons" not in data:
-        message = 'В ответе API отсутствует ключ "lessons"'
-        raise ApeksApiException(message)
-    lessons = data.get("lessons")
-    if not isinstance(lessons, list):
-        message = "Ответ API содержит некорректный тип данных (list expected)"
-        raise TypeError(message)
-    return lessons
+        # Итерация и запись данных построчно
+        for lesson in lesson_export:
+            for a in range(len(lesson)):
+                worksheet.write(row, col + a, lesson[a])
+            row += 1
 
-
-# def get_edu_lessons(group_id, month, year):
-#     """Getting group lessons."""
-#     params = {
-#         "token": Apeks.TOKEN,
-#         "group_id": str(group_id),
-#         "month": str(month),
-#         "year": str(year),
-#     }
-#     return requests.get(
-#         Apeks.URL + "/api/call/schedule-schedule/student", params=params
-#     ).json()["data"]["lessons"]
-#
-#
-from pprint import pprint
-pprint(apeks_api_get_staff_lessons(32, 5, 2022))
+        workbook.close()
+        logging.debug(f'Файл "{filename}" успешно сформирован')
+        return filename
