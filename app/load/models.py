@@ -3,9 +3,9 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font
 
 from app.load.func import *
-from app.main.func import get_departments
-from app.common.EducationStaff import EducationStaff
-from app.common.ExcelStyle import ExcelStyle
+from app.common.func import get_departments
+from app.common.classes.EducationStaff import EducationStaff
+from app.common.classes.ExcelStyle import ExcelStyle
 from config import FlaskConfig, ApeksConfig as Apeks
 
 
@@ -14,7 +14,8 @@ class LoadData:
         self.year = year
         self.month = month
         self.departments = get_departments()
-        self.prepod_dept_structure = self.prepod_dept_structure()
+        self.education_staff = EducationStaff(month, year)
+        self.staff_dept_structure = self.staff_dept_structure()
         self.lesson_staff = lessons_staff()
         self.load_subgroups = load_subgroups()
         self.load_groups = load_groups()
@@ -25,17 +26,16 @@ class LoadData:
         self.structured_lessons = self.process_lessons()
         self.control_lessons = self.control_lessons()
 
-    def prepod_dept_structure(self):
+    def staff_dept_structure(self):
         """
         Department ID for prepod in current month
         {staff_id:department_id}.
         """
         structure = {}
-        staff = EducationStaff(self.year, self.month)
-        for d in self.departments:
-            staff_list = staff.staff_list(d)
-            for s in staff_list:
-                structure[s] = d
+        for dept in self.departments:
+            staff_list = self.education_staff.department_staff(dept)
+            for staff in staff_list:
+                structure[staff] = dept
         return structure
 
     def process_lessons(self):
@@ -67,11 +67,11 @@ class LoadData:
                 lesson["education_form_id"] = education_form_id
                 lesson["education_level_id"] = education_level_id
                 if lesson.get("id") in self.lesson_staff:
-                    for prep in self.lesson_staff[lesson["id"]]:
+                    for staff in self.lesson_staff[lesson["id"]]:
                         less_copy = copy(lesson)
-                        less_copy["staff_id"] = prep
-                        less_copy["department_id"] = self.prepod_dept_structure.get(
-                            prep
+                        less_copy["staff_id"] = int(staff)
+                        less_copy["department_id"] = self.staff_dept_structure.get(
+                            int(staff)
                         )
                         less_copy["hours"] = 2
                         structured_lessons.append(less_copy)
@@ -160,7 +160,7 @@ class LoadData:
         """Select department lessons for load report"""
         dept_lessons = []
         for less in self.structured_lessons:
-            if less.get("department_id") == str(department_id):
+            if less.get("department_id") == int(department_id):
                 dept_lessons.append(less)
         return dept_lessons
 
@@ -185,18 +185,18 @@ class DeptPrepodLoad:
         self.load[staff_id][l_type][s_type] += value
 
     def get_load(self, staff_id):
-        prep_load = {self.staff_list[staff_id]: self.load[staff_id]}
-        return prep_load
+        staff_load = {self.staff_list[staff_id]: self.load[staff_id]}
+        return staff_load
 
 
 class LoadReport:
     def __init__(self, year, month, department_id):
         self.year = year
         self.month = month
-        self.department_id = str(department_id)
-        self.staff_list = EducationStaff(year, month).staff_list(department_id)
+        self.department_id = int(department_id)
+        self.staff_list = EducationStaff(month, year).department_staff(department_id)
         self.load = LoadData(year, month)
-        self.dept_load = DeptPrepodLoad(self.staff_list)
+        self.dept_load = DeptPrepodLoad(list(self.staff_list))
         self.unprocessed = []
         for lesson in self.load.structured_lessons:
             if lesson.get("department_id") == self.department_id:
@@ -222,7 +222,7 @@ class LoadReport:
         self.data = self.dept_load.load
         self.filename = (
             f"{self.year}-{self.month} "
-            f"{self.load.departments.get(self.department_id)[1]}.xlsx"
+            f"{self.load.departments.get(self.department_id).get('short')}.xlsx"
         )
 
     def generate_report(self):
@@ -232,10 +232,10 @@ class LoadReport:
         ws = wb.active
         ws.title = (
             f"{self.year}-{self.month} "
-            f"{self.load.departments.get(self.department_id)[1]}"
+            f"{self.load.departments.get(self.department_id).get('short')}"
         )
         ws.cell(1, 1).value = (
-            "кафедра " + self.load.departments.get(self.department_id)[0]
+            "кафедра " + self.load.departments.get(self.department_id).get('full')
         )
         ws.cell(2, 1).value = f"отчет о нагрузке за {self.month} - {self.year}"
         row = 8
@@ -271,25 +271,16 @@ class LoadReport:
                     if val and val % 1 > 0:
                         ws.cell(row, column).number_format = "0.00"
                     column += 1
-            ws.cell(row, 72).value = "=SUM(B" + str(row) + ":BS" + str(row) + ")"
+            ws.cell(row, 72).value = f'=SUM(B{str(row)}:BS{str(row)})'
             row += 1
         # Total
         ws.cell(row, 1).value = "Итого"
         ws.cell(row, 1).style = ExcelStyle.BaseBold
         for col in range(2, 73):
-            letter = ws.cell(row, col).column_letter
+            ltr = ws.cell(row, col).column_letter
             ws.cell(row, col).value = (
-                "=IF(SUM("
-                + letter
-                + "8:"
-                + letter
-                + str(row - 1)
-                + ")>0,SUM("
-                + letter
-                + "8:"
-                + letter
-                + str(row - 1)
-                + '),"")'
+                f'=IF(SUM({ltr}8:{ltr}{str(row - 1)})>0,'
+                f'SUM({ltr}8:{ltr}{str(row - 1)}),"")'
             )
             ws.cell(row, col).style = ExcelStyle.Number
             ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)

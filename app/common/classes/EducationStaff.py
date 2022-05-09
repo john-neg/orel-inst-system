@@ -4,7 +4,7 @@ import logging
 from calendar import monthrange
 from datetime import date
 
-from app.common.func import api_get_db_table, check_api_db_response
+from app.common.func import api_get_db_table, check_api_db_response, get_state_staff
 from config import ApeksConfig as Apeks
 
 
@@ -31,11 +31,7 @@ class EducationStaff:
         список преподавателей, работавших в подразделении (id) в заданный период.
     """
 
-    def __init__(
-        self,
-        month: int | str,
-        year: int | str,
-    ) -> None:
+    def __init__(self, month: int | str, year: int | str) -> None:
         month_tuple = tuple(
             [str(i) for i in range(1, 13)]
             + ["0" + str(i) for i in range(1, 10)]
@@ -68,77 +64,55 @@ class EducationStaff:
             logging.error(message)
             raise ValueError(message)
 
+        self.state_staff = get_state_staff()
         self.state_staff_history = check_api_db_response(
-            api_get_db_table(Apeks.tables.get("state_staff_history"))
+            api_get_db_table("state_staff_history")
         )
-        self.state_staff = self.get_state_staff()
         self.state_staff_positions = check_api_db_response(
             api_get_db_table(Apeks.tables.get("state_staff_positions"))
         )
 
-    @staticmethod
-    def get_state_staff() -> dict:
-        """Получение коротких имен преподавателей."""
-        staff_short_dict = {}
-        resp = check_api_db_response(api_get_db_table(Apeks.tables.get("state_staff")))
-        for staff in resp:
-            family_name = staff.get("family_name")
-            family_name = family_name if family_name else "??????"
-            first_name = staff.get("name")
-            first_name = first_name[0] if first_name else "?"
-            second_name = staff.get("surname")
-            second_name = second_name[0] if second_name else "?"
-            staff_short_dict[
-                staff.get("id")
-            ] = f"{family_name} {first_name}.{second_name}."
-        return staff_short_dict
-
     def department_staff(self, department_id: int | str) -> dict:
         """
         Список преподавателей, работавших в
-        выбранном подразделении в течении выбранного периода.
+        выбранном подразделении в течении выбранного периода,
+        отсортированные по занимаемой должности.
         """
-
-        def staff_sort(staff_id: int | str):
-            """Получение кода сортировки преподавателей по должности."""
-            position_id = ""
-            for sort_staff in staff_list:
-                if sort_staff.get("staff_id") == str(staff_id):
-                    position_id = sort_staff.get("position_id")
-            for k in self.state_staff_positions:
-                if k.get("id") == position_id:
-                    return k.get("sort")
-
-        dept_history = [
-            i
-            for i in self.state_staff_history
-            if i.get("department_id") == str(department_id)
-        ]
-
         staff_list = []
-        for staff in dept_history:
-            if staff.get("position_id") not in Apeks.EXCLUDE_LIST:
-                if staff.get("end_date"):
-                    if date.fromisoformat(staff.get("end_date")) > date(
-                        self.year, self.start_month, 1
-                    ):
-                        staff_list.append(staff)
-                else:
-                    if date.fromisoformat(staff.get("start_date")) <= date(
-                        self.year,
-                        self.end_month,
-                        monthrange(self.year, self.end_month)[1],
-                    ):
-                        staff_list.append(staff)
+        for staff in self.state_staff_history:
+            if staff.get("staff_id"):
+                staff_id = int(staff.get("staff_id"))
+                staff_pos = staff.get("position_id")
+                if staff_pos and int(staff_pos) not in Apeks.EXCLUDE_LIST:
+                    for pos in self.state_staff_positions:
+                        if pos.get("id") == staff_pos:
+                            staff["sort"] = int(pos.get("sort"))
+                            break
+                    else:
+                        staff["sort"] = 0
 
-        sort_dict = {}
-        for i in staff_list:
-            sort_dict[i["staff_id"]] = int(staff_sort(i["staff_id"]))
-        a = sorted(sort_dict.items(), key=lambda x: x[1], reverse=True)
+                    staff_info = (
+                        staff_id,
+                        self.state_staff.get(staff_id).get("short"),
+                        staff.get("sort"),
+                    )
 
-        prepod_dict = {}
-        for i in range(len(a)):
-            prepod_dict[a[i][0]] = self.state_staff.get(a[i][0])
+                    if staff.get("end_date"):
+                        if date.fromisoformat(staff.get("end_date")) > date(
+                            self.year, self.start_month, 1
+                        ):
+                            staff_list.append(staff_info)
+                    else:
+                        if date.fromisoformat(staff.get("start_date")) <= date(
+                            self.year,
+                            self.end_month,
+                            monthrange(self.year, self.end_month)[1],
+                        ):
+                            staff_list.append(staff_info)
+        dept_staff = {}
+        for staff in sorted(staff_list, key=lambda x: x[2], reverse=True):
+            dept_staff[staff[0]] = staff[1]
+
         logging.debug(
             "Передана информация о составе подразделения: "
             f"department_id:{department_id}, "
@@ -146,4 +120,4 @@ class EducationStaff:
             f"start_month:{self.start_month}, "
             f"end_month:{self.end_month}"
         )
-        return prepod_dict
+        return dept_staff

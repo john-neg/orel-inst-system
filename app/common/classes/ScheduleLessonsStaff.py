@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from app.common.func import (
     api_get_staff_lessons,
     check_api_staff_lessons_response,
-    get_disc_list,
+    get_disciplines,
 )
 
 
@@ -25,8 +26,6 @@ class ScheduleLessonsStaff:
     -------
     calendar_name(self, l_index: int) -> str
         выводит заголовок для занятия по его индексу в self.data.
-    short_disc_name(self, discipline_id: int | str) -> str:
-        получение сокращенного названия дисциплины для занятия
     time_start(self, l_index: int) -> datetime:
         время начала занятия -> datetime
     time_end(self, l_index: int) -> datetime:
@@ -37,23 +36,23 @@ class ScheduleLessonsStaff:
         self.data = check_api_staff_lessons_response(
             api_get_staff_lessons(staff_id, month, year)
         )
-        self.plan_disciplines = get_disc_list()
+        self.disciplines = get_disciplines()
+        print(self.data)
 
     def calendar_name(self, l_index: int) -> str:
         """Вывод полного заголовка занятия по индексу."""
         class_type_name = self.data[l_index].get("class_type_name")
         topic_code = self.data[l_index].get("topic_code")
         topic_code_fixed = f" ({topic_code})" if topic_code else ""
-        short_disc_name = self.short_disc_name(self.data[l_index].get("discipline_id"))
+        discipline_id = self.data[l_index].get("discipline_id")
+        try:
+            short_disc_name = self.disciplines.get(int(discipline_id)).get('short')
+        except AttributeError:
+            logging.error('Не найдено название дисциплины по discipline_id')
+            short_disc_name = "Название дисциплины отсутствует"
         group = self.data[l_index].get("groupName")
         name = f"{class_type_name}{topic_code_fixed} {short_disc_name} {group}"
         return name
-
-    def short_disc_name(self, discipline_id: int | str) -> str:
-        """Получение сокращенного названия дисциплины для занятия."""
-        for disc in self.plan_disciplines:
-            if disc.get("id") == str(discipline_id):
-                return disc.get("name_short")
 
     def time_start(self, l_index: int) -> datetime:
         """Время начала занятия -> datetime"""

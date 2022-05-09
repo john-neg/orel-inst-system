@@ -1,8 +1,9 @@
+import logging
 from datetime import date
 
 from flask import render_template, request, redirect, url_for
 
-from app.common.EducationStaff import EducationStaff
+from app.common.classes.EducationStaff import EducationStaff
 from app.common.func import get_departments
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
@@ -12,7 +13,7 @@ from app.schedule.func import lessons_ical_exp, lessons_xlsx_exp
 @bp.route("/schedule", methods=["GET", "POST"])
 def schedule():
     form = CalendarForm()
-    form.department.choices = [(k, v[0]) for k, v in get_departments().items()]
+    form.department.choices = [(k, v.get('full')) for k, v in get_departments().items()]
     if request.method == "POST":
         staff = EducationStaff(date.today().month, date.today().year)
         if request.form.get("ical_exp") or request.form.get("xlsx_exp"):
@@ -20,7 +21,11 @@ def schedule():
             month = request.form.get("month")
             year = request.form.get("year")
             staff_id = request.form.get("prepod")
-            staff_name = staff.state_staff.get(staff_id)
+            try:
+                staff_name = staff.state_staff.get(int(staff_id)).get('short')
+            except AttributeError:
+                logging.error('Не найдено имя преподавателя по staff_id')
+                staff_name = "Имя преподавателя отсутствует"
             filename = (
                 lessons_ical_exp(staff_id, staff_name, month, year)
                 if request.form.get("ical_exp")

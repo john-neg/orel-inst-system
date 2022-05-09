@@ -4,13 +4,13 @@ from werkzeug.utils import redirect
 from app.load import bp
 from app.load.forms import LoadReportForm
 from app.load.models import LoadReport
-from app.main.func import get_departments
+from app.common.func import get_departments
 
 
 @bp.route("/load", methods=["GET", "POST"])
 def load_report():
     form = LoadReportForm()
-    form.department.choices = [(d[0], d[1][0]) for d in get_departments().items()]
+    form.department.choices = [(k, v.get('full')) for k, v in get_departments().items()]
     if request.method == "POST" and form.validate_on_submit():
         year = request.form.get("year")
         month = request.form.get("month")

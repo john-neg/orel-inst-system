@@ -76,18 +76,16 @@ class TestCheckApiResponse:
             result, list
         ), f"Функция {self.func_name} должна возвращать список"
 
-        print(api_response_json)
-
     def test_check_response_wrong_type(self, api_response_json):
         response = [api_response_json]
 
         with pytest.raises(TypeError) as exc_info:
             check_api_db_response(response)
 
-        assert exc_info.type == TypeError, (
-            f"Проверьте что функция {self.func_name} "
-            'возвращает ошибку при неверном типе данных "response"'
-        )
+            assert exc_info.type == TypeError, (
+                f"Проверьте что функция {self.func_name} "
+                'возвращает ошибку при неверном типе данных "response"'
+            )
 
     def test_check_no_status_answer(self, api_response_json):
         response = api_response_json

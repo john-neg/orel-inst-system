@@ -1,4 +1,3 @@
-from datetime import date
 import requests
 from config import FlaskConfig as Config
 from config import ApeksConfig as Apeks
@@ -32,32 +31,6 @@ def db_filter_req(table_name, sql_field, sql_value):
     )
     return response.json()["data"]
 
-
-def get_active_staff_id():
-    """Getting Apeks ID of first active user (need to make general API data request)."""
-    return db_filter_req("state_staff", "active", 1)[0]["id"]
-
-
-def get_departments():
-    """Getting dict of department as dict id:[name, short_name]."""
-    dept_dict = {}
-    resp = db_filter_req("state_departments", "parent_id", Apeks.DEPT_ID)
-    for dept in resp:
-        dept_dict[dept["id"]] = [dept["name"], dept["name_short"]]
-    return dept_dict
-
-
-def get_data(active_staff_id):
-    """Getting Apeks data about organization structure."""
-    params = {
-        "token": Apeks.TOKEN,
-        "staff_id": active_staff_id,
-        "month": date.today().strftime("%m"),
-        "year": date.today().strftime("%Y"),
-    }
-    return requests.get(
-        Apeks.URL + "/api/call/schedule-schedule/staff", params=params
-    ).json()["data"]
 
 
 def education_specialty():

@@ -13,11 +13,8 @@ def get_lessons(year, month):
     params = {
         "token": Apeks.TOKEN,
         "table": "schedule_day_schedule_lessons",
-        "filter": "date between '"
-        + date(year, month, first_day).isoformat()
-        + "' and '"
-        + date(year, month, last_day).isoformat()
-        + "'",
+        "filter": f"date between '{date(year, month, first_day).isoformat()}' "
+                  f"and '{date(year, month, last_day).isoformat()}'",
     }
     resp = requests.get(
         Apeks.URL + "/api/call/system-database/get", params=params
@@ -34,9 +31,9 @@ def lessons_staff():
     resp = db_request("schedule_day_schedule_lessons_staff")
     for less in resp:
         if less.get("lesson_id") in staff:
-            staff[less.get("lesson_id")].append(less.get("staff_id"))
+            staff[less.get("lesson_id")].append(int(less.get("staff_id")))
         else:
-            staff[less.get("lesson_id")] = [less.get("staff_id")]
+            staff[less.get("lesson_id")] = [int(less.get("staff_id"))]
     return staff
 
 
