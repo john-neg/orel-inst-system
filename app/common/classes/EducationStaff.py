@@ -77,10 +77,20 @@ class EducationStaff:
         Список преподавателей, работавших в
         выбранном подразделении в течении выбранного периода,
         отсортированные по занимаемой должности.
+
+        Parameters
+        ----------
+        department_id: int | str
+            id кафедры
+
+        Returns
+        ----------
+        dict
+            {id: 'short_name'}
         """
         staff_list = []
         for staff in self.state_staff_history:
-            if staff.get("staff_id"):
+            if staff.get("staff_id") and staff.get('department_id') == str(department_id):
                 staff_id = int(staff.get("staff_id"))
                 staff_pos = staff.get("position_id")
                 if staff_pos and int(staff_pos) not in Apeks.EXCLUDE_LIST:

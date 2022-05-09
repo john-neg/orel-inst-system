@@ -1,25 +1,23 @@
+import asyncio
 import logging
 import os
 import sys
-from datetime import date
 from logging.handlers import RotatingFileHandler
 
-from telegram import Bot, ReplyKeyboardMarkup
-from telegram.ext import CommandHandler, Updater
-
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
+from aiogram.types import BotCommand
+from aiogram.utils.exceptions import BotBlocked
 from dotenv import load_dotenv
 
-from app.common.classes.EducationStaff import EducationStaff
-from app.common.func import get_departments
+from app.telegram.common import register_handlers_common
+from app.telegram.schedule import register_handlers_schedule
 from config import FlaskConfig
 
 load_dotenv()
-
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-
-# RETRY_TIME: int = 600
-
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -33,15 +31,6 @@ logging.basicConfig(
         ),
     ],
 )
-
-
-# def send_message(bot: Bot, message: str) -> None:
-#     """Отправка сообщения в Telegram."""
-#     try:
-#         bot.send_message(TELEGRAM_CHAT_ID, message)
-#         logging.info(f'Бот отправил сообщение: "{message}"')
-#     except TelegramError as error:
-#         logging.error(f"Ошибка при отправке сообщения в Telegram: {error}")
 
 
 def check_tokens() -> bool:
@@ -63,92 +52,50 @@ def check_tokens() -> bool:
         return False
 
 
-def wake_up(update, context):
-    chat = update.effective_chat
-    name = update.message.chat.first_name
-    button = ReplyKeyboardMarkup([
-        ['Расписание', 'Как пользоваться?']
-    ], resize_keyboard=True)
-
-    context.bot.send_message(
-        chat_id=chat.id,
-        text='Спасибо, что вы включили меня, {}!'.format(name),
-        reply_markup=button
-    )
+async def set_commands(bot: Bot):
+    commands = [
+        BotCommand(command="/schedule", description="Расписание"),
+        BotCommand(command="/cancel", description="Отменить текущее действие")
+    ]
+    await bot.set_my_commands(commands)
 
 
-def help_info(update, context):
-    chat = update.effective_chat
-    name = update.message.chat.first_name
-    button = ReplyKeyboardMarkup([
-        ['Расписание']
-    ], resize_keyboard=True)
-
-    context.bot.send_message(
-        chat_id=chat.id,
-        text='Пока это вся помощь, {}!'.format(name),
-        reply_markup=button
-    )
+# @dp.errors_handler(exception=BotBlocked)
+# async def error_bot_blocked(update: types.Update, exception: BotBlocked):
+#     # Update: объект события от Telegram. Exception: объект исключения
+#     # Здесь можно как-то обработать блокировку, например, удалить пользователя из БД
+#     logging.info(f"Меня заблокировал пользователь!\n"
+#                  f"Сообщение: {update}\nОшибка: {exception}")
+#     # Такой хэндлер должен всегда возвращать True,
+#     # если дальнейшая обработка не требуется.
+#     return True
 
 
-def departments(update, context):
-    chat = update.effective_chat
-    name = update.message.chat.first_name
-
-    dept_lst = [v[1] for v in get_departments().values()]
-    button = ReplyKeyboardMarkup([
-        [dept_lst[i], dept_lst[i + 1]] for i in range(0, len(dept_lst), 2)
-    ], resize_keyboard=True)
-
-    context.bot.send_message(
-        chat_id=chat.id,
-        text='{}, выберите вашу кафедру'.format(name),
-        reply_markup=button
-    )
-
-def staff(update, context):
-    department = 12
-    staff = EducationStaff(date.today().month, date.today().year)
-    list(staff.department_staff(department).items())
+async def cmd_cancel(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer("Действие отменено", reply_markup=types.ReplyKeyboardRemove())
 
 
-def main() -> None:
+async def main():
     """Основная логика работы бота."""
     if not check_tokens():
         raise SystemExit("Программа принудительно остановлена.")
+
+    # Объявление и инициализация объектов бота и диспетчера
     bot = Bot(token=TELEGRAM_TOKEN)
-    updater = Updater(token=TELEGRAM_TOKEN)
+    dp = Dispatcher(bot, storage=MemoryStorage())
 
-    updater.dispatcher.add_handler(CommandHandler('start', wake_up))
-    updater.dispatcher.add_handler(CommandHandler('help', help_info))
+    # Регистрация хэндлеров
+    register_handlers_common(dp)
+    register_handlers_schedule(dp)
 
-    updater.start_polling()
-    updater.idle()
+    # Установка команд бота
+    await set_commands(bot)
 
-
-
-    # current_timestamp = int(time.time()) - RETRY_TIME
-    # last_message = ""
-    #
-    # while True:
-    #     try:
-    #         response = get_api_answer(current_timestamp)
-    #         homeworks = check_response(response)
-    #         if homeworks:
-    #             for homework in homeworks:
-    #                 status = parse_status(homework)
-    #                 send_message(bot, status)
-    #         else:
-    #             logging.debug("Нет новых статусов")
-    #         current_timestamp = response.get("current_date") or int(time.time())
-    #     except Exception as error:
-    #         message = f"Сбой в работе программы: {error}"
-    #         if message != last_message:
-    #             send_message(bot, message)
-    #             last_message = message
-    #     finally:
-    #         time.sleep(RETRY_TIME)
+    # Запуск поллинга
+    # await dp.skip_updates()  # пропуск накопившихся апдейтов (необязательно)
+    await dp.start_polling()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    asyncio.run(main())

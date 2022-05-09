@@ -199,7 +199,7 @@ def get_disciplines(
     Returns
     ----------
     dict
-        {'id': {'full': 'название дисциплины', 'short': 'сокращенное название'}}
+        {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
     """
     response = check_api_db_response(api_get_db_table(table, level=level))
     disc_dict = {}
@@ -229,7 +229,7 @@ def get_departments(
     Returns
     ----------
     dict
-        {'id': {'full': 'название кафедры', 'short': 'сокращенное название'}}
+        {id: {'full': 'название кафедры', 'short': 'сокращенное название'}}
     """
     response = check_api_db_response(api_get_db_table(table, parent_id=parent_id))
     dept_dict = {}
@@ -254,7 +254,7 @@ def get_state_staff(table: str = Apeks.tables.get("state_staff")) -> dict:
     Returns
     ----------
     dict
-        {'id': {'full': 'полное имя', 'short': 'сокращенное имя'}}
+        {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
     """
     staff_dict = {}
     resp = check_api_db_response(api_get_db_table(table))
