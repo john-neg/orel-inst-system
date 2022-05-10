@@ -72,7 +72,7 @@ class EducationStaff:
             api_get_db_table(Apeks.tables.get("state_staff_positions"))
         )
 
-    def department_staff(self, department_id: int | str) -> dict:
+    def department_staff(self, department_id: int | str, reverse: bool = False) -> dict:
         """
         Список преподавателей, работавших в
         выбранном подразделении в течении выбранного периода,
@@ -82,11 +82,15 @@ class EducationStaff:
         ----------
         department_id: int | str
             id кафедры
+        reverse: bool
+            определяет порядок ключей и значений.
+            Если True то сначала будет 'short_name' потом id.
+            По умолчанию False
 
         Returns
         ----------
         dict
-            {id: 'short_name'}
+            {id: 'short_name'} или {'short_name': id}
         """
         staff_list = []
         for staff in self.state_staff_history:
@@ -121,7 +125,10 @@ class EducationStaff:
                             staff_list.append(staff_info)
         dept_staff = {}
         for staff in sorted(staff_list, key=lambda x: x[2], reverse=True):
-            dept_staff[staff[0]] = staff[1]
+            if reverse:
+                dept_staff[staff[1]] = staff[0]
+            else:
+                dept_staff[staff[0]] = staff[1]
 
         logging.debug(
             "Передана информация о составе подразделения: "

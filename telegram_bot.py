@@ -55,7 +55,7 @@ def check_tokens() -> bool:
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(command="/schedule", description="Расписание"),
-        BotCommand(command="/cancel", description="Отменить текущее действие")
+        BotCommand(command="/cancel", description="Отменить текущее действие"),
     ]
     await bot.set_my_commands(commands)
 
@@ -97,5 +97,5 @@ async def main():
     await dp.start_polling()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

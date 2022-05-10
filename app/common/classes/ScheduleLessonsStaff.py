@@ -37,7 +37,6 @@ class ScheduleLessonsStaff:
             api_get_staff_lessons(staff_id, month, year)
         )
         self.disciplines = get_disciplines()
-        print(self.data)
 
     def calendar_name(self, l_index: int) -> str:
         """Вывод полного заголовка занятия по индексу."""

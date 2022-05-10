@@ -72,8 +72,8 @@ async def schedule_department_chosen(message: types.Message, state: FSMContext):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     staff_list = EducationStaff(
         saved_data["chosen_month"], saved_data["chosen_year"]
-    ).department_staff(department_id)
-    staff_list = [*staff_list.values()]
+    ).department_staff(department_id, reverse=True)
+    staff_list = [*staff_list]
 
     for i in range(1, len(staff_list), 2):
         keyboard.add(staff_list[i - 1], staff_list[i])
@@ -87,8 +87,8 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
     saved_data = await state.get_data()
     staff_list = EducationStaff(
         saved_data["chosen_month"], saved_data["chosen_year"]
-    ).department_staff(saved_data['chosen_department'])
-    staff_list = {y: x for x, y in staff_list.items()}
+    ).department_staff(saved_data['chosen_department'], reverse=True)
+    # staff_list = {y: x for x, y in staff_list.items()}
 
     if message.text not in staff_list:
         await message.answer(
@@ -101,10 +101,25 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
     filename = lessons_ical_exp(
         staff_id, message.text, saved_data['chosen_month'], saved_data['chosen_year']
     )
-    file = open(FlaskConfig.EXPORT_FILE_DIR + filename, 'rb')
+
+    if filename == 'no data':
+        await message.answer(
+            f'У {message.text} отсутствуют занятия за указанный период!',
+            reply_markup=types.ReplyKeyboardRemove(),
+        )
+    else:
+        file = open(FlaskConfig.EXPORT_FILE_DIR + filename, 'rb')
+        await message.answer(
+            '{}, Ваш файл готов!'.format(message.from_user.first_name),
+            reply_markup=types.ReplyKeyboardRemove(),
+        )
+        await message.answer_document(document=file)
+
+        os.remove(FlaskConfig.EXPORT_FILE_DIR + filename)
 
     await message.answer(
-        '{}, Ваш файл готов!'.format(message.from_user.first_name),
+        '{}, если Вам что-то еще необходимо, '
+        'воспользуйтесь кнопкой "Меню"!'.format(message.from_user.first_name),
         reply_markup=types.ReplyKeyboardRemove(),
     )
 
@@ -115,10 +130,6 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
         f"кафедра: {saved_data['chosen_department']} "
         f"преподаватель: {staff_id}",
     )
-
-    await message.answer_document(document=file)
-
-    os.remove(FlaskConfig.EXPORT_FILE_DIR + filename)
 
     await state.finish()
 
