@@ -9,7 +9,6 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.func import get_departments
-from app.schedule.func import lessons_ical_exp
 from config import FlaskConfig
 
 
@@ -48,28 +47,31 @@ async def schedule_date_chosen(message: types.Message, state: FSMContext):
 
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
-    departments = [v.get("short") for v in get_departments().values()]
-    for i in range(1, len(departments), 2):
-        keyboard.add(departments[i - 1], departments[i])
+    departments = await get_departments()
+    dept_list = [v.get("short") for v in departments.values()]
+    for i in range(1, len(dept_list), 2):
+        keyboard.add(dept_list[i - 1], dept_list[i])
 
     await GetSchedule.next()
     await message.answer("Теперь выберите вашу кафедру:", reply_markup=keyboard)
 
 
 async def schedule_department_chosen(message: types.Message, state: FSMContext):
-    departments = {}
-    for key, val in get_departments().items():
-        departments[val.get("short").lower()] = key
-    if message.text.lower() not in departments:
+    departments = await get_departments()
+    dept_dict = {}
+    for key, val in departments.items():
+        dept_dict[val.get("short").lower()] = key
+    if message.text.lower() not in dept_dict:
         await message.answer(
             "Пожалуйста, выберите вашу кафедру, используя клавиатуру ниже."
         )
         return
-    department_id = departments.get(message.text.lower())
+    department_id = dept_dict.get(message.text.lower())
     await state.update_data(chosen_department=department_id)
 
     saved_data = await state.get_data()
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    # TODO добавить запросы и передать их в класс (попробовать хранить запрос в state чтобы не перезапрашивать потом)
     staff_list = EducationStaff(
         saved_data["chosen_month"], saved_data["chosen_year"]
     ).department_staff(department_id, reverse=True)
@@ -85,8 +87,12 @@ async def schedule_department_chosen(message: types.Message, state: FSMContext):
 
 async def schedule_staff_chosen(message: types.Message, state: FSMContext):
     saved_data = await state.get_data()
+
+    #TODO добавить запросы и передать их в класс
     staff_list = EducationStaff(
-        saved_data["chosen_month"], saved_data["chosen_year"]
+        saved_data["chosen_month"],
+        saved_data["chosen_month"],
+        saved_data["chosen_year"],
     ).department_staff(saved_data['chosen_department'], reverse=True)
     # staff_list = {y: x for x, y in staff_list.items()}
 
@@ -98,6 +104,7 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
 
     staff_id = staff_list.get(message.text)
 
+    #TODO добавить запросы и передать их в класс
     filename = lessons_ical_exp(
         staff_id, message.text, saved_data['chosen_month'], saved_data['chosen_year']
     )
