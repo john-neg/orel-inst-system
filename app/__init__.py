@@ -1,10 +1,12 @@
+import logging
+
 from flask import Flask, url_for
 from flask_admin import Admin, AdminIndexView
 from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import redirect
 
-from config import FlaskConfig
+from config import FlaskConfig, ApeksConfig as Apeks
 
 db = SQLAlchemy()
 login = LoginManager()
@@ -23,10 +25,33 @@ class MyAdminIndexView(AdminIndexView):
         return redirect(url_for("main.index"))
 
 
+def check_tokens() -> bool:
+    """Проверяем переменные окружения."""
+    required_env = {
+        'SECRET_KEY': FlaskConfig.SECRET_KEY,
+        'APEKS_URL': Apeks.URL,
+        'APEKS_TOKEN': Apeks.TOKEN,
+    }
+    missing_env = []
+    for key in required_env:
+        if not required_env[key]:
+            missing_env.append(key)
+    if not missing_env:
+        return True
+    else:
+        logging.critical(
+            "Отсутствуют необходимые переменные окружения: " f'{", ".join(missing_env)}'
+        )
+        return False
+
+
 def create_app(config_class=FlaskConfig):
 
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    if not check_tokens():
+        raise SystemExit("Программа принудительно остановлена.")
 
     db.init_app(app)
     login.init_app(app)

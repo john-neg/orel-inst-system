@@ -1,3 +1,5 @@
+import logging
+
 from flask.logging import create_logger
 
 from app import create_app

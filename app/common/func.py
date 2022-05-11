@@ -9,6 +9,8 @@ from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
 
+
+
 def api_get_request_handler(func):
     """Декоратор для функций, отправляющих GET запрос к API Апекс-ВУЗ"""
 
