@@ -42,10 +42,19 @@ class ApeksConfig(object):
     # ID типа подразделения "кафедра" в БД
     DEPT_ID = 4
 
+    # Таблицы базы данных, используемые в приложении
+    TABLES = {
+        'plan_disciplines': 'plan_disciplines',
+        'state_departments': 'state_departments',
+        'state_staff': 'state_staff',
+        'state_staff_history': 'state_staff_history',
+        'state_staff_positions': 'state_staff_positions',
+    }
+
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3
 
-    # ID полей БД АпексВУЗ в таблице mm_work_programs_data_items
+    # ID полей БД АпексВУЗ в таблице 'mm_work_programs_data_items'
     MM_WORK_PROGRAMS_DATA_ITEMS = {
         # Автор(ы) рабочей программы (для печати)
         "authorprint": 29,
@@ -87,7 +96,7 @@ class ApeksConfig(object):
         "materials_base": 20,
     }
 
-    # Идентификаторы видов занятий в таблице class_type_id
+    # Идентификаторы видов занятий в таблице 'class_type_id'
     CLASS_TYPE_ID = {
         # Лекция
         'lecture': 1,
@@ -97,7 +106,7 @@ class ApeksConfig(object):
         'prakt': 3,
     }
 
-    # Идентификаторы форм контроля в таблице control_type_id
+    # Идентификаторы форм контроля в таблице 'control_type_id'
     CONTROL_TYPE_ID = {
         # Экзамен
         'exam': 1,
@@ -119,7 +128,7 @@ class ApeksConfig(object):
         'kandidat_exam': 16,
     }
 
-    # Идентификаторы форм обучения в таблице education_form_id
+    # Идентификаторы форм обучения в таблице 'education_form_id'
     EDUCATION_FORM_ID = {
         # Очное обучение
         'ochno': 1,
@@ -131,7 +140,7 @@ class ApeksConfig(object):
         "prof_pod": 7,
     }
 
-    # Идентификаторы уровней обучения в таблице education_level_id
+    # Идентификаторы уровней обучения в таблице 'education_level_id'
     EDUCATION_LEVEL_ID = {
         # Среднее профессиональное образование
         'spo': 2,
@@ -168,15 +177,6 @@ class ApeksConfig(object):
 
     # Часовой пояс для правильного отображения времени занятий
     TIMEZONE = pytz.timezone('Europe/Moscow')
-
-    # Таблицы базы данных, используемые в приложении
-    tables = {
-        'plan_disciplines': 'plan_disciplines',
-        'state_departments': 'state_departments',
-        'state_staff': 'state_staff',
-        'state_staff_history': 'state_staff_history',
-        'state_staff_positions': 'state_staff_positions',
-    }
 
 
 # Create directories

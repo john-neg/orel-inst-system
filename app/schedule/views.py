@@ -4,32 +4,65 @@ from datetime import date
 from flask import render_template, request, redirect, url_for
 
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.func import get_departments
+from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from app.common.func import (
+    get_departments,
+    get_state_staff,
+    check_api_db_response,
+    api_get_db_table,
+    check_api_staff_lessons_response,
+    api_get_staff_lessons,
+    get_disciplines,
+)
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
-from app.schedule.func import lessons_ical_exp, lessons_xlsx_exp
+
+from config import ApeksConfig as Apeks
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
-def schedule():
+async def schedule():
     form = CalendarForm()
-    form.department.choices = [(k, v.get('full')) for k, v in get_departments().items()]
+    departments = await get_departments()
+    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     if request.method == "POST":
-        staff = EducationStaff(date.today().month, date.today().year)
+        staff = EducationStaff(
+            year=date.today().year,
+            month_start=date.today().month - 1,
+            month_end=date.today().month,
+            state_staff=await get_state_staff(),
+            state_staff_history=await check_api_db_response(
+                await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
+            ),
+            state_staff_positions=await check_api_db_response(
+                await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
+            ),
+        )
         if request.form.get("ical_exp") or request.form.get("xlsx_exp"):
             department = request.form.get("department")
             month = request.form.get("month")
             year = request.form.get("year")
             staff_id = request.form.get("prepod")
             try:
-                staff_name = staff.state_staff.get(int(staff_id)).get('short')
+                staff_name = staff.state_staff.get(int(staff_id)).get("short")
             except AttributeError:
-                logging.error('Не найдено имя преподавателя по staff_id')
+                logging.error("Не найдено имя преподавателя по staff_id")
                 staff_name = "Имя преподавателя отсутствует"
+
+            staff_lessons = ScheduleLessonsStaff(
+                staff_id,
+                month,
+                year,
+                lessons_data=await check_api_staff_lessons_response(
+                    await api_get_staff_lessons(staff_id, month, year)
+                ),
+                disciplines=await get_disciplines(),
+            )
+
             filename = (
-                lessons_ical_exp(staff_id, staff_name, month, year)
+                staff_lessons.export_ical(staff_name)
                 if request.form.get("ical_exp")
-                else lessons_xlsx_exp(staff_id, staff_name, month, year)
+                else staff_lessons.export_xlsx(staff_name)
             )
             if filename == "no data":
                 form.prepod.choices = list(staff.department_staff(department).items())

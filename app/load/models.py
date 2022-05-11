@@ -10,19 +10,26 @@ from config import FlaskConfig, ApeksConfig as Apeks
 
 
 class LoadData:
-    def __init__(self, year: int, month: int):
+    def __init__(
+        self,
+        year: int,
+        month: int,
+        lesson_staff: dict,
+        load_subgroup: dict,
+        load_group: dict,
+        plan_education_plans_education_form: dict,
+        plan_education_plan: dict,
+    ):
         self.year = year
         self.month = month
         self.departments = get_departments()
+        self.lesson_staff = lesson_staff
+        self.load_subgroups = load_subgroup
+        self.load_groups = load_group
+        self.plan_education_plans_education_forms = plan_education_plans_education_form
+        self.plan_education_plans = plan_education_plan
         self.education_staff = EducationStaff(month, year)
         self.staff_dept_structure = self.staff_dept_structure()
-        self.lesson_staff = lessons_staff()
-        self.load_subgroups = load_subgroups()
-        self.load_groups = load_groups()
-        self.plan_education_plans_education_forms = (
-            plan_education_plans_education_forms()
-        )
-        self.plan_education_plans = plan_education_plans()
         self.structured_lessons = self.process_lessons()
         self.control_lessons = self.control_lessons()
 
@@ -83,8 +90,10 @@ class LoadData:
         def check_and_process(lesson):
             """Сверка типа занятия для определения типа контроль"""
             lookup = [
-                "staff_id", "discipline_id",
-                "group_id", "control_type_id",
+                "staff_id",
+                "discipline_id",
+                "group_id",
+                "control_type_id",
                 "date",
             ]
             counter = 0
@@ -103,10 +112,8 @@ class LoadData:
         control_less = []
         for less in self.structured_lessons:
             if less.get("control_type_id") in [
-                str(Apeks.CONTROL_TYPE_ID.get(i)) for i in (
-                        "exam", "zachet", "zachet_mark",
-                        "final_att", "kandidat_exam"
-                )
+                str(Apeks.CONTROL_TYPE_ID.get(i))
+                for i in ("exam", "zachet", "zachet_mark", "final_att", "kandidat_exam")
             ]:
                 if not check_and_process(less):
                     control_less.append(copy(less))
@@ -170,8 +177,13 @@ class DeptPrepodLoad:
         self.load = {}
         self.staff_list = staff_list
         lesson_types = [
-            "lecture", "seminar", "pract", "group_cons",
-            "zachet", "exam", "final_att",
+            "lecture",
+            "seminar",
+            "pract",
+            "group_cons",
+            "zachet",
+            "exam",
+            "final_att",
         ]
         student_types = ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
         for staff_id in staff_list:
@@ -190,12 +202,12 @@ class DeptPrepodLoad:
 
 
 class LoadReport:
-    def __init__(self, year, month, department_id):
+    def __init__(self, year, month, department_id, load):
         self.year = year
         self.month = month
         self.department_id = int(department_id)
         self.staff_list = EducationStaff(month, year).department_staff(department_id)
-        self.load = LoadData(year, month)
+        self.load = load
         self.dept_load = DeptPrepodLoad(list(self.staff_list))
         self.unprocessed = []
         for lesson in self.load.structured_lessons:
@@ -234,9 +246,9 @@ class LoadReport:
             f"{self.year}-{self.month} "
             f"{self.load.departments.get(self.department_id).get('short')}"
         )
-        ws.cell(1, 1).value = (
-            "кафедра " + self.load.departments.get(self.department_id).get('full')
-        )
+        ws.cell(1, 1).value = "кафедра " + self.load.departments.get(
+            self.department_id
+        ).get("full")
         ws.cell(2, 1).value = f"отчет о нагрузке за {self.month} - {self.year}"
         row = 8
         for prepod in self.data:
@@ -271,7 +283,7 @@ class LoadReport:
                     if val and val % 1 > 0:
                         ws.cell(row, column).number_format = "0.00"
                     column += 1
-            ws.cell(row, 72).value = f'=SUM(B{str(row)}:BS{str(row)})'
+            ws.cell(row, 72).value = f"=SUM(B{str(row)}:BS{str(row)})"
             row += 1
         # Total
         ws.cell(row, 1).value = "Итого"
@@ -279,7 +291,7 @@ class LoadReport:
         for col in range(2, 73):
             ltr = ws.cell(row, col).column_letter
             ws.cell(row, col).value = (
-                f'=IF(SUM({ltr}8:{ltr}{str(row - 1)})>0,'
+                f"=IF(SUM({ltr}8:{ltr}{str(row - 1)})>0,"
                 f'SUM({ltr}8:{ltr}{str(row - 1)}),"")'
             )
             ws.cell(row, col).style = ExcelStyle.Number
