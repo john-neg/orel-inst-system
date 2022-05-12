@@ -23,7 +23,7 @@ class LessonsDataProcessor:
     def __post_init__(self):
         self.lessons_staff_data = self.lessons_staff_processor(self.schedule_lessons_staff)
         self.load_groups_data = self.load_groups_processor(self.load_groups)
-        self.load_groups_data = self.load_groups_processor(self.load_groups)
+        self.load_subgroups_data = self.load_groups_processor(self.load_subgroups)
 
     @staticmethod
     def lessons_staff_processor(lessons_staff):
