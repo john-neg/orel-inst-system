@@ -201,7 +201,9 @@ async def get_disciplines(
         dict
             {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
     """
-    response = await check_api_db_response(await api_get_db_table(table, level=level))
+    response = await check_api_db_response(
+        await api_get_db_table(table, level=level)
+    )
     disc_dict = {}
     for disc in response:
         disc_dict[int(disc["id"])] = {
@@ -259,7 +261,9 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
             {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
     """
     staff_dict = {}
-    resp = await check_api_db_response(await api_get_db_table(table))
+    resp = await check_api_db_response(
+        await api_get_db_table(table)
+    )
     for staff in resp:
         family_name = staff.get("family_name") if staff.get("family_name") else "??????"
         first_name = staff.get("name") if staff.get("name") else "??????"
