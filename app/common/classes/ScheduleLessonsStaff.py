@@ -33,15 +33,22 @@ class ScheduleLessonsStaff:
         disciplines : dict
             список дисциплин в формате {id: {'full': 'название
             дисциплины', 'short': 'сокращенное название'}}.
+        load_subgroups_data: dict
+            словарь для поиска 'group_id' в случае его отсутствия
+            по 'subgroup_id' в формате {subgroup_id: {'group_id': val}}
 
     Methods:
     --------
-        calendar_name(l_index: int) -> str:
+        calendar_name(l_index: int) -> str
             выводит заголовок для занятия по его индексу в self.data.
-        time_start(l_index: int) -> datetime:
+        time_start(l_index: int) -> datetime
             выводит время начала занятия.
-        time_end(l_index: int) -> datetime:
+        time_end(l_index: int) -> datetime
             выводит время окончания занятия.
+        export_ical(staff_name: str, timezone: tzinfo) -> str
+            формирует файл для экспорта занятий преподавателя в формате iCal.
+        export_xlsx(staff_name: str) -> str
+            формирует файл для экспорта занятий преподавателя в формате xlsx.
     """
 
     staff_id: int | str
@@ -49,6 +56,7 @@ class ScheduleLessonsStaff:
     year: int | str
     lessons_data: list
     disciplines: dict
+    load_subgroups_data: dict
 
     def calendar_name(self, l_index: int) -> str:
         """
@@ -66,7 +74,9 @@ class ScheduleLessonsStaff:
         try:
             short_disc_name = self.disciplines.get(int(discipline_id)).get("short")
         except AttributeError:
-            logging.error("Не найдено название дисциплины по discipline_id")
+            logging.error(
+                f"Не найдено название дисциплины по 'discipline_id': {discipline_id}"
+            )
             short_disc_name = "Название дисциплины отсутствует"
         group = self.lessons_data[l_index].get("groupName")
         name = f"{class_type_name}{topic_code_fixed} {short_disc_name} {group}"
@@ -159,9 +169,13 @@ class ScheduleLessonsStaff:
                 f'journal-lesson-id-{self.lessons_data[l_index].get("journal_lesson_id")}',
             )
             group_id = self.lessons_data[l_index].get("group_id")
+            subgroup_id = self.lessons_data[l_index].get("subgroup_id")
             lesson_id = self.lessons_data[l_index].get("journal_lesson_id")
 
-            #TODO добавить поиск id группы по id подгруппы
+            if not group_id:
+                if subgroup_id:
+                    group_id = self.load_subgroups_data.get(subgroup_id).get("group_id")
+
             if group_id and lesson_id:
                 event.add(
                     "url",
@@ -220,7 +234,7 @@ class ScheduleLessonsStaff:
             row = 2
             column = 1
 
-            # Заголовки и ширина столбца
+            # Заголовки: название и ширина столбца
             headers = {"Дата/время": 15, "Занятие": 65, "Место": 15, "Тема": 80}
 
             for key, val in headers.items():

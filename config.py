@@ -45,6 +45,7 @@ class ApeksConfig(object):
     # Таблицы базы данных, используемые в приложении
     TABLES = {
         'plan_disciplines': 'plan_disciplines',
+        'load_subgroups': 'load_subgroups',
         'state_departments': 'state_departments',
         'state_staff': 'state_staff',
         'state_staff_history': 'state_staff_history',

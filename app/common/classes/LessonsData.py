@@ -17,7 +17,7 @@ class LessonsDataProcessor:
         self.lessons_staff_data = self.lessons_staff_processor(self.schedule_lessons_staff)
         self.load_groups_data = self.data_processor(self.load_groups)
         self.load_subgroups_data = self.data_processor(self.load_subgroups)
-        self.load_education_plans_data =
+        # self.load_education_plans_data =
 
     @staticmethod
     def lessons_staff_processor(lessons_staff):
@@ -42,11 +42,11 @@ class LessonsDataProcessor:
             data[int(group.get("id"))] = group
         return data
 
-    @staticmethod
-    def education_plans_processor(
-            plan_education_plans,
-            plan_education_plans_education_forms
-    ):
+    # @staticmethod
+    # def education_plans_processor(
+    #         plan_education_plans,
+    #         plan_education_plans_education_forms
+    # ):
         # cls.data_processor(self.plan_education_plans)
         # self.data_processor(plan_education_plans_education_forms)
         # """Преобразует информацию о группах в словарь {id: 'name'}."""
