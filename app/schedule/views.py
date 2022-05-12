@@ -13,7 +13,7 @@ from app.common.func import (
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_disciplines,
+    get_disciplines, data_processor,
 )
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
@@ -32,12 +32,13 @@ async def schedule():
             month_start=date.today().month - 1,
             month_end=date.today().month,
             state_staff=await get_state_staff(),
-            state_staff_history=await check_api_db_response(
+            state_staff_history=check_api_db_response(
                 await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
             ),
-            state_staff_positions=await check_api_db_response(
+            state_staff_positions=check_api_db_response(
                 await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
             ),
+            departments=departments
         )
         if request.form.get("ical_exp") or request.form.get("xlsx_exp"):
             department = request.form.get("department")
@@ -54,12 +55,12 @@ async def schedule():
                 staff_id,
                 month,
                 year,
-                lessons_data=await check_api_staff_lessons_response(
+                lessons_data=check_api_staff_lessons_response(
                     await api_get_staff_lessons(staff_id, month, year)
                 ),
                 disciplines=await get_disciplines(),
-                load_subgroups_data=LessonsDataProcessor.data_processor(
-                    await check_api_db_response(
+                load_subgroups_data=data_processor(
+                    check_api_db_response(
                         await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
                     )
                 ),

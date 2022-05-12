@@ -17,7 +17,7 @@ from app.common.func import (
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_disciplines,
+    get_disciplines, data_processor,
 )
 from config import FlaskConfig, ApeksConfig as Apeks
 
@@ -88,11 +88,12 @@ async def schedule_department_chosen(message: types.Message, state: FSMContext):
         month_start=saved_data["chosen_month"],
         month_end=saved_data["chosen_month"],
         state_staff=await get_state_staff(),
-        state_staff_history=await check_api_db_response(
+        state_staff_history=check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
         ),
-        state_staff_positions=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
+        state_staff_positions=check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("state_staff_positions")),
+        departments=departments,
         ),
     ).department_staff(department_id, reverse=True)
     await state.update_data(education_list=education_list)
@@ -123,12 +124,12 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
         staff_id,
         month,
         year,
-        lessons_data=await check_api_staff_lessons_response(
+        lessons_data=check_api_staff_lessons_response(
             await api_get_staff_lessons(staff_id, month, year)
         ),
         disciplines=await get_disciplines(),
-        load_subgroups_data=LessonsDataProcessor.data_processor(
-            await check_api_db_response(
+        load_subgroups_data=data_processor(
+            check_api_db_response(
                 await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
             ),
         ),

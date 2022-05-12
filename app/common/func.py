@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+from calendar import monthrange
+from datetime import date
 from json import JSONDecodeError
 
 import requests
@@ -37,7 +39,7 @@ def api_get_request_handler(func):
 
 @api_get_request_handler
 async def api_get_db_table(
-    table_name: str, url: str = Apeks.URL, token: str = Apeks.TOKEN, **kwargs
+        table_name: str, url: str = Apeks.URL, token: str = Apeks.TOKEN, **kwargs
 ):
     """
     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ.
@@ -58,44 +60,12 @@ async def api_get_db_table(
     if kwargs:
         for db_filter, db_value in kwargs.items():
             params[f"filter[{db_filter}]"] = str(db_value)
+    logging.debug("Переданы параметры для запроса 'api_get_db_table': "
+                  f"к таблице {table_name}")
     return endpoint, params
 
 
-@api_get_request_handler
-async def api_get_staff_lessons(
-    staff_id: int | str,
-    month: int | str,
-    year: int | str,
-    url: str = Apeks.URL,
-    token: str = Apeks.TOKEN,
-):
-    """
-    Получение списка занятий по id преподавателя за определенный месяц и год.
-
-    Parameters
-    ----------
-        staff_id: int | str,
-            id преподавателя
-        month: int | str,
-            месяц (число от 1 до 12)
-        year: int | str,
-            год (число 20хх)
-        url: str
-            URL сервера
-        token: str
-            токен для API
-    """
-    endpoint = f"{url}/api/call/schedule-schedule/staff"
-    params = {
-        "token": token,
-        "staff_id": str(staff_id),
-        "month": str(month),
-        "year": str(year),
-    }
-    return endpoint, params
-
-
-async def check_api_db_response(response: dict) -> list:
+def check_api_db_response(response: dict) -> list:
     """
     Проверяет ответ на запрос к БД Апекс-ВУЗ через API.
 
@@ -139,7 +109,43 @@ async def check_api_db_response(response: dict) -> list:
         raise ApeksApiException(message)
 
 
-async def check_api_staff_lessons_response(response: dict) -> list:
+@api_get_request_handler
+async def api_get_staff_lessons(
+        staff_id: int | str,
+        month: int | str,
+        year: int | str,
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
+):
+    """
+    Получение списка занятий по id преподавателя за определенный месяц и год.
+
+    Parameters
+    ----------
+        staff_id: int | str,
+            id преподавателя
+        month: int | str,
+            месяц (число от 1 до 12)
+        year: int | str,
+            год (число 20хх)
+        url: str
+            URL сервера
+        token: str
+            токен для API
+    """
+    endpoint = f"{url}/api/call/schedule-schedule/staff"
+    params = {
+        "token": token,
+        "staff_id": str(staff_id),
+        "month": str(month),
+        "year": str(year),
+    }
+    logging.debug("Переданы параметры для запроса 'api_get_staff_lessons':"
+                  f"staff_id: {str(staff_id)}, month: {str(month)}, year: {str(year)}")
+    return endpoint, params
+
+
+def check_api_staff_lessons_response(response: dict) -> list:
     """
     Проверяет ответ API Апекс-ВУЗ со списком занятий на наличие необходимых
     ключей и корректность данных.
@@ -183,8 +189,8 @@ async def check_api_staff_lessons_response(response: dict) -> list:
 
 
 async def get_disciplines(
-    table: str = Apeks.TABLES.get("plan_disciplines"),
-    level: int | str = Apeks.DISC_LEVEL,
+        table: str = Apeks.TABLES.get("plan_disciplines"),
+        level: int | str = Apeks.DISC_LEVEL,
 ) -> dict:
     """
     Получение полного списка дисциплин из справочника Апекс-ВУЗ.
@@ -201,7 +207,7 @@ async def get_disciplines(
         dict
             {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
     """
-    response = await check_api_db_response(
+    response = check_api_db_response(
         await api_get_db_table(table, level=level)
     )
     disc_dict = {}
@@ -215,8 +221,8 @@ async def get_disciplines(
 
 
 async def get_departments(
-    table: str = Apeks.TABLES.get("state_departments"),
-    parent_id: str | int = Apeks.DEPT_ID,
+        table: str = Apeks.TABLES.get("state_departments"),
+        parent_id: str | int = Apeks.DEPT_ID,
 ) -> dict:
     """
     Получение информации о кафедрах.
@@ -233,7 +239,7 @@ async def get_departments(
         dict
             {id: {'full': 'название кафедры', 'short': 'сокращенное название'}}
     """
-    response = await check_api_db_response(
+    response = check_api_db_response(
         await api_get_db_table(table, parent_id=parent_id)
     )
     dept_dict = {}
@@ -261,7 +267,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
             {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
     """
     staff_dict = {}
-    resp = await check_api_db_response(
+    resp = check_api_db_response(
         await api_get_db_table(table)
     )
     for staff in resp:
@@ -274,3 +280,68 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
         }
     logging.debug("Информация о преподавателях успешно передана")
     return staff_dict
+
+
+@api_get_request_handler
+async def get_lessons(
+        year: int,
+        month_start: int,
+        month_end: int,
+        table_name: str = Apeks.TABLES.get('schedule_day_schedule_lessons'),
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
+):
+    """
+    Получение списка занятий за указанный период.
+
+    Parameters
+    ----------
+        year: int
+            учебный год (число 20xx).
+        month_start: int
+            начальный месяц (число 1-12).
+        month_end: int
+            конечный месяц (число 1-12).
+        table_name: str
+            имя_таблицы
+        url: str
+            URL сервера
+        token: str
+            токен для API
+    """
+    first_day = monthrange(year, month_start)[0]
+    last_day = monthrange(year, month_end)[1]
+    endpoint = f"{url}/api/call/system-database/get"
+    params = {
+        "token": token,
+        "table": table_name,
+        "filter": f"date between '{date(year, month_start, first_day).isoformat()}' "
+                  f"and '{date(year, month_end, last_day).isoformat()}'",
+    }
+    logging.debug("Переданы параметры для запроса 'get_lessons': "
+                  f"date between '{date(year, month_start, first_day).isoformat()}' "
+                  f"and '{date(year, month_end, last_day).isoformat()}'")
+    return endpoint, params
+
+
+def data_processor(table_data: list, dict_key: str = "id") -> dict:
+    """
+    Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
+
+    Parameters
+    ----------
+        table_data: list
+            данные таблицы, содержащей список словарей в формате JSON
+        dict_key: str
+            название поля значения которого станут ключами словаря
+            по умолчанию - 'id'
+
+    Returns
+    -------
+        dict
+            {id: {keys: values}}.
+    """
+    data = {}
+    for d_val in table_data:
+        data[int(d_val.get(dict_key))] = d_val
+    return data

@@ -15,26 +15,31 @@ class EducationStaff:
 
     Attributes:
     ----------
-    year (int | str):
-        учебный год (число 20xx).
-    month_start (int | str):
-        начальный месяц (число 1-12).
-    month_end (int | str):
-        конечный месяц (число 1-12).
-    state_staff (dict):
-        данные из таблицы 'state_staff'
-        (словарь с именами  в формате: {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}).
-    state_staff_history (list):
-        данные из таблицы 'state_staff_history' в формате JSON
-        (история работы в подразделении)
-    state_staff_positions (list):
-        данные из таблицы 'state_staff_positions' в формате JSON
-        (позиции для сортировки по занимаемой должности)
+        year: int | str
+            учебный год (число 20xx).
+        month_start: int | str
+            начальный месяц (число 1-12).
+        month_end: int | str
+            конечный месяц (число 1-12).
+        state_staff: dict
+            преобразованные данные из таблицы 'state_staff'
+            (словарь с именами  в формате:
+            {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}).
+        state_staff_history: list
+            данные из таблицы 'state_staff_history'
+            (история работы в подразделении)
+        state_staff_positions: list
+            данные из таблицы 'state_staff_positions'
+            (позиции для сортировки по занимаемой должности)
+        departments: dict
+            преобразованные данные из таблицы 'state_departments'
+            (словарь с названиями кафедр в формате:
+            {id: {'full': 'название кафедры', 'short': 'сокращенное название'}}).
 
     Methods:
     -------
-    department_staff (department_id: int | str) -> dict
-        список преподавателей, работавших в подразделении (id) в указанный период.
+        department_staff (department_id: int | str) -> dict
+            список преподавателей, работавших в подразделении (id) в указанный период.
     """
 
     year: int | str
@@ -43,6 +48,7 @@ class EducationStaff:
     state_staff: dict
     state_staff_history: list
     state_staff_positions: list
+    departments: dict
 
     def __post_init__(self) -> None:
         try:
@@ -70,23 +76,23 @@ class EducationStaff:
 
     def department_staff(self, department_id: int | str, reverse: bool = False) -> dict:
         """
-        Список преподавателей, работавших в
-        выбранном подразделении (department_id) в течении указанного периода,
-        отсортированные по занимаемой должности.
+        Список преподавателей, работавших в выбранном подразделении
+        (department_id) в течении указанного периода, отсортированные
+        по занимаемой должности.
 
-        Parameters:
+        Parameters
         ----------
-        department_id (int | str):
-            id кафедры.
-        reverse (bool):
-            определяет порядок ключей и значений.
-            Если True то сначала будет 'short_name' потом id.
-            По умолчанию False.
+            department_id: int | str
+                id кафедры.
+            reverse: bool
+                определяет порядок ключей и значений.
+                Если True то сначала будет 'short_name' потом id.
+                По умолчанию False.
 
-        Returns:
-        ----------
-        dict
-            {id: 'short_name'} или {'short_name': id}.
+        Returns
+        -------
+            dict
+                {id: 'short_name'} или {'short_name': id}.
         """
         staff_list = []
         for staff in self.state_staff_history:
@@ -136,3 +142,64 @@ class EducationStaff:
             f"month_end: {self.month_end}"
         )
         return dept_staff
+
+    def staff_history(self):
+        """
+        Возвращает словарь с данными в каком подразделении работает сотрудник.
+        Время начала и окончания работы в должности. Если в настоящий
+        момент работает 'end_date' = None.
+
+        Returns
+        -------
+            dict
+                {id: [{'department_id': 'value',
+                       'start_date': 'date',
+                       'end_date': 'date'}].
+        """
+        data = {}
+        for d_val in self.state_staff_history:
+            staff_id = d_val.get('staff_id')
+            if not data.get(int(staff_id)):
+                data[int(staff_id)] = [d_val]
+            else:
+                data[int(staff_id)].append(d_val)
+        return data
+
+
+# from app.common.func import (
+#     get_departments,
+#     get_state_staff,
+#     check_api_db_response,
+#     api_get_db_table,
+#     check_api_staff_lessons_response,
+#     api_get_staff_lessons,
+#     get_disciplines, data_processor,
+# )
+#
+# import asyncio
+# from pprint import pprint
+#
+# async def main():
+#     staff = EducationStaff(
+#                 year=date.today().year,
+#                 month_start=date.today().month - 1,
+#                 month_end=date.today().month,
+#                 state_staff=await get_state_staff(),
+#                 state_staff_history=check_api_db_response(
+#                     await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
+#                 ),
+#                 state_staff_positions=check_api_db_response(
+#                     await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
+#                 ),
+#                 departments=await get_departments()
+#             )
+#
+#     data = staff.staff_history()
+#     for i in data:
+#         if len(data[i]) > 1:
+#             pprint(data[i])
+#
+# if __name__ == '__main__':
+#     loop = asyncio.get_event_loop()
+#     loop.run_until_complete(main())
+#     loop.close()

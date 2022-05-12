@@ -44,13 +44,17 @@ class ApeksConfig(object):
 
     # Таблицы базы данных, используемые в приложении
     TABLES = {
-        'plan_disciplines': 'plan_disciplines',
+        'load_groups': 'load_groups',
         'load_subgroups': 'load_subgroups',
+        'plan_disciplines': 'plan_disciplines',
+        'plan_education_plans': 'plan_education_plans',
+        'plan_education_plans_education_forms': 'plan_education_plans_education_forms',
+        'schedule_day_schedule_lessons': 'schedule_day_schedule_lessons',
+        'schedule_day_schedule_lessons_staff': 'schedule_day_schedule_lessons_staff',
         'state_departments': 'state_departments',
         'state_staff': 'state_staff',
         'state_staff_history': 'state_staff_history',
         'state_staff_positions': 'state_staff_positions',
-        'schedule_day_schedule_lessons_staff': 'schedule_day_schedule_lessons_staff',
     }
 
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
