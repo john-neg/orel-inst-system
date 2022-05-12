@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import dataclass
 
 from app.common.classes.EducationStaff import EducationStaff
