@@ -4,12 +4,7 @@ from flask import render_template, request, url_for
 from werkzeug.utils import redirect
 
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.classes.LessonsData import LessonsData
 from app.common.classes.LoadReportProcessor import LoadReportProcessor
-from app.load import bp
-from app.load.forms import LoadReportForm
-
-
 from app.common.func import (
     get_departments,
     get_state_staff,
@@ -17,7 +12,8 @@ from app.common.func import (
     api_get_db_table,
     get_lessons,
 )
-
+from app.load import bp
+from app.load.forms import LoadReportForm
 from config import ApeksConfig as Apeks
 
 
@@ -28,10 +24,9 @@ async def load_report():
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     if request.method == "POST" and form.validate_on_submit():
         year = request.form.get("year")
-        # TODO новая маркировка для месяцев в форме должна правильно отрабатываться
-        month = request.form.get("month")
-        month_start = int(list(month)[1])
-        month_end = int(list(month)[4])
+        month = request.form.get("month").split('-')
+        month_start = int(month[0])
+        month_end = int(month[1])
         department = request.form.get("department")
         logging.info(f'view функция load.load_report передала year={year}, month_start={month_start}, '
                      f'month_end={month_end}, department={department}')
