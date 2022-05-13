@@ -13,17 +13,17 @@ BASEDIR = os.path.abspath(os.path.dirname(__file__))
 class FlaskConfig(object):
     """Конфигурация Flask."""
 
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL'
-    ) or 'sqlite:///' + os.path.join(BASEDIR, 'app.db')
+        "DATABASE_URL"
+    ) or "sqlite:///" + os.path.join(BASEDIR, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    EXPORT_FILE_DIR = os.path.join(BASEDIR, 'app/files/export/')
-    UPLOAD_FILE_DIR = os.path.join(BASEDIR, 'app/files/upload/')
-    LOG_FILE_DIR = os.path.join(BASEDIR, 'logs/')
-    TEMP_FILE_DIR = os.path.join(BASEDIR, 'app/files/templates/')
-    STATIC_FILE_DIR = os.path.join(BASEDIR, 'app/static/')
-    ALLOWED_EXTENSIONS = {'xlsx', 'csv'}
+    EXPORT_FILE_DIR = os.path.join(BASEDIR, "app/files/export/")
+    UPLOAD_FILE_DIR = os.path.join(BASEDIR, "app/files/upload/")
+    LOG_FILE_DIR = os.path.join(BASEDIR, "logs/")
+    TEMP_FILE_DIR = os.path.join(BASEDIR, "app/files/templates/")
+    STATIC_FILE_DIR = os.path.join(BASEDIR, "app/static/")
+    ALLOWED_EXTENSIONS = {"xlsx", "csv"}
 
     # Группы пользователей
     ROLE_ADMIN: int = 1
@@ -36,25 +36,40 @@ class ApeksConfig(object):
     """Конфигурация для работы с API АпексВУЗ"""
 
     # Данные API АпексВУЗ
-    URL = os.getenv('APEKS_URL')
-    TOKEN = os.getenv('APEKS_TOKEN')
+    URL = os.getenv("APEKS_URL")
+    TOKEN = os.getenv("APEKS_TOKEN")
 
     # ID типа подразделения "кафедра" в БД
     DEPT_ID = 4
 
     # Таблицы базы данных, используемые в приложении
     TABLES = {
-        'load_groups': 'load_groups',
-        'load_subgroups': 'load_subgroups',
-        'plan_disciplines': 'plan_disciplines',
-        'plan_education_plans': 'plan_education_plans',
-        'plan_education_plans_education_forms': 'plan_education_plans_education_forms',
-        'schedule_day_schedule_lessons': 'schedule_day_schedule_lessons',
-        'schedule_day_schedule_lessons_staff': 'schedule_day_schedule_lessons_staff',
-        'state_departments': 'state_departments',
-        'state_staff': 'state_staff',
-        'state_staff_history': 'state_staff_history',
-        'state_staff_positions': 'state_staff_positions',
+        "load_groups": "load_groups",
+        "load_subgroups": "load_subgroups",
+        "plan_disciplines": "plan_disciplines",
+        "plan_education_plans": "plan_education_plans",
+        "plan_education_plans_education_forms": "plan_education_plans_education_forms",
+        "schedule_day_schedule_lessons": "schedule_day_schedule_lessons",
+        "schedule_day_schedule_lessons_staff": "schedule_day_schedule_lessons_staff",
+        "state_departments": "state_departments",
+        "state_staff": "state_staff",
+        "state_staff_history": "state_staff_history",
+        "state_staff_positions": "state_staff_positions",
+    }
+
+    MONTH_DICT = {
+        1: "январь",
+        2: "февраль",
+        3: "март",
+        4: "апрель",
+        5: "май",
+        6: "июнь",
+        7: "июль",
+        8: "август",
+        9: "сентябрь",
+        10: "октябрь",
+        11: "ноябрь",
+        12: "декабрь",
     }
 
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
@@ -105,43 +120,43 @@ class ApeksConfig(object):
     # Идентификаторы видов занятий в таблице 'class_type_id'
     CLASS_TYPE_ID = {
         # Лекция
-        'lecture': 1,
+        "lecture": 1,
         # Семинар
-        'seminar': 2,
+        "seminar": 2,
         # Практическое занятие
-        'prakt': 3,
+        "prakt": 3,
     }
 
     # Идентификаторы форм контроля в таблице 'control_type_id'
     CONTROL_TYPE_ID = {
         # Экзамен
-        'exam': 1,
+        "exam": 1,
         # Зачет
-        'zachet': 2,
+        "zachet": 2,
         # Зачет с оценкой
-        'zachet_mark': 6,
+        "zachet_mark": 6,
         # Итоговая письменная аудиторная к/р
-        'itog_kontr': 10,
+        "itog_kontr": 10,
         # Входной контроль
-        'in_control': 12,
+        "in_control": 12,
         # Выходной контроль
-        'out_control': 13,
+        "out_control": 13,
         # Итоговая аттестация
-        'final_att': 14,
+        "final_att": 14,
         # Консультация
-        'group_cons': 15,
+        "group_cons": 15,
         # Кандидатский экзамен
-        'kandidat_exam': 16,
+        "kandidat_exam": 16,
     }
 
     # Идентификаторы форм обучения в таблице 'education_form_id'
     EDUCATION_FORM_ID = {
         # Очное обучение
-        'ochno': 1,
+        "ochno": 1,
         # Заочное обучение
-        'zaochno': 3,
+        "zaochno": 3,
         # Дополнительное проф образование
-        'dpo': 5,
+        "dpo": 5,
         # Проф. подготовка
         "prof_pod": 7,
     }
@@ -149,13 +164,13 @@ class ApeksConfig(object):
     # Идентификаторы уровней обучения в таблице 'education_level_id'
     EDUCATION_LEVEL_ID = {
         # Среднее профессиональное образование
-        'spo': 2,
+        "spo": 2,
         # Бакалавриат
-        'bak': 3,
+        "bak": 3,
         # Специалитет
-        'spec': 5,
+        "spec": 5,
         # Адъюнктура
-        'adj': 7,
+        "adj": 7,
     }
 
     # Список должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
@@ -181,9 +196,18 @@ class ApeksConfig(object):
     FINAL_KF: float = 0.5
     FINAL_KF_MAX: float = 8
 
-    # Часовой пояс для правильного отображения времени занятий
-    TIMEZONE = pytz.timezone('Europe/Moscow')
+    # Типы занятий в отчете о нагрузке
+    LOAD_LESSON_TYPES = ["lecture", "seminar", "pract", "group_cons"]
+    LOAD_CONTROL_TYPES = ["zachet", "exam", "final_att"]
 
+    # Типы обучающихся в отчете о нагрузке
+    LOAD_STUDENT_TYPES = ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
+
+    # Часовой пояс для правильного отображения времени занятий
+    TIMEZONE = pytz.timezone("Europe/Moscow")
+
+
+# TODO убрать из конфига
 
 # Create directories
 for local_directory in (

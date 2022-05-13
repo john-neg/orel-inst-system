@@ -5,7 +5,7 @@ from calendar import monthrange
 from datetime import date
 from json import JSONDecodeError
 
-import requests
+import httpx
 
 from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
@@ -16,23 +16,28 @@ def api_get_request_handler(func):
 
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params = await func(*args, **kwargs)
-        try:
-            response = requests.get(endpoint, params=params)
-        except ConnectionError as error:
-            message = f"{func.__name__}. Ошибка при запросе к API Апекс-ВУЗ: '{error}'"
-            logging.error(message)
-            raise ConnectionError(message)
-        else:
+        async with httpx.AsyncClient() as client:
             try:
-                resp_json = response.json()
-                del params["token"]
-                logging.debug(f"{func.__name__}. Запрос успешно выполнен: {params}")
-                return resp_json
-            except JSONDecodeError as error:
-                logging.error(
-                    f"{func.__name__}. Ошибка конвертации "
-                    f"ответа API Апекс-ВУЗ в JSON: '{error}'"
-                )
+                response = await client.get(endpoint, params=params)
+                response.raise_for_status()
+            except httpx.RequestError as exc:
+                logging.error(f"{func.__name__}. Ошибка при запросе к "
+                              f"API Апекс-ВУЗ: {exc.request.url!r}.")
+            except httpx.HTTPStatusError as exc:
+                logging.error(f"{func.__name__}. Произошла ошибка "
+                              f"{exc.response.status_code} во время "
+                              f"запроса {exc.request.url!r}.")
+            else:
+                try:
+                    resp_json = response.json()
+                    del params["token"]
+                    logging.debug(f"{func.__name__}. Запрос успешно выполнен: {params}")
+                    return resp_json
+                except JSONDecodeError as error:
+                    logging.error(
+                        f"{func.__name__}. Ошибка конвертации "
+                        f"ответа API Апекс-ВУЗ в JSON: '{error}'"
+                    )
 
     return wrapper
 
@@ -65,7 +70,7 @@ async def api_get_db_table(
     return endpoint, params
 
 
-def check_api_db_response(response: dict) -> list:
+async def check_api_db_response(response: dict) -> list:
     """
     Проверяет ответ на запрос к БД Апекс-ВУЗ через API.
 
@@ -145,7 +150,7 @@ async def api_get_staff_lessons(
     return endpoint, params
 
 
-def check_api_staff_lessons_response(response: dict) -> list:
+async def check_api_staff_lessons_response(response: dict) -> list:
     """
     Проверяет ответ API Апекс-ВУЗ со списком занятий на наличие необходимых
     ключей и корректность данных.
@@ -207,7 +212,7 @@ async def get_disciplines(
         dict
             {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
     """
-    response = check_api_db_response(
+    response = await check_api_db_response(
         await api_get_db_table(table, level=level)
     )
     disc_dict = {}
@@ -239,7 +244,7 @@ async def get_departments(
         dict
             {id: {'full': 'название кафедры', 'short': 'сокращенное название'}}
     """
-    response = check_api_db_response(
+    response = await check_api_db_response(
         await api_get_db_table(table, parent_id=parent_id)
     )
     dept_dict = {}
@@ -267,7 +272,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
             {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
     """
     staff_dict = {}
-    resp = check_api_db_response(
+    resp = await check_api_db_response(
         await api_get_db_table(table)
     )
     for staff in resp:

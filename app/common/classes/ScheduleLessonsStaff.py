@@ -189,7 +189,8 @@ class ScheduleLessonsStaff:
             event.add_component(alarm)
             cal.add_component(event)
 
-        filename = f"{staff_name} {self.month}-{self.year}.ics"
+        month_name = Apeks.MONTH_DICT.get(int(self.month))
+        filename = f"{staff_name} - {month_name} {self.year}.ics"
 
         with open(
             f"{FlaskConfig.EXPORT_FILE_DIR}{filename}",
@@ -218,7 +219,10 @@ class ScheduleLessonsStaff:
         if not self.lessons_data:
             return "no data"
         else:
-            filename = f"{staff_name} {self.month}-{self.year}.xlsx"
+            month_name = Apeks.MONTH_DICT.get(int(self.month))
+            filename = (
+                f"{staff_name} - {month_name} {self.year}.xlsx"
+            )
             wb = Workbook()
             ws = wb.active
             ws.title = staff_name
@@ -228,7 +232,7 @@ class ScheduleLessonsStaff:
             ws.cell(row, 1).style = ExcelStyle.Header
             ws.cell(
                 row, 2
-            ).value = f"Расписание на месяц {str(self.month)}-{str(self.year)}"
+            ).value = f"Расписание на {month_name} {self.year}"
             ws.cell(row, 2).style = ExcelStyle.Header
 
             row = 2
