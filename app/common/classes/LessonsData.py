@@ -140,11 +140,17 @@ from pprint import pprint
 from config import ApeksConfig as Apeks
 
 
-def db_request(table_name):
+
+def db_request(table_name, **kwargs):
     """DB request function without filter."""
+    endpoint = f"{Apeks.URL}/api/call/system-database/get"
     params = {"token": Apeks.TOKEN, "table": table_name}
-    response = requests.get(Apeks.URL + "/api/call/system-database/get", params=params)
+    if kwargs:
+        for db_filter, db_value in kwargs.items():
+            params[f"filter[{db_filter}]"] = str(db_value)
+    response = requests.get(endpoint, params=params)
     return response.json()["data"]
 
+#
 
-pprint(db_request("state_staff_history"))
+pprint(db_request("mm_competency_levels", work_program_id=3229))

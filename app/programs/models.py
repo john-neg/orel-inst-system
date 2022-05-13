@@ -220,8 +220,7 @@ class WorkProgramProcessing:
         1: ["Экзамен"], 2: ["Зачет"],
         6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"].
         """
-        control_type_id = {1: [], 2: [], 6: [],
-                           14: []}
+        control_type_id = {1: [], 2: [], 6: [], 14: []}
         apeks_data = db_filter_req(
             "plan_control_works",
             "curriculum_discipline_id",
