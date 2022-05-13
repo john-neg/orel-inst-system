@@ -158,11 +158,12 @@ class EducationStaff:
         """
         data = {}
         for d_val in self.state_staff_history:
-            staff_id = d_val.get('staff_id')
-            if not data.get(int(staff_id)):
-                data[int(staff_id)] = [d_val]
-            else:
-                data[int(staff_id)].append(d_val)
+            if int(d_val.get('department_id')) in self.departments:
+                staff_id = d_val.get('staff_id')
+                if not data.get(int(staff_id)):
+                    data[int(staff_id)] = [d_val]
+                else:
+                    data[int(staff_id)].append(d_val)
         return data
 
 
