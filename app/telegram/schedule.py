@@ -8,7 +8,6 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.classes.LessonsData import LessonsDataProcessor
 from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
 from app.common.func import (
     get_departments,
@@ -93,8 +92,8 @@ async def schedule_department_chosen(message: types.Message, state: FSMContext):
         ),
         state_staff_positions=check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("state_staff_positions")),
-        departments=departments,
         ),
+        departments=departments,
     ).department_staff(department_id, reverse=True)
     await state.update_data(education_list=education_list)
 
