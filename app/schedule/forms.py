@@ -37,4 +37,4 @@ class CalendarForm(FlaskForm):
         default=date.today().month,
         validators=[DataRequired()],
     )
-    prepod = SelectField("Преподаватель", coerce=str, validators=[DataRequired()])
+    staff = SelectField("Преподаватель", coerce=str, validators=[DataRequired()])

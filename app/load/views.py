@@ -28,7 +28,8 @@ async def load_report():
         month_start = int(month[0])
         month_end = int(month[1])
         department = request.form.get("department")
-        logging.info(f'view функция load.load_report передала year={year}, month_start={month_start}, '
+        logging.info(f'view функция load.load_report передала '
+                     f'year={year}, month_start={month_start}, '
                      f'month_end={month_end}, department={department}')
         return redirect(
             url_for(
@@ -92,5 +93,5 @@ async def load_report_export(year, month_start, month_end, department_id):
         staff_history_data=staff.staff_history(),
     )
 
-    load.generate_report()
-    return redirect(url_for("main.get_file", filename=load.filename))
+    filename = load.generate_report()
+    return redirect(url_for("main.get_file", filename=filename))

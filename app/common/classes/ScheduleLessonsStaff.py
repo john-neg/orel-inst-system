@@ -220,9 +220,7 @@ class ScheduleLessonsStaff:
             return "no data"
         else:
             month_name = Apeks.MONTH_DICT.get(int(self.month))
-            filename = (
-                f"{staff_name} - {month_name} {self.year}.xlsx"
-            )
+            filename = f"{staff_name} - {month_name} {self.year}.xlsx"
             wb = Workbook()
             ws = wb.active
             ws.title = staff_name
@@ -230,9 +228,7 @@ class ScheduleLessonsStaff:
             row = 1
             ws.cell(row, 1).value = staff_name
             ws.cell(row, 1).style = ExcelStyle.Header
-            ws.cell(
-                row, 2
-            ).value = f"Расписание на {month_name} {self.year}"
+            ws.cell(row, 2).value = f"Расписание на {month_name} {self.year}"
             ws.cell(row, 2).style = ExcelStyle.Header
 
             row = 2
@@ -263,5 +259,5 @@ class ScheduleLessonsStaff:
                 row += 1
 
             wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
-            logging.debug(f'Файл "{filename}" успешно сформирован')
+            logging.debug(f'Файл c расписанием "{filename}" успешно сформирован')
             return filename

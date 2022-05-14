@@ -18,9 +18,10 @@ from app.programs.models import WorkProgramBunchData, WorkProgram
 
 
 @bp.route("/dept_check", methods=["GET", "POST"])
-def dept_check():
+async def dept_check():
     form = DepartmentWPCheck()
-    form.department.choices = [(k, v.get('full')) for k, v in get_departments().items()]
+    departments = await get_departments()
+    form.department.choices = [(k, v.get('full')) for k, v in departments.items()]
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
         wp_data = {}

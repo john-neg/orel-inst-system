@@ -70,7 +70,7 @@ async def schedule():
                 else staff_lessons.export_xlsx(staff_name)
             )
             if filename == "no data":
-                form.prepod.choices = list(staff.department_staff(department).items())
+                form.staff.choices = list(staff.department_staff(department).items())
                 error = f"{staff_name} - нет занятий в указанный период"
                 return render_template(
                     "schedule/schedule.html",
@@ -83,7 +83,7 @@ async def schedule():
                 return redirect(url_for("main.get_file", filename=filename))
         elif request.form["dept_choose"]:
             department = request.form.get("department")
-            form.prepod.choices = list(staff.department_staff(department).items())
+            form.staff.choices = list(staff.department_staff(department).items())
             return render_template(
                 "schedule/schedule.html",
                 active="schedule",

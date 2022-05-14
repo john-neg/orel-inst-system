@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 from app.common.func import data_processor
-
 from config import ApeksConfig as Apeks
 
 
@@ -109,6 +108,7 @@ class LessonsData:
                 data[int(i.get("lesson_id"))].append(int(i.get("staff_id")))
             else:
                 data[int(i.get("lesson_id"))] = [int(i.get("staff_id"))]
+        logging.debug("Данные таблицы 'lessons_staff' обработаны")
         return data
 
     def process_lessons(self) -> list:
@@ -145,8 +145,6 @@ class LessonsData:
                         # разным преподавателям (когда проводят двое, трое и т.д.)
                         less_copy = copy(lesson)
                         less_copy["staff_id"] = int(staff)
-
-
                         for dept in self.staff_history_data.get(int(staff)):
                             lesson_date = date.fromisoformat(lesson.get("date"))
                             start_date = date.fromisoformat(dept.get("start_date"))
@@ -156,9 +154,15 @@ class LessonsData:
                                 else date.today() + timedelta(days=365)
                             )
                             if start_date <= lesson_date <= end_date:
-                                less_copy["department_id"] = int(dept.get("department_id"))
+                                less_copy["department_id"] = int(
+                                    dept.get("department_id")
+                                )
                                 less_copy["hours"] = 2
                                 structured_lessons.append(less_copy)
+        logging.debug(
+            f"Список занятий 'structured_lessons' обработан. "
+            f"Количество записей - {len(self.structured_lessons)}"
+        )
         return structured_lessons
 
     def get_control_lessons(self) -> list:
@@ -217,6 +221,10 @@ class LessonsData:
             ]:
                 if not check_and_process(less):
                     control_less.append(copy(less))
+        logging.debug(
+            "Список занятий 'control_lessons' обработан. "
+            f"Количество записей - {len(self.structured_lessons)}"
+        )
         return control_less
 
     @staticmethod
@@ -364,7 +372,9 @@ class LessonsData:
         # и нагрузка считается преподавателям отдельно
         if contr_less.get("subgroup_id"):
             subgroup_id = contr_less.get("subgroup_id")
-            people_count = int(self.subgroups_data[int(subgroup_id)].get("people_count"))
+            people_count = int(
+                self.subgroups_data[int(subgroup_id)].get("people_count")
+            )
         else:
             group_id = contr_less.get("group_id")
             people_count = int(self.groups_data[int(group_id)].get("people_count"))
@@ -372,8 +382,7 @@ class LessonsData:
         if stud_type == "prof_pod" or stud_type == "dpo":
             return contr_less.get("hours")
         elif stud_type == "adj" and (
-            contr_less.get("control_type_id")
-            == Apeks.CONTROL_TYPE_ID.get("final_att")
+            contr_less.get("control_type_id") == Apeks.CONTROL_TYPE_ID.get("final_att")
             or contr_less.get("control_type_id")
             == Apeks.CONTROL_TYPE_ID.get("kandidat_exam")
         ):
@@ -398,6 +407,8 @@ class LessonsData:
         for less in self.structured_lessons:
             if not less.get("department_id"):
                 unknown.append(less)
+        if unknown:
+            logging.info("Список 'unknown_lessons' не пуст")
         return unknown
 
     def department_lessons(self, department_id: int | str) -> list:
@@ -406,4 +417,5 @@ class LessonsData:
         for less in self.structured_lessons:
             if less.get("department_id") == int(department_id):
                 dept_lessons.append(less)
+        logging.debug(f"Передан список занятий кафедры. id: {department_id}")
         return dept_lessons

@@ -10,7 +10,7 @@ def allowed_file(filename):
     )
 
 
-async def db_request(table_name):
+def db_request(table_name):
     """DB request function without filter."""
     params = {"token": Apeks.TOKEN, "table": table_name}
     response = requests.get(
@@ -19,7 +19,7 @@ async def db_request(table_name):
     return response.json()["data"]
 
 
-async def db_filter_req(table_name, sql_field, sql_value):
+def db_filter_req(table_name, sql_field, sql_value):
     """Filtered DB request (DB table, filter, value)."""
     params = {
         "token": Apeks.TOKEN,
@@ -44,7 +44,7 @@ def education_specialty():
     return specialties
 
 
-async def education_plans(education_specialty_id, year=0):
+def education_plans(education_specialty_id, year=0):
     """Getting education plans with selected speciality."""
     payload = {
         "token": Apeks.TOKEN,
@@ -66,7 +66,7 @@ async def education_plans(education_specialty_id, year=0):
             if i.get("custom_start_year") == year:
                 plans[i.get("id")] = i.get("name")
             elif i.get("custom_start_year") is None:
-                date = await db_filter_req(
+                date = db_filter_req(
                             "plan_semesters", "education_plan_id", i.get("id")
                         )
                 if date[0]["start_date"].split("-")[0] == year:
@@ -74,7 +74,7 @@ async def education_plans(education_specialty_id, year=0):
         return plans
 
 
-async def plan_curriculum_disciplines(education_plan_id):
+def plan_curriculum_disciplines(education_plan_id):
     """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name])."""
 
     def disc_name(discipline_id):
@@ -83,8 +83,8 @@ async def plan_curriculum_disciplines(education_plan_id):
                 return discipline["name"]
 
     disciplines = {}
-    disc_list = await db_request("plan_disciplines")
-    plan_disc = await db_filter_req(
+    disc_list = db_request("plan_disciplines")
+    plan_disc = db_filter_req(
         "plan_curriculum_disciplines", "education_plan_id", education_plan_id
     )
     for disc in plan_disc:
@@ -111,9 +111,9 @@ def xlsx_normalize(worksheet, replace_dict):
     return worksheet
 
 
-async def get_system_user_name(user_id):
+def get_system_user_name(user_id):
     """Get name of system user by ID."""
-    resp = await db_filter_req("state_staff", "user_id", user_id)
+    resp = db_filter_req("state_staff", "user_id", user_id)
     if resp:
         return f'{resp[0]["family_name"]} {resp[0]["name"][0]}.{resp[0]["surname"][0]}.'
     else:

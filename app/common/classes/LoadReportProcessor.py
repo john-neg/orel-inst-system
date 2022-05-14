@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from openpyxl import load_workbook
@@ -13,18 +14,37 @@ from config import FlaskConfig, ApeksConfig as Apeks
 @dataclass
 class LoadReportProcessor(LessonsData):
     """
-    Класс формирует отчет о нагрузке по кафедрам
+    Класс для формирования отчета об учебной нагрузке по кафедрам
 
     Attributes:
     ----------
+        year: int | str
+            учебный год (число 20xx).
+        month_start: int | str
+            начальный месяц (число 1-12).
+        month_end: int | str
+            конечный месяц (число 1-12).
         department_id: int
             id кафедры
+        departments: dict
+            список кафедр, словарь в формате {id: {'full':
+            'название кафедры', 'short': 'сокращенное название'}}
+        department_staff: dict
+            словарь преподавателей, работавших в подразделении
+            ('department_id') в указанный период. {id: 'short_name'}
 
     Methods:
     -------
-
-
+        add_load (staff_id: int, l_type: str, s_type: str, value: float) -> None:
+            добавляет нагрузку в хранилище 'load_data'
+        get_load(staff_id: int) -> dict:
+            возвращает нагрузку преподавателя их хранилища 'load_data'
+        process_load_data() -> None:
+            рассчитывает нагрузку по преподавателям
+        generate_report() -> str:
+            формирует файл отчета о нагрузке в Excel, возвращает имя файла.
     """
+
     year: int | str
     month_start: int | str
     month_end: int | str
@@ -43,10 +63,6 @@ class LoadReportProcessor(LessonsData):
             if self.month_start == self.month_end
             else f"{Apeks.MONTH_DICT[int(self.month_start)]}-"
             f"{Apeks.MONTH_DICT[int(self.month_end)]}"
-        )
-        self.filename = (
-            f"{self.departments.get(self.department_id).get('short')} "
-            f"{self.file_period} {self.year}.xlsx"
         )
 
     def add_load(
@@ -86,7 +102,6 @@ class LoadReportProcessor(LessonsData):
                                'prof_pod': 0,
                                'zo_high': 0,
                                'zo_mid': 0},
-
         """
         staff_load = {self.staff_list[staff_id]: self.load_data[staff_id]}
         return staff_load
@@ -111,6 +126,7 @@ class LoadReportProcessor(LessonsData):
                         if l_type in Apeks.LOAD_LESSON_TYPES:
                             self.add_load(staff_id, l_type, s_type)
             else:
+                logging.warning(f"Необработанное занятие - {lesson}")
                 self.unprocessed.append(lesson)
         for control in self.control_lessons:
             department_id = control.get("department_id")
@@ -124,10 +140,18 @@ class LoadReportProcessor(LessonsData):
                             value = self.get_control_hours(control)
                             self.add_load(staff_id, l_type, s_type, value)
             else:
+                logging.warning(f"Необработанное занятие типа контроль - {control}")
                 self.unprocessed.append(control)
 
-    def generate_report(self) -> None:
-        """Формирование отчета о нагрузке в Excel."""
+    def generate_report(self) -> str:
+        """
+        Формирует отчет о нагрузке в Excel.
+
+        Returns
+        -------
+            str
+                название файла
+        """
 
         wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
         ws = wb.active
@@ -135,19 +159,19 @@ class LoadReportProcessor(LessonsData):
             f"{self.year}-{self.file_period} "
             f"{self.departments.get(self.department_id).get('short')}"
         )
-        ws.cell(1, 1).value = "Кафедра " + self.departments.get(
-            self.department_id
-        ).get("full")
+        ws.cell(1, 1).value = "Кафедра " + self.departments.get(self.department_id).get(
+            "full"
+        )
         ws.cell(2, 1).value = f"отчет о нагрузке за {self.file_period} {self.year}"
         row = 8
-        for prepod in self.load_data:
+        for staff_id in self.load_data:
             # Style apply
             for i in range(2, 73):
                 ws.cell(row, i).style = ExcelStyle.Number
             # Prepod Name
-            ws.cell(row, 1).value = self.staff_list[prepod]
+            ws.cell(row, 1).value = self.staff_list[staff_id]
             ws.cell(row, 1).style = ExcelStyle.Base
-            for l_type in self.load_data[prepod]:
+            for l_type in self.load_data[staff_id]:
                 if l_type == "lecture":
                     column = 2
                 elif l_type == "seminar":
@@ -156,8 +180,8 @@ class LoadReportProcessor(LessonsData):
                     column = 14
                 elif l_type == "group_cons":
                     column = 24
-                    if self.load_data[prepod][l_type]["dpo"]:
-                        del self.load_data[prepod][l_type]["dpo"]
+                    if self.load_data[staff_id][l_type]["dpo"]:
+                        del self.load_data[staff_id][l_type]["dpo"]
                 elif l_type == "zachet":
                     column = 29
                 elif l_type == "exam":
@@ -166,7 +190,7 @@ class LoadReportProcessor(LessonsData):
                     column = 59
                 else:
                     column = 73
-                for key, val in self.load_data[prepod][l_type].items():
+                for key, val in self.load_data[staff_id][l_type].items():
                     val = "" if val == 0 else val
                     ws.cell(row, column).value = val
                     if val and val % 1 > 0:
@@ -185,4 +209,11 @@ class LoadReportProcessor(LessonsData):
             )
             ws.cell(row, col).style = ExcelStyle.Number
             ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + self.filename)
+
+        filename = (
+            f"{self.departments.get(self.department_id).get('short')} "
+            f"{self.file_period} {self.year}.xlsx"
+        )
+        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        logging.debug(f"Сформирован файл - отчет о нагрузке: {filename}")
+        return filename
