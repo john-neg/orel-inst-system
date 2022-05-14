@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -104,7 +105,7 @@ class LessonsData:
         """
         data = {}
         for i in lessons_staff:
-            if i.get("lesson_id") in data:
+            if i.get("lesson_id") and int(i.get("lesson_id")) in data:
                 data[int(i.get("lesson_id"))].append(int(i.get("staff_id")))
             else:
                 data[int(i.get("lesson_id"))] = [int(i.get("staff_id"))]
@@ -145,6 +146,7 @@ class LessonsData:
                         less_copy = copy(lesson)
                         less_copy["staff_id"] = int(staff)
 
+
                         for dept in self.staff_history_data.get(int(staff)):
                             lesson_date = date.fromisoformat(lesson.get("date"))
                             start_date = date.fromisoformat(dept.get("start_date"))
@@ -154,7 +156,7 @@ class LessonsData:
                                 else date.today() + timedelta(days=365)
                             )
                             if start_date <= lesson_date <= end_date:
-                                less_copy["department_id"] = str(dept.get("department_id"))
+                                less_copy["department_id"] = int(dept.get("department_id"))
                                 less_copy["hours"] = 2
                                 structured_lessons.append(less_copy)
         return structured_lessons
@@ -292,7 +294,7 @@ class LessonsData:
         -------
             str
                 тип обучающегося
-                (och, zo_high, zo_mid, adj, prof_p, dpo)
+                (och, zo_high, zo_mid, adj, prof_pod, dpo)
         """
 
         # проф подготовка (+ временный "костыль" ПП Цифр. грамотность - id: 549)
@@ -301,7 +303,7 @@ class LessonsData:
             == str(Apeks.EDUCATION_FORM_ID.get("prof_pod"))
             or lesson.get("discipline_id") == "549"
         ):
-            s_type = "prof_p"
+            s_type = "prof_pod"
         # очно, бакалавр или специалитет
         elif lesson.get("education_form_id") == str(
             Apeks.EDUCATION_FORM_ID.get("ochno")
@@ -358,29 +360,33 @@ class LessonsData:
         """
         cont_type = self.get_lesson_type(contr_less)
         stud_type = self.get_student_type(contr_less)
-        if contr_less.get("subgroup_id"):  # If subgroup - get people count from it
+        # Подгруппа может быть только если группа делится
+        # и нагрузка считается преподавателям отдельно
+        if contr_less.get("subgroup_id"):
             subgroup_id = contr_less.get("subgroup_id")
-            people_count = self.load_subgroups[int(subgroup_id)].get("people_count")
+            people_count = int(self.subgroups_data[int(subgroup_id)].get("people_count"))
         else:
             group_id = contr_less.get("group_id")
-            people_count = self.load_groups[int(group_id)].get("people_count")
-        if stud_type == "prof_p" or stud_type == "dpo":
-            return contr_less["hours"]
+            people_count = int(self.groups_data[int(group_id)].get("people_count"))
+        # Для проф подготовки и ДПО нагрузка считается фактически (не по людям)
+        if stud_type == "prof_pod" or stud_type == "dpo":
+            return contr_less.get("hours")
         elif stud_type == "adj" and (
-            contr_less.get("control_type_id") == Apeks.CONTROL_TYPE_ID.get("final_att")
+            contr_less.get("control_type_id")
+            == Apeks.CONTROL_TYPE_ID.get("final_att")
             or contr_less.get("control_type_id")
             == Apeks.CONTROL_TYPE_ID.get("kandidat_exam")
         ):
-            value = int(people_count) * Apeks.ADJ_KF
+            value = people_count * Apeks.ADJ_KF
             return Apeks.ADJ_KF_MAX if value > Apeks.ADJ_KF_MAX else value
         elif cont_type == "zachet":
-            value = int(people_count) * Apeks.ZACH_KF
+            value = people_count * Apeks.ZACH_KF
             return Apeks.ZACH_KF_MAX if value > Apeks.ZACH_KF_MAX else value
         elif cont_type == "exam":
-            value = int(people_count) * Apeks.EXAM_KF
+            value = people_count * Apeks.EXAM_KF
             return Apeks.EXAM_KF_MAX if value > Apeks.EXAM_KF_MAX else value
         elif cont_type == "final_att":
-            value = int(people_count) * Apeks.FINAL_KF
+            value = people_count * Apeks.FINAL_KF
             return Apeks.FINAL_KF_MAX if value > Apeks.FINAL_KF_MAX else value
 
     def unknown_lessons(self) -> list:
@@ -398,6 +404,6 @@ class LessonsData:
         """Возвращает список занятий, относящихся к определенной кафедре"""
         dept_lessons = []
         for less in self.structured_lessons:
-            if less.get("department_id") == str(department_id):
+            if less.get("department_id") == int(department_id):
                 dept_lessons.append(less)
         return dept_lessons

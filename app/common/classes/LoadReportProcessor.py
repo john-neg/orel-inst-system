@@ -83,7 +83,7 @@ class LoadReportProcessor(LessonsData):
                 {'short_name': {'exam': {'adj': 0,
                                'dpo': 0,
                                'och': 0,
-                               'prof_p': 0,
+                               'prof_pod': 0,
                                'zo_high': 0,
                                'zo_mid': 0},
 
@@ -103,19 +103,19 @@ class LoadReportProcessor(LessonsData):
         for lesson in self.structured_lessons:
             department_id = lesson.get("department_id")
             if department_id:
-                if int(department_id) == self.department_id:
+                if department_id == int(self.department_id):
                     staff_id = lesson.get("staff_id")
                     l_type = self.get_lesson_type(lesson)
                     s_type = self.get_student_type(lesson)
                     if staff_id and l_type and s_type:
                         if l_type in Apeks.LOAD_LESSON_TYPES:
                             self.add_load(staff_id, l_type, s_type)
-                    else:
-                        self.unprocessed.append(lesson)
+            else:
+                self.unprocessed.append(lesson)
         for control in self.control_lessons:
             department_id = control.get("department_id")
             if department_id:
-                if int(department_id) == self.department_id:
+                if department_id == int(self.department_id):
                     staff_id = control.get("staff_id")
                     l_type = self.get_lesson_type(control)
                     s_type = self.get_student_type(control)
@@ -123,8 +123,8 @@ class LoadReportProcessor(LessonsData):
                         if l_type in Apeks.LOAD_CONTROL_TYPES:
                             value = self.get_control_hours(control)
                             self.add_load(staff_id, l_type, s_type, value)
-                    else:
-                        self.unprocessed.append(control)
+            else:
+                self.unprocessed.append(control)
 
     def generate_report(self) -> None:
         """Формирование отчета о нагрузке в Excel."""

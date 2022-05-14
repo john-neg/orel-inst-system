@@ -201,7 +201,7 @@ class ApeksConfig(object):
     LOAD_CONTROL_TYPES = ["zachet", "exam", "final_att"]
 
     # Типы обучающихся в отчете о нагрузке
-    LOAD_STUDENT_TYPES = ["och", "zo_high", "zo_mid", "adj", "prof_p", "dpo"]
+    LOAD_STUDENT_TYPES = ["och", "zo_high", "zo_mid", "adj", "prof_pod", "dpo"]
 
     # Часовой пояс для правильного отображения времени занятий
     TIMEZONE = pytz.timezone("Europe/Moscow")
