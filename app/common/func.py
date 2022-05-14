@@ -314,7 +314,7 @@ async def get_lessons(
         token: str
             токен для API
     """
-    first_day = monthrange(year, month_start)[0]
+    first_day = 1
     last_day = monthrange(year, month_end)[1]
     endpoint = f"{url}/api/call/system-database/get"
     params = {

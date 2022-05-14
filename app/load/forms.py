@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired
 
 
 class LoadReportForm(FlaskForm):
+
     department = SelectField("Кафедра:", coerce=str, validators=[DataRequired()])
     year = SelectField(
         "Год",
@@ -17,6 +18,7 @@ class LoadReportForm(FlaskForm):
         default=date.today().year,
         validators=[DataRequired()],
     )
+    cur_month = date.today().month
     month = SelectField(
         "Месяц",
         coerce=str,
@@ -36,6 +38,6 @@ class LoadReportForm(FlaskForm):
             ('12-12', "Декабрь"),
             ('9-12', "(Сентябрь-Декабрь) полугодие"),
         ],
-        default=[date.today().month] * 2,
+        default=f'{cur_month}-{cur_month}',
         validators=[DataRequired()],
     )

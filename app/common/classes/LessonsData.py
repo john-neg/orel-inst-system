@@ -4,7 +4,6 @@ from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from app.common.classes.EducationStaff import EducationStaff
 from app.common.func import data_processor
 
 from config import ApeksConfig as Apeks
@@ -155,7 +154,7 @@ class LessonsData:
                                 else date.today() + timedelta(days=365)
                             )
                             if start_date <= lesson_date <= end_date:
-                                less_copy["department_id"] = dept.get("department_id")
+                                less_copy["department_id"] = str(dept.get("department_id"))
                                 less_copy["hours"] = 2
                                 structured_lessons.append(less_copy)
         return structured_lessons
@@ -395,109 +394,10 @@ class LessonsData:
                 unknown.append(less)
         return unknown
 
-    # def department_lessons(self, department_id: int) -> list:
-    #     """Возвращает список занятий, относящихся к определенной кафедре"""
-    #     dept_lessons = []
-    #     for less in self.structured_lessons:
-    #         if less.get("department_id") == int(department_id):
-    #             dept_lessons.append(less)
-    #     return dept_lessons
-
-
-# 'schedule_day_schedule_lessons' - занятия
-# 'schedule_day_schedule_lessons_staff' - staff_id для каждого занятия {lesson_id:staff_id}
-# 'load_subgroups' - подгруппы
-# 'load_groups'
-# 'plan_education_plans_education_forms'
-# 'plan_education_plans'
-
-
-# import requests
-# from pprint import pprint
-# from config import ApeksConfig as Apeks
-#
-#
-#
-# def db_request(table_name, **kwargs):
-#     """DB request function without filter."""
-#     endpoint = f"{Apeks.URL}/api/call/system-database/get"
-#     params = {"token": Apeks.TOKEN, "table": table_name}
-#     if kwargs:
-#         for db_filter, db_value in kwargs.items():
-#             params[f"filter[{db_filter}]"] = str(db_value)
-#     response = requests.get(endpoint, params=params)
-#     return response.json()["data"]
-#
-# #
-#
-# pprint(db_request("schedule_day_schedule_lessons", journal_lesson_id=13229))
-
-
-# from app.common.classes.EducationStaff import EducationStaff
-# from app.common.func import (
-#     get_departments,
-#     get_state_staff,
-#     check_api_db_response,
-#     api_get_db_table,
-#     check_api_staff_lessons_response,
-#     api_get_staff_lessons,
-#     get_disciplines,
-#     data_processor,
-#     get_lessons,
-# )
-#
-# import asyncio
-# from pprint import pprint
-#
-# year = 2022
-# month_start = 5
-# month_end = 5
-#
-#
-# async def main():
-#     staff = EducationStaff(
-#         year,
-#         month_start,
-#         month_end,
-#         state_staff=await get_state_staff(),
-#         state_staff_history=await check_api_db_response(
-#             await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
-#         ),
-#         state_staff_positions=await check_api_db_response(
-#             await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
-#         ),
-#         departments=await get_departments(),
-#     )
-#
-#     data = LessonsData(
-#         schedule_lessons=await check_api_db_response(await get_lessons(year, month_start, month_end)),
-#         schedule_lessons_staff=await check_api_db_response(
-#             await api_get_db_table(
-#                 Apeks.TABLES.get("schedule_day_schedule_lessons_staff")
-#             )
-#         ),
-#         load_groups=await check_api_db_response(
-#             await api_get_db_table(Apeks.TABLES.get("load_groups"))
-#         ),
-#         load_subgroups=await check_api_db_response(
-#             await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
-#         ),
-#         plan_education_plans=await check_api_db_response(
-#             await api_get_db_table(Apeks.TABLES.get("plan_education_plans"))
-#         ),
-#         plan_education_plans_education_forms=await check_api_db_response(
-#             await api_get_db_table(
-#                 Apeks.TABLES.get("plan_education_plans_education_forms")
-#             )
-#         ),
-#         staff_history_data=staff.staff_history(),
-#     )
-#
-#     pprint(data.unknown_lessons())
-#
-#
-# if __name__ == "__main__":
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(main())
-#     loop.close()
-
+    def department_lessons(self, department_id: int | str) -> list:
+        """Возвращает список занятий, относящихся к определенной кафедре"""
+        dept_lessons = []
+        for less in self.structured_lessons:
+            if less.get("department_id") == str(department_id):
+                dept_lessons.append(less)
+        return dept_lessons

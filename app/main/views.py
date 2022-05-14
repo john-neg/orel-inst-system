@@ -3,6 +3,7 @@ import os
 from flask import render_template, send_file, request, send_from_directory
 from werkzeug.utils import secure_filename
 
+import config
 from app.main import bp
 from app.main.func import allowed_file
 from config import FlaskConfig
@@ -23,7 +24,7 @@ def favicon():
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
     """Send file and delete it from server."""
-    file = FlaskConfig.EXPORT_FILE_DIR + filename
+    file = os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename)
     return (
         send_file(
             file,
@@ -31,7 +32,7 @@ def get_file(filename):
             attachment_filename=filename,
             as_attachment=True,
         ),
-        os.remove(file),
+        os.remove(file)
     )
 
 
