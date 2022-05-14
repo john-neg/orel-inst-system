@@ -123,8 +123,8 @@ class LoadReportProcessor(LessonsData):
                         if l_type in Apeks.LOAD_CONTROL_TYPES:
                             value = self.get_control_hours(control)
                             self.add_load(staff_id, l_type, s_type, value)
-                else:
-                    self.unprocessed.append(control)
+                    else:
+                        self.unprocessed.append(control)
 
     def generate_report(self) -> None:
         """Формирование отчета о нагрузке в Excel."""
