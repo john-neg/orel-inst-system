@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, date
 
 import requests
@@ -220,6 +221,7 @@ class WorkProgramProcessing:
         1: ["Экзамен"], 2: ["Зачет"],
         6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"].
         """
+        # TODO Переписать чтобы данные брались из последнего семестра (по возможности)
         control_type_id = {1: [], 2: [], 6: [], 14: []}
         apeks_data = db_filter_req(
             "plan_control_works",
@@ -227,7 +229,7 @@ class WorkProgramProcessing:
             self.curriculum_discipline_id
         )
         for data in apeks_data:
-            if int(data['control_type_id']) in list(control_type_id.keys()):
+            if int(data.get('control_type_id')) in list(control_type_id.keys()):
                 control_type_id[
                     int(data.get('control_type_id'))
                 ].append(int(data.get('semester_id')))
@@ -235,8 +237,11 @@ class WorkProgramProcessing:
             if control_type_id[control]:
                 semester = sorted(control_type_id[control])[-1]
                 return control, semester
-            else:
-                return None
+        else:
+            logging.debug(f'Не найдена информация о форме контроля '
+                          f'для рабочей программы {self.curriculum_discipline_id}. '
+                          f'data: {apeks_data}')
+            return None
 
     def comp_level_get(self):
         return db_filter_req(
