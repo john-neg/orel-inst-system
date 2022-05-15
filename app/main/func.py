@@ -1,6 +1,7 @@
 import requests
-from config import FlaskConfig as Config
+
 from config import ApeksConfig as Apeks
+from config import FlaskConfig as Config
 
 
 def allowed_file(filename):

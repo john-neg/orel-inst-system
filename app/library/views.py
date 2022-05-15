@@ -17,7 +17,6 @@ from app.main.func import (
 )
 from config import FlaskConfig, ApeksConfig as Apeks
 
-
 LIB_TYPES = {
     "library": [
         Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),

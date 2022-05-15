@@ -1,36 +1,25 @@
 import logging
 
-from flask import Flask, url_for
-from flask_admin import Admin, AdminIndexView
-from flask_login import LoginManager, current_user
+from flask import Flask
+from flask_admin import Admin
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import redirect
 
+from app.common.classes.auth.MyAdminIndexView import MyAdminIndexView
 from config import FlaskConfig, ApeksConfig as Apeks
 
 db = SQLAlchemy()
 login = LoginManager()
-login.login_view = 'auth.login'
+login.login_view = "auth.login"
 admin = Admin()
-
-
-class MyAdminIndexView(AdminIndexView):
-    def is_accessible(self):
-        return (
-            current_user.is_authenticated
-            and current_user.role == FlaskConfig.ROLE_ADMIN
-        )
-
-    def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for("main.index"))
 
 
 def check_tokens() -> bool:
     """Проверяем переменные окружения."""
     required_env = {
-        'SECRET_KEY': FlaskConfig.SECRET_KEY,
-        'APEKS_URL': Apeks.URL,
-        'APEKS_TOKEN': Apeks.TOKEN,
+        "SECRET_KEY": FlaskConfig.SECRET_KEY,
+        "APEKS_URL": Apeks.URL,
+        "APEKS_TOKEN": Apeks.TOKEN,
     }
     missing_env = []
     for key in required_env:

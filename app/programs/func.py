@@ -1,4 +1,5 @@
 import requests
+
 from app.main.func import db_filter_req, plan_curriculum_disciplines
 from config import ApeksConfig as Apeks
 

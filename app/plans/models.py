@@ -1,6 +1,6 @@
 import os
-import requests
 
+import requests
 from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Cm, Pt

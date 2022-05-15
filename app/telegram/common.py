@@ -1,6 +1,6 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import Text, IDFilter
+from aiogram.dispatcher.filters import Text
 
 
 async def cmd_start(message: types.Message, state: FSMContext):

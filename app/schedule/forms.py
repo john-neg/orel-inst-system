@@ -1,6 +1,7 @@
+from datetime import date
+
 from flask_wtf import FlaskForm
 from wtforms import SelectField
-from datetime import date
 from wtforms.validators import DataRequired
 
 

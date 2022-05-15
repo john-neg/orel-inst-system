@@ -1,13 +1,13 @@
 from flask import render_template, redirect, url_for, flash
-from flask_admin.contrib.sqla import ModelView
-from flask_login import logout_user, login_user, current_user, login_required
 from flask_admin.menu import MenuLink
+from flask_login import logout_user, login_user, current_user, login_required
 
-from config import FlaskConfig
 from app import db, admin
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
 from app.auth.models import User
+from app.common.classes.auth.MyModelView import MyModelView
+from config import FlaskConfig
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -54,4 +54,4 @@ def logout():
 
 
 admin.add_link(MenuLink(name="Вернуться на основной сайт", category="", url="/"))
-admin.add_view(ModelView(User, db.session))
+admin.add_view(MyModelView(User, db.session))

@@ -1,6 +1,8 @@
 import os
+
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
+
 from app.main.forms import ChoosePlan, FileForm
 from app.main.func import education_specialty, education_plans, allowed_file
 from app.plans import bp

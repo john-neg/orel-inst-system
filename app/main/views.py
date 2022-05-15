@@ -3,7 +3,6 @@ import os
 from flask import render_template, send_file, request, send_from_directory
 from werkzeug.utils import secure_filename
 
-import config
 from app.main import bp
 from app.main.func import allowed_file
 from config import FlaskConfig
