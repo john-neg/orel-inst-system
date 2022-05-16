@@ -4,6 +4,7 @@ import logging
 from calendar import monthrange
 from datetime import date
 from json import JSONDecodeError
+from cache import AsyncTTL
 
 import httpx
 
@@ -193,6 +194,7 @@ async def check_api_staff_lessons_response(response: dict) -> list:
     return lessons
 
 
+@AsyncTTL(time_to_live=60, maxsize=1024)
 async def get_disciplines(
         table: str = Apeks.TABLES.get("plan_disciplines"),
         level: int | str = Apeks.DISC_LEVEL,
@@ -225,6 +227,7 @@ async def get_disciplines(
     return disc_dict
 
 
+@AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_departments(
         table: str = Apeks.TABLES.get("state_departments"),
         parent_id: str | int = Apeks.DEPT_ID,
@@ -257,6 +260,7 @@ async def get_departments(
     return dept_dict
 
 
+@AsyncTTL(time_to_live=60, maxsize=1024)
 async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
     """
     Получение имен преподавателей.
