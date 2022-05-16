@@ -44,14 +44,24 @@ class ApeksConfig(object):
         "load_groups": "load_groups",
         "load_subgroups": "load_subgroups",
         "plan_disciplines": "plan_disciplines",
+        "plan_curriculum_disciplines": "plan_curriculum_disciplines",
         "plan_education_plans": "plan_education_plans",
         "plan_education_plans_education_forms": "plan_education_plans_education_forms",
+        "plan_education_levels": "plan_education_levels",
+        "plan_education_specialties": "plan_education_specialties",
+        "plan_education_groups": "plan_education_groups",
+        "plan_education_specializations": "plan_education_specializations",
+        "plan_education_specializations_narrow": "plan_education_specializations_narrow",
+        "plan_education_forms": "plan_education_forms",
+        "plan_qualifications": "plan_qualifications",
         "schedule_day_schedule_lessons": "schedule_day_schedule_lessons",
         "schedule_day_schedule_lessons_staff": "schedule_day_schedule_lessons_staff",
         "state_departments": "state_departments",
+        "state_special_ranks": "state_special_ranks",
         "state_staff": "state_staff",
         "state_staff_history": "state_staff_history",
         "state_staff_positions": "state_staff_positions",
+        "system_settings": "system_settings",
     }
 
     MONTH_DICT = {
@@ -71,6 +81,9 @@ class ApeksConfig(object):
 
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3
+
+    # Код типа группа дисциплин в таблице 'plan_disciplines'
+    DISC_TYPE = 16
 
     # ID полей БД АпексВУЗ в таблице 'mm_work_programs_data_items'
     MM_WORK_PROGRAMS_DATA_ITEMS = {

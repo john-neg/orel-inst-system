@@ -76,7 +76,9 @@ def education_plans(education_specialty_id, year=0):
 
 
 def plan_curriculum_disciplines(education_plan_id):
-    """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name])."""
+    """Getting plan disciplines info as dict (disc_ID:[disc_code:disc_name]).
+    Async ЗАМЕНА ЕСТЬ В common
+    """
 
     def disc_name(discipline_id):
         for discipline in disc_list:

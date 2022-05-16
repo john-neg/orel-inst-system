@@ -1,7 +1,13 @@
+from datetime import date
+
 from flask import render_template, request, redirect, url_for, flash
+from flask.views import View
 from flask_login import login_required
 
-from app.common.func import get_departments
+from app.common.classes.EducationPlanExtended import EducationPlanExtended
+from app.common.func import get_departments, check_api_db_response, api_get_db_table, \
+    get_plan_curriculum_disciplines, get_organization_name, get_organization_chief_info, \
+    get_rank_name
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp
@@ -12,9 +18,77 @@ from app.programs.forms import (
     ChoosePlan,
     DepartmentWPCheck,
     WorkProgramFieldUpdate,
+    TitlePagesGenerator,
 )
 from app.programs.func import wp_update_list, wp_dates_update
 from app.programs.models import WorkProgramBunchData, WorkProgram
+from config import ApeksConfig as Apeks
+
+
+class ProgramsChoosePlanView(View):
+    methods = ["GET", "POST"]
+
+    def __init__(self, wp_type, title):
+        self.template_name = "programs/programs_choose_plan.html"
+        self.wp_type = wp_type
+        self.title = title
+
+    @login_required
+    def dispatch_request(self):
+        form = ChoosePlan()
+        form.edu_spec.choices = list(education_specialty().items())
+        if request.method == "POST":
+            edu_spec = request.form.get("edu_spec")
+            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            if request.form.get("edu_plan") and form.validate_on_submit():
+                edu_plan = request.form.get("edu_plan")
+                return redirect(
+                    url_for(
+                        f"programs.{self.wp_type}",
+                        plan_id=edu_plan,
+                    )
+                )
+            return render_template(
+                self.template_name,
+                active="programs",
+                title=self.title,
+                form=form,
+                edu_spec=edu_spec,
+            )
+        return render_template(
+            self.template_name,
+            active="programs",
+            title=self.title,
+            form=form,
+        )
+
+
+bp.add_url_rule(
+    "/wp_fields_choose_plan",
+    view_func=ProgramsChoosePlanView.as_view(
+        "wp_fields_choose_plan",
+        wp_type="wp_fields",
+        title="Сводная информация по полям рабочих программ плана",
+    ),
+)
+
+bp.add_url_rule(
+    "/wp_data_choose_plan",
+    view_func=ProgramsChoosePlanView.as_view(
+        "wp_data_choose_plan",
+        wp_type="wp_data",
+        title="Информация по рабочим программам учебного плана",
+    ),
+)
+
+bp.add_url_rule(
+    "/wp_title_choose_plan",
+    view_func=ProgramsChoosePlanView.as_view(
+        "wp_title_choose_plan",
+        wp_type="wp_title",
+        title="Формирование титульных листов рабочих программ",
+    ),
+)
 
 
 @bp.route("/dept_check", methods=["GET", "POST"])
@@ -47,81 +121,6 @@ async def dept_check():
             wp_data=wp_data,
         )
     return render_template("programs/dept_check.html", active="programs", form=form)
-
-
-@bp.route("/fields_choose_plan", endpoint="fields_choose_plan", methods=["GET", "POST"])
-@login_required
-def fields_choose_plan():
-    title = "Сводная информация по полям рабочих программ плана"
-    form = ChoosePlan()
-    form.edu_spec.choices = list(education_specialty().items())
-    if request.method == "POST":
-        edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
-        if request.form.get("edu_plan") and form.validate_on_submit():
-            edu_plan = request.form.get("edu_plan")
-            return redirect(url_for("programs.fields_data", plan_id=edu_plan))
-        return render_template(
-            "programs/programs_choose_plan.html",
-            active="programs",
-            form=form,
-            title=title,
-            edu_spec=edu_spec,
-        )
-    return render_template(
-        "programs/programs_choose_plan.html", active="programs", title=title, form=form
-    )
-
-
-@bp.route("/fields_data/<int:plan_id>", methods=["GET", "POST"])
-@login_required
-def fields_data(plan_id):
-    form = FieldsForm()
-    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
-    if request.method == "POST":
-        wp_field = request.form.get("wp_fields")
-        wp_plan_data = WorkProgramBunchData(plan_id, wp_field)
-        wp_data = wp_plan_data.all()
-        return render_template(
-            "programs/fields_data.html",
-            active="programs",
-            form=form,
-            plan_name=plan_name,
-            wp_field=wp_field,
-            wp_data=wp_data,
-        )
-    return render_template(
-        "programs/fields_data.html", active="programs", form=form, plan_name=plan_name
-    )
-
-
-@bp.route("/wp_field_edit", methods=["GET", "POST"])
-@login_required
-def wp_field_edit():
-    form = WorkProgramFieldUpdate()
-    disc_id = request.args.get("disc_id")
-    parameter = request.args.get("parameter")
-    wp = WorkProgram(disc_id)
-    if request.method == "POST":
-        parameter = request.form.get("wp_fields")
-
-        if request.form.get("field_update") and form.validate_on_submit():
-            load_data = request.form.get("wp_field_edit")
-            wp.edit(parameter, load_data)
-            flash("Данные обновлены")
-    form.wp_fields.data = parameter
-    try:
-        wp_field_data = wp.get(parameter)
-    except IndexError:
-        wp_field_data = ""
-    form.wp_field_edit.data = wp_field_data
-
-    return render_template(
-        "programs/wp_field_edit.html",
-        active="programs",
-        form=form,
-        wp_name=wp.get("name"),
-    )
 
 
 @bp.route("/dates_update", methods=["GET", "POST"])
@@ -191,30 +190,54 @@ def dates_update():
     return render_template("programs/dates_update.html", active="programs", form=form)
 
 
-@bp.route("/wp_data_choose_plan", methods=["GET", "POST"])
+@bp.route("/wp_fields/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-def wp_data_choose_plan():
-    title = "Информация по рабочим программам учебного плана"
-    form = ChoosePlan()
-    form.edu_spec.choices = list(education_specialty().items())
+def wp_fields(plan_id):
+    form = FieldsForm()
+    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
     if request.method == "POST":
-        edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
-        if request.form.get("edu_plan") and form.validate_on_submit():
-            edu_plan = request.form.get("edu_plan")
-            return redirect(url_for("programs.wp_data", plan_id=edu_plan))
+        wp_field = request.form.get("wp_fields")
+        wp_plan_data = WorkProgramBunchData(plan_id, wp_field)
+        wp_data = wp_plan_data.all()
         return render_template(
-            "programs/programs_choose_plan.html",
+            "programs/wp_fields.html",
             active="programs",
             form=form,
-            title=title,
-            edu_spec=edu_spec,
+            plan_name=plan_name,
+            wp_field=wp_field,
+            wp_data=wp_data,
         )
     return render_template(
-        "programs/programs_choose_plan.html",
+        "programs/wp_fields.html", active="programs", form=form, plan_name=plan_name
+    )
+
+
+@bp.route("/wp_field_edit", methods=["GET", "POST"])
+@login_required
+def wp_field_edit():
+    form = WorkProgramFieldUpdate()
+    disc_id = request.args.get("disc_id")
+    parameter = request.args.get("parameter")
+    wp = WorkProgram(disc_id)
+    if request.method == "POST":
+        parameter = request.form.get("wp_fields")
+
+        if request.form.get("field_update") and form.validate_on_submit():
+            load_data = request.form.get("wp_field_edit")
+            wp.edit(parameter, load_data)
+            flash("Данные обновлены")
+    form.wp_fields.data = parameter
+    try:
+        wp_field_data = wp.get(parameter)
+    except IndexError:
+        wp_field_data = ""
+    form.wp_field_edit.data = wp_field_data
+
+    return render_template(
+        "programs/wp_field_edit.html",
         active="programs",
-        title=title,
         form=form,
+        wp_name=wp.get("name"),
     )
 
 
@@ -255,4 +278,63 @@ def wp_data(plan_id):
         no_program=no_program,
         plan_name=plan_name,
         button=button,
+    )
+
+
+@bp.route("/wp_title/<int:plan_id>", methods=["GET", "POST"])
+@login_required
+async def wp_title(plan_id):
+    plan = EducationPlanExtended(
+        education_plan_id=plan_id,
+        plan_education_plans=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"),
+                                   id=plan_id)),
+        plan_curriculum_disciplines=await get_plan_curriculum_disciplines(plan_id),
+        plan_education_levels=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_levels"))),
+        plan_education_specialties=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_specialties"))),
+        plan_education_groups=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_groups"))),
+        plan_education_specializations=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_specializations"))),
+        plan_education_plans_education_forms=await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_plans_education_forms"))),
+        plan_education_forms=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_forms"))),
+        plan_qualifications=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_qualifications"))),
+        plan_education_specializations_narrow=await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_specializations_narrow"))),
+    )
+    plan_name = plan.name
+    form = TitlePagesGenerator()
+    organization_name = await get_organization_name()
+    chief_info = await get_organization_chief_info()
+    chief_rank = await get_rank_name(chief_info.get('specialRank'))
+    approval_date = date.fromisoformat(plan.approval_date)
+    full_spec_code = (f"{plan.education_group_code}."
+                      f"{plan.education_level_code}."
+                      f"{plan.specialty_code}")
+    form.organization_name.data = organization_name.upper()
+    form.chief_rank.data = chief_rank[0]
+    form.chief_name.data = chief_info.get('name_short')
+    form.wp_approval_day.data = approval_date.day
+    form.wp_approval_month.data = str(approval_date.month)
+    form.wp_approval_year.data = approval_date.year
+    form.wp_speciality_type.data = "bak" if plan.specialty_code == '02' else "spec"
+    form.wp_speciality.data = f"{full_spec_code} {plan.specialty}"
+    form.wp_specialization_type.data = "bak" if plan.specialty_code == '02' else "spec"
+    form.wp_specialization.data = plan.specialization
+    form.wp_education_form.data = plan.education_form
+    form.wp_year.data = approval_date.year
+    form.wp_qualification.data = plan.qualification
+    form.wp_narrow_specialization.data = plan.specialization_narrow
+    return render_template(
+        "programs/wp_title.html",
+        active="programs",
+        plan_name=plan_name,
+        form=form,
     )

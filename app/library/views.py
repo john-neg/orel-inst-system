@@ -28,7 +28,7 @@ LIB_TYPES = {
 }
 
 
-class ChoosePlanView(View):
+class LibraryChoosePlanView(View):
     methods = ["GET", "POST"]
 
     def __init__(self, lib_type, title, lib_type_name):
@@ -69,7 +69,7 @@ class ChoosePlanView(View):
 
 bp.add_url_rule(
     "/library_choose_plan",
-    view_func=ChoosePlanView.as_view(
+    view_func=LibraryChoosePlanView.as_view(
         "library_choose_plan",
         lib_type="library",
         lib_type_name="Литература",
@@ -78,7 +78,7 @@ bp.add_url_rule(
 )
 bp.add_url_rule(
     "/library_np_choose_plan",
-    view_func=ChoosePlanView.as_view(
+    view_func=LibraryChoosePlanView.as_view(
         "library_np_choose_plan",
         lib_type="library_np",
         lib_type_name="Научная продукция",
@@ -87,7 +87,7 @@ bp.add_url_rule(
 )
 bp.add_url_rule(
     "/library_int_choose_plan",
-    view_func=ChoosePlanView.as_view(
+    view_func=LibraryChoosePlanView.as_view(
         "library_int_choose_plan",
         lib_type="library_int",
         lib_type_name="Интернет ресурсы",
@@ -96,7 +96,7 @@ bp.add_url_rule(
 )
 bp.add_url_rule(
     "/library_db_choose_plan",
-    view_func=ChoosePlanView.as_view(
+    view_func=LibraryChoosePlanView.as_view(
         "library_db_choose_plan",
         lib_type="library_db",
         lib_type_name="Базы и справочные системы",

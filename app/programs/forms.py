@@ -1,7 +1,8 @@
 from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, IntegerField, TextAreaField
+from wtforms import SelectField, StringField, SubmitField, IntegerField, TextAreaField, \
+    BooleanField
 from wtforms.validators import DataRequired, Length, NumberRange
 
 from app.main.forms import ChoosePlan
@@ -100,3 +101,104 @@ class WorkProgramDatesUpdate(ChoosePlan):
 class WorkProgramFieldUpdate(FieldsForm):
     wp_field_edit = TextAreaField("Данные поля программы")
     field_update = SubmitField("Обновить")
+
+
+class TitlePagesGenerator(FlaskForm):
+    organization_name = TextAreaField(
+        "Название образовательной организации",
+        validators=[DataRequired()],
+    )
+    wp_approval_info = TextAreaField(
+        "Информация об утверждении",
+        default=("УТВЕРЖДАЮ\n"
+                 + "Начальник Орловского\n"
+                 + "юридического института МВД России\n"
+                 + "имени В.В. Лукьянова"),
+        validators=[DataRequired()],
+    )
+    chief_rank = StringField(
+        "Звание руководителя",
+        validators=[DataRequired()],
+    )
+    chief_name = StringField(
+        "Имя руководителя",
+        validators=[DataRequired()],
+    )
+    wp_approval_day = StringField(
+        "День",
+        validators=[DataRequired()],
+    )
+    wp_approval_month = SelectField(
+        "Месяц",
+        coerce=str,
+        choices=[
+            (1, "января"),
+            (2, "февраля"),
+            (3, "марта"),
+            (4, "апреля"),
+            (5, "мая"),
+            (6, "июня"),
+            (7, "июля"),
+            (8, "августа"),
+            (9, "сентября"),
+            (10, "октября"),
+            (11, "ноября"),
+            (12, "декабря"),
+        ],
+        validators=[DataRequired()],
+    )
+    wp_approval_year = StringField(
+        "Год",
+        validators=[DataRequired()],
+    )
+    wp_type_name = StringField(
+        "Тип рабочей программы",
+        default="Рабочая программа учебной дисциплины",
+        validators=[DataRequired()],
+    )
+    wp_speciality_type = SelectField(
+        "Тип - специальность / направление подготовки:",
+        coerce=str,
+        choices=[
+            ("bak", "по направлению подготовки"),
+            ("spec", "по специальности"),
+        ],
+        validators=[DataRequired()],
+    )
+    wp_speciality = StringField(
+        "Название специальности:",
+        validators=[DataRequired()],
+    )
+    wp_specialization_type = SelectField(
+        "Тип - профиль / специализация:",
+        coerce=str,
+        choices=[
+            ("bak", "профиль образовательной программы"),
+            ("spec", "специализация"),
+        ],
+        validators=[DataRequired()],
+    )
+    wp_specialization = StringField(
+        "Специализация:",
+        validators=[DataRequired()],
+    )
+    wp_foreigners = BooleanField(
+        "Иностранные слушатели:"
+    )
+    wp_education_form = StringField(
+        "Форма обучения:",
+        validators=[DataRequired()],
+    )
+    wp_year = StringField(
+        "Год набора:",
+        validators=[DataRequired()],
+    )
+    wp_qualification = StringField(
+        "Квалификация:",
+        validators=[DataRequired()],
+    )
+    wp_narrow_specialization = StringField(
+        "Узкая специализация:",
+        validators=[],
+    )
+    fields_data = SubmitField("Сформировать титульные листы")

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import logging
 from calendar import monthrange
+from collections import OrderedDict
 from datetime import date
 from json import JSONDecodeError
 from cache import AsyncTTL
 
 import httpx
+from phpserialize import unserialize, loads
 
 from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
@@ -22,12 +24,16 @@ def api_get_request_handler(func):
                 response = await client.get(endpoint, params=params)
                 response.raise_for_status()
             except httpx.RequestError as exc:
-                logging.error(f"{func.__name__}. Ошибка при запросе к "
-                              f"API Апекс-ВУЗ: {exc.request.url!r}.")
+                logging.error(
+                    f"{func.__name__}. Ошибка при запросе к "
+                    f"API Апекс-ВУЗ: {exc.request.url!r}."
+                )
             except httpx.HTTPStatusError as exc:
-                logging.error(f"{func.__name__}. Произошла ошибка "
-                              f"{exc.response.status_code} во время "
-                              f"запроса {exc.request.url!r}.")
+                logging.error(
+                    f"{func.__name__}. Произошла ошибка "
+                    f"{exc.response.status_code} во время "
+                    f"запроса {exc.request.url!r}."
+                )
             else:
                 try:
                     resp_json = response.json()
@@ -45,7 +51,7 @@ def api_get_request_handler(func):
 
 @api_get_request_handler
 async def api_get_db_table(
-        table_name: str, url: str = Apeks.URL, token: str = Apeks.TOKEN, **kwargs
+    table_name: str, url: str = Apeks.URL, token: str = Apeks.TOKEN, **kwargs
 ):
     """
     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ.
@@ -66,8 +72,9 @@ async def api_get_db_table(
     if kwargs:
         for db_filter, db_value in kwargs.items():
             params[f"filter[{db_filter}]"] = str(db_value)
-    logging.debug("Переданы параметры для запроса 'api_get_db_table': "
-                  f"к таблице {table_name}")
+    logging.debug(
+        "Переданы параметры для запроса 'api_get_db_table': " f"к таблице {table_name}"
+    )
     return endpoint, params
 
 
@@ -117,11 +124,11 @@ async def check_api_db_response(response: dict) -> list:
 
 @api_get_request_handler
 async def api_get_staff_lessons(
-        staff_id: int | str,
-        month: int | str,
-        year: int | str,
-        url: str = Apeks.URL,
-        token: str = Apeks.TOKEN,
+    staff_id: int | str,
+    month: int | str,
+    year: int | str,
+    url: str = Apeks.URL,
+    token: str = Apeks.TOKEN,
 ):
     """
     Получение списка занятий по id преподавателя за определенный месяц и год.
@@ -146,8 +153,10 @@ async def api_get_staff_lessons(
         "month": str(month),
         "year": str(year),
     }
-    logging.debug("Переданы параметры для запроса 'api_get_staff_lessons':"
-                  f"staff_id: {str(staff_id)}, month: {str(month)}, year: {str(year)}")
+    logging.debug(
+        "Переданы параметры для запроса 'api_get_staff_lessons':"
+        f"staff_id: {str(staff_id)}, month: {str(month)}, year: {str(year)}"
+    )
     return endpoint, params
 
 
@@ -194,10 +203,110 @@ async def check_api_staff_lessons_response(response: dict) -> list:
     return lessons
 
 
+def data_processor(table_data: list, dict_key: str = "id") -> dict:
+    """
+    Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
+
+    Parameters
+    ----------
+        table_data: list
+            данные таблицы, содержащей список словарей в формате JSON
+        dict_key: str
+            название поля значения которого станут ключами словаря
+            по умолчанию - 'id'
+
+    Returns
+    -------
+        dict
+            {id: {keys: values}}.
+    """
+    data = {}
+    for d_val in table_data:
+        data[int(d_val.get(dict_key))] = d_val
+    logging.debug(f"Обработаны данные. Ключ: {dict_key}")
+    return data
+
+
+@AsyncTTL(time_to_live=60, maxsize=1024)
+async def get_organization_name(
+    table: str = Apeks.TABLES.get("system_settings"),
+) -> str:
+    """
+    Получение полного названия образовательной организации.
+
+    Parameters
+    ----------
+        table: str
+            таблица БД, содержащая системные сведения о ВУЗе.
+
+    Returns
+    ----------
+        str
+            название
+    """
+    response = await check_api_db_response(
+        await api_get_db_table(table, setting="system.ou.name")
+    )
+    return response[0].get("value")
+
+
+@AsyncTTL(time_to_live=360, maxsize=1024)
+async def get_organization_chief_info(
+    table: str = Apeks.TABLES.get("system_settings"),
+) -> dict:
+    """
+    Получение данных о руководителе образовательной организации.
+
+    Parameters
+    ----------
+        table: str
+            таблица БД, содержащая системные сведения о ВУЗе.
+
+    Returns
+    ----------
+        dict
+            {'name': 'Фамилия Имя Отчество',
+             'position': 'должность',
+             'specialRank': 'id',
+             'name_short': 'И.О. Фамилия'}
+    """
+
+    response = await check_api_db_response(
+        await api_get_db_table(table, setting="system.head.chief")
+    )
+    value = response[0].get('value')
+
+    if value:
+        chief_data = dict(
+            loads(value.encode(), decode_strings=True, array_hook=OrderedDict)
+        )
+        name = chief_data.get('name').split()
+        if len(name) >= 3:
+            chief_data['name_short'] = f'{name[1][0]}.{name[2][0]}. {name[0]}'
+        return chief_data
+
+
+@AsyncTTL(time_to_live=360, maxsize=1024)
+async def get_rank_name(
+    rank_id: int | str, table: str = Apeks.TABLES.get("state_special_ranks")
+) -> list:
+    """
+    Получение названий званий.
+
+    :param rank_id: id звания
+    :param table: название таблицы 'state_special_ranks'
+    :return: list [name, name_short]
+    """
+    response = await check_api_db_response(await api_get_db_table(table, id=rank_id))
+    name = response[0].get("name")
+    name_short = response[0].get("name_short")
+    return [name, name_short]
+
+
 @AsyncTTL(time_to_live=60, maxsize=1024)
 async def get_disciplines(
-        table: str = Apeks.TABLES.get("plan_disciplines"),
-        level: int | str = Apeks.DISC_LEVEL,
+    table: str = Apeks.TABLES.get("plan_disciplines"),
+    level: int | str = Apeks.DISC_LEVEL,
 ) -> dict:
     """
     Получение полного списка дисциплин из справочника Апекс-ВУЗ.
@@ -214,9 +323,7 @@ async def get_disciplines(
         dict
             {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
     """
-    response = await check_api_db_response(
-        await api_get_db_table(table, level=level)
-    )
+    response = await check_api_db_response(await api_get_db_table(table, level=level))
     disc_dict = {}
     for disc in response:
         disc_dict[int(disc["id"])] = {
@@ -229,8 +336,8 @@ async def get_disciplines(
 
 @AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_departments(
-        table: str = Apeks.TABLES.get("state_departments"),
-        parent_id: str | int = Apeks.DEPT_ID,
+    table: str = Apeks.TABLES.get("state_departments"),
+    parent_id: str | int = Apeks.DEPT_ID,
 ) -> dict:
     """
     Получение информации о кафедрах.
@@ -276,9 +383,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
             {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
     """
     staff_dict = {}
-    resp = await check_api_db_response(
-        await api_get_db_table(table)
-    )
+    resp = await check_api_db_response(await api_get_db_table(table))
     for staff in resp:
         family_name = staff.get("family_name") if staff.get("family_name") else "??????"
         first_name = staff.get("name") if staff.get("name") else "??????"
@@ -293,12 +398,12 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
 
 @api_get_request_handler
 async def get_lessons(
-        year: int,
-        month_start: int,
-        month_end: int,
-        table_name: str = Apeks.TABLES.get('schedule_day_schedule_lessons'),
-        url: str = Apeks.URL,
-        token: str = Apeks.TOKEN,
+    year: int,
+    month_start: int,
+    month_end: int,
+    table_name: str = Apeks.TABLES.get("schedule_day_schedule_lessons"),
+    url: str = Apeks.URL,
+    token: str = Apeks.TOKEN,
 ):
     """
     Получение списка занятий за указанный период.
@@ -325,33 +430,52 @@ async def get_lessons(
         "token": token,
         "table": table_name,
         "filter": f"date between '{date(year, month_start, first_day).isoformat()}' "
-                  f"and '{date(year, month_end, last_day).isoformat()}'",
+        f"and '{date(year, month_end, last_day).isoformat()}'",
     }
-    logging.debug("Переданы параметры для запроса 'get_lessons': "
-                  f"date between '{date(year, month_start, first_day).isoformat()}' "
-                  f"and '{date(year, month_end, last_day).isoformat()}'")
+    logging.debug(
+        "Переданы параметры для запроса 'get_lessons': "
+        f"date between '{date(year, month_start, first_day).isoformat()}' "
+        f"and '{date(year, month_end, last_day).isoformat()}'"
+    )
     return endpoint, params
 
 
-def data_processor(table_data: list, dict_key: str = "id") -> dict:
+async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
     """
-    Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
+    Получение данных о дисциплинах учебного плана
 
     Parameters
     ----------
-        table_data: list
-            данные таблицы, содержащей список словарей в формате JSON
-        dict_key: str
-            название поля значения которого станут ключами словаря
-            по умолчанию - 'id'
+        education_plan_id: int | str
+            id учебного плана
 
     Returns
-    -------
+    ----------
         dict
-            {id: {keys: values}}.
+            {curriculum_discipline_id: [disc_code, disc_name]}
     """
-    data = {}
-    for d_val in table_data:
-        data[int(d_val.get(dict_key))] = d_val
-    logging.debug(f"Обработаны данные. Ключ: {dict_key}")
-    return data
+
+    def disc_name(discipline_id):
+        for discipline in disciplines_list:
+            if discipline.get("id") == discipline_id:
+                return discipline.get("name")
+
+    disciplines = {}
+    disciplines_list = await check_api_db_response(
+        await api_get_db_table(Apeks.TABLES.get("plan_disciplines"))
+    )
+    plan_disciplines = await check_api_db_response(
+        await api_get_db_table(
+            Apeks.TABLES.get("plan_curriculum_disciplines"),
+            education_plan_id=education_plan_id,
+        )
+    )
+    for disc in plan_disciplines:
+        if str(disc.get("level")) == str(Apeks.DISC_LEVEL) and not str(
+            disc.get("type")
+        ) == str(Apeks.DISC_TYPE):
+            disciplines[int(disc.get("id"))] = [
+                disc.get("code"),
+                disc_name(disc.get("discipline_id")),
+            ]
+    return disciplines

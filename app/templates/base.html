@@ -141,9 +141,10 @@
                   {% if current_user.role in (config.ROLE_ADMIN, ) %}
                     <li><a href="{{ url_for('programs.dates_update') }}" class="text-white rounded">Обновление дат</a></li>
                   {% endif %}
-                    <li><a href="{{ url_for('programs.fields_choose_plan') }}" class="text-white rounded">Значения полей</a></li>
+                    <li><a href="{{ url_for('programs.wp_fields_choose_plan') }}" class="text-white rounded">Значения полей</a></li>
                   {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
                     <li><a href="{{ url_for('programs.wp_data_choose_plan') }}" class="text-white rounded">Общая информация</a></li>
+                    <li><a href="{{ url_for('programs.wp_title_choose_plan') }}" class="text-white rounded">Титульные листы</a></li>
                   {% endif %}
                 </ul>
               {% endif %}
