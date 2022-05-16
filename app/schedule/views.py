@@ -42,7 +42,7 @@ async def schedule():
             department = request.form.get("department")
             month = request.form.get("month")
             year = request.form.get("year")
-            staff_id = request.form.get("prepod")
+            staff_id = request.form.get("staff")
             try:
                 staff_name = staff.state_staff.get(int(staff_id)).get("short")
             except AttributeError:
