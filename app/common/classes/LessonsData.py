@@ -85,7 +85,15 @@ class LessonsData:
             self.plan_education_plans_education_forms, dict_key="education_plan_id"
         )
         self.structured_lessons = self.process_lessons()
+        logging.debug(
+            f"Список занятий 'structured_lessons' обработан. "
+            f"Количество записей - {len(self.structured_lessons)}"
+        )
         self.control_lessons = self.get_control_lessons()
+        logging.debug(
+            "Список занятий 'control_lessons' обработан. "
+            f"Количество записей - {len(self.control_lessons)}"
+        )
 
     @staticmethod
     def lessons_staff_processor(lessons_staff: list) -> dict:
@@ -159,10 +167,6 @@ class LessonsData:
                                 )
                                 less_copy["hours"] = 2
                                 structured_lessons.append(less_copy)
-        logging.debug(
-            f"Список занятий 'structured_lessons' обработан. "
-            f"Количество записей - {len(self.structured_lessons)}"
-        )
         return structured_lessons
 
     def get_control_lessons(self) -> list:
@@ -221,10 +225,6 @@ class LessonsData:
             ]:
                 if not check_and_process(less):
                     control_less.append(copy(less))
-        logging.debug(
-            "Список занятий 'control_lessons' обработан. "
-            f"Количество записей - {len(self.structured_lessons)}"
-        )
         return control_less
 
     @staticmethod
