@@ -197,8 +197,22 @@ class TitlePagesGenerator(FlaskForm):
         "Квалификация:",
         validators=[DataRequired()],
     )
+    switch_qualification = BooleanField(
+        "Квалификация:",
+        validators=[DataRequired()],
+    )
     wp_narrow_specialization = StringField(
         "Узкая специализация:",
         validators=[],
     )
+    switch_narrow_spec = BooleanField(
+        "Узкая специализация:",
+        validators=[],
+    )
+    switch_foreign = BooleanField(
+        "Иностранные слушатели",
+        validators=[],
+    )
+
+
     fields_data = SubmitField("Сформировать титульные листы")

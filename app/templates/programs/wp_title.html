@@ -31,8 +31,8 @@
   <div class="row mb-2">
     <div class="col-xl-4">
       <div class="mb-2 form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchForeigners">
-        <label class="form-check-label" for="flexSwitchForeigners">Иностранные слушатели</label>
+        <input class="form-check-input" name="switch_foreign" type="checkbox" role="switch" id="flexSwitchForeigns">
+        <label class="form-check-label" for="flexSwitchForeigns">{{ form.switch_foreign.label }}</label>
       </div>
       {{ form.wp_type_name (class="form-control form-control-ld") }}
     </div>
@@ -80,8 +80,8 @@
     </div>
     <div class="col-xl-4">
       <div class="mb-2 form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchQualification" checked>
-        <label class="form-check-label" for="flexSwitchQualification">{{ form.wp_qualification.label }}</label>
+        <input class="form-check-input" name="switch_qualification" type="checkbox" role="switch" id="flexSwitchQualification" checked>
+        <label class="form-check-label" for="flexSwitchQualification">{{ form.switch_qualification.label }}</label>
       </div>
       {{ form.wp_qualification (class="form-control form-control-ld") }}
     </div>
@@ -89,8 +89,8 @@
   <div class="row mb-2">
     <div class="col-xl-8">
             <div class="mb-2 form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchNarrowSpec">
-        <label class="form-check-label" for="flexSwitchNarrowSpec">{{ form.wp_narrow_specialization.label }}</label>
+        <input class="form-check-input" name="switch_narrow_spec" type="checkbox" role="switch" id="flexSwitchNarrowSpec">
+        <label class="form-check-label" for="flexSwitchNarrowSpec">{{ form.switch_narrow_spec.label }}</label>
       </div>
       {{ form.wp_narrow_specialization (class="form-control form-control-ld") }}
     </div>

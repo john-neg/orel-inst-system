@@ -1,5 +1,8 @@
 from datetime import date
 
+from docx import Document
+from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
+from docx.shared import Cm, Pt
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
@@ -22,7 +25,7 @@ from app.programs.forms import (
 )
 from app.programs.func import wp_update_list, wp_dates_update
 from app.programs.models import WorkProgramBunchData, WorkProgram
-from config import ApeksConfig as Apeks
+from config import ApeksConfig as Apeks, FlaskConfig
 
 
 class ProgramsChoosePlanView(View):
@@ -332,11 +335,56 @@ async def wp_title(plan_id):
     form.wp_year.data = approval_date.year
     form.wp_qualification.data = plan.qualification
     form.wp_narrow_specialization.data = plan.specialization_narrow
-    if request.method == "POST":
-        data = dict(request.form)
-        del data['csrf_token']
-        del data['fields_data']
-        print(data)
+    if request.method == "POST" and form.validate_on_submit():
+        form_data = request.form.to_dict()
+        del form_data['csrf_token']
+        del form_data['fields_data']
+        month_choices = dict(form.wp_approval_month.choices)
+        speciality_type_choices = dict(form.wp_speciality_type.choices)
+        specialization_type_choices = dict(form.wp_specialization_type.choices)
+
+        def generate_title_pages(
+                form_data: dict,
+                # month_choices: dict,
+                # speciality_type_choices: dict,
+                # specialization_type_choices: dict,
+        ) -> str:
+            document = Document()
+            section = document.sections[-1]
+            section.top_margin = Cm(2)  # Верхний отступ
+            section.bottom_margin = Cm(2)  # Нижний отступ
+            section.left_margin = Cm(2)  # Отступ слева
+            section.right_margin = Cm(2)  # Отступ справа
+            paragraph_format = document.styles["Normal"].paragraph_format
+            paragraph_format.line_spacing_rule = (
+                WD_LINE_SPACING.SINGLE
+            )  # межстрочный интервал
+            paragraph_format.space_after = Pt(0)  # между абзацами
+            style = document.styles["Normal"]
+            font = style.font
+            font.name = "Times New Roman"  # Стиль шрифта
+            font.size = Pt(14)
+
+            title = document.add_paragraph("")
+            title.add_run("МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИЙСКОЙ ФЕДЕРАЦИИ").bold = True
+            title.add_run(form_data.get('organization_name')).bold = True
+            document.add_paragraph("").all_caps = True
+            document.add_paragraph("")
+            approval_info = document.add_paragraph(form_data.get('wp_approval_info'))
+            # approval_info.parfmt(left_indent=8)
+            approval_info.add_run(f"{form_data.get('chief_rank')}\n")
+            document.add_paragraph(form_data.get('chief_name'))\
+                # .parfmt(alignment=WD_PARAGRAPH_ALIGNMENT.RIGHT)
+            document.add_paragraph("")
+
+
+            document.add_page_break()
+
+            document.save(FlaskConfig.EXPORT_FILE_DIR + "file.docx")
+            return "file.docx"
+
+        generate_title_pages(form_data)
+    # month_choices, speciality_type_choices, specialization_type_choices
     return render_template(
         "programs/wp_title.html",
         active="programs",
