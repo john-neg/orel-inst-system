@@ -332,6 +332,11 @@ async def wp_title(plan_id):
     form.wp_year.data = approval_date.year
     form.wp_qualification.data = plan.qualification
     form.wp_narrow_specialization.data = plan.specialization_narrow
+    if request.method == "POST":
+        data = dict(request.form)
+        del data['csrf_token']
+        del data['fields_data']
+        print(data)
     return render_template(
         "programs/wp_title.html",
         active="programs",
