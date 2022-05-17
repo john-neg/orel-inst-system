@@ -5,10 +5,10 @@ from calendar import monthrange
 from collections import OrderedDict
 from datetime import date
 from json import JSONDecodeError
-from cache import AsyncTTL
 
 import httpx
-from phpserialize import unserialize, loads
+from cache import AsyncTTL
+from phpserialize import loads
 
 from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks

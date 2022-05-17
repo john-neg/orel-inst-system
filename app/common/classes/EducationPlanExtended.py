@@ -14,29 +14,31 @@ class EducationPlanExtended(EducationPlan):
     ----------
         plan_education_levels: list
             данные из таблицы 'plan_education_levels'
-            (информация о ....)
+            (информация об уровнях образования)
         plan_education_specialties: list
             данные из таблицы 'plan_education_specialties'
-            (информация о ....)
+            (информация о специальностях)
         plan_education_groups: list
             данные из таблицы 'plan_education_groups'
-            (информация о ....)
+            (информация о группах специальностей)
         plan_education_specializations: list
             данные из таблицы 'plan_education_specializations'
-            (информация о ....)
+            (информация о специализациях)
         plan_education_plans_education_forms: list
             данные из таблицы 'plan_education_plans_education_forms'
-            (информация о ....)
+            (информация о формах обучения для планов)
         plan_education_forms: list
             данные из таблицы 'plan_education_forms'
-            (информация о ....)
+            (информация о видах форм обучения)
         plan_qualifications: list
             данные из таблицы 'plan_qualifications'
-            (информация о ....)
+            (информация о квалификации)
         plan_education_specializations_narrow: list
             данные из таблицы 'plan_education_specializations_narrow'
-            (информация о ....)
+            (информация об узких специализациях)
         mm_work_programs: dict
+            данные из таблицы 'mm_work_programs'
+            (информация о рабочих программах плана с ключом id программы)
 
     Methods:
     -------
@@ -56,8 +58,9 @@ class EducationPlanExtended(EducationPlan):
     mm_work_programs: dict
 
     def __post_init__(self) -> None:
-        self.plan_data = self.plan_education_plans[0]
-        self.name = self.plan_data.get("name")
+        super().__post_init__()
+        # self.plan_data = self.plan_education_plans[0]
+        # self.name = self.plan_data.get("name")
         self.education_level_id = self.plan_data.get("education_level_id")
         self.specialty_id = self.plan_data.get("education_specialty_id")
         self.specialization_id = self.plan_data.get("education_specialization_id")

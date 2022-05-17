@@ -109,7 +109,7 @@ def xlsx_normalize(worksheet, replace_dict):
     for key, val in replace_dict.items():
         for r in range(1, worksheet.max_row + 1):
             for c in range(1, worksheet.max_column + 1):
-                s = str(worksheet.cell(r, c).value)
+                s = str(worksheet.cell(r, c).value).strip()
                 worksheet.cell(r, c).value = s.replace(key, val)
     return worksheet
 

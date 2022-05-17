@@ -5,7 +5,7 @@ from docx.shared import Cm, Pt
 from config import FlaskConfig
 
 
-def generate_title_pages(form_data: dict, plan_name: str, wp_data: dict) -> str:
+def generate_wp_title_pages(form_data: dict, plan_name: str, wp_data: dict) -> str:
     document = Document()
     section = document.sections[-1]
     # Отступы

@@ -1,5 +1,3 @@
-import logging
-
 from app.common.func import data_processor
 from app.main.func import db_filter_req, add_wp_field
 from app.main.models import EducationPlan

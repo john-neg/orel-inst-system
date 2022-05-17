@@ -289,6 +289,10 @@ class MatrixIndicatorsFile:
             ". - ": " - ",
             "K": "К",  # Eng to RUS
             "O": "О",
+            "A": "А",
+            "B": "В",
+            "C": "С",
+            "H": "Н",
             ". з.": ".з.",
             ". у.": ".у.",
             ". в.": ".в.",
@@ -338,7 +342,7 @@ class MatrixIndicatorsFile:
         comp, disc_comp = "", {}
         for row in range(1, len(self.disciplines_list) + 1):
             if self.file_data[row][1]:
-                if discipline_name == self.file_data[row][1]:
+                if discipline_name.strip() == self.file_data[row][1]:
                     for col in range(len(self.file_data[0])):
                         if self.file_data[row][col] == "+":
                             # Получаем компетенцию

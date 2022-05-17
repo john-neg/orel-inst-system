@@ -1,17 +1,21 @@
 from datetime import date
 
-from docx import Document
-from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
-from docx.shared import Cm, Pt
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
 from app.common.classes.EducationPlanExtended import EducationPlanExtended
-from app.common.func import get_departments, check_api_db_response, api_get_db_table, \
-    get_plan_curriculum_disciplines, get_organization_name, get_organization_chief_info, \
-    get_rank_name, get_plan_work_programs
-from app.common.reports import generate_title_pages
+from app.common.func import (
+    get_departments,
+    check_api_db_response,
+    api_get_db_table,
+    get_plan_curriculum_disciplines,
+    get_organization_name,
+    get_organization_chief_info,
+    get_rank_name,
+    get_plan_work_programs,
+)
+from app.common.reports import generate_wp_title_pages
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp
@@ -26,7 +30,7 @@ from app.programs.forms import (
 )
 from app.programs.func import wp_update_list, wp_dates_update
 from app.programs.models import WorkProgramBunchData, WorkProgram
-from config import ApeksConfig as Apeks, FlaskConfig
+from config import ApeksConfig as Apeks
 
 
 class ProgramsChoosePlanView(View):
@@ -99,7 +103,7 @@ bp.add_url_rule(
 async def dept_check():
     form = DepartmentWPCheck()
     departments = await get_departments()
-    form.department.choices = [(k, v.get('full')) for k, v in departments.items()]
+    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     form.edu_spec.choices = list(education_specialty().items())
     if request.method == "POST":
         wp_data = {}
@@ -263,7 +267,10 @@ def wp_data(plan_id):
                 wp.edit("status", 1)
                 button = "wp_status_1"
             wp_list[disc] = [
-                wp.name, wp.get_signs(), wp.get("status"), wp.work_program_id
+                wp.name,
+                wp.get_signs(),
+                wp.get("status"),
+                wp.work_program_id,
             ]
         except IndexError:
             if request.method == "POST" and request.form.get("create_wp"):
@@ -271,7 +278,10 @@ def wp_data(plan_id):
                 create_wp(disc)
                 wp = WorkProgram(disc)
                 wp_list[disc] = [
-                    wp.name, wp.get_signs(), wp.get("status"), wp.work_program_id
+                    wp.name,
+                    wp.get_signs(),
+                    wp.get("status"),
+                    wp.work_program_id,
                 ]
             else:
                 no_program[disc] = plan.discipline_name(disc)
@@ -292,47 +302,59 @@ async def wp_title(plan_id):
     plan = EducationPlanExtended(
         education_plan_id=plan_id,
         plan_education_plans=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"),
-                                   id=plan_id)),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
+        ),
         plan_curriculum_disciplines=plan_curriculum_disciplines,
         plan_education_levels=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_levels"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_levels"))
+        ),
         plan_education_specialties=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_specialties"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_specialties"))
+        ),
         plan_education_groups=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_groups"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_groups"))
+        ),
         plan_education_specializations=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_specializations"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_specializations"))
+        ),
         plan_education_plans_education_forms=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("plan_education_plans_education_forms"))),
+                Apeks.TABLES.get("plan_education_plans_education_forms")
+            )
+        ),
         plan_education_forms=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_forms"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_education_forms"))
+        ),
         plan_qualifications=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_qualifications"))),
+            await api_get_db_table(Apeks.TABLES.get("plan_qualifications"))
+        ),
         plan_education_specializations_narrow=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("plan_education_specializations_narrow"))),
-        mm_work_programs=await get_plan_work_programs([*plan_curriculum_disciplines])
+                Apeks.TABLES.get("plan_education_specializations_narrow")
+            )
+        ),
+        mm_work_programs=await get_plan_work_programs([*plan_curriculum_disciplines]),
     )
     plan_name = plan.name
     form = TitlePagesGenerator()
     organization_name = await get_organization_name()
     chief_info = await get_organization_chief_info()
-    chief_rank = await get_rank_name(chief_info.get('specialRank'))
+    chief_rank = await get_rank_name(chief_info.get("specialRank"))
     approval_date = date.today()
-    full_spec_code = (f"{plan.education_group_code}."
-                      f"{plan.education_level_code}."
-                      f"{plan.specialty_code}")
+    full_spec_code = (
+        f"{plan.education_group_code}."
+        f"{plan.education_level_code}."
+        f"{plan.specialty_code}"
+    )
     form.organization_name.data = organization_name.upper()
     form.chief_rank.data = chief_rank[0]
-    form.chief_name.data = chief_info.get('name_short')
+    form.chief_name.data = chief_info.get("name_short")
     form.wp_approval_day.data = approval_date.day
     form.wp_approval_month.data = approval_date.month
     form.wp_approval_year.data = approval_date.year
-    form.wp_speciality_type.data = "bak" if plan.specialty_code == '02' else "spec"
+    form.wp_speciality_type.data = "bak" if plan.specialty_code == "02" else "spec"
     form.wp_speciality.data = f"{full_spec_code} {plan.specialty}"
-    form.wp_specialization_type.data = "bak" if plan.specialty_code == '02' else "spec"
+    form.wp_specialization_type.data = "bak" if plan.specialty_code == "02" else "spec"
     form.wp_specialization.data = plan.specialization
     form.wp_education_form.data = plan.education_form
     form.wp_year.data = date.today().year
@@ -340,15 +362,19 @@ async def wp_title(plan_id):
     form.wp_narrow_specialization.data = plan.specialization_narrow
     if request.method == "POST" and form.validate_on_submit():
         form_data = request.form.to_dict()
-        del form_data['csrf_token']
-        del form_data['fields_data']
-        form_data['wp_speciality_type'] = dict(
-            form.wp_speciality_type.choices).get(form.wp_speciality_type.data)
-        form_data['wp_specialization_type'] = dict(form.wp_specialization_type.choices).get(form.wp_specialization_type.data)
-        form_data['wp_approval_month'] = dict(form.wp_approval_month.choices).get(form.wp_approval_month.data)
-        filename = generate_title_pages(form_data, plan_name, plan.mm_work_programs)
+        del form_data["csrf_token"]
+        del form_data["fields_data"]
+        form_data["wp_speciality_type"] = dict(form.wp_speciality_type.choices).get(
+            form.wp_speciality_type.data
+        )
+        form_data["wp_specialization_type"] = dict(
+            form.wp_specialization_type.choices
+        ).get(form.wp_specialization_type.data)
+        form_data["wp_approval_month"] = dict(form.wp_approval_month.choices).get(
+            form.wp_approval_month.data
+        )
+        filename = generate_wp_title_pages(form_data, plan_name, plan.mm_work_programs)
         return redirect(url_for("main.get_file", filename=filename))
-    print(form.form_errors)
     return render_template(
         "programs/wp_title.html",
         active="programs",
