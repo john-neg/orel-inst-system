@@ -1,3 +1,6 @@
+import logging
+
+from app.common.func import data_processor
 from app.main.func import db_filter_req, add_wp_field
 from app.main.models import EducationPlan
 from config import ApeksConfig as Apeks
@@ -45,10 +48,10 @@ class LibraryPlan(EducationPlan):
                 wp_fields = db_filter_req(
                     "mm_work_programs_data", "work_program_id", wp_data[0]["id"]
                 )
-                if not wp_fields:
-                    for field in library_fields:
+                current_fields = data_processor(wp_fields, 'field_id')
+                for field in library_fields:
+                    if field not in current_fields:
                         add_wp_field(wp_data[0]["id"], field)
-
                 field_dict = {}
                 for field in library_fields:
                     field_dict[field] = lib_data(field)

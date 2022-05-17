@@ -43,6 +43,7 @@ class ApeksConfig(object):
     TABLES = {
         "load_groups": "load_groups",
         "load_subgroups": "load_subgroups",
+        "mm_work_programs": "mm_work_programs",
         "plan_disciplines": "plan_disciplines",
         "plan_curriculum_disciplines": "plan_curriculum_disciplines",
         "plan_education_plans": "plan_education_plans",

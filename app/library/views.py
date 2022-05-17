@@ -321,6 +321,7 @@ class LibraryUpdateView(View):
             for wp_id in plan.work_programs:
                 if plan.work_programs.get(wp_id) == disc:
                     counter = 0
+                    #TODO Добавить проверку существования поля и если нет то создавать
                     for bibl_type in LIB_TYPES[self.lib_type]:
                         load_bibl(wp_id, bibl_type, file_data[disc][counter])
                         counter += 1

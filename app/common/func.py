@@ -274,15 +274,15 @@ async def get_organization_chief_info(
     response = await check_api_db_response(
         await api_get_db_table(table, setting="system.head.chief")
     )
-    value = response[0].get('value')
+    value = response[0].get("value")
 
     if value:
         chief_data = dict(
             loads(value.encode(), decode_strings=True, array_hook=OrderedDict)
         )
-        name = chief_data.get('name').split()
+        name = chief_data.get("name").split()
         if len(name) >= 3:
-            chief_data['name_short'] = f'{name[1][0]}.{name[2][0]}. {name[0]}'
+            chief_data["name_short"] = f"{name[1][0]}.{name[2][0]}. {name[0]}"
         return chief_data
 
 
@@ -479,3 +479,29 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
                 disc_name(disc.get("discipline_id")),
             ]
     return disciplines
+
+
+async def get_plan_work_programs(disciplines_list: list) -> dict:
+    """
+    Получение рабочих программ плана
+
+    Parameters
+    ----------
+        disciplines_list: list
+            список дисциплин учебного плана
+
+    Returns
+    ----------
+        dict
+            {work_program_id: {disc_code: disc_name}}
+    """
+    wp_data = []
+    for disc_id in disciplines_list:
+        response = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs"),
+                    curriculum_discipline_id=disc_id,
+                )
+            )
+        wp_data += response
+    return data_processor(wp_data)

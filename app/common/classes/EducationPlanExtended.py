@@ -36,6 +36,7 @@ class EducationPlanExtended(EducationPlan):
         plan_education_specializations_narrow: list
             данные из таблицы 'plan_education_specializations_narrow'
             (информация о ....)
+        mm_work_programs: dict
 
     Methods:
     -------
@@ -52,6 +53,7 @@ class EducationPlanExtended(EducationPlan):
     plan_education_forms: list
     plan_qualifications: list
     plan_education_specializations_narrow: list
+    mm_work_programs: dict
 
     def __post_init__(self) -> None:
         self.plan_data = self.plan_education_plans[0]

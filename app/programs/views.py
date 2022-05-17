@@ -10,7 +10,8 @@ from flask_login import login_required
 from app.common.classes.EducationPlanExtended import EducationPlanExtended
 from app.common.func import get_departments, check_api_db_response, api_get_db_table, \
     get_plan_curriculum_disciplines, get_organization_name, get_organization_chief_info, \
-    get_rank_name
+    get_rank_name, get_plan_work_programs
+from app.common.reports import generate_title_pages
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp
@@ -287,12 +288,13 @@ def wp_data(plan_id):
 @bp.route("/wp_title/<int:plan_id>", methods=["GET", "POST"])
 @login_required
 async def wp_title(plan_id):
+    plan_curriculum_disciplines = await get_plan_curriculum_disciplines(plan_id)
     plan = EducationPlanExtended(
         education_plan_id=plan_id,
         plan_education_plans=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("plan_education_plans"),
                                    id=plan_id)),
-        plan_curriculum_disciplines=await get_plan_curriculum_disciplines(plan_id),
+        plan_curriculum_disciplines=plan_curriculum_disciplines,
         plan_education_levels=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("plan_education_levels"))),
         plan_education_specialties=await check_api_db_response(
@@ -311,13 +313,14 @@ async def wp_title(plan_id):
         plan_education_specializations_narrow=await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("plan_education_specializations_narrow"))),
+        mm_work_programs=await get_plan_work_programs([*plan_curriculum_disciplines])
     )
     plan_name = plan.name
     form = TitlePagesGenerator()
     organization_name = await get_organization_name()
     chief_info = await get_organization_chief_info()
     chief_rank = await get_rank_name(chief_info.get('specialRank'))
-    approval_date = date.fromisoformat(plan.approval_date)
+    approval_date = date.today()
     full_spec_code = (f"{plan.education_group_code}."
                       f"{plan.education_level_code}."
                       f"{plan.specialty_code}")
@@ -325,66 +328,27 @@ async def wp_title(plan_id):
     form.chief_rank.data = chief_rank[0]
     form.chief_name.data = chief_info.get('name_short')
     form.wp_approval_day.data = approval_date.day
-    form.wp_approval_month.data = str(approval_date.month)
+    form.wp_approval_month.data = approval_date.month
     form.wp_approval_year.data = approval_date.year
     form.wp_speciality_type.data = "bak" if plan.specialty_code == '02' else "spec"
     form.wp_speciality.data = f"{full_spec_code} {plan.specialty}"
     form.wp_specialization_type.data = "bak" if plan.specialty_code == '02' else "spec"
     form.wp_specialization.data = plan.specialization
     form.wp_education_form.data = plan.education_form
-    form.wp_year.data = approval_date.year
+    form.wp_year.data = date.today().year
     form.wp_qualification.data = plan.qualification
     form.wp_narrow_specialization.data = plan.specialization_narrow
     if request.method == "POST" and form.validate_on_submit():
         form_data = request.form.to_dict()
         del form_data['csrf_token']
         del form_data['fields_data']
-        month_choices = dict(form.wp_approval_month.choices)
-        speciality_type_choices = dict(form.wp_speciality_type.choices)
-        specialization_type_choices = dict(form.wp_specialization_type.choices)
-
-        def generate_title_pages(
-                form_data: dict,
-                # month_choices: dict,
-                # speciality_type_choices: dict,
-                # specialization_type_choices: dict,
-        ) -> str:
-            document = Document()
-            section = document.sections[-1]
-            section.top_margin = Cm(2)  # Верхний отступ
-            section.bottom_margin = Cm(2)  # Нижний отступ
-            section.left_margin = Cm(2)  # Отступ слева
-            section.right_margin = Cm(2)  # Отступ справа
-            paragraph_format = document.styles["Normal"].paragraph_format
-            paragraph_format.line_spacing_rule = (
-                WD_LINE_SPACING.SINGLE
-            )  # межстрочный интервал
-            paragraph_format.space_after = Pt(0)  # между абзацами
-            style = document.styles["Normal"]
-            font = style.font
-            font.name = "Times New Roman"  # Стиль шрифта
-            font.size = Pt(14)
-
-            title = document.add_paragraph("")
-            title.add_run("МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИЙСКОЙ ФЕДЕРАЦИИ").bold = True
-            title.add_run(form_data.get('organization_name')).bold = True
-            document.add_paragraph("").all_caps = True
-            document.add_paragraph("")
-            approval_info = document.add_paragraph(form_data.get('wp_approval_info'))
-            # approval_info.parfmt(left_indent=8)
-            approval_info.add_run(f"{form_data.get('chief_rank')}\n")
-            document.add_paragraph(form_data.get('chief_name'))\
-                # .parfmt(alignment=WD_PARAGRAPH_ALIGNMENT.RIGHT)
-            document.add_paragraph("")
-
-
-            document.add_page_break()
-
-            document.save(FlaskConfig.EXPORT_FILE_DIR + "file.docx")
-            return "file.docx"
-
-        generate_title_pages(form_data)
-    # month_choices, speciality_type_choices, specialization_type_choices
+        form_data['wp_speciality_type'] = dict(
+            form.wp_speciality_type.choices).get(form.wp_speciality_type.data)
+        form_data['wp_specialization_type'] = dict(form.wp_specialization_type.choices).get(form.wp_specialization_type.data)
+        form_data['wp_approval_month'] = dict(form.wp_approval_month.choices).get(form.wp_approval_month.data)
+        filename = generate_title_pages(form_data, plan_name, plan.mm_work_programs)
+        return redirect(url_for("main.get_file", filename=filename))
+    print(form.form_errors)
     return render_template(
         "programs/wp_title.html",
         active="programs",

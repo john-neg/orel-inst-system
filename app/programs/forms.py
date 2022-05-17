@@ -130,7 +130,7 @@ class TitlePagesGenerator(FlaskForm):
     )
     wp_approval_month = SelectField(
         "Месяц",
-        coerce=str,
+        coerce=int,
         choices=[
             (1, "января"),
             (2, "февраля"),
@@ -199,7 +199,7 @@ class TitlePagesGenerator(FlaskForm):
     )
     switch_qualification = BooleanField(
         "Квалификация:",
-        validators=[DataRequired()],
+        validators=[],
     )
     wp_narrow_specialization = StringField(
         "Узкая специализация:",
@@ -213,6 +213,4 @@ class TitlePagesGenerator(FlaskForm):
         "Иностранные слушатели",
         validators=[],
     )
-
-
     fields_data = SubmitField("Сформировать титульные листы")
