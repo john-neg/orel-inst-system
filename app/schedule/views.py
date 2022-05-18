@@ -12,7 +12,8 @@ from app.common.func import (
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_disciplines, data_processor,
+    get_disciplines,
+    data_processor,
 )
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
@@ -36,10 +37,13 @@ async def schedule():
             state_staff_positions=await check_api_db_response(
                 await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
             ),
-            departments=departments
+            departments=departments,
         )
-        if request.form.get("ical_exp") or request.form.get("xlsx_exp"):
-            department = request.form.get("department")
+        department = request.form.get("department")
+        form.staff.choices = list(staff.department_staff(department).items())
+        if (
+            request.form.get("ical_exp") or request.form.get("xlsx_exp")
+        ) and form.validate_on_submit():
             month = request.form.get("month")
             year = request.form.get("year")
             staff_id = request.form.get("staff")
@@ -48,7 +52,6 @@ async def schedule():
             except AttributeError:
                 logging.error("Не найдено имя преподавателя по staff_id")
                 staff_name = "Имя преподавателя отсутствует"
-
             staff_lessons = ScheduleLessonsStaff(
                 staff_id,
                 month,
@@ -63,14 +66,12 @@ async def schedule():
                     )
                 ),
             )
-
             filename = (
                 staff_lessons.export_ical(staff_name)
                 if request.form.get("ical_exp")
                 else staff_lessons.export_xlsx(staff_name)
             )
             if filename == "no data":
-                form.staff.choices = list(staff.department_staff(department).items())
                 error = f"{staff_name} - нет занятий в указанный период"
                 return render_template(
                     "schedule/schedule.html",
@@ -81,13 +82,10 @@ async def schedule():
                 )
             else:
                 return redirect(url_for("main.get_file", filename=filename))
-        elif request.form["dept_choose"]:
-            department = request.form.get("department")
-            form.staff.choices = list(staff.department_staff(department).items())
-            return render_template(
-                "schedule/schedule.html",
-                active="schedule",
-                form=form,
-                department=department,
-            )
+        return render_template(
+            "schedule/schedule.html",
+            active="schedule",
+            form=form,
+            department=department,
+        )
     return render_template("schedule/schedule.html", active="schedule", form=form)

@@ -28,24 +28,22 @@
     </div>
     <div class="col-xl-4">
       <label class="form-label">{{ form.staff.label }}</label>
-      {{ form.staff (class="form-select form-select-ld") }}
+      {{ form.staff(class="form-select form-select-ld") }}
     </div>
   </div>
 
   <div class="row mt-3 gy-3">
     <div class="d-grid col-xl-4">
       <input type="submit" name="ical_exp" value="Экспорт в iCal" class="btn btn-danger bg-opacity-75">
+      <div class="text-center text-wrap">
+        (для загрузки в календарь)
+      </div>
     </div>
     <div class="d-grid col-xl-4">
       <input type="submit" name="xlsx_exp" value="Экспорт в Excel" class="btn btn-success bg-opacity-75">
-    </div>
-  </div>
-  <div class="row mb-4 gy-3">
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (для загрузки в календарь)
-    </div>
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (список для работы и печати)
+      <div class="text-center text-wrap">
+        (список для работы и печати)
+      </div>
     </div>
   </div>
 

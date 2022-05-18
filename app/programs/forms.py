@@ -1,11 +1,18 @@
 from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, IntegerField, TextAreaField, \
-    BooleanField
+from wtforms import (
+    SelectField,
+    StringField,
+    SubmitField,
+    IntegerField,
+    TextAreaField,
+    BooleanField,
+)
 from wtforms.validators import DataRequired, Length, NumberRange
 
 from app.main.forms import ChoosePlan
+from config import ApeksConfig as Apeks
 
 
 class FieldsForm(FlaskForm):
@@ -110,10 +117,12 @@ class TitlePagesGenerator(FlaskForm):
     )
     wp_approval_info = TextAreaField(
         "Информация об утверждении",
-        default=("УТВЕРЖДАЮ\n"
-                 + "Начальник Орловского\n"
-                 + "юридического института МВД России\n"
-                 + "имени В.В. Лукьянова"),
+        default=(
+            "УТВЕРЖДАЮ\n"
+            + "Начальник Орловского\n"
+            + "юридического института МВД России\n"
+            + "имени В.В. Лукьянова"
+        ),
         validators=[DataRequired()],
     )
     chief_rank = StringField(
@@ -132,18 +141,14 @@ class TitlePagesGenerator(FlaskForm):
         "Месяц",
         coerce=int,
         choices=[
-            (1, "января"),
-            (2, "февраля"),
-            (3, "марта"),
-            (4, "апреля"),
-            (5, "мая"),
-            (6, "июня"),
-            (7, "июля"),
-            (8, "августа"),
-            (9, "сентября"),
-            (10, "октября"),
-            (11, "ноября"),
-            (12, "декабря"),
+            (
+                k,
+                v.replace("й", "я")
+                .replace("ь", "я")
+                .replace("рт", "рта")
+                .replace("ст", "ста"),
+            )
+            for k, v in Apeks.MONTH_DICT.items()
         ],
         validators=[DataRequired()],
     )
@@ -182,9 +187,7 @@ class TitlePagesGenerator(FlaskForm):
         "Специализация:",
         validators=[DataRequired()],
     )
-    wp_foreigners = BooleanField(
-        "Иностранные слушатели:"
-    )
+    wp_foreigners = BooleanField("Иностранные слушатели:")
     wp_education_form = StringField(
         "Форма обучения:",
         validators=[DataRequired()],
