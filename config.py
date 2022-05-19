@@ -221,6 +221,16 @@ class ApeksConfig(object):
     TIMEZONE = pytz.timezone("Europe/Moscow")
 
 
+# Создание директорий если отсутствуют
+for local_directory in (
+        FlaskConfig.EXPORT_FILE_DIR,
+        FlaskConfig.UPLOAD_FILE_DIR,
+        FlaskConfig.LOG_FILE_DIR,
+):
+    if not os.path.exists(local_directory):
+        os.mkdir(local_directory, 0o755)
+
+
 # Logger Configuration
 logging.basicConfig(
     level=logging.DEBUG,
@@ -233,13 +243,3 @@ logging.basicConfig(
         ),
     ],
 )
-
-
-# Создание директорий если отсутствуют
-for local_directory in (
-        FlaskConfig.EXPORT_FILE_DIR,
-        FlaskConfig.UPLOAD_FILE_DIR,
-        FlaskConfig.LOG_FILE_DIR,
-):
-    if not os.path.exists(local_directory):
-        os.mkdir(local_directory, 0o755)
