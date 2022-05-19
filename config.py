@@ -1,4 +1,7 @@
+import logging
 import os
+import sys
+from logging.handlers import RotatingFileHandler
 
 import pytz
 from dotenv import load_dotenv
@@ -218,6 +221,21 @@ class ApeksConfig(object):
     TIMEZONE = pytz.timezone("Europe/Moscow")
 
 
+# Logger Configuration
+logging.basicConfig(
+    level=logging.DEBUG,
+    # encoding="utf-8",
+    format="%(asctime)s - [%(levelname)s] - %(funcName)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(stream=sys.stdout),
+        RotatingFileHandler(
+            FlaskConfig.LOG_FILE_DIR + "system.log", maxBytes=5000000, backupCount=5
+        ),
+    ],
+)
+
+
+# Создание директорий если отсутствуют
 for local_directory in (
         FlaskConfig.EXPORT_FILE_DIR,
         FlaskConfig.UPLOAD_FILE_DIR,

@@ -1,6 +1,7 @@
 import logging
 
 from flask import Flask
+from flask.logging import create_logger
 from flask_admin import Admin
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -45,6 +46,7 @@ def create_app(config_class=FlaskConfig):
     db.init_app(app)
     login.init_app(app)
     admin.init_app(app, index_view=MyAdminIndexView())
+    create_logger(app)
 
     from app.auth import bp as login_bp
     app.register_blueprint(login_bp)
