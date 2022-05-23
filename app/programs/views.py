@@ -288,6 +288,7 @@ def wp_data(plan_id):
     return render_template(
         "programs/wp_data.html",
         active="programs",
+        url=Apeks.URL,
         wp_list=wp_list,
         no_program=no_program,
         plan_name=plan_name,

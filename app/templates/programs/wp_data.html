@@ -21,7 +21,7 @@
       {% for disc in wp_list %}
         <tr>
           <td>
-            <a href="{{ config.APEKS_URL }}/mm/materials/view-wp?id={{ disc }}&work_program_id={{ wp_list[disc][3] }}" target="_blank"><svg class="bi me-2" width="16" height="16"><use xlink:href="#open"/></svg></a>
+            <a href="{{ url }}/mm/materials/view-wp?id={{ disc }}&work_program_id={{ wp_list[disc][3] }}" target="_blank"><svg class="bi me-2" width="16" height="16"><use xlink:href="#open"/></svg></a>
             <span style="white-space: pre-line"><b>{{ wp_list[disc][0] }}</b></span>
           </td>
           <td>
