@@ -45,7 +45,6 @@ def api_get_request_handler(func):
                         f"{func.__name__}. Ошибка конвертации "
                         f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                     )
-
     return wrapper
 
 
@@ -64,18 +63,62 @@ async def api_get_db_table(
             URL сервера
         token: str
             токен для API
-        **kwargs: int | str
+        **kwargs: int | str | tuple[int | str] | list[int | str]
             'filter_name=value' для дополнительных фильтров запроса
     """
     endpoint = f"{url}/api/call/system-database/get"
     params = {"token": token, "table": table_name}
     if kwargs:
         for db_filter, db_value in kwargs.items():
-            params[f"filter[{db_filter}]"] = str(db_value)
+            if type(db_value) in (int, str):
+                values = str(db_value)
+            else:
+                values = [str(val) for val in db_value]
+            params[f"filter[{db_filter}][]"] = values
     logging.debug(
-        "Переданы параметры для запроса 'api_get_db_table': " f"к таблице {table_name}"
+        "Переданы параметры для запроса 'api_get_db_table': " 
+        f"к таблице {table_name}"
     )
     return endpoint, params
+
+
+# @api_get_request_handler
+# async def api_get_db_table_filter_range(
+#     table_name: str, field: str, range_start: str | int, range_end: str | int,
+#     url: str = Apeks.URL, token: str = Apeks.TOKEN,
+# ):
+#     """
+#     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ с
+#     выбранным диапазоном.
+#
+#     Parameters
+#     ----------
+#         table_name: str
+#             имя_таблицы
+#         field: str
+#             название поля
+#         range_start: str | int
+#             начальное значение
+#         range_end: str | int
+#             конечное значение
+#         url: str
+#             URL сервера
+#         token: str
+#             токен для API
+#
+#     """
+#     endpoint = f"{url}/api/call/system-database/get"
+#     params = {
+#         "token": token,
+#         "table": table_name,
+#         "filter": f"{field} between {str(range_start)} and {str(range_end)}"
+#     }
+#     logging.debug(
+#         "Переданы параметры для запроса 'api_get_db_table_filter_range': "
+#         f"к таблице {table_name} filter: {field} "
+#         f"between {range_start} and {range_end}"
+#     )
+#     return endpoint, params
 
 
 async def check_api_db_response(response: dict) -> list:

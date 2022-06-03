@@ -55,7 +55,10 @@ async def load_report_export(year, month_start, month_end, department_id):
         month_end,
         state_staff=await get_state_staff(),
         state_staff_history=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
+            await api_get_db_table(
+                Apeks.TABLES.get("state_staff_history"),
+                department_id=department_id,
+            )
         ),
         state_staff_positions=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
@@ -63,35 +66,39 @@ async def load_report_export(year, month_start, month_end, department_id):
         departments=await get_departments(),
     )
 
+    department_staff = staff.department_staff(department_id)
+
     load = LoadReportProcessor(
         year=year,
         month_start=month_start,
         month_end=month_end,
         department_id=department_id,
         departments=staff.departments,
-        department_staff=staff.department_staff(department_id),
+        department_staff=department_staff,
         schedule_lessons=await check_api_db_response(
             await get_lessons(year, month_start, month_end)
-            ),
+        ),
         schedule_lessons_staff=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("schedule_day_schedule_lessons_staff"))
+            await api_get_db_table(
+                Apeks.TABLES.get("schedule_day_schedule_lessons_staff"),
+                staff_id=[*department_staff]
+            )
         ),
         load_groups=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("load_groups"))
         ),
         load_subgroups=await check_api_db_response(
-                    await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
-                ),
+            await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
+        ),
         plan_education_plans=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("plan_education_plans"))
         ),
         plan_education_plans_education_forms=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("plan_education_plans_education_forms")
+                Apeks.TABLES.get("plan_education_plans_education_forms"),
             )
         ),
         staff_history_data=staff.staff_history(),
     )
-
     filename = load.generate_report()
     return redirect(url_for("main.get_file", filename=filename))

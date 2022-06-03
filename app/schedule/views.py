@@ -26,20 +26,24 @@ async def schedule():
     departments = await get_departments()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     if request.method == "POST":
+        department = request.form.get("department")
+        state_staff = await get_state_staff()
         staff = EducationStaff(
             year=date.today().year,
             month_start=date.today().month - 1,
             month_end=date.today().month,
-            state_staff=await get_state_staff(),
+            state_staff=state_staff,
             state_staff_history=await check_api_db_response(
-                await api_get_db_table(Apeks.TABLES.get("state_staff_history"))
+                await api_get_db_table(
+                    Apeks.TABLES.get("state_staff_history"),
+                    department_id=department,
+                )
             ),
             state_staff_positions=await check_api_db_response(
                 await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
             ),
             departments=departments,
         )
-        department = request.form.get("department")
         form.staff.choices = list(staff.department_staff(department).items())
         if (
             request.form.get("ical_exp") or request.form.get("xlsx_exp")

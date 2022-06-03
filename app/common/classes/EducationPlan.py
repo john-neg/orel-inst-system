@@ -16,7 +16,8 @@ class EducationPlan:
             данные из таблицы 'plan_education_plans' (filter - id:plan_id)
             (информация об учебном плане)
         plan_curriculum_disciplines: dict
-            данные из таблицы 'plan_education_plans' (filter - id:plan_id)
+            данные из таблицы 'plan_curriculum_disciplines'
+            (filter - id:plan_id)
             (информация о дисциплинах плана)
 
     Methods:
