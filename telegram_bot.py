@@ -4,11 +4,10 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.types import BotCommand
-from aiogram.utils.exceptions import BotBlocked
 from dotenv import load_dotenv
 
 from app.telegram.common import register_handlers_common

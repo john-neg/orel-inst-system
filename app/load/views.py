@@ -12,6 +12,7 @@ from app.common.func import (
     api_get_db_table,
     get_lessons,
 )
+from app.common.reports.load_report import generate_load_report
 from app.load import bp
 from app.load.forms import LoadReportForm
 from config import ApeksConfig as Apeks
@@ -21,16 +22,18 @@ from config import ApeksConfig as Apeks
 async def load_report():
     form = LoadReportForm()
     departments = await get_departments()
-    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
+    form.department.choices = [(i, n.get("full")) for i, n in departments.items()]
     if request.method == "POST" and form.validate_on_submit():
         year = request.form.get("year")
-        month = request.form.get("month").split('-')
+        month = request.form.get("month").split("-")
         month_start = int(month[0])
         month_end = int(month[1])
         department = request.form.get("department")
-        logging.info(f'view функция load.load_report передала '
-                     f'year={year}, month_start={month_start}, '
-                     f'month_end={month_end}, department={department}')
+        logging.info(
+            f"view функция load.load_report передала "
+            f"year={year}, month_start={month_start}, "
+            f"month_end={month_end}, department={department}"
+        )
         return redirect(
             url_for(
                 "load.load_report_export",
@@ -65,9 +68,7 @@ async def load_report_export(year, month_start, month_end, department_id):
         ),
         departments=await get_departments(),
     )
-
     department_staff = staff.department_staff(department_id)
-
     load = LoadReportProcessor(
         year=year,
         month_start=month_start,
@@ -81,7 +82,7 @@ async def load_report_export(year, month_start, month_end, department_id):
         schedule_lessons_staff=await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("schedule_day_schedule_lessons_staff"),
-                staff_id=[*department_staff]
+                staff_id=[*department_staff],
             )
         ),
         load_groups=await check_api_db_response(
@@ -100,5 +101,5 @@ async def load_report_export(year, month_start, month_end, department_id):
         ),
         staff_history_data=staff.staff_history(),
     )
-    filename = load.generate_report()
+    filename = generate_load_report(load)
     return redirect(url_for("main.get_file", filename=filename))

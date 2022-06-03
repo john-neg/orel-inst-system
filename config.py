@@ -18,10 +18,11 @@ class FlaskConfig(object):
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(BASEDIR, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    EXPORT_FILE_DIR = os.path.join(BASEDIR, "app/files/export/")
-    UPLOAD_FILE_DIR = os.path.join(BASEDIR, "app/files/upload/")
+    TEMP_FILE_DIR = os.path.join(BASEDIR, "temp/")
+    EXPORT_FILE_DIR = os.path.join(BASEDIR, "temp/export/")
+    UPLOAD_FILE_DIR = os.path.join(BASEDIR, "temp/upload/")
     LOG_FILE_DIR = os.path.join(BASEDIR, "logs/")
-    TEMP_FILE_DIR = os.path.join(BASEDIR, "app/files/templates/")
+    TEMPLATE_FILE_DIR = os.path.join(BASEDIR, "app/common/reports/templates/")
     STATIC_FILE_DIR = os.path.join(BASEDIR, "app/static/")
     ALLOWED_EXTENSIONS = {"xlsx", "csv"}
 
@@ -223,9 +224,10 @@ class ApeksConfig(object):
 
 # Создание директорий если отсутствуют
 for local_directory in (
-        FlaskConfig.EXPORT_FILE_DIR,
-        FlaskConfig.UPLOAD_FILE_DIR,
-        FlaskConfig.LOG_FILE_DIR,
+    FlaskConfig.TEMP_FILE_DIR,
+    FlaskConfig.EXPORT_FILE_DIR,
+    FlaskConfig.UPLOAD_FILE_DIR,
+    FlaskConfig.LOG_FILE_DIR,
 ):
     if not os.path.exists(local_directory):
         os.mkdir(local_directory, 0o755)

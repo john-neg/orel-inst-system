@@ -15,6 +15,8 @@ from app.common.func import (
     get_disciplines,
     data_processor,
 )
+from app.common.reports.schedule_ical import generate_schedule_ical
+from app.common.reports.schedule_xlsx import generate_schedule_xlsx
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
 from config import ApeksConfig as Apeks
@@ -71,9 +73,9 @@ async def schedule():
                 ),
             )
             filename = (
-                staff_lessons.export_ical(staff_name)
+                generate_schedule_ical(staff_lessons, staff_name)
                 if request.form.get("ical_exp")
-                else staff_lessons.export_xlsx(staff_name)
+                else generate_schedule_xlsx(staff_lessons, staff_name)
             )
             if filename == "no data":
                 error = f"{staff_name} - нет занятий в указанный период"

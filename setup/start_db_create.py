@@ -5,11 +5,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# from app.auth.models import User
 from config import FlaskConfig, BASEDIR
 
 app = Flask(__name__)
 app.config.from_object(FlaskConfig)
-db = SQLAlchemy(app)
+db = SQLAlchemy()
+db.init_app(app)
 
 
 class User(db.Model):
@@ -33,23 +35,23 @@ class User(db.Model):
 
 
 if not exists(os.path.join(BASEDIR, 'app.db')):
-    db.create_all()
+    with app.app_context():
+        db.create_all()
 
-    # Create base users
-    u = User(username='admin', role=FlaskConfig.ROLE_ADMIN)
-    u.set_password('admin')
-    db.session.add(u)
+        u = User(username='admin', role=FlaskConfig.ROLE_ADMIN)
+        u.set_password('admin')
+        db.session.add(u)
 
-    u = User(username='user', role=FlaskConfig.ROLE_USER)
-    u.set_password('user')
-    db.session.add(u)
+        u = User(username='user', role=FlaskConfig.ROLE_USER)
+        u.set_password('user')
+        db.session.add(u)
 
-    u = User(username='metod', role=FlaskConfig.ROLE_METOD)
-    u.set_password('metod')
-    db.session.add(u)
+        u = User(username='metod', role=FlaskConfig.ROLE_METOD)
+        u.set_password('metod')
+        db.session.add(u)
 
-    u = User(username='bibl', role=FlaskConfig.ROLE_BIBL)
-    u.set_password('bibl')
-    db.session.add(u)
+        u = User(username='bibl', role=FlaskConfig.ROLE_BIBL)
+        u.set_password('bibl')
+        db.session.add(u)
 
-    db.session.commit()
+        db.session.commit()

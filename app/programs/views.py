@@ -4,7 +4,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
-from app.common.classes.EducationPlanExtended import EducationPlanExtended
+from app.common.classes.EducationPlan import EducationPlanExtended
 from app.common.func import (
     get_departments,
     check_api_db_response,
@@ -15,7 +15,7 @@ from app.common.func import (
     get_rank_name,
     get_plan_work_programs,
 )
-from app.common.reports import generate_wp_title_pages
+from app.common.reports.wp_title_pages import generate_wp_title_pages
 from app.main.func import education_specialty, education_plans, db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp

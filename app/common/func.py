@@ -290,6 +290,7 @@ async def get_organization_name(
     response = await check_api_db_response(
         await api_get_db_table(table, setting="system.ou.name")
     )
+    logging.debug(f"Передана информация о названии организации")
     return response[0].get("value")
 
 
@@ -326,6 +327,7 @@ async def get_organization_chief_info(
         name = chief_data.get("name").split()
         if len(name) >= 3:
             chief_data["name_short"] = f"{name[1][0]}.{name[2][0]}. {name[0]}"
+        logging.debug(f"Передана информация о руководителе")
         return chief_data
 
 
@@ -343,6 +345,7 @@ async def get_rank_name(
     response = await check_api_db_response(await api_get_db_table(table, id=rank_id))
     name = response[0].get("name")
     name_short = response[0].get("name_short")
+    logging.debug(f"Передана информация о специальном звании")
     return [name, name_short]
 
 
@@ -521,6 +524,8 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
                 disc.get("code"),
                 disc_name(disc.get("discipline_id")),
             ]
+    logging.debug(f"Передана информация о дисциплинах "
+                  f"education_plan_id: {education_plan_id}")
     return disciplines
 
 

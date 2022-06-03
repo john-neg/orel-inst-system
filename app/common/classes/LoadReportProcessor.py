@@ -3,12 +3,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from openpyxl import load_workbook
-from openpyxl.styles import Font
-
-from app.common.classes.ExcelStyle import ExcelStyle
 from app.common.classes.LessonsData import LessonsData
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks
 
 
 @dataclass
@@ -41,8 +37,6 @@ class LoadReportProcessor(LessonsData):
             возвращает нагрузку преподавателя их хранилища 'load_data'
         process_load_data() -> None:
             рассчитывает нагрузку по преподавателям
-        generate_report() -> str:
-            формирует файл отчета о нагрузке в Excel, возвращает имя файла.
     """
 
     year: int | str
@@ -142,78 +136,3 @@ class LoadReportProcessor(LessonsData):
             else:
                 logging.warning(f"Необработанное занятие типа контроль - {control}")
                 self.unprocessed.append(control)
-
-    def generate_report(self) -> str:
-        """
-        Формирует отчет о нагрузке в Excel.
-
-        Returns
-        -------
-            str
-                название файла
-        """
-
-        wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + "load_report_temp.xlsx")
-        ws = wb.active
-        ws.title = (
-            f"{self.year}-{self.file_period} "
-            f"{self.departments.get(self.department_id).get('short')}"
-        )
-        ws.cell(1, 1).value = "Кафедра " + self.departments.get(self.department_id).get(
-            "full"
-        )
-        ws.cell(2, 1).value = f"отчет о нагрузке за {self.file_period} {self.year}"
-        row = 8
-        for staff_id in self.load_data:
-            # Style apply
-            for i in range(2, 73):
-                ws.cell(row, i).style = ExcelStyle.Number
-            # Prepod Name
-            ws.cell(row, 1).value = self.staff_list[staff_id]
-            ws.cell(row, 1).style = ExcelStyle.Base
-            for l_type in self.load_data[staff_id]:
-                if l_type == "lecture":
-                    column = 2
-                elif l_type == "seminar":
-                    column = 8
-                elif l_type == "pract":
-                    column = 14
-                elif l_type == "group_cons":
-                    column = 24
-                    if self.load_data[staff_id][l_type]["dpo"]:
-                        del self.load_data[staff_id][l_type]["dpo"]
-                elif l_type == "zachet":
-                    column = 29
-                elif l_type == "exam":
-                    column = 35
-                elif l_type == "final_att":
-                    column = 59
-                else:
-                    column = 73
-                for key, val in self.load_data[staff_id][l_type].items():
-                    val = "" if val == 0 else val
-                    ws.cell(row, column).value = val
-                    if val and val % 1 > 0:
-                        ws.cell(row, column).number_format = "0.00"
-                    column += 1
-            ws.cell(row, 72).value = f"=SUM(B{str(row)}:BS{str(row)})"
-            row += 1
-        # Total
-        ws.cell(row, 1).value = "Итого"
-        ws.cell(row, 1).style = ExcelStyle.BaseBold
-        for col in range(2, 73):
-            ltr = ws.cell(row, col).column_letter
-            ws.cell(row, col).value = (
-                f"=IF(SUM({ltr}8:{ltr}{str(row - 1)})>0,"
-                f'SUM({ltr}8:{ltr}{str(row - 1)}),"")'
-            )
-            ws.cell(row, col).style = ExcelStyle.Number
-            ws.cell(row, col).font = Font(name="Times New Roman", size=10, bold=True)
-
-        filename = (
-            f"{self.departments.get(self.department_id).get('short')} "
-            f"{self.file_period} {self.year}.xlsx"
-        )
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
-        logging.debug(f"Сформирован файл - отчет о нагрузке: {filename}")
-        return filename

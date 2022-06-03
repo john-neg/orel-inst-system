@@ -378,7 +378,7 @@ class LibraryExportView(View):
             f'{self.lib_type_name} - '
             f'{db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]}.xlsx'
         )
-        wb = load_workbook(FlaskConfig.TEMP_FILE_DIR + f"{self.lib_type}_load_temp.xlsx")
+        wb = load_workbook(FlaskConfig.TEMPLATE_FILE_DIR + f"{self.lib_type}_load_temp.xlsx")
         ws = wb.active
         start_row = 2
         for data in lib_data:

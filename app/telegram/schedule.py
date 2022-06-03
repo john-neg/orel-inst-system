@@ -18,6 +18,7 @@ from app.common.func import (
     api_get_staff_lessons,
     get_disciplines, data_processor,
 )
+from app.common.reports.schedule_ical import generate_schedule_ical
 from config import FlaskConfig, ApeksConfig as Apeks
 
 
@@ -135,7 +136,7 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
     )
 
     staff_name = message.text
-    filename = staff_lessons.export_ical(staff_name)
+    filename = generate_schedule_ical(staff_lessons, staff_name)
     if filename == "no data":
         await message.answer(
             f"У {message.text} отсутствуют занятия за указанный период!",

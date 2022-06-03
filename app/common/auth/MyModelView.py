@@ -9,8 +9,8 @@ from config import FlaskConfig
 class MyModelView(ModelView):
     def is_accessible(self):
         return (
-                current_user.is_authenticated
-                and current_user.role == FlaskConfig.ROLE_ADMIN
+            current_user.is_authenticated
+            and current_user.role == FlaskConfig.ROLE_ADMIN
         )
 
     def inaccessible_callback(self, name, **kwargs):

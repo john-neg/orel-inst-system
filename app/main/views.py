@@ -38,7 +38,7 @@ def get_file(filename):
 @bp.route("/templates/<string:filename>", methods=["GET"])
 def get_temp_file(filename):
     """Send template file from server."""
-    file = FlaskConfig.TEMP_FILE_DIR + filename
+    file = FlaskConfig.TEMPLATE_FILE_DIR + filename
     return send_file(
         file,
         mimetype="text/plain",

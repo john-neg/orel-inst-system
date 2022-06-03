@@ -6,7 +6,7 @@ from app import db, admin
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
 from app.auth.models import User
-from app.common.classes.auth.MyModelView import MyModelView
+from app.common.auth.MyModelView import MyModelView
 from config import FlaskConfig
 
 

@@ -3,6 +3,7 @@ from datetime import date
 from flask_wtf import FlaskForm
 from wtforms import SelectField
 from wtforms.validators import DataRequired
+
 from config import ApeksConfig as Apeks
 
 
