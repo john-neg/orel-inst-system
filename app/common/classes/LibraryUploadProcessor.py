@@ -4,7 +4,7 @@ from app.common.classes.EducationPlan import EducationPlan
 
 
 @dataclass
-class LibraryPlan(EducationPlan):
+class LibraryUploadProcessor(EducationPlan):
     """
     Сведения о.
 

@@ -13,7 +13,7 @@ from app.common.func import (
     get_organization_name,
     get_organization_chief_info,
     get_rank_name,
-    get_plan_work_programs,
+    get_plan_work_programs, data_processor,
 )
 from app.common.reports.wp_title_pages import generate_wp_title_pages
 from app.main.func import education_specialty, education_plans, db_filter_req
@@ -334,7 +334,14 @@ async def wp_title(plan_id):
                 Apeks.TABLES.get("plan_education_specializations_narrow")
             )
         ),
-        mm_work_programs=await get_plan_work_programs([*plan_curriculum_disciplines]),
+        mm_work_programs=data_processor(
+            await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs"),
+                    curriculum_discipline_id=[*plan_curriculum_disciplines],
+                )
+            )
+        )
     )
     plan_name = plan.name
     form = TitlePagesGenerator()

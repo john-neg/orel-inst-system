@@ -6,7 +6,6 @@ from flask_admin import Admin
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-from app.auth.models import User
 from app.common.auth.MyAdminIndexView import MyAdminIndexView
 from config import FlaskConfig, ApeksConfig as Apeks
 
