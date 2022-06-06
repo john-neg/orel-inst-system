@@ -555,7 +555,9 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
 #         wp_data += response
 #     return data_processor(wp_data)
 
-async def get_work_programs_data(work_program_id: list) -> dict:
+async def get_work_programs_data(
+        work_program_id: list, fields=False, signs=False, competencies=False
+) -> dict:
     wp_data = data_processor(
         await check_api_db_response(
             await api_get_db_table(
@@ -570,29 +572,6 @@ async def get_work_programs_data(work_program_id: list) -> dict:
         wp_data[wp]['competencies_data'] = {}
         wp_data[wp]['competency_levels'] = {}
 
-    field_data = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_work_programs_data"),
-            work_program_id=work_program_id,
-        )
-    )
-    for field in field_data:
-        wp_id = int(field.get('work_program_id'))
-        field_id = int(field.get('field_id'))
-        data = field.get('data')
-        wp_data[wp_id]['fields'][field_id] = data
-
-    signs_data = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_work_programs_signs"),
-            work_program_id=work_program_id,
-        )
-    )
-    for sign in signs_data:
-        wp_id = int(sign.get('work_program_id'))
-        user_id = int(sign.get('user_id'))
-        wp_data[wp_id]['signs'][user_id] = sign.get('timestamp')
-
     sections_data = await check_api_db_response(
         await api_get_db_table(
             Apeks.TABLES.get("mm_sections"),
@@ -606,54 +585,82 @@ async def get_work_programs_data(work_program_id: list) -> dict:
         for item in items:
             wp_data[wp_id][item] = sect.get(item)
 
-    competencies_fields = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_work_programs_competencies_fields"),
+    if fields:
+        field_data = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_work_programs_data"),
+                work_program_id=work_program_id,
+            )
         )
-    )
-    comp_fields = {}
-    for field in competencies_fields:
-        comp_fields[field.get('id')] = field.get('code')
-    competencies_data = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_work_programs_competencies_data"),
-            work_program_id=work_program_id,
-        )
-    )
-    for data in competencies_data:
-        wp_id = int(data.get('work_program_id'))
-        comp_id = int(data.get('competency_id'))
-        field = comp_fields.get(data.get('field_id'))
-        if not wp_data[wp_id]['competencies_data'].get(comp_id):
-            wp_data[wp_id]['competencies_data'][comp_id] = {}
-        wp_data[wp_id]['competencies_data'][comp_id][field] = data.get('value')
+        for field in field_data:
+            wp_id = int(field.get('work_program_id'))
+            field_id = int(field.get('field_id'))
+            data = field.get('data')
+            wp_data[wp_id]['fields'][field_id] = data
 
-    competency_levels = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_competency_levels"),
-            work_program_id=work_program_id,
+    if signs:
+        signs_data = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_work_programs_signs"),
+                work_program_id=work_program_id,
+            )
         )
-    )
-    for level in competency_levels:
-        wp_id = int(level.get('work_program_id'))
-        level_id = int(level.get('level'))
-        not_include = {'id', 'work_program_id'}
-        items = [item for item in [*level] if item not in not_include]
-        for item in items:
-            if not wp_data[wp_id]['competency_levels'].get(level_id):
-                wp_data[wp_id]['competency_levels'][level_id] = {}
-            wp_data[wp_id]['competency_levels'][level_id][item] = level.get(item)
+        for sign in signs_data:
+            wp_id = int(sign.get('work_program_id'))
+            user_id = int(sign.get('user_id'))
+            wp_data[wp_id]['signs'][user_id] = sign.get('timestamp')
 
+    if competencies:
+        competencies_fields = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_work_programs_competencies_fields"),
+            )
+        )
+        comp_fields = {}
+        for field in competencies_fields:
+            comp_fields[field.get('id')] = field.get('code')
+        comp_data = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_work_programs_competencies_data"),
+                work_program_id=work_program_id,
+            )
+        )
+        for data in comp_data:
+            wp_id = int(data.get('work_program_id'))
+            comp_id = int(data.get('competency_id'))
+            field = comp_fields.get(data.get('field_id'))
+            if not wp_data[wp_id]['competencies_data'].get(comp_id):
+                wp_data[wp_id]['competencies_data'][comp_id] = {}
+            wp_data[wp_id]['competencies_data'][comp_id][field] = data.get('value')
+
+        comp_levels = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_competency_levels"),
+                work_program_id=work_program_id,
+            )
+        )
+        for level in comp_levels:
+            wp_id = int(level.get('work_program_id'))
+            level_id = int(level.get('level'))
+            not_include = {'id', 'work_program_id'}
+            items = [item for item in [*level] if item not in not_include]
+            for item in items:
+                if not wp_data[wp_id]['competency_levels'].get(level_id):
+                    wp_data[wp_id]['competency_levels'][level_id] = {}
+                wp_data[wp_id]['competency_levels'][level_id][item] = level.get(item)
     return wp_data
 
 
-# from pprint import pprint
-#
-#
-# async def main():
-#     pprint(await get_work_programs_data([3645]))
-#
-# if __name__ == '__main__':
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(main())
-#     loop.close()
+from pprint import pprint
+
+
+async def main():
+    pprint(await get_work_programs_data(
+        [3645, 3646, 3747], competencies=True, fields=True, signs=True
+        )
+    )
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+    loop.close()
