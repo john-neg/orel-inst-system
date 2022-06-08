@@ -4,13 +4,6 @@ from config import ApeksConfig as Apeks
 from config import FlaskConfig as Config
 
 
-def allowed_file(filename):
-    """Check if file extension in allowed list in Config."""
-    return (
-            "." in filename and filename.rsplit(".", 1)[1] in Config.ALLOWED_EXTENSIONS
-    )
-
-
 def db_request(table_name):
     """DB request function without filter."""
     params = {"token": Apeks.TOKEN, "table": table_name}
@@ -31,48 +24,6 @@ def db_filter_req(table_name, sql_field, sql_value):
         Apeks.URL + "/api/call/system-database/get", params=params
     )
     return response.json()["data"]
-
-
-def education_specialty():
-    """Getting education_speciality data."""
-    payload = {"token": Apeks.TOKEN, "table": "plan_education_specialties"}
-    request = requests.get(
-        Apeks.URL + "/api/call/system-database/get", params=payload
-    )
-    specialties = {}
-    for i in request.json()["data"]:
-        specialties[i.get("id")] = i.get("name")
-    return specialties
-
-
-def education_plans(education_specialty_id, year=0):
-    """Getting education plans with selected speciality."""
-    payload = {
-        "token": Apeks.TOKEN,
-        "table": "plan_education_plans",
-        "filter[data_type]": "plan",
-        "filter[education_specialty_id]": education_specialty_id,
-        "filter[active]": "1",
-    }
-    request = requests.get(
-        Apeks.URL + "/api/call/system-database/get", params=payload
-    )
-    plans = {}
-    if year == 0:
-        for i in request.json()["data"]:
-            plans[i.get("id")] = i.get("name")
-        return plans
-    else:
-        for i in request.json()["data"]:
-            if i.get("custom_start_year") == year:
-                plans[i.get("id")] = i.get("name")
-            elif i.get("custom_start_year") is None:
-                date = db_filter_req(
-                            "plan_semesters", "education_plan_id", i.get("id")
-                        )
-                if date[0]["start_date"].split("-")[0] == year:
-                    plans[i.get("id")] = i.get("name")
-        return plans
 
 
 def plan_curriculum_disciplines(education_plan_id):

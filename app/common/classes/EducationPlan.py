@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from config import ApeksConfig as Apeks
 
-@dataclass
+
+@dataclass(repr=False, eq=False)
 class EducationPlan:
     """
     Сведения об учебном плане и содержащихся в нем дисциплинах.
@@ -25,13 +27,14 @@ class EducationPlan:
         discipline_name (cur_disc_id: int | str) -> str:
             возвращает строку "КОД Название дисциплины" по ее id
     """
+
     education_plan_id: int | str
     plan_education_plans: list
     plan_curriculum_disciplines: dict
 
     def __post_init__(self) -> None:
         self.plan_data = self.plan_education_plans[0]
-        self.name = self.plan_data.get('name')
+        self.name = self.plan_data.get("name")
 
     def discipline_name(self, cur_disc_id: int | str) -> str:
         """
@@ -53,7 +56,113 @@ class EducationPlan:
         )
 
 
-@dataclass
+@dataclass(repr=False, eq=False)
+class EducationPlanWorkProgram(EducationPlan):
+    """
+    Сведения об учебном плане и содержащихся в нем дисциплинах
+    и рабочих программах.
+
+    Attributes:
+    ----------
+        education_plan_id: int | str
+            id учебного плана
+        plan_education_plans: list
+            данные из таблицы 'plan_education_plans' (filter - id:plan_id)
+            (информация об учебном плане)
+        plan_curriculum_disciplines: dict
+            данные из таблицы 'plan_curriculum_disciplines'
+            (filter - id:plan_id)
+            (информация о дисциплинах плана)
+        work_programs_data: dict
+            данные о рабочих программах
+            вывод функции 'get_work_programs_data'
+
+    Methods:
+    -------
+        discipline_name (cur_disc_id: int | str) -> str:
+            возвращает строку "КОД Название дисциплины" по ее id
+        wp_analyze
+
+        library_content(self) -> dict
+    """
+
+    work_programs_data: dict
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.disc_wp_match = {disc: [] for disc in self.plan_curriculum_disciplines}
+        self.wrong_name, self.duplicate, self.non_exist = self.wp_analyze()
+
+    def wp_analyze(self) -> [dict, dict, dict]:
+        wrong_name, non_exist, duplicate = {}, {}, {}
+        for wp in self.work_programs_data:
+            disc_id = int(self.work_programs_data[wp].get("curriculum_discipline_id"))
+            self.disc_wp_match.get(disc_id).append(wp)
+            wp_name = self.work_programs_data[wp].get("name")
+            plan_disc_name = self.plan_curriculum_disciplines.get(disc_id)[1]
+            if wp_name != plan_disc_name:
+                wrong_name[disc_id] = [plan_disc_name, wp_name]
+        for disc in self.disc_wp_match:
+            if not self.disc_wp_match.get(disc):
+                non_exist[disc] = " ".join(self.plan_curriculum_disciplines[disc])
+            elif len(self.disc_wp_match.get(disc)) > 1:
+                duplicate[disc] = " ".join(self.plan_curriculum_disciplines[disc])
+        return wrong_name, duplicate, non_exist
+
+    def library_content(self) -> dict:
+        library_fields = [
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np"),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet"),
+            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system"),
+        ]
+        content = {}
+        for disc_id in self.disc_wp_match:
+            if not self.disc_wp_match[disc_id]:
+                field_dict = {}
+                for field in library_fields:
+                    field_dict[field] = "Нет программы"
+                content[self.plan_curriculum_disciplines.get(disc_id)[1]] = field_dict
+            else:
+                # если программа не одна показываем только последнюю
+                wp_id = self.disc_wp_match[disc_id][-1]
+                field_dict = {}
+                for field in library_fields:
+                    field_dict[field] = self.work_programs_data[wp_id]["fields"].get(
+                        field
+                    )
+                content[self.work_programs_data[wp_id].get("name")] = field_dict
+        return content
+
+        # for disc in self.plan_curriculum_disciplines:
+        #     wp_data = db_filter_req(
+        #         "mm_work_programs", "curriculum_discipline_id", disc
+        #     )
+        #     if wp_data:
+        #         wp_fields = db_filter_req(
+        #             "mm_work_programs_data", "work_program_id", wp_data[0]["id"]
+        #         )
+        #         current_fields = data_processor(wp_fields, 'field_id')
+        #         for field in library_fields:
+        #             if field not in current_fields:
+        #                 add_wp_field(wp_data[0]["id"], field)
+        #         field_dict = {}
+        #         for field in library_fields:
+        #             field_dict[field] = lib_data(field)
+        #         content[wp_data[-1]["name"]] = field_dict
+        #         # [-1] - это костыль т.к. в бд бывает дублирование,
+        #         # и тогда нужен именно последний объект
+        #
+        #     else:
+        #         field_dict = {}
+        #         for field in library_fields:
+        #             field_dict[field] = "Нет программы"
+        #         content[self.disciplines[disc][1]] = field_dict
+        # return content
+
+
+@dataclass(repr=False, eq=False)
 class EducationPlanExtended(EducationPlan):
     """
     Расширенные сведения об учебном плане и содержащихся в нем дисциплинах.
@@ -107,8 +216,6 @@ class EducationPlanExtended(EducationPlan):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        # self.plan_data = self.plan_education_plans[0]
-        # self.name = self.plan_data.get("name")
         self.education_level_id = self.plan_data.get("education_level_id")
         self.specialty_id = self.plan_data.get("education_specialty_id")
         self.specialization_id = self.plan_data.get("education_specialization_id")

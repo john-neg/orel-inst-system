@@ -75,6 +75,39 @@
     </div>
   {% endif %}
 
+  {% if duplicate %}
+    <div>
+      <table class="col-md-7 mt-3 table">
+        <tr class="table-warning">
+            <td>В плане существуют дубликаты программ:</td>
+        </tr>
+          {% for disc in duplicate %}
+            <tr>
+              <td><span style="white-space: pre-line"><b>{{ duplicate[disc] }}</b></span></td>
+            </tr>
+          {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+
+  {% if wrong_name %}
+    <div>
+      <table class="col-md-7 mt-3 table">
+        <tr class="table-danger">
+            <td>Название рабочей программы не соответствует названию дисциплины:</td>
+        </tr>
+          {% for disc in wrong_name %}
+            <tr>
+              <td><span style="white-space: pre-line"><b>План - "{{ wrong_name[disc][0] }}"</b></span></td>
+            </tr>
+            <tr>
+              <td><span style="white-space: pre-line"><b>Программа - "{{ wrong_name[disc][1] }}"</b></span></td>
+            </tr>
+          {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+
   {% if work_programs %}
     <div>
       <table class="col-md-7 mt-3 table">

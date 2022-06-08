@@ -12,7 +12,7 @@ from app.common.func import (
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_disciplines,
+    get_plan_disciplines,
     data_processor,
 )
 from app.common.reports.schedule_ical import generate_schedule_ical
@@ -65,7 +65,7 @@ async def schedule():
                 lessons_data=await check_api_staff_lessons_response(
                     await api_get_staff_lessons(staff_id, month, year)
                 ),
-                disciplines=await get_disciplines(),
+                disciplines=await get_plan_disciplines(),
                 load_subgroups_data=data_processor(
                     await check_api_db_response(
                         await api_get_db_table(Apeks.TABLES.get("load_subgroups"))

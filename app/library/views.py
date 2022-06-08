@@ -5,16 +5,20 @@ from flask.views import View
 from flask_login import login_required
 from openpyxl import load_workbook
 
+from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkProgram
+from app.common.forms import ChoosePlan, FileForm
+from app.common.func import (
+    check_api_db_response,
+    api_get_db_table,
+    get_plan_curriculum_disciplines,
+    get_work_programs_data,
+    allowed_file,
+    get_plan_education_specialties,
+    get_education_plans,
+)
 from app.library import bp
 from app.library.func import library_file_processing, load_bibl
 from app.library.models import LibraryPlan
-from app.main.forms import ChoosePlan, FileForm
-from app.main.func import (
-    education_specialty,
-    education_plans,
-    db_filter_req,
-    allowed_file,
-)
 from config import FlaskConfig, ApeksConfig as Apeks
 
 LIB_TYPES = {
@@ -38,12 +42,14 @@ class LibraryChoosePlanView(View):
         self.title = title
 
     @login_required
-    def dispatch_request(self):
+    async def dispatch_request(self):
         form = ChoosePlan()
-        form.edu_spec.choices = list(education_specialty().items())
+        specialities = await get_plan_education_specialties()
+        form.edu_spec.choices = list(specialities.items())
         if request.method == "POST":
             edu_spec = request.form.get("edu_spec")
-            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            plans = await get_education_plans(edu_spec)
+            form.edu_plan.choices = list(plans.items())
             if request.form.get("edu_plan") and form.validate_on_submit():
                 edu_plan = request.form.get("edu_plan")
                 return redirect(
@@ -115,9 +121,17 @@ class LibraryUploadView(View):
         self.title = title
 
     @login_required
-    def dispatch_request(self, plan_id):
+    async def dispatch_request(self, plan_id):
         form = FileForm()
-        plan = LibraryPlan(plan_id)
+        plan = EducationPlan(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=await get_plan_curriculum_disciplines(plan_id),
+        )
         if request.method == "POST":
             if request.form.get("library_load_temp"):
                 return redirect(
@@ -210,10 +224,20 @@ class LibraryCheckView(View):
         self.title = title
 
     @login_required
-    def dispatch_request(self, plan_id, filename):
+    async def dispatch_request(self, plan_id, filename):
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         form = FileForm()
-        plan = LibraryPlan(plan_id)
+        plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+        plan = EducationPlanWorkProgram(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=plan_disciplines,
+            work_programs_data=await get_work_programs_data([*plan_disciplines]),
+        )
         lib_data = library_file_processing(file)
         if request.method == "POST":
             if request.files["file"]:
@@ -249,11 +273,12 @@ class LibraryCheckView(View):
                 )
         # Check if program in uploaded file
         work_programs, no_data = [], []
-        for wp_id in plan.work_programs:
-            if plan.work_programs.get(wp_id) in lib_data:
-                work_programs.append(plan.work_programs.get(wp_id))
+        for wp in plan.work_programs_data:
+            wp_name = plan.work_programs_data[wp].get("name").strip()
+            if wp_name in lib_data:
+                work_programs.append(wp_name)
             else:
-                no_data.append(plan.work_programs.get(wp_id))
+                no_data.append(wp_name)
         return render_template(
             self.template_name,
             active="library",
@@ -263,6 +288,8 @@ class LibraryCheckView(View):
             plan_name=plan.name,
             no_data=no_data,
             no_program=plan.non_exist,
+            duplicate=plan.duplicate,
+            wrong_name=plan.wrong_name,
             work_programs=work_programs,
         )
 
@@ -321,7 +348,7 @@ class LibraryUpdateView(View):
             for wp_id in plan.work_programs:
                 if plan.work_programs.get(wp_id) == disc:
                     counter = 0
-                    #TODO Добавить проверку существования поля и если нет то создавать
+                    # TODO Добавить проверку существования поля и если нет то создавать
                     for bibl_type in LIB_TYPES[self.lib_type]:
                         load_bibl(wp_id, bibl_type, file_data[disc][counter])
                         counter += 1
@@ -371,14 +398,27 @@ class LibraryExportView(View):
         self.lib_type_name = lib_type_name
 
     @login_required
-    def dispatch_request(self, plan_id):
-        plan = LibraryPlan(plan_id)
+    async def dispatch_request(self, plan_id):
+        plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+        plan = EducationPlanWorkProgram(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=plan_disciplines,
+            work_programs_data=await get_work_programs_data(
+                [*plan_disciplines], fields=True
+            ),
+        )
         lib_data = plan.library_content()
         filename = (
-            f'{self.lib_type_name} - '
-            f'{db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]}.xlsx'
+            f"{self.lib_type_name} - {plan.name}.xlsx"
         )
-        wb = load_workbook(FlaskConfig.TEMPLATE_FILE_DIR + f"{self.lib_type}_load_temp.xlsx")
+        wb = load_workbook(
+            FlaskConfig.TEMPLATE_FILE_DIR + f"{self.lib_type}_load_temp.xlsx"
+        )
         ws = wb.active
         start_row = 2
         for data in lib_data:

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 from calendar import monthrange
 from collections import OrderedDict
@@ -12,7 +11,14 @@ from cache import AsyncTTL
 from phpserialize import loads
 
 from app.common.exceptions import ApeksApiException
-from config import ApeksConfig as Apeks
+from config import FlaskConfig, ApeksConfig as Apeks
+
+
+def allowed_file(filename):
+    """Check if file extension in allowed list in Config."""
+    return (
+        "." in filename and filename.rsplit(".", 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
+    )
 
 
 def api_get_request_handler(func):
@@ -46,6 +52,7 @@ def api_get_request_handler(func):
                         f"{func.__name__}. Ошибка конвертации "
                         f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                     )
+
     return wrapper
 
 
@@ -77,8 +84,7 @@ async def api_get_db_table(
                 values = [str(val) for val in db_value]
             params[f"filter[{db_filter}][]"] = values
     logging.debug(
-        "Переданы параметры для запроса 'api_get_db_table': " 
-        f"к таблице {table_name}"
+        "Переданы параметры для запроса 'api_get_db_table': " f"к таблице {table_name}"
     )
     return endpoint, params
 
@@ -351,7 +357,7 @@ async def get_rank_name(
 
 
 @AsyncTTL(time_to_live=60, maxsize=1024)
-async def get_disciplines(
+async def get_plan_disciplines(
     table: str = Apeks.TABLES.get("plan_disciplines"),
     level: int | str = Apeks.DISC_LEVEL,
 ) -> dict:
@@ -487,6 +493,83 @@ async def get_lessons(
     return endpoint, params
 
 
+async def get_plan_education_specialties() -> dict:
+    """
+    Получение групп специальностей.
+
+    Returns
+    ----------
+        dict
+            {speciality_id: speciality_name}
+    """
+
+    request = data_processor(
+        await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_specialties"),
+            )
+        )
+    )
+    specialties = {}
+    for i in request:
+        specialties[i] = request[i].get("name")
+    return specialties
+
+
+async def get_education_plans(education_specialty_id: int | str, year: int | str = 0) -> dict:
+    """
+    Получение списка планов по указанной специальности.
+
+    Parameters
+    ----------
+        education_specialty_id: int | str
+            id специальности из таблицы 'plan_education_specialties'.
+        year: int | str
+            год начала обучения по плану (по умолчанию 0 = все)
+
+    Returns
+    ----------
+        dict
+            {plan_id: plan_name}
+    """
+
+    education_plans = data_processor(
+        await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_plans"),
+                data_type="plan",
+                education_specialty_id=education_specialty_id,
+                active="1",
+            )
+        )
+    )
+
+    plans = {}
+    if year == 0:
+        for plan in education_plans:
+            plans[plan] = education_plans[plan].get("name")
+        return plans
+    else:
+        plans_dates = data_processor(
+            await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_semesters"),
+                    education_plan_id=[*education_plans],
+                    course="1",
+                    semester="1",
+                )
+            ),
+            "education_plan_id",
+        )
+        for plan in education_plans:
+            if plan.get("custom_start_year") == str(year):
+                plans[plan] = education_plans[plan].get("name")
+            elif plan.get("custom_start_year") is None:
+                if plans_dates.get(plan).get('start_date').split("-")[0] == str(year):
+                    plans[plan] = education_plans[plan].get("name")
+        return plans
+
+
 async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
     """
     Получение данных о дисциплинах учебного плана
@@ -525,12 +608,13 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
                 disc.get("code"),
                 disc_name(disc.get("discipline_id")),
             ]
-    logging.debug(f"Передана информация о дисциплинах "
-                  f"education_plan_id: {education_plan_id}")
+    logging.debug(
+        f"Передана информация о дисциплинах " f"education_plan_id: {education_plan_id}"
+    )
     return disciplines
 
 
-# async def get_plan_work_programs(disciplines_list: list) -> dict:
+# async def get_mm_work_programs(disciplines_list: list) -> dict:
 #     """
 #     Получение рабочих программ плана
 #
@@ -544,43 +628,43 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
 #         dict
 #             {work_program_id: {disc_code: disc_name}}
 #     """
-#     wp_data = []
-#     for disc_id in disciplines_list:
-#         response = await check_api_db_response(
-#                 await api_get_db_table(
-#                     Apeks.TABLES.get("mm_work_programs"),
-#                     curriculum_discipline_id=disc_id,
-#                 )
+#     response = await check_api_db_response(
+#             await api_get_db_table(
+#                 Apeks.TABLES.get("mm_work_programs"),
+#                 curriculum_discipline_id=disciplines_list,
 #             )
-#         wp_data += response
-#     return data_processor(wp_data)
+#         )
+#     return data_processor(response)
+
 
 async def get_work_programs_data(
-        work_program_id: list, fields=False, signs=False, competencies=False
+    curriculum_discipline_id: int | list, fields=False, signs=False, competencies=False
 ) -> dict:
     wp_data = data_processor(
         await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_work_programs"),
-                id=work_program_id,
+                curriculum_discipline_id=curriculum_discipline_id,
             )
         )
     )
     for wp in wp_data:
-        wp_data[wp]['fields'] = {}
-        wp_data[wp]['signs'] = {}
-        wp_data[wp]['competencies_data'] = {}
-        wp_data[wp]['competency_levels'] = {}
+        wp_data[wp]["fields"] = {}
+        wp_data[wp]["signs"] = {}
+        wp_data[wp]["competencies_data"] = {}
+        wp_data[wp]["competency_levels"] = {}
+
+    wp_list = [wp_data[wp].get("id") for wp in wp_data]
 
     sections_data = await check_api_db_response(
         await api_get_db_table(
             Apeks.TABLES.get("mm_sections"),
-            work_program_id=work_program_id,
+            work_program_id=wp_list,
         )
     )
     for sect in sections_data:
-        wp_id = int(sect.get('work_program_id'))
-        not_include = {'id', 'work_program_id'}
+        wp_id = int(sect.get("work_program_id"))
+        not_include = {"id", "work_program_id"}
         items = [item for item in [*sect] if item not in not_include]
         for item in items:
             wp_data[wp_id][item] = sect.get(item)
@@ -589,26 +673,26 @@ async def get_work_programs_data(
         field_data = await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_work_programs_data"),
-                work_program_id=work_program_id,
+                work_program_id=wp_list,
             )
         )
         for field in field_data:
-            wp_id = int(field.get('work_program_id'))
-            field_id = int(field.get('field_id'))
-            data = field.get('data')
-            wp_data[wp_id]['fields'][field_id] = data
+            wp_id = int(field.get("work_program_id"))
+            field_id = int(field.get("field_id"))
+            data = field.get("data")
+            wp_data[wp_id]["fields"][field_id] = data
 
     if signs:
         signs_data = await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_work_programs_signs"),
-                work_program_id=work_program_id,
+                work_program_id=wp_list,
             )
         )
         for sign in signs_data:
-            wp_id = int(sign.get('work_program_id'))
-            user_id = int(sign.get('user_id'))
-            wp_data[wp_id]['signs'][user_id] = sign.get('timestamp')
+            wp_id = int(sign.get("work_program_id"))
+            user_id = int(sign.get("user_id"))
+            wp_data[wp_id]["signs"][user_id] = sign.get("timestamp")
 
     if competencies:
         competencies_fields = await check_api_db_response(
@@ -618,49 +702,50 @@ async def get_work_programs_data(
         )
         comp_fields = {}
         for field in competencies_fields:
-            comp_fields[field.get('id')] = field.get('code')
+            comp_fields[field.get("id")] = field.get("code")
         comp_data = await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_work_programs_competencies_data"),
-                work_program_id=work_program_id,
+                work_program_id=wp_list,
             )
         )
         for data in comp_data:
-            wp_id = int(data.get('work_program_id'))
-            comp_id = int(data.get('competency_id'))
-            field = comp_fields.get(data.get('field_id'))
-            if not wp_data[wp_id]['competencies_data'].get(comp_id):
-                wp_data[wp_id]['competencies_data'][comp_id] = {}
-            wp_data[wp_id]['competencies_data'][comp_id][field] = data.get('value')
+            wp_id = int(data.get("work_program_id"))
+            comp_id = int(data.get("competency_id"))
+            field = comp_fields.get(data.get("field_id"))
+            if not wp_data[wp_id]["competencies_data"].get(comp_id):
+                wp_data[wp_id]["competencies_data"][comp_id] = {}
+            wp_data[wp_id]["competencies_data"][comp_id][field] = data.get("value")
 
         comp_levels = await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_competency_levels"),
-                work_program_id=work_program_id,
+                work_program_id=wp_list,
             )
         )
         for level in comp_levels:
-            wp_id = int(level.get('work_program_id'))
-            level_id = int(level.get('level'))
-            not_include = {'id', 'work_program_id'}
+            wp_id = int(level.get("work_program_id"))
+            level_id = int(level.get("level"))
+            not_include = {"id", "work_program_id"}
             items = [item for item in [*level] if item not in not_include]
             for item in items:
-                if not wp_data[wp_id]['competency_levels'].get(level_id):
-                    wp_data[wp_id]['competency_levels'][level_id] = {}
-                wp_data[wp_id]['competency_levels'][level_id][item] = level.get(item)
+                if not wp_data[wp_id]["competency_levels"].get(level_id):
+                    wp_data[wp_id]["competency_levels"][level_id] = {}
+                wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
     return wp_data
 
 
-from pprint import pprint
-
-
-async def main():
-    pprint(await get_work_programs_data(
-        [3645, 3646, 3747], competencies=True, fields=True, signs=True
-        )
-    )
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
+# import asyncio
+# from pprint import pprint
+#
+#
+# async def main():
+#     pprint(await get_work_programs_data(
+#         [3645, 3646, 3747], competencies=True, fields=True, signs=True
+#         )
+#     )
+#
+# if __name__ == '__main__':
+#     loop = asyncio.get_event_loop()
+#     loop.run_until_complete(main())
+#     loop.close()

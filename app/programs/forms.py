@@ -11,7 +11,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length, NumberRange
 
-from app.main.forms import ChoosePlan
+from app.common.forms import ChoosePlan
 from config import ApeksConfig as Apeks
 
 

@@ -25,7 +25,7 @@ def library_file_processing(filename) -> dict:
     del lib_list[0]
     lib_dict = {}
     for lib in lib_list:
-        lib_dict[lib[0]] = []
+        lib_dict[lib[0].strip()] = []
         for i in range(1, len(lib)):
             lib_dict[lib[0]].append(lib[i])
     return lib_dict

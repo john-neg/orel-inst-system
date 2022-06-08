@@ -3,8 +3,9 @@ import os
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 
-from app.main.forms import ChoosePlan, FileForm
-from app.main.func import education_specialty, education_plans, allowed_file
+from app.common.forms import ChoosePlan, FileForm
+from app.common.func import allowed_file, get_plan_education_specialties, \
+    get_education_plans
 from app.plans import bp
 from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
@@ -14,13 +15,15 @@ from config import FlaskConfig
 
 @bp.route("/comp_choose_plan", endpoint="comp_choose_plan", methods=["GET", "POST"])
 @login_required
-def comp_choose_plan():
+async def comp_choose_plan():
     title = "Загрузка компетенций в учебный план"
     form = ChoosePlan()
-    form.edu_spec.choices = list(education_specialty().items())
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
         edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(plans.items())
         if request.form.get("edu_plan") and form.validate_on_submit():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.comp_load", plan_id=edu_plan))
@@ -41,13 +44,15 @@ def comp_choose_plan():
 
 @bp.route("/matrix_simple_choose_plan", methods=["GET", "POST"])
 @login_required
-def matrix_simple_choose_plan():
+async def matrix_simple_choose_plan():
     title = "Матрица компетенций (простая)"
     form = ChoosePlan()
-    form.edu_spec.choices = list(education_specialty().items())
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
         edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(plans.items())
         if request.form.get("edu_plan") and form.validate_on_submit():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_simple_load", plan_id=edu_plan))
@@ -68,13 +73,15 @@ def matrix_simple_choose_plan():
 
 @bp.route("/matrix_indicator_choose_plan", methods=["GET", "POST"])
 @login_required
-def matrix_indicator_choose_plan():
+async def matrix_indicator_choose_plan():
     title = "Матрица компетенций (с индикаторами)"
     form = ChoosePlan()
-    form.edu_spec.choices = list(education_specialty().items())
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
         edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(plans.items())
         if request.form.get("edu_plan") and form.validate_on_submit():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=edu_plan))

@@ -13,10 +13,10 @@ from app.common.func import (
     get_organization_name,
     get_organization_chief_info,
     get_rank_name,
-    get_plan_work_programs, data_processor,
+    data_processor, get_plan_education_specialties, get_education_plans,
 )
 from app.common.reports.wp_title_pages import generate_wp_title_pages
-from app.main.func import education_specialty, education_plans, db_filter_req
+from app.main.func import db_filter_req
 from app.main.models import EducationPlan
 from app.plans.func import create_wp
 from app.programs import bp
@@ -42,12 +42,14 @@ class ProgramsChoosePlanView(View):
         self.title = title
 
     @login_required
-    def dispatch_request(self):
+    async def dispatch_request(self):
         form = ChoosePlan()
-        form.edu_spec.choices = list(education_specialty().items())
+        specialities = await get_plan_education_specialties()
+        form.edu_spec.choices = list(specialities.items())
         if request.method == "POST":
             edu_spec = request.form.get("edu_spec")
-            form.edu_plan.choices = list(education_plans(edu_spec).items())
+            plans = await get_education_plans(edu_spec)
+            form.edu_plan.choices = list(plans.items())
             if request.form.get("edu_plan") and form.validate_on_submit():
                 edu_plan = request.form.get("edu_plan")
                 return redirect(
@@ -104,14 +106,15 @@ async def dept_check():
     form = DepartmentWPCheck()
     departments = await get_departments()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
-    form.edu_spec.choices = list(education_specialty().items())
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
         wp_data = {}
         edu_spec = request.form.get("edu_spec")
         department = request.form.get("department")
         year = request.form.get("year")
         wp_field = request.form.get("wp_fields")
-        plan_list = education_plans(edu_spec, year)
+        plan_list = await get_education_plans(edu_spec, year=year)
         if plan_list:
             for plan_id in plan_list:
                 plan_wp_data = WorkProgramBunchData(plan_id, wp_field)
@@ -133,12 +136,14 @@ async def dept_check():
 
 @bp.route("/dates_update", methods=["GET", "POST"])
 @login_required
-def dates_update():
+async def dates_update():
     form = WorkProgramDatesUpdate()
-    form.edu_spec.choices = list(education_specialty().items())
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
         edu_spec = request.form.get("edu_spec")
-        form.edu_plan.choices = list(education_plans(edu_spec).items())
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(plans.items())
         if request.form.get("wp_dates_update") and form.validate_on_submit():
             edu_plan = request.form.get("edu_plan")
             date_methodical = (
