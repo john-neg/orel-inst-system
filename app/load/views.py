@@ -5,7 +5,7 @@ from werkzeug.utils import redirect
 
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.classes.LoadReportProcessor import LoadReportProcessor
-from app.common.func import (
+from app.common.func.api_get import (
     get_departments,
     get_state_staff,
     check_api_db_response,

@@ -4,7 +4,7 @@ from flask import render_template, send_file, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 from app.main import bp
-from app.common.func import allowed_file
+from app.common.func.app_core import allowed_file
 from config import FlaskConfig
 
 

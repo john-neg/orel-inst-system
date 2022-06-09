@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 
 from app.common.exceptions import ApeksApiException
-from app.common.func import api_get_db_table, check_api_db_response
+from app.common.func.api_get import api_get_db_table, check_api_db_response
 from config import ApeksConfig as Apeks
 
 

@@ -5,7 +5,7 @@ from flask.views import View
 from flask_login import login_required
 
 from app.common.classes.EducationPlan import EducationPlanExtended
-from app.common.func import (
+from app.common.func.api_get import (
     get_departments,
     check_api_db_response,
     api_get_db_table,
@@ -13,8 +13,9 @@ from app.common.func import (
     get_organization_name,
     get_organization_chief_info,
     get_rank_name,
-    data_processor, get_plan_education_specialties, get_education_plans,
+    get_plan_education_specialties, get_education_plans,
 )
+from app.common.func.app_core import data_processor
 from app.common.reports.wp_title_pages import generate_wp_title_pages
 from app.main.func import db_filter_req
 from app.main.models import EducationPlan

@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for
 
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from app.common.func import (
+from app.common.func.api_get import (
     get_departments,
     get_state_staff,
     check_api_db_response,
@@ -13,8 +13,8 @@ from app.common.func import (
     check_api_staff_lessons_response,
     api_get_staff_lessons,
     get_plan_disciplines,
-    data_processor,
 )
+from app.common.func.app_core import data_processor
 from app.common.reports.schedule_ical import generate_schedule_ical
 from app.common.reports.schedule_xlsx import generate_schedule_xlsx
 from app.schedule import bp

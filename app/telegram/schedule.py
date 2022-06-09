@@ -9,15 +9,15 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from app.common.func import (
+from app.common.func.api_get import (
     get_departments,
     get_state_staff,
     check_api_db_response,
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_plan_disciplines, data_processor,
-)
+    get_plan_disciplines, )
+from app.common.func.app_core import data_processor
 from app.common.reports.schedule_ical import generate_schedule_ical
 from config import FlaskConfig, ApeksConfig as Apeks
 

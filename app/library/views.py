@@ -7,15 +7,15 @@ from openpyxl import load_workbook
 
 from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkProgram
 from app.common.forms import ChoosePlan, FileForm
-from app.common.func import (
+from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
     get_plan_curriculum_disciplines,
     get_work_programs_data,
-    allowed_file,
     get_plan_education_specialties,
     get_education_plans,
 )
+from app.common.func.app_core import allowed_file
 from app.library import bp
 from app.library.func import library_file_processing, load_bibl
 from config import FlaskConfig, ApeksConfig as Apeks

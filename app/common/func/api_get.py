@@ -11,14 +11,8 @@ from cache import AsyncTTL
 from phpserialize import loads
 
 from app.common.exceptions import ApeksApiException
-from config import FlaskConfig, ApeksConfig as Apeks
-
-
-def allowed_file(filename):
-    """Check if file extension in allowed list in Config."""
-    return (
-        "." in filename and filename.rsplit(".", 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
-    )
+from app.common.func.app_core import data_processor
+from config import ApeksConfig as Apeks
 
 
 def api_get_request_handler(func):
@@ -45,8 +39,17 @@ def api_get_request_handler(func):
                 try:
                     resp_json = response.json()
                     del params["token"]
-                    logging.debug(f"{func.__name__}. Запрос успешно выполнен: {params}")
-                    return resp_json
+                    if resp_json.get('status') == 1:
+                        logging.debug(
+                            f"{func.__name__}. Запрос успешно выполнен: {params}"
+                        )
+                        return resp_json
+                    else:
+                        logging.debug(
+                            f"{func.__name__}. Произошла ошибка: "
+                            f"{resp_json.get('message')}"
+                        )
+                        return resp_json
                 except JSONDecodeError as error:
                     logging.error(
                         f"{func.__name__}. Ошибка конвертации "
@@ -251,30 +254,6 @@ async def check_api_staff_lessons_response(response: dict) -> list:
         "Проверка 'response' выполнена успешно. " "Возвращен список по ключу: 'lessons'"
     )
     return lessons
-
-
-def data_processor(table_data: list, dict_key: str = "id") -> dict:
-    """
-    Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
-
-    Parameters
-    ----------
-        table_data: list
-            данные таблицы, содержащей список словарей в формате JSON
-        dict_key: str
-            название поля значения которого станут ключами словаря
-            по умолчанию - 'id'
-
-    Returns
-    -------
-        dict
-            {id: {keys: values}}.
-    """
-    data = {}
-    for d_val in table_data:
-        data[int(d_val.get(dict_key))] = d_val
-    logging.debug(f"Обработаны данные. Ключ: {dict_key}")
-    return data
 
 
 @AsyncTTL(time_to_live=60, maxsize=1024)

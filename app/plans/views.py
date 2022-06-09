@@ -4,8 +4,9 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required
 
 from app.common.forms import ChoosePlan, FileForm
-from app.common.func import allowed_file, get_plan_education_specialties, \
+from app.common.func.api_get import get_plan_education_specialties, \
     get_education_plans
+from app.common.func.app_core import allowed_file
 from app.plans import bp
 from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
