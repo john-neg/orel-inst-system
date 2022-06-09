@@ -32,17 +32,20 @@ def register():
     if current_user.is_authenticated and current_user.role != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = RegistrationForm()
+    message = ""
     if form.validate_on_submit():
         user = User(username=form.username.data, role=form.role.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash("Congratulations, you are now a registered user!")
+        message = (f"Зарегистрирован пользователь {form.username.data} "
+                   f"({dict(form.role.choices).get(form.role.data)})")
     return render_template(
         "auth/register.html",
         title="Регистрация нового пользователя",
         form=form,
         active="admin",
+        message=message or "",
     )
 
 
