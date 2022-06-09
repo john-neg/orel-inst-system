@@ -65,6 +65,7 @@ class ApeksConfig(object):
         "plan_education_specializations_narrow": "plan_education_specializations_narrow",
         "plan_education_forms": "plan_education_forms",
         "plan_qualifications": "plan_qualifications",
+        "plan_semesters": "plan_semesters",
         "schedule_day_schedule_lessons": "schedule_day_schedule_lessons",
         "schedule_day_schedule_lessons_staff": "schedule_day_schedule_lessons_staff",
         "state_departments": "state_departments",

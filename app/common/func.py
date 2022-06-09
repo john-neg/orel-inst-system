@@ -84,7 +84,7 @@ async def api_get_db_table(
                 values = [str(val) for val in db_value]
             params[f"filter[{db_filter}][]"] = values
     logging.debug(
-        "Переданы параметры для запроса 'api_get_db_table': " f"к таблице {table_name}"
+        f"Переданы параметры для запроса 'api_get_db_table': к таблице {table_name}"
     )
     return endpoint, params
 

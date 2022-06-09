@@ -18,7 +18,6 @@ from app.common.func import (
 )
 from app.library import bp
 from app.library.func import library_file_processing, load_bibl
-from app.library.models import LibraryPlan
 from config import FlaskConfig, ApeksConfig as Apeks
 
 LIB_TYPES = {
@@ -340,13 +339,25 @@ class LibraryUpdateView(View):
         self.lib_type_name = lib_type_name
 
     @login_required
-    def dispatch_request(self, plan_id, filename):
+    async def dispatch_request(self, plan_id, filename):
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        plan = LibraryPlan(plan_id)
+        plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+        plan = EducationPlanWorkProgram(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=plan_disciplines,
+            work_programs_data=await get_work_programs_data(
+                [*plan_disciplines], fields=True
+            ),
+        )
         file_data = library_file_processing(file)
         for disc in file_data:
-            for wp_id in plan.work_programs:
-                if plan.work_programs.get(wp_id) == disc:
+            for wp_id in plan.work_programs_data:
+                if plan.work_programs_data[wp_id].get("name").strip() == disc.strip():
                     counter = 0
                     # TODO Добавить проверку существования поля и если нет то создавать
                     for bibl_type in LIB_TYPES[self.lib_type]:

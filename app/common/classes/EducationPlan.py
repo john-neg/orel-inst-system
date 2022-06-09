@@ -135,32 +135,6 @@ class EducationPlanWorkProgram(EducationPlan):
                 content[self.work_programs_data[wp_id].get("name")] = field_dict
         return content
 
-        # for disc in self.plan_curriculum_disciplines:
-        #     wp_data = db_filter_req(
-        #         "mm_work_programs", "curriculum_discipline_id", disc
-        #     )
-        #     if wp_data:
-        #         wp_fields = db_filter_req(
-        #             "mm_work_programs_data", "work_program_id", wp_data[0]["id"]
-        #         )
-        #         current_fields = data_processor(wp_fields, 'field_id')
-        #         for field in library_fields:
-        #             if field not in current_fields:
-        #                 add_wp_field(wp_data[0]["id"], field)
-        #         field_dict = {}
-        #         for field in library_fields:
-        #             field_dict[field] = lib_data(field)
-        #         content[wp_data[-1]["name"]] = field_dict
-        #         # [-1] - это костыль т.к. в бд бывает дублирование,
-        #         # и тогда нужен именно последний объект
-        #
-        #     else:
-        #         field_dict = {}
-        #         for field in library_fields:
-        #             field_dict[field] = "Нет программы"
-        #         content[self.disciplines[disc][1]] = field_dict
-        # return content
-
 
 @dataclass(repr=False, eq=False)
 class EducationPlanExtended(EducationPlan):
