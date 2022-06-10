@@ -251,7 +251,7 @@ async def check_api_staff_lessons_response(response: dict) -> list:
         logging.error(message)
         raise TypeError(message)
     logging.debug(
-        "Проверка 'response' выполнена успешно. " "Возвращен список по ключу: 'lessons'"
+        "Проверка 'response' выполнена успешно. Возвращен список по ключу: 'lessons'"
     )
     return lessons
 
@@ -331,8 +331,9 @@ async def get_rank_name(
     response = await check_api_db_response(await api_get_db_table(table, id=rank_id))
     name = response[0].get("name")
     name_short = response[0].get("name_short")
+    rank_name = [name, name_short]
     logging.debug(f"Передана информация о специальном звании")
-    return [name, name_short]
+    return rank_name
 
 
 @AsyncTTL(time_to_live=60, maxsize=1024)
@@ -492,6 +493,9 @@ async def get_plan_education_specialties() -> dict:
     specialties = {}
     for i in request:
         specialties[i] = request[i].get("name")
+    logging.debug(
+        "Информация о специальностях 'plan_education_specialties' успешно передана"
+    )
     return specialties
 
 
@@ -527,7 +531,6 @@ async def get_education_plans(education_specialty_id: int | str, year: int | str
     if year == 0:
         for plan in education_plans:
             plans[plan] = education_plans[plan].get("name")
-        return plans
     else:
         plans_dates = data_processor(
             await check_api_db_response(
@@ -546,7 +549,11 @@ async def get_education_plans(education_specialty_id: int | str, year: int | str
             elif plan.get("custom_start_year") is None:
                 if plans_dates.get(plan).get('start_date').split("-")[0] == str(year):
                     plans[plan] = education_plans[plan].get("name")
-        return plans
+    logging.debug(
+        "Список учебных планов по специальности "
+        f"{education_specialty_id} успешно передан"
+    )
+    return plans
 
 
 async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
@@ -619,6 +626,14 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
 async def get_work_programs_data(
     curriculum_discipline_id: int | list, fields=False, signs=False, competencies=False
 ) -> dict:
+    """
+
+    :param curriculum_discipline_id:
+    :param fields:
+    :param signs:
+    :param competencies:
+    :return:
+    """
     wp_data = data_processor(
         await check_api_db_response(
             await api_get_db_table(
@@ -711,6 +726,10 @@ async def get_work_programs_data(
                 if not wp_data[wp_id]["competency_levels"].get(level_id):
                     wp_data[wp_id]["competency_levels"][level_id] = {}
                 wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
+    logging.debug(
+        "Передана информация о рабочих программах "
+        f"дисциплин 'curriculum_discipline_id': {curriculum_discipline_id}"
+    )
     return wp_data
 
 

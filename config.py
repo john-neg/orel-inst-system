@@ -203,6 +203,16 @@ class ApeksConfig(object):
         15: "зав. кабинетом",
     }
 
+    LIB_TYPES = {
+        "library": [
+            MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
+            MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
+        ],
+        "library_np": [MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
+        "library_int": [MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
+        "library_db": [MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
+    }
+
     # Коэффициенты для расчета нагрузки по формам контроля
     # на обучающегося и максимальное значение
     # Адъюнктура (итоговая аттестация, кандидатский экзамен)

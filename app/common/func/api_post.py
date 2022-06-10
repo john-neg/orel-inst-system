@@ -75,6 +75,9 @@ async def api_add_to_db_table(
     data = {"table": table_name}
     for db_field, db_value in kwargs.items():
         data[f"fields[{db_field}][]"] = str(db_value)
+    logging.debug(
+        f"Переданы параметры для запроса 'api_add_to_db_table': к таблице {table_name}"
+    )
     return endpoint, params, data
 
 
@@ -113,17 +116,70 @@ async def api_edit_db_table(
         data[f"filter[{db_field}][]"] = values
     for db_field, db_value in fields.items():
         data[f"fields[{db_field}]"] = str(db_value)
+    logging.debug(
+        f"Переданы параметры для запроса 'api_edit_db_table': к таблице {table_name}"
+    )
     return endpoint, params, data
 
 
-# filters = {
-#     'id': [43085, 43086],
-# }
-# fields = {
-#     'topic_code': '20',
-#     'topic_name': 'Новое название1',
-# }
-#
-# r = await api_edit_db_table(
-#     'schedule_day_schedule_lessons1', filters, fields,
-# )
+async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
+    """
+    Добавления пустого поля (field) в рабочую программу.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+        field_id: int | str
+            id поля для загрузки данных
+    """
+    response = await api_add_to_db_table(
+        'mm_work_programs_data',
+        work_program_id=work_program_id,
+        field_id=field_id,
+        data='',
+    )
+    logging.debug(
+        f"В рабочую программу {work_program_id} добавлено поле {field_id}."
+    )
+    return response
+
+
+async def load_lib_edit_field(
+        work_program_id: int | str,
+        field_id: int | str,
+        load_data: str,
+        check: int | str = 1,
+):
+    """
+    Изменения поля поля (field) в рабочей программе.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+        field_id: int | str
+            id поля для загрузки данных
+        load_data: str
+            данные для загрузки
+        check: int | str
+            отметка 0 - не проверять поле, если нет данных
+            по умолчанию - 1
+    """
+    if not load_data:
+        load_data = ""
+    filters = {
+        'work_program_id': work_program_id,
+        'field_id': field_id,
+    }
+    fields = {
+        'data': load_data,
+        'check': check,
+    }
+    response = await api_edit_db_table(
+        'mm_work_programs_data', filters, fields,
+    )
+    logging.debug(
+        f"В рабочей программе {work_program_id} обновлено поле {field_id}."
+    )
+    return response

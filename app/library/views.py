@@ -3,7 +3,6 @@ import os
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
-from openpyxl import load_workbook
 
 from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkProgram
 from app.common.forms import ChoosePlan, FileForm
@@ -15,20 +14,12 @@ from app.common.func.api_get import (
     get_plan_education_specialties,
     get_education_plans,
 )
+from app.common.func.api_post import load_lib_add_field, load_lib_edit_field
 from app.common.func.app_core import allowed_file
+from app.common.reports.library_report import library_report
 from app.library import bp
-from app.library.func import library_file_processing, load_bibl
+from app.library.func import library_file_processing
 from config import FlaskConfig, ApeksConfig as Apeks
-
-LIB_TYPES = {
-    "library": [
-        Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
-        Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
-    ],
-    "library_np": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
-    "library_int": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
-    "library_db": [Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
-}
 
 
 class LibraryChoosePlanView(View):
@@ -142,7 +133,7 @@ class LibraryUploadView(View):
                 return redirect(
                     url_for(f"library.{self.lib_type}_export", plan_id=plan_id)
                 )
-            if request.files["file"]:
+            if request.files["file"] and form.validate_on_submit():
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
@@ -239,7 +230,7 @@ class LibraryCheckView(View):
         )
         lib_data = library_file_processing(file)
         if request.method == "POST":
-            if request.files["file"]:
+            if request.files["file"] and form.validate_on_submit():
                 file = request.files["file"]
                 if file and allowed_file(file.filename):
                     filename = file.filename
@@ -358,11 +349,14 @@ class LibraryUpdateView(View):
         for disc in file_data:
             for wp_id in plan.work_programs_data:
                 if plan.work_programs_data[wp_id].get("name").strip() == disc.strip():
-                    counter = 0
-                    # TODO Добавить проверку существования поля и если нет то создавать
-                    for bibl_type in LIB_TYPES[self.lib_type]:
-                        load_bibl(wp_id, bibl_type, file_data[disc][counter])
-                        counter += 1
+                    lib_items = Apeks.LIB_TYPES[self.lib_type]
+                    for i in range(len(lib_items)):
+                        if lib_items[i] not in plan.work_programs_data[wp_id]['fields']:
+                            await load_lib_add_field(wp_id, lib_items[i])
+                        check = 1 if file_data[disc][i] else 0
+                        await load_lib_edit_field(
+                            wp_id, lib_items[i], file_data[disc][i], check
+                        )
         flash(f"Данные из файла - {filename}: успешно загружены")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 
@@ -427,19 +421,7 @@ class LibraryExportView(View):
         filename = (
             f"{self.lib_type_name} - {plan.name}.xlsx"
         )
-        wb = load_workbook(
-            FlaskConfig.TEMPLATE_FILE_DIR + f"{self.lib_type}_load_temp.xlsx"
-        )
-        ws = wb.active
-        start_row = 2
-        for data in lib_data:
-            ws.cell(row=start_row, column=1).value = data
-            counter = 0
-            for bibl in LIB_TYPES[self.lib_type]:
-                ws.cell(row=start_row, column=counter + 2).value = lib_data[data][bibl]
-                counter += 1
-            start_row += 1
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        library_report(lib_data, self.lib_type, filename)
         return redirect(url_for("main.get_file", filename=filename))
 
 
