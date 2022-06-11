@@ -83,7 +83,8 @@ class EducationPlanWorkProgram(EducationPlan):
             возвращает строку "КОД Название дисциплины" по ее id
         wp_analyze
 
-        library_content(self) -> dict
+        library_content() -> dict:
+            возвращает данные об обеспечении рабочих программ
     """
 
     work_programs_data: dict
@@ -137,7 +138,7 @@ class EducationPlanWorkProgram(EducationPlan):
 
 
 @dataclass(repr=False, eq=False)
-class EducationPlanExtended(EducationPlan):
+class EducationPlanExtended(EducationPlanWorkProgram):
     """
     Расширенные сведения об учебном плане и содержащихся в нем дисциплинах.
 
@@ -167,9 +168,6 @@ class EducationPlanExtended(EducationPlan):
         plan_education_specializations_narrow: list
             данные из таблицы 'plan_education_specializations_narrow'
             (информация об узких специализациях)
-        mm_work_programs: dict
-            данные из таблицы 'mm_work_programs'
-            (информация о рабочих программах плана с ключом id программы)
 
     Methods:
     -------
@@ -186,7 +184,6 @@ class EducationPlanExtended(EducationPlan):
     plan_education_forms: list
     plan_qualifications: list
     plan_education_specializations_narrow: list
-    mm_work_programs: dict
 
     def __post_init__(self) -> None:
         super().__post_init__()

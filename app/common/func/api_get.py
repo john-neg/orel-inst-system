@@ -39,7 +39,7 @@ def api_get_request_handler(func):
                 try:
                     resp_json = response.json()
                     del params["token"]
-                    if resp_json.get('status') == 1:
+                    if resp_json.get("status") == 1:
                         logging.debug(
                             f"{func.__name__}. Запрос успешно выполнен: {params}"
                         )
@@ -90,45 +90,6 @@ async def api_get_db_table(
         f"Переданы параметры для запроса 'api_get_db_table': к таблице {table_name}"
     )
     return endpoint, params
-
-
-# @api_get_request_handler
-# async def api_get_db_table_filter_range(
-#     table_name: str, field: str, range_start: str | int, range_end: str | int,
-#     url: str = Apeks.URL, token: str = Apeks.TOKEN,
-# ):
-#     """
-#     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ с
-#     выбранным диапазоном.
-#
-#     Parameters
-#     ----------
-#         table_name: str
-#             имя_таблицы
-#         field: str
-#             название поля
-#         range_start: str | int
-#             начальное значение
-#         range_end: str | int
-#             конечное значение
-#         url: str
-#             URL сервера
-#         token: str
-#             токен для API
-#
-#     """
-#     endpoint = f"{url}/api/call/system-database/get"
-#     params = {
-#         "token": token,
-#         "table": table_name,
-#         "filter": f"{field} between {str(range_start)} and {str(range_end)}"
-#     }
-#     logging.debug(
-#         "Переданы параметры для запроса 'api_get_db_table_filter_range': "
-#         f"к таблице {table_name} filter: {field} "
-#         f"between {range_start} and {range_end}"
-#     )
-#     return endpoint, params
 
 
 async def check_api_db_response(response: dict) -> list:
@@ -499,7 +460,9 @@ async def get_plan_education_specialties() -> dict:
     return specialties
 
 
-async def get_education_plans(education_specialty_id: int | str, year: int | str = 0) -> dict:
+async def get_education_plans(
+    education_specialty_id: int | str, year: int | str = 0
+) -> dict:
     """
     Получение списка планов по указанной специальности.
 
@@ -544,10 +507,10 @@ async def get_education_plans(education_specialty_id: int | str, year: int | str
             "education_plan_id",
         )
         for plan in education_plans:
-            if plan.get("custom_start_year") == str(year):
+            if education_plans[plan].get("custom_start_year") == str(year):
                 plans[plan] = education_plans[plan].get("name")
-            elif plan.get("custom_start_year") is None:
-                if plans_dates.get(plan).get('start_date').split("-")[0] == str(year):
+            elif education_plans[plan].get("custom_start_year") is None:
+                if plans_dates.get(plan).get("start_date").split("-")[0] == str(year):
                     plans[plan] = education_plans[plan].get("name")
     logging.debug(
         "Список учебных планов по специальности "
@@ -556,7 +519,9 @@ async def get_education_plans(education_specialty_id: int | str, year: int | str
     return plans
 
 
-async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
+async def get_plan_curriculum_disciplines(
+    education_plan_id: int | str, **kwargs
+) -> dict:
     """
     Получение данных о дисциплинах учебного плана
 
@@ -564,6 +529,8 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
     ----------
         education_plan_id: int | str
             id учебного плана
+        **kwargs
+            дополнительные фильтры (например department_id)
 
     Returns
     ----------
@@ -571,7 +538,7 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
             {curriculum_discipline_id: [disc_code, disc_name]}
     """
 
-    def disc_name(discipline_id):
+    def disc_name(discipline_id: int) -> str:
         for discipline in disciplines_list:
             if discipline.get("id") == discipline_id:
                 return discipline.get("name")
@@ -584,12 +551,13 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
         await api_get_db_table(
             Apeks.TABLES.get("plan_curriculum_disciplines"),
             education_plan_id=education_plan_id,
+            **kwargs,
         )
     )
     for disc in plan_disciplines:
-        if str(disc.get("level")) == str(Apeks.DISC_LEVEL) and not str(
+        if str(disc.get("level")) == str(Apeks.DISC_LEVEL) and str(
             disc.get("type")
-        ) == str(Apeks.DISC_TYPE):
+        ) != str(Apeks.DISC_TYPE):
             disciplines[int(disc.get("id"))] = [
                 disc.get("code"),
                 disc_name(disc.get("discipline_id")),
@@ -600,39 +568,73 @@ async def get_plan_curriculum_disciplines(education_plan_id: int | str) -> dict:
     return disciplines
 
 
-# async def get_mm_work_programs(disciplines_list: list) -> dict:
-#     """
-#     Получение рабочих программ плана
-#
-#     Parameters
-#     ----------
-#         disciplines_list: list
-#             список дисциплин учебного плана
-#
-#     Returns
-#     ----------
-#         dict
-#             {work_program_id: {disc_code: disc_name}}
-#     """
-#     response = await check_api_db_response(
-#             await api_get_db_table(
-#                 Apeks.TABLES.get("mm_work_programs"),
-#                 curriculum_discipline_id=disciplines_list,
-#             )
-#         )
-#     return data_processor(response)
-
-
 async def get_work_programs_data(
-    curriculum_discipline_id: int | list, fields=False, signs=False, competencies=False
+    curriculum_discipline_id: int | list,
+    sections=False,
+    fields=False,
+    signs=False,
+    competencies=False,
 ) -> dict:
     """
+    Получение информации о рабочих программах.
 
-    :param curriculum_discipline_id:
-    :param fields:
-    :param signs:
-    :param competencies:
-    :return:
+    Parameters
+    ----------
+        curriculum_discipline_id: int | list
+            id дисциплины
+        sections:
+            если True то запрашивается также информация о целях и задачах,
+            месте в структуре ООП из таблицы 'mm_sections'
+        fields:
+            если True то запрашивается также информация о полях программ
+            из таблицы 'mm_work_programs_data'
+        signs:
+            если True то запрашивается также информация о согласовании программ
+            из таблицы 'mm_work_programs_signs'
+        competencies:
+            если True то запрашивается также информация о компетенциях для
+            программы и уровнях сформированности компетенций
+            из таблиц 'mm_competency_levels', 'mm_work_programs_competencies_data'
+
+    Returns
+    ----------
+        dict
+            {"id": value,
+            "curriculum_discipline_id": value,
+            "name": value,
+            "description": value,
+            "authors": value,
+            "reviewers_int": value,
+            "reviewers_ext": value,
+            "date_create": value,
+            "date_approval": value,
+            "date_department": value,
+            "document_department": value,
+            "date_methodical": value,
+            "document_methodical": value",
+            "date_academic": value,
+            "document_academic": value,
+            "status": value,
+            "user_id": value,
+            "settings": "[]",
+            "sections": {"purposes": value,
+                         "tasks": value,
+                         "place_in_structure": value,
+                         "knowledge": value,
+                         "skills": value,
+                         "abilities": value,
+                         "ownerships": value}
+            "fields": {id: value},
+            "signs": {user_id: timestamp},
+            "competencies_data": {comp_id: {field_id: value}}
+            "competency_levels": {level_id: {'abilities': value,
+                                             'control_type_id': value,
+                                             'knowledge': value,
+                                             'level1': value,
+                                             'level2': value,
+                                             'level3': value,
+                                             'ownerships': value
+                                             'semester_id': value}}
     """
     wp_data = data_processor(
         await check_api_db_response(
@@ -643,6 +645,7 @@ async def get_work_programs_data(
         )
     )
     for wp in wp_data:
+        wp_data[wp]["sections"] = {}
         wp_data[wp]["fields"] = {}
         wp_data[wp]["signs"] = {}
         wp_data[wp]["competencies_data"] = {}
@@ -650,18 +653,19 @@ async def get_work_programs_data(
 
     wp_list = [wp_data[wp].get("id") for wp in wp_data]
 
-    sections_data = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("mm_sections"),
-            work_program_id=wp_list,
+    if sections:
+        sections_data = await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("mm_sections"),
+                work_program_id=wp_list,
+            )
         )
-    )
-    for sect in sections_data:
-        wp_id = int(sect.get("work_program_id"))
-        not_include = {"id", "work_program_id"}
-        items = [item for item in [*sect] if item not in not_include]
-        for item in items:
-            wp_data[wp_id][item] = sect.get(item)
+        for sect in sections_data:
+            wp_id = int(sect.get("work_program_id"))
+            not_include = {"id", "work_program_id"}
+            items = [item for item in [*sect] if item not in not_include]
+            for item in items:
+                wp_data[wp_id]["sections"][item] = sect.get(item)
 
     if fields:
         field_data = await check_api_db_response(
@@ -739,9 +743,12 @@ async def get_work_programs_data(
 #
 # async def main():
 #     pprint(await get_work_programs_data(
-#         [3645, 3646, 3747], competencies=True, fields=True, signs=True
+#         [11234],
 #         )
 #     )
+#     # pprint(await get_plan_curriculum_disciplines(
+#     #     education_plan_id=133,
+#     # ))
 #
 # if __name__ == '__main__':
 #     loop = asyncio.get_event_loop()

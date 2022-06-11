@@ -94,7 +94,7 @@ class ApeksConfig(object):
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3
 
-    # Код типа группа дисциплин в таблице 'plan_disciplines'
+    # Код типа 'группа дисциплин' в таблице 'plan_disciplines'
     DISC_TYPE = 16
 
     # ID полей БД АпексВУЗ в таблице 'mm_work_programs_data_items'
@@ -203,6 +203,8 @@ class ApeksConfig(object):
         15: "зав. кабинетом",
     }
 
+    # Название разновидностей обеспечивающих материалов в рабочих программах
+    # и входящие в каждую группу элементы.
     LIB_TYPES = {
         "library": [
             MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),

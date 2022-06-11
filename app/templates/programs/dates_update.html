@@ -69,9 +69,9 @@
 </form>
 {% if results %}
   <div class="row">
-    <div class="d-grid col-md-7">
+    <div class="d-grid col-xl-8">
       <div class="alert alert-success" role="alert">
-        <p>Обновлены:</p>
+        <p>Программы в учебном плане:</p>
         <p>
           {% for program in results %}
             {{ program }}<br>
@@ -83,12 +83,12 @@
   {% endif %}
   {% if non_exist %}
   <div class="row">
-    <div class="d-grid col-md-7">
+    <div class="d-grid col-xl-8">
       <div class="alert alert-warning" role="alert">
-        <p>Не существуют:</p>
+        <p>Не существуют программы дисциплин:</p>
         <p>
           {% for program in non_exist %}
-            {{ non_exist[program][0] }} {{ non_exist[program][1] }}<br>
+            {{ program }}<br>
           {% endfor %}
         </p>
       </div>

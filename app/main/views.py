@@ -57,7 +57,7 @@ def upload():
             # (проблема с русскими названиями)
             file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
             return filename
-    return render_template("main/upload.html")
+    return render_template("common/upload.html")
 
 
 @bp.route("/read_file/", methods=["GET"])

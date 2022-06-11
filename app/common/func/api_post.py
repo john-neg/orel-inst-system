@@ -183,3 +183,68 @@ async def load_lib_edit_field(
         f"В рабочей программе {work_program_id} обновлено поле {field_id}."
     )
     return response
+
+
+async def work_programs_dates_update(
+        work_program_id: int | str | tuple[int | str] | list[int | str],
+        date_methodical: str,
+        document_methodical: str,
+        date_academic: str,
+        document_academic: str,
+        date_approval: str,
+):
+    """
+    Обновление информации о рассмотрении и утверждении рабочих программ.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+        date_methodical: str
+            дата протокола заседания кафедры
+        document_methodical: str
+            номер протокола заседания кафедры
+        date_academic: str
+            дата протокола заседания ученого совета
+        document_academic: str
+            номер протокола заседания ученого совета
+        date_approval: str
+            дата утверждения
+    """
+    filters = {
+        'id': work_program_id,
+    }
+    fields = {
+        'date_methodical': date_methodical,
+        'document_methodical': document_methodical,
+        'date_academic': date_academic,
+        'document_academic': document_academic,
+        'date_approval': date_approval,
+    }
+    response = await api_edit_db_table(
+        'mm_work_programs', filters, fields,
+    )
+    logging.debug(
+        f"В рабочих программах {work_program_id} обновлены поля {fields}."
+    )
+    return response
+
+
+def edit_work_programs_data(
+    work_program_id: int | str | tuple[int | str] | list[int | str], **kwargs
+):
+    """
+    Редактирование информации в рабочих программах.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+
+    """
+    # 'mm_sections' = ()
+    # 'mm_work_programs_data'
+    # 'mm_work_programs_signs'
+    # 'mm_competency_levels'
+    # 'mm_work_programs_competencies_data'
+

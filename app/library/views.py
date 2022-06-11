@@ -351,7 +351,7 @@ class LibraryUpdateView(View):
                 if plan.work_programs_data[wp_id].get("name").strip() == disc.strip():
                     lib_items = Apeks.LIB_TYPES[self.lib_type]
                     for i in range(len(lib_items)):
-                        if lib_items[i] not in plan.work_programs_data[wp_id]['fields']:
+                        if lib_items[i] not in plan.work_programs_data[wp_id]["fields"]:
                             await load_lib_add_field(wp_id, lib_items[i])
                         check = 1 if file_data[disc][i] else 0
                         await load_lib_edit_field(
@@ -418,9 +418,7 @@ class LibraryExportView(View):
             ),
         )
         lib_data = plan.library_content()
-        filename = (
-            f"{self.lib_type_name} - {plan.name}.xlsx"
-        )
+        filename = f"{self.lib_type_name} - {plan.name}.xlsx"
         library_report(lib_data, self.lib_type, filename)
         return redirect(url_for("main.get_file", filename=filename))
 

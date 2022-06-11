@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import logging
 
+from openpyxl import Workbook
+
 from config import FlaskConfig
 
 
-def allowed_file(filename):
+def allowed_file(filename: str) -> bool:
     """Проверяет что расширение файла в списке разрешенных."""
     return (
         "." in filename and filename.rsplit(".", 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
@@ -34,3 +36,40 @@ def data_processor(table_data: list, dict_key: str = "id") -> dict:
         data[int(d_val.get(dict_key))] = d_val
     logging.debug(f"Обработаны данные. Ключ: {dict_key}")
     return data
+
+
+def xlsx_iter_rows(worksheet: Workbook.active):
+    """
+    Чтение данных таблицы XLSX по рядам.
+
+    Parameters
+    ----------
+        worksheet: Workbook.active
+            активный лист таблицы
+    """
+    for row in worksheet.iter_rows():
+        yield [cell.value for cell in row]
+
+
+def xlsx_normalize(worksheet: Workbook.active, replace: dict):
+    """
+    Функция для замены символов в таблице.
+
+    Parameters
+    ----------
+        worksheet: Workbook.active
+            активный лист таблицы
+        replace: dict
+            словарь для замены {'изменяемое значение': 'новое значение'}
+
+    Returns
+    -------
+        worksheet: Workbook.active
+            измененный лист
+    """
+    for key, val in replace.items():
+        for r in range(1, worksheet.max_row + 1):
+            for c in range(1, worksheet.max_column + 1):
+                s = str(worksheet.cell(r, c).value).strip()
+                worksheet.cell(r, c).value = s.replace(key, val)
+    return worksheet

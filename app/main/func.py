@@ -1,7 +1,6 @@
 import requests
 
 from config import ApeksConfig as Apeks
-from config import FlaskConfig as Config
 
 
 def db_request(table_name):
@@ -47,22 +46,6 @@ def plan_curriculum_disciplines(education_plan_id):
         ):  # type 16 - группы дисциплин
             disciplines[disc["id"]] = [disc["code"], disc_name(disc["discipline_id"])]
     return disciplines
-
-
-def xlsx_iter_rows(ws):
-    """Reading imported XLSX file row by row."""
-    for row in ws.iter_rows():
-        yield [cell.value for cell in row]
-
-
-def xlsx_normalize(worksheet, replace_dict):
-    """Function to replace symbols in table."""
-    for key, val in replace_dict.items():
-        for r in range(1, worksheet.max_row + 1):
-            for c in range(1, worksheet.max_column + 1):
-                s = str(worksheet.cell(r, c).value).strip()
-                worksheet.cell(r, c).value = s.replace(key, val)
-    return worksheet
 
 
 def get_system_user_name(user_id):
