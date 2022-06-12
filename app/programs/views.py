@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
@@ -8,6 +8,7 @@ from app.common.classes.EducationPlan import (
     EducationPlanExtended,
     EducationPlanWorkProgram,
 )
+from app.common.classes.EducationStaff import EducationStaff
 from app.common.func.api_get import (
     get_departments,
     check_api_db_response,
@@ -19,12 +20,16 @@ from app.common.func.api_get import (
     get_plan_education_specialties,
     get_education_plans,
     get_work_programs_data,
+    get_state_staff,
 )
-from app.common.func.api_post import work_programs_dates_update
+from app.common.func.api_post import (
+    work_programs_dates_update,
+    edit_work_programs_data,
+    create_work_program,
+)
+from app.common.func.app_core import data_processor
 from app.common.reports.wp_title_pages import generate_wp_title_pages
 from app.main.func import db_filter_req
-from app.main.models import EducationPlan
-from app.plans.func import create_wp
 from app.programs import bp
 from app.programs.forms import (
     WorkProgramDatesUpdate,
@@ -253,62 +258,99 @@ def wp_field_edit():
 
 @bp.route("/wp_data/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-def wp_data(plan_id):
-    # plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-    # plan = EducationPlanWorkProgram(
-    #     education_plan_id=plan_id,
-    #     plan_education_plans=await check_api_db_response(
-    #         await api_get_db_table(
-    #             Apeks.TABLES.get("plan_education_plans"), id=plan_id
-    #         )
-    #     ),
-    #     plan_curriculum_disciplines=plan_disciplines,
-    #     work_programs_data=await get_work_programs_data([*plan_disciplines], signs=True),
-    # )
-    # wp_list = [*plan.work_programs_data]
-    # plan_name = plan.name
+async def wp_data(plan_id):
+    plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+    plan = EducationPlanWorkProgram(
+        education_plan_id=plan_id,
+        plan_education_plans=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
+        ),
+        plan_curriculum_disciplines=plan_disciplines,
+        work_programs_data=await get_work_programs_data(
+            [*plan_disciplines], signs=True
+        ),
+    )
+    if request.method == "POST":
+        if request.form.get("wp_status_0"):
+            await edit_work_programs_data(
+                [*plan.work_programs_data],
+                status=0,
+            )
+        elif request.form.get("wp_status_1"):
+            await edit_work_programs_data(
+                [*plan.work_programs_data],
+                status=1,
+            )
+        elif request.form.get("create_wp"):
+            staff = EducationStaff(
+                year=datetime.today().year,
+                month_start=datetime.today().month,
+                month_end=datetime.today().month,
+                state_staff=await get_state_staff(),
+                state_staff_history=await check_api_db_response(
+                    await api_get_db_table(
+                        Apeks.TABLES.get("state_staff_history"),
+                    )
+                ),
+                state_staff_positions=await check_api_db_response(
+                    await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
+                ),
+                departments=await get_departments(),
+            )
+            for disc_id in plan.non_exist:
+                dept_id = plan.plan_curriculum_disciplines[disc_id].get("department_id")
+                staff_id = [*staff.department_staff(dept_id)]
+                user_id = staff.state_staff[staff_id[0]].get("user_id")
+                disc_name = plan.plan_curriculum_disciplines[disc_id].get("name")
+                await create_work_program(disc_id, disc_name, user_id)
+        return redirect(url_for("programs.wp_data", plan_id=plan_id))
 
-    plan = EducationPlan(plan_id)
-    button = ""
-    plan_name = plan.name
-    wp_list = {}
-    no_program = {}
-    for disc in plan.disciplines:
-        try:
-            wp = WorkProgram(disc)
-            if request.method == "POST" and request.form.get("wp_status_0"):
-                button = "wp_status_0"
-                wp.edit("status", 0)
-            elif request.method == "POST" and request.form.get("wp_status_1"):
-                wp.edit("status", 1)
-                button = "wp_status_1"
-            wp_list[disc] = [
-                wp.name,
-                wp.get_signs(),
-                wp.get("status"),
-                wp.work_program_id,
-            ]
-        except IndexError:
-            if request.method == "POST" and request.form.get("create_wp"):
-                button = "create_wp"
-                create_wp(disc)
-                wp = WorkProgram(disc)
-                wp_list[disc] = [
-                    wp.name,
-                    wp.get_signs(),
-                    wp.get("status"),
-                    wp.work_program_id,
-                ]
-            else:
-                no_program[disc] = plan.discipline_name(disc)
+    sign_users = []
+    for wp in plan.work_programs_data:
+        signs_data = plan.work_programs_data[wp].get("signs")
+        if signs_data:
+            for user_id, timestamp in signs_data.items():
+                sign_users.append(user_id)
+    sign_users_data = data_processor(
+        await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("system_users"),
+                id=sign_users,
+            )
+        )
+    )
+
+    programs = {}
+    for wp in plan.work_programs_data:
+        programs[wp] = {}
+        signs = []
+        signs_data = plan.work_programs_data[wp].get("signs")
+        if signs_data:
+            for user_id, timestamp in signs_data.items():
+                signs.append(
+                    f"{sign_users_data[user_id].get('name')}\r\n" f"({timestamp})"
+                )
+                sign_users.append(user_id)
+        else:
+            signs.append("Не согласована")
+
+        programs[wp]["disc_id"] = plan.work_programs_data[wp].get(
+            "curriculum_discipline_id"
+        )
+        programs[wp]["name"] = f'"{plan.work_programs_data[wp].get("name")}"'
+        programs[wp]["signs"] = signs
+        programs[wp]["status"] = plan.work_programs_data[wp].get("status")
+
     return render_template(
         "programs/wp_data.html",
         active="programs",
         url=Apeks.URL,
-        wp_list=wp_list,
-        no_program=no_program,
-        plan_name=plan_name,
-        button=button,
+        plan_name=plan.name,
+        programs=programs,
+        no_program=plan.non_exist,
+        duplicate=plan.duplicate,
+        wrong_name=plan.wrong_name,
+        sign_users_data=sign_users_data
     )
 
 
@@ -390,7 +432,9 @@ async def wp_title(plan_id):
         form_data["wp_approval_month"] = dict(form.wp_approval_month.choices).get(
             form.wp_approval_month.data
         )
-        filename = generate_wp_title_pages(form_data, plan_name, plan.work_programs_data)
+        filename = generate_wp_title_pages(
+            form_data, plan_name, plan.work_programs_data
+        )
         return redirect(url_for("main.get_file", filename=filename))
     return render_template(
         "programs/wp_title.html",

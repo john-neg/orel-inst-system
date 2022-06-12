@@ -43,7 +43,7 @@ class WorkProgram:
             "tasks": "tasks",  # Задачи дисциплины
             "place_in_structure": "place_in_structure",  # Место в структуре ООП
         }
-        self.mm_work_programs_data_items = Apeks.MM_WORK_PROGRAMS_DATA_ITEMS
+        self.mm_work_programs_data_items = Apeks.MM_WORK_PROGRAMS_DATA
 
     def get(self, parameter):
         """Get work program field data."""

@@ -51,8 +51,8 @@ class EducationPlan:
                 "КОД Название дисциплины".
         """
         return (
-            f"{self.plan_curriculum_disciplines[int(cur_disc_id)][0]} "
-            f"{self.plan_curriculum_disciplines[int(cur_disc_id)][1]}"
+            f"{self.plan_curriculum_disciplines[cur_disc_id].get('code')} "
+            f"{self.plan_curriculum_disciplines[cur_disc_id].get('name')}"
         )
 
 
@@ -100,23 +100,25 @@ class EducationPlanWorkProgram(EducationPlan):
             disc_id = int(self.work_programs_data[wp].get("curriculum_discipline_id"))
             self.disc_wp_match.get(disc_id).append(wp)
             wp_name = self.work_programs_data[wp].get("name")
-            plan_disc_name = self.plan_curriculum_disciplines.get(disc_id)[1]
+            plan_disc_name = self.plan_curriculum_disciplines[disc_id].get("name")
             if wp_name != plan_disc_name:
                 wrong_name[disc_id] = [plan_disc_name, wp_name]
         for disc in self.disc_wp_match:
+            code = self.plan_curriculum_disciplines[disc].get("code")
+            name = self.plan_curriculum_disciplines[disc].get("name")
             if not self.disc_wp_match.get(disc):
-                non_exist[disc] = " ".join(self.plan_curriculum_disciplines[disc])
+                non_exist[disc] = f"{code} {name}"
             elif len(self.disc_wp_match.get(disc)) > 1:
-                duplicate[disc] = " ".join(self.plan_curriculum_disciplines[disc])
+                duplicate[disc] = f"{code} {name}"
         return wrong_name, duplicate, non_exist
 
     def library_content(self) -> dict:
         library_fields = [
-            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
-            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
-            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np"),
-            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("internet"),
-            Apeks.MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system"),
+            Apeks.MM_WORK_PROGRAMS_DATA.get("library_main"),
+            Apeks.MM_WORK_PROGRAMS_DATA.get("library_add"),
+            Apeks.MM_WORK_PROGRAMS_DATA.get("library_np"),
+            Apeks.MM_WORK_PROGRAMS_DATA.get("internet"),
+            Apeks.MM_WORK_PROGRAMS_DATA.get("ref_system"),
         ]
         content = {}
         for disc_id in self.disc_wp_match:
@@ -124,7 +126,9 @@ class EducationPlanWorkProgram(EducationPlan):
                 field_dict = {}
                 for field in library_fields:
                     field_dict[field] = "Нет программы"
-                content[self.plan_curriculum_disciplines.get(disc_id)[1]] = field_dict
+                content[
+                    self.plan_curriculum_disciplines[disc_id].get("name")
+                ] = field_dict
             else:
                 # если программа не одна показываем только последнюю
                 wp_id = self.disc_wp_match[disc_id][-1]

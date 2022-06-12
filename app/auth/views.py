@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for
 from flask_admin.menu import MenuLink
 from flask_login import logout_user, login_user, current_user, login_required
 

@@ -85,7 +85,8 @@ def generate_wp_title_pages(form_data: dict, plan_name: str, wp_data: dict) -> s
         program_info.add_run(f"{form_data.get('wp_speciality_type')}\n")
         program_info.add_run(f"{form_data.get('wp_speciality')}\n")
         program_info.add_run(
-            f"{form_data.get('wp_specialization_type')} - {form_data.get('wp_specialization')}\n"
+            f"{form_data.get('wp_specialization_type')} - "
+            f"{form_data.get('wp_specialization')}\n"
         ).italic = True
         if form_data.get("switch_narrow_spec"):
             program_info.add_run(

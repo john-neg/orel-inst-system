@@ -8,9 +8,9 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
+from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
 from app.common.reports.ExcelStyles import ExcelStyle
 from app.main.func import db_filter_req, db_request
-from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
 from app.main.models import EducationPlan
 from app.plans.func import (
     disciplines_wp_clean,

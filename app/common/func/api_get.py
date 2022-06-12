@@ -374,7 +374,9 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
     Returns
     ----------
         dict
-            {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}
+            {id: {'full': 'полное имя',
+                  'short': 'сокращенное имя',
+                  'user_id': user_id}}
     """
     staff_dict = {}
     resp = await check_api_db_response(await api_get_db_table(table))
@@ -385,6 +387,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
         staff_dict[int(staff.get("id"))] = {
             "full": f"{family_name} {first_name} {second_name}",
             "short": f"{family_name} {first_name[0]}.{second_name[0]}.",
+            "user_id": staff.get("user_id")
         }
     logging.debug("Информация о преподавателях успешно передана")
     return staff_dict
@@ -535,7 +538,9 @@ async def get_plan_curriculum_disciplines(
     Returns
     ----------
         dict
-            {curriculum_discipline_id: [disc_code, disc_name]}
+            {curriculum_discipline_id: {'code': code,
+                                        'name': name,
+                                        'department_id': department_id}}
     """
 
     def disc_name(discipline_id: int) -> str:
@@ -558,10 +563,14 @@ async def get_plan_curriculum_disciplines(
         if str(disc.get("level")) == str(Apeks.DISC_LEVEL) and str(
             disc.get("type")
         ) != str(Apeks.DISC_TYPE):
-            disciplines[int(disc.get("id"))] = [
-                disc.get("code"),
-                disc_name(disc.get("discipline_id")),
-            ]
+            code = disc.get("code")
+            name = disc_name(disc.get("discipline_id"))
+            department_id = disc.get("department_id")
+            disciplines[int(disc.get("id"))] = {
+                'code': code,
+                'name': name,
+                'department_id': department_id,
+            }
     logging.debug(
         f"Передана информация о дисциплинах " f"education_plan_id: {education_plan_id}"
     )

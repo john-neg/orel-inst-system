@@ -74,6 +74,7 @@ class ApeksConfig(object):
         "state_staff_history": "state_staff_history",
         "state_staff_positions": "state_staff_positions",
         "system_settings": "system_settings",
+        "system_users": "system_users",
     }
 
     MONTH_DICT = {
@@ -97,8 +98,48 @@ class ApeksConfig(object):
     # Код типа 'группа дисциплин' в таблице 'plan_disciplines'
     DISC_TYPE = 16
 
-    # ID полей БД АпексВУЗ в таблице 'mm_work_programs_data_items'
-    MM_WORK_PROGRAMS_DATA_ITEMS = {
+    # ID полей БД АпексВУЗ в соответствующих таблицах
+    MM_WORK_PROGRAMS = {
+        # Название программы
+        "name": "name",
+        # Рецензенты
+        "reviewers_ext": "reviewers_ext",
+        # Дата создания
+        "date_create": "date_create",
+        # Дата протокола заседания кафедры
+        "date_department": "date_department",
+        # Номер протокола заседания кафедры
+        "document_department": "document_department",
+        # Дата протокола заседания метод. совета
+        "date_methodical": "date_methodical",
+        # Номер протокола заседания метод. совета
+        "document_methodical": "document_methodical",
+        # Дата протокола заседания ученого совета
+        "date_academic": "date_academic",
+        # Номер протокола заседания ученого совета
+        "document_academic": "document_academic",
+        # Дата утверждения
+        "date_approval": "date_approval",
+        # Статус утверждения
+        "status": "status",
+    }
+    MM_SECTIONS = {
+        # Цели дисциплины
+        "purposes": "purposes",
+        # Задачи дисциплины
+        "tasks": "tasks",
+        # Место в структуре ООП
+        "place_in_structure": "place_in_structure",
+        # # Знать
+        # "knowledge": "knowledge",
+        # # Уметь
+        # "skills": "skills",
+        # # Владеть
+        # "abilities": "abilities",
+        # # Навыки
+        # "ownerships": "ownerships",
+    }
+    MM_WORK_PROGRAMS_DATA = {
         # Автор(ы) рабочей программы (для печати)
         "authorprint": 29,
         # Пояснение к таблице с последующими дисциплинами (информация об отсутствии)
@@ -137,6 +178,40 @@ class ApeksConfig(object):
         "ref_system": 17,
         # Описание материально-технической базы
         "materials_base": 20,
+    }
+    # MM_WORK_PROGRAMS_SIGNS = {
+    #     # ID пользователя
+    #     "user_id": "user_id",
+    #     # Время в формате "ГГГГ-ММ-ДД ЧЧ:ММ:СС"
+    #     "timestamp": "timestamp",
+    # }
+    # MM_WORK_PROGRAMS_COMPETENCIES_DATA = {
+    #     # Знать
+    #     "knowledge": 1,
+    #     # Уметь
+    #     "abilities": 2,
+    #     # Владеть
+    #     "ownerships": 3,
+    # }
+    MM_COMPETENCY_LEVELS = {
+        # # Номер уровня сформированности
+        # "level": "level",
+        # ID семестра
+        "semester_id": "semester_id",
+        # ID формы контроля
+        "control_type_id": "control_type_id",
+        # Знать уровня сформированности
+        "knowledge": "knowledge",
+        # Уметь уровня сформированности
+        "abilities": "abilities",
+        # Владеть уровня сформированности
+        "ownerships": "ownerships",
+        # Уровень 1
+        "level1": "level1",
+        # Уровень 2
+        "level2": "level2",
+        # Уровень 3
+        "level3": "level3",
     }
 
     # Идентификаторы видов занятий в таблице 'class_type_id'
@@ -207,12 +282,12 @@ class ApeksConfig(object):
     # и входящие в каждую группу элементы.
     LIB_TYPES = {
         "library": [
-            MM_WORK_PROGRAMS_DATA_ITEMS.get("library_main"),
-            MM_WORK_PROGRAMS_DATA_ITEMS.get("library_add"),
+            MM_WORK_PROGRAMS_DATA.get("library_main"),
+            MM_WORK_PROGRAMS_DATA.get("library_add"),
         ],
-        "library_np": [MM_WORK_PROGRAMS_DATA_ITEMS.get("library_np")],
-        "library_int": [MM_WORK_PROGRAMS_DATA_ITEMS.get("internet")],
-        "library_db": [MM_WORK_PROGRAMS_DATA_ITEMS.get("ref_system")],
+        "library_np": [MM_WORK_PROGRAMS_DATA.get("library_np")],
+        "library_int": [MM_WORK_PROGRAMS_DATA.get("internet")],
+        "library_db": [MM_WORK_PROGRAMS_DATA.get("ref_system")],
     }
 
     # Коэффициенты для расчета нагрузки по формам контроля

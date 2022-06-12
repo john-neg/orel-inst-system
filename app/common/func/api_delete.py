@@ -61,3 +61,24 @@ async def api_delete_from_db_table(
     for db_field, db_value in kwargs.items():
         params[f"filter[{db_field}][]"] = str(db_value)
     return endpoint, params
+
+
+# import asyncio
+# from pprint import pprint
+#
+#
+# async def main():
+#     pprint(
+#         await api_delete_from_db_table(
+#             'mm_work_programs',
+#             id=4313,
+#         )
+#     )
+# # pprint(await get_plan_curriculum_disciplines(
+# #     education_plan_id=133,
+# # ))
+#
+# if __name__ == '__main__':
+#     loop = asyncio.get_event_loop()
+#     loop.run_until_complete(main())
+#     loop.close()
