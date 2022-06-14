@@ -5,6 +5,7 @@ from json import JSONDecodeError
 
 import httpx
 
+from common.func.app_core import work_program_field_tb_table
 from config import ApeksConfig as Apeks
 
 
@@ -260,7 +261,6 @@ async def edit_work_programs_data(
     ----------
         work_program_id: int | str
             id рабочей программы
-
     """
     payload = {
         Apeks.TABLES.get("mm_work_programs"): {
@@ -281,17 +281,8 @@ async def edit_work_programs_data(
 
     if kwargs:
         for db_field, db_value in kwargs.items():
-            if db_field in Apeks.MM_WORK_PROGRAMS:
-                table_name = Apeks.TABLES.get("mm_work_programs")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_SECTIONS:
-                table_name = Apeks.TABLES.get("mm_sections")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_COMPETENCY_LEVELS:
-                table_name = Apeks.TABLES.get("mm_competency_levels")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_WORK_PROGRAMS_DATA:
-                table_name = Apeks.TABLES.get("mm_work_programs_data")
+            table_name = work_program_field_tb_table(db_field)
+            if table_name == Apeks.TABLES.get("mm_work_programs_data"):
                 field_data = {
                     "filters": {
                         "work_program_id": work_program_id,
@@ -300,8 +291,10 @@ async def edit_work_programs_data(
                     "fields": {"data": db_value},
                 }
                 payload[table_name][db_field] = field_data
-            else:
+            elif table_name == "unknown_parameter":
                 unknown_parameter[db_field] = db_value
+            else:
+                payload[table_name]["fields"][db_field] = db_value
 
     for table in payload:
         if table == Apeks.TABLES.get("mm_work_programs_data"):

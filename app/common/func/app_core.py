@@ -4,7 +4,7 @@ import logging
 
 from openpyxl import Workbook
 
-from config import FlaskConfig
+from config import FlaskConfig, ApeksConfig as Apeks
 
 
 def allowed_file(filename: str) -> bool:
@@ -36,6 +36,35 @@ def data_processor(table_data: list, dict_key: str = "id") -> dict:
         data[int(d_val.get(dict_key))] = d_val
     logging.debug(f"Обработаны данные. Ключ: {dict_key}")
     return data
+
+
+def work_program_field_tb_table(field_name: str) -> str:
+    """
+    Определяет в какой таблице базы данных находится
+    передаваемое имя поля рабочей программы.
+
+    Parameters
+    ----------
+        field_name: str
+            название поля рабочей программы
+
+    Returns
+    -------
+        str
+            имя_таблицы
+    """
+    if field_name in Apeks.MM_WORK_PROGRAMS:
+        table_name = Apeks.TABLES.get("mm_work_programs")
+    elif field_name in Apeks.MM_SECTIONS:
+        table_name = Apeks.TABLES.get("mm_sections")
+    elif field_name in Apeks.MM_COMPETENCY_LEVELS:
+        table_name = Apeks.TABLES.get("mm_competency_levels")
+    elif field_name in Apeks.MM_WORK_PROGRAMS_DATA:
+        table_name = Apeks.TABLES.get("mm_work_programs_data")
+    else:
+        return "unknown_parameter"
+    return table_name
+
 
 
 def xlsx_iter_rows(worksheet: Workbook.active):

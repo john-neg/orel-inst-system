@@ -37,6 +37,7 @@ class WorkProgram:
         self.special = {
             "date_department": "date_department",  # Дата заседания кафедры
             "document_department": "document_department",  # Протокол заседания кафедры
+            "department_data": "department_data"
         }
         self.mm_sections_items = {
             "purposes": "purposes",  # Цели дисциплины
