@@ -5,6 +5,8 @@ from json import JSONDecodeError
 
 import httpx
 
+from app.common.exceptions import ApeksWrongParameterException
+from app.common.func.app_core import work_program_field_tb_table
 from config import ApeksConfig as Apeks
 
 
@@ -260,7 +262,6 @@ async def edit_work_programs_data(
     ----------
         work_program_id: int | str
             id рабочей программы
-
     """
     payload = {
         Apeks.TABLES.get("mm_work_programs"): {
@@ -277,21 +278,15 @@ async def edit_work_programs_data(
         },
         Apeks.TABLES.get("mm_work_programs_data"): {},
     }
-    unknown_parameter = {}
 
     if kwargs:
         for db_field, db_value in kwargs.items():
-            if db_field in Apeks.MM_WORK_PROGRAMS:
-                table_name = Apeks.TABLES.get("mm_work_programs")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_SECTIONS:
-                table_name = Apeks.TABLES.get("mm_sections")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_COMPETENCY_LEVELS:
-                table_name = Apeks.TABLES.get("mm_competency_levels")
-                payload[table_name]["fields"][db_field] = db_value
-            elif db_field in Apeks.MM_WORK_PROGRAMS_DATA:
-                table_name = Apeks.TABLES.get("mm_work_programs_data")
+            try:
+                table_name = work_program_field_tb_table(db_field)
+            except ApeksWrongParameterException:
+                return f"Передан неизвестный параметр {db_field}."
+
+            if table_name == Apeks.TABLES.get("mm_work_programs_data"):
                 field_data = {
                     "filters": {
                         "work_program_id": work_program_id,
@@ -301,7 +296,7 @@ async def edit_work_programs_data(
                 }
                 payload[table_name][db_field] = field_data
             else:
-                unknown_parameter[db_field] = db_value
+                payload[table_name]["fields"][db_field] = db_value
 
     for table in payload:
         if table == Apeks.TABLES.get("mm_work_programs_data"):
@@ -321,9 +316,7 @@ async def edit_work_programs_data(
                     f"Переданы данные для обновления программ. {table, filters, fields}"
                 )
                 await api_edit_db_table(table, filters, fields)
-    if unknown_parameter:
-        logging.info(f"Передан неизвестный параметр {unknown_parameter}.")
-        return unknown_parameter
+    return f"Данные успешно обновлены."
 
 
 # import asyncio
