@@ -4,6 +4,8 @@ import logging
 
 from openpyxl import Workbook
 
+from app.common.exceptions import ApeksWrongParameterException, \
+    ApeksParameterNonExistException
 from config import FlaskConfig, ApeksConfig as Apeks
 
 
@@ -38,14 +40,14 @@ def data_processor(table_data: list, dict_key: str = "id") -> dict:
     return data
 
 
-def work_program_field_tb_table(field_name: str) -> str:
+def work_program_field_tb_table(parameter: str) -> str:
     """
     Определяет в какой таблице базы данных находится
     передаваемое имя поля рабочей программы.
 
     Parameters
     ----------
-        field_name: str
+        parameter: str
             название поля рабочей программы
 
     Returns
@@ -53,18 +55,75 @@ def work_program_field_tb_table(field_name: str) -> str:
         str
             имя_таблицы
     """
-    if field_name in Apeks.MM_WORK_PROGRAMS:
+    if parameter in Apeks.MM_WORK_PROGRAMS:
         table_name = Apeks.TABLES.get("mm_work_programs")
-    elif field_name in Apeks.MM_SECTIONS:
+    elif parameter in Apeks.MM_SECTIONS:
         table_name = Apeks.TABLES.get("mm_sections")
-    elif field_name in Apeks.MM_COMPETENCY_LEVELS:
+    elif parameter in Apeks.MM_COMPETENCY_LEVELS:
         table_name = Apeks.TABLES.get("mm_competency_levels")
-    elif field_name in Apeks.MM_WORK_PROGRAMS_DATA:
+    elif parameter in Apeks.MM_WORK_PROGRAMS_DATA:
         table_name = Apeks.TABLES.get("mm_work_programs_data")
     else:
-        return "unknown_parameter"
+        message = f'Передан неверный параметр: "{parameter}"'
+        logging.error(message)
+        raise ApeksWrongParameterException(message)
     return table_name
 
+
+def work_program_get_parameter_info(wp_data: dict, parameter: str) -> str:
+    """
+    Возвращает значение передаваемого параметра поля рабочей программы.
+
+    Parameters
+    ----------
+        wp_data: dict
+            словарь с данными о рабочей программе
+            (см. функцию 'get_work_programs_data')
+        parameter: str
+            параметр поля рабочей программы значение которого нужно вернуть
+
+    Returns
+    -------
+        str
+            значение параметра
+    """
+
+    if parameter in Apeks.MM_SECTIONS:
+        if wp_data["sections"]:
+            field_data = wp_data["sections"].get(parameter)
+        else:
+            message = (f"Параметр '{parameter}' отсутствует в таблице: "
+                       f"{Apeks.TABLES.get('mm_sections')}")
+            logging.error(message)
+            raise ApeksParameterNonExistException(message)
+    elif parameter in Apeks.MM_WORK_PROGRAMS_DATA:
+        if wp_data["fields"]:
+            field_id = Apeks.MM_WORK_PROGRAMS_DATA.get(parameter)
+            field_data = wp_data["fields"].get(field_id)
+        else:
+            message = (f"Параметр '{parameter}' отсутствует в таблице: "
+                       f"{Apeks.TABLES.get('mm_work_programs_data')}")
+            logging.error(message)
+            raise ApeksParameterNonExistException(message)
+    elif parameter == "department_data":
+        date_department = wp_data.get('date_department')
+        document_department = wp_data.get('document_department')
+        if date_department:
+            d = date_department.split("-")
+            date_department = f"{d[-1]}.{d[-2]}.{d[-3]}"
+        else:
+            date_department = "[Не заполнена]"
+        if document_department is None:
+            document_department = "[Отсутствует]"
+        field_data = (f"Дата заседания кафедры: {date_department}\r\n"
+                      f"Протокол № {document_department}")
+    elif parameter in Apeks.MM_WORK_PROGRAMS:
+        field_data = wp_data.get(parameter)
+    else:
+        message = f'Передан неверный параметр: "{parameter}"'
+        logging.error(message)
+        raise ApeksWrongParameterException(message)
+    return field_data
 
 
 def xlsx_iter_rows(worksheet: Workbook.active):

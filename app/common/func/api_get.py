@@ -10,8 +10,8 @@ import httpx
 from cache import AsyncTTL
 from phpserialize import loads
 
-from app.common.exceptions import ApeksApiException
-from app.common.func.app_core import data_processor
+from app.common.exceptions import ApeksApiException, ApeksWrongParameterException
+from app.common.func.app_core import data_processor, work_program_field_tb_table
 from config import ApeksConfig as Apeks
 
 
@@ -104,7 +104,7 @@ async def check_api_db_response(response: dict) -> list:
     Returns
     ----------
         list
-            список словарей с содержимым поля 'data'
+            список словарей с содержимым ответа API по ключу 'data'
     """
     if not isinstance(response, dict):
         message = "Ответ API содержит некорректный тип данных (dict expected)"
@@ -503,6 +503,7 @@ async def get_education_plans(
                 await api_get_db_table(
                     Apeks.TABLES.get("plan_semesters"),
                     education_plan_id=[*education_plans],
+                    # Параметры для получения года начала обучения
                     course="1",
                     semester="1",
                 )
@@ -578,78 +579,79 @@ async def get_plan_curriculum_disciplines(
 
 
 async def get_work_programs_data(
-    curriculum_discipline_id: int | list,
-    sections=False,
-    fields=False,
-    signs=False,
-    competencies=False,
+    sections: bool = False,
+    fields: bool = False,
+    signs: bool = False,
+    competencies: bool = False,
+    **kwargs: int | str | tuple[int | str] | list[int | str],
 ) -> dict:
     """
     Получение информации о рабочих программах.
 
     Parameters
     ----------
-        curriculum_discipline_id: int | list
-            id дисциплины
-        sections:
+        sections: bool
             если True то запрашивается также информация о целях и задачах,
             месте в структуре ООП из таблицы 'mm_sections'
-        fields:
+        fields: bool
             если True то запрашивается также информация о полях программ
             из таблицы 'mm_work_programs_data'
-        signs:
+        signs: bool
             если True то запрашивается также информация о согласовании программ
             из таблицы 'mm_work_programs_signs'
-        competencies:
+        competencies: bool
             если True то запрашивается также информация о компетенциях для
             программы и уровнях сформированности компетенций
             из таблиц 'mm_competency_levels', 'mm_work_programs_competencies_data'
+        **kwargs: int | str | tuple[int | str] | list[int | str]:
+            параметры для запроса (поле или несколько полей таблицы mm_work_programs)
+            Например: curriculum_discipline_id=value, id=[list]
 
     Returns
     ----------
         dict
-            {"id": value,
-            "curriculum_discipline_id": value,
-            "name": value,
-            "description": value,
-            "authors": value,
-            "reviewers_int": value,
-            "reviewers_ext": value,
-            "date_create": value,
-            "date_approval": value,
-            "date_department": value,
-            "document_department": value,
-            "date_methodical": value,
-            "document_methodical": value",
-            "date_academic": value,
-            "document_academic": value,
-            "status": value,
-            "user_id": value,
-            "settings": "[]",
-            "sections": {"purposes": value,
-                         "tasks": value,
-                         "place_in_structure": value,
-                         "knowledge": value,
-                         "skills": value,
-                         "abilities": value,
-                         "ownerships": value}
-            "fields": {id: value},
-            "signs": {user_id: timestamp},
-            "competencies_data": {comp_id: {field_id: value}}
-            "competency_levels": {level_id: {'abilities': value,
-                                             'control_type_id': value,
-                                             'knowledge': value,
-                                             'level1': value,
-                                             'level2': value,
-                                             'level3': value,
-                                             'ownerships': value
-                                             'semester_id': value}}
+            {id: {"id": value,
+                  "curriculum_discipline_id": value,
+                  "name": value,
+                  "description": value,
+                  "authors": value,
+                  "reviewers_int": value,
+                  "reviewers_ext": value,
+                  "date_create": value,
+                  "date_approval": value,
+                  "date_department": value,
+                  "document_department": value,
+                  "date_methodical": value,
+                  "document_methodical": value",
+                  "date_academic": value,
+                  "document_academic": value,
+                  "status": value,
+                  "user_id": value,
+                  "settings": "[]",
+                  "sections": {"purposes": value,
+                               "tasks": value,
+                               "place_in_structure": value,
+                               "knowledge": value,
+                               "skills": value,
+                               "abilities": value,
+                               "ownerships": value}
+                  "fields": {id: value},
+                  "signs": {user_id: timestamp},
+                  "competencies_data": {comp_id: {field_id: value}}
+                  "competency_levels": {level_id: {'abilities': value,
+                                                   'control_type_id': value,
+                                                   'knowledge': value,
+                                                   'level1': value,
+                                                   'level2': value,
+                                                   'level3': value,
+                                                   'ownerships': value
+                                                   'semester_id': value}}
     """
     wp_data = data_processor(
         await check_api_db_response(
             await api_get_db_table(
                 Apeks.TABLES.get("mm_work_programs"),
-                curriculum_discipline_id=curriculum_discipline_id,
+                **kwargs
             )
         )
     )
@@ -741,7 +743,7 @@ async def get_work_programs_data(
                 wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
     logging.debug(
         "Передана информация о рабочих программах "
-        f"дисциплин 'curriculum_discipline_id': {curriculum_discipline_id}"
+        f"дисциплин {wp_list}"
     )
     return wp_data
 

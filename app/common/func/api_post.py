@@ -5,7 +5,8 @@ from json import JSONDecodeError
 
 import httpx
 
-from common.func.app_core import work_program_field_tb_table
+from app.common.exceptions import ApeksWrongParameterException
+from app.common.func.app_core import work_program_field_tb_table
 from config import ApeksConfig as Apeks
 
 
@@ -277,11 +278,14 @@ async def edit_work_programs_data(
         },
         Apeks.TABLES.get("mm_work_programs_data"): {},
     }
-    unknown_parameter = {}
 
     if kwargs:
         for db_field, db_value in kwargs.items():
-            table_name = work_program_field_tb_table(db_field)
+            try:
+                table_name = work_program_field_tb_table(db_field)
+            except ApeksWrongParameterException:
+                return f"Передан неизвестный параметр {db_field}."
+
             if table_name == Apeks.TABLES.get("mm_work_programs_data"):
                 field_data = {
                     "filters": {
@@ -291,8 +295,6 @@ async def edit_work_programs_data(
                     "fields": {"data": db_value},
                 }
                 payload[table_name][db_field] = field_data
-            elif table_name == "unknown_parameter":
-                unknown_parameter[db_field] = db_value
             else:
                 payload[table_name]["fields"][db_field] = db_value
 
@@ -314,9 +316,7 @@ async def edit_work_programs_data(
                     f"Переданы данные для обновления программ. {table, filters, fields}"
                 )
                 await api_edit_db_table(table, filters, fields)
-    if unknown_parameter:
-        logging.info(f"Передан неизвестный параметр {unknown_parameter}.")
-        return unknown_parameter
+    return f"Данные успешно обновлены."
 
 
 # import asyncio
