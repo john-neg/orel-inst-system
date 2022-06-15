@@ -220,4 +220,4 @@ class TitlePagesGenerator(FlaskForm):
         "Иностранные слушатели",
         validators=[],
     )
-    fields_data = SubmitField("Сформировать титульные листы")
+    title_pages = SubmitField("Сформировать титульные листы")

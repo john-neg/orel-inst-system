@@ -516,7 +516,7 @@ async def wp_title(plan_id):
     if request.method == "POST" and form.validate_on_submit():
         form_data = request.form.to_dict()
         del form_data["csrf_token"]
-        del form_data["fields_data"]
+        del form_data["title_pages"]
         form_data["wp_speciality_type"] = dict(form.wp_speciality_type.choices).get(
             form.wp_speciality_type.data
         )
