@@ -10,8 +10,8 @@ import httpx
 from cache import AsyncTTL
 from phpserialize import loads
 
-from app.common.exceptions import ApeksApiException, ApeksWrongParameterException
-from app.common.func.app_core import data_processor, work_program_field_tb_table
+from app.common.exceptions import ApeksApiException
+from app.common.func.app_core import data_processor
 from config import ApeksConfig as Apeks
 
 

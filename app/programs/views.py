@@ -45,7 +45,7 @@ from app.programs.forms import (
     WorkProgramFieldUpdate,
     TitlePagesGenerator,
 )
-from app.programs.models import WorkProgramBunchData, WorkProgram
+from app.programs.models import WorkProgramBunchData
 from config import ApeksConfig as Apeks
 
 
@@ -117,8 +117,8 @@ bp.add_url_rule(
 )
 
 
-@bp.route("/dept_check", methods=["GET", "POST"])
-async def dept_check():
+@bp.route("/wp_dept_check", methods=["GET", "POST"])
+async def wp_dept_check():
     form = DepartmentWPCheck()
     departments = await get_departments()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
@@ -188,7 +188,7 @@ async def dept_check():
                 }
             }
         return render_template(
-            "programs/dept_check.html",
+            "programs/wp_dept_check.html",
             active="programs",
             form=form,
             edu_spec=edu_spec,
@@ -197,12 +197,12 @@ async def dept_check():
             wp_field=parameter,
             wp_data=programs_info,
         )
-    return render_template("programs/dept_check.html", active="programs", form=form)
+    return render_template("programs/wp_dept_check.html", active="programs", form=form)
 
 
-@bp.route("/dates_update", methods=["GET", "POST"])
+@bp.route("/wp_dates_update", methods=["GET", "POST"])
 @login_required
-async def dates_update():
+async def wp_dates_update():
     form = WorkProgramDatesUpdate()
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
@@ -245,7 +245,7 @@ async def dates_update():
             )
             non_exist = [plan.discipline_name(disc) for disc in plan.non_exist]
             return render_template(
-                "programs/dates_update.html",
+                "programs/wp_dates_update.html",
                 active="programs",
                 form=form,
                 edu_plan=plan_id,
@@ -255,43 +255,87 @@ async def dates_update():
             )
         else:
             return render_template(
-                "programs/dates_update.html",
+                "programs/wp_dates_update.html",
                 active="programs",
                 form=form,
                 edu_spec=edu_spec,
             )
-    return render_template("programs/dates_update.html", active="programs", form=form)
+    return render_template("programs/wp_dates_update.html", active="programs", form=form)
 
 
 @bp.route("/wp_fields/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-def wp_fields(plan_id):
+async def wp_fields(plan_id):
     form = FieldsForm()
-    plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-    plan = EducationPlanWorkProgram(
-        education_plan_id=plan_id,
-        plan_education_plans=await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("plan_education_plans"), id=plan_id
-            )
-        ),
-        plan_curriculum_disciplines=plan_disciplines,
-        work_programs_data=await get_work_programs_data(
-            curriculum_discipline_id=[*plan_disciplines]
-        ),
+    plan_education_plans = await check_api_db_response(
+        await api_get_db_table(
+            Apeks.TABLES.get("plan_education_plans"), id=plan_id
+        )
     )
-    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
+    plan_name = plan_education_plans[0].get('name')
     if request.method == "POST":
-        wp_field = request.form.get("wp_fields")
-        wp_plan_data = WorkProgramBunchData(plan_id, wp_field)
-        wp_data = wp_plan_data.all()
+        parameter = request.form.get("wp_fields")
+        field_db_table = work_program_field_tb_table(parameter)
+        db_sections = (
+            True if field_db_table == Apeks.TABLES.get("mm_sections") else False
+        )
+        db_fields = (
+            True
+            if field_db_table == Apeks.TABLES.get("mm_work_programs_data")
+            else False
+        )
+        plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+        plan = EducationPlanWorkProgram(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=plan_disciplines,
+            work_programs_data=await get_work_programs_data(
+                curriculum_discipline_id=[*plan_disciplines],
+                sections=db_sections,
+                fields=db_fields,
+            ),
+        )
+        programs_info = {}
+        programs_info[plan.name] = {}
+        for disc in plan.disc_wp_match:
+            disc_name = plan.discipline_name(disc)
+            programs_info[plan.name][disc_name] = {}
+            if not plan.disc_wp_match[disc]:
+                programs_info[plan.name][disc_name][
+                    "none"
+                ] = "-->Программа отсутствует<--"
+            else:
+                for wp in plan.disc_wp_match[disc]:
+                    try:
+                        field_data = work_program_get_parameter_info(
+                            plan.work_programs_data[wp], parameter
+                        )
+                    except ApeksParameterNonExistException:
+                        await work_program_add_parameter(
+                            wp, parameter
+                        )
+                        field_data = ""
+                    else:
+                        field_data = "" if not field_data else field_data
+                    programs_info[plan.name][disc_name][wp] = field_data
+        else:
+            programs_info = {
+                "Нет планов": {
+                    "Нет дисциплин": {"Нет программы": "Информация отсутствует"}
+                }
+            }
+
         return render_template(
             "programs/wp_fields.html",
             active="programs",
             form=form,
             plan_name=plan_name,
-            wp_field=wp_field,
-            wp_data=wp_data,
+            wp_field=parameter,
+            wp_data=programs_info,
         )
     return render_template(
         "programs/wp_fields.html", active="programs", form=form, plan_name=plan_name
