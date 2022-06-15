@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -18,6 +19,7 @@ from app.plans.func import (
     disciplines_comp_del,
 )
 from config import FlaskConfig, ApeksConfig as Apeks
+from app.plans.func import create_wp
 
 
 class CompPlan(EducationPlan):
@@ -424,3 +426,157 @@ class MatrixIndicatorsFile:
                         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
         document.save(FlaskConfig.EXPORT_FILE_DIR + self.title_name + ".docx")
         return self.title_name + ".docx"
+
+
+class WorkProgramProcessing:
+    def __init__(self, curriculum_discipline_id):
+        self.curriculum_discipline_id = curriculum_discipline_id
+        self.wp_data = self.wp_data_get()
+        if not self.wp_data:
+            create_wp(self.curriculum_discipline_id)
+            self.wp_data = self.wp_data_get()
+        self.control_data = self.control_data()
+        self.comp_level = self.comp_level_get()
+        if not self.comp_level:
+            self.comp_level_add()
+            self.comp_level = self.comp_level_get()
+
+    def wp_data_get(self):
+        return db_filter_req(
+            "mm_work_programs",
+            "curriculum_discipline_id",
+            self.curriculum_discipline_id
+        )
+
+    def control_data(self):
+        """
+        Получение последней формы контроля и семестра дисциплины
+        1: ["Экзамен"], 2: ["Зачет"],
+        6: ["Зачет с оценкой"], 14: ["Итоговая аттестация"].
+        """
+        # TODO Переписать чтобы данные брались из последнего семестра (по возможности)
+        control_type_id = {1: [], 2: [], 6: [], 14: []}
+        apeks_data = db_filter_req(
+            "plan_control_works",
+            "curriculum_discipline_id",
+            self.curriculum_discipline_id
+        )
+        for data in apeks_data:
+            if int(data.get('control_type_id')) in list(control_type_id.keys()):
+                control_type_id[
+                    int(data.get('control_type_id'))
+                ].append(int(data.get('semester_id')))
+        for control in control_type_id:
+            if control_type_id[control]:
+                semester = sorted(control_type_id[control])[-1]
+                return control, semester
+        else:
+            logging.debug(f'Не найдена информация о форме контроля '
+                          f'для рабочей программы {self.curriculum_discipline_id}. '
+                          f'data: {apeks_data}')
+            return None
+
+    def comp_level_get(self):
+        return db_filter_req(
+            "mm_competency_levels",
+            "work_program_id",
+            self.wp_data[0]["id"]
+        )
+
+    def comp_level_add(self):
+        """
+        Создание уровня сформированности компетенций
+        (последний семестр [-1]).
+        """
+        if self.control_data:
+            params = {"token": Apeks.TOKEN}
+            data = {
+                "table": "mm_competency_levels",
+                "fields[work_program_id]": self.wp_data[0]["id"],
+                "fields[control_type_id]": self.control_data[0],
+                "fields[semester_id]": self.control_data[1],
+                "fields[level]": "1",
+            }
+            requests.post(
+                Apeks.URL + "/api/call/system-database/add",
+                params=params,
+                data=data
+            )
+            return "Уровень создан"
+        else:
+            return "Не заполнен план"
+
+    def comp_level_edit(self, knowledge, abilities, ownerships):
+        """Редактирование индикаторов в таблице Уровни сформированности."""
+        if len(self.comp_level) > 1:  # Удаляем уровни если больше 1
+            for i in self.comp_level:
+                if i["level"] != "1":
+                    params = {
+                        "token": Apeks.TOKEN,
+                        "table": "mm_competency_levels",
+                        "filter[work_program_id]": self.wp_data[0]["id"],
+                        "filter[level]": i["level"],
+                    }
+                    requests.delete(
+                        Apeks.URL + "/api/call/system-database/delete",
+                        params=params
+                    )
+
+        if self.control_data:
+            # Проверка заполненности плана
+            # т.к. нужен семестр, выбор последнего семестра и формы контроля
+            params = {"token": Apeks.TOKEN}
+            data = {
+                "table": "mm_competency_levels",
+                "filter[work_program_id]": self.wp_data[0]["id"],
+                "filter[level]": "1",
+                "fields[semester_id]": self.control_data[1],
+                "fields[control_type_id]": self.control_data[0],
+                "fields[knowledge]": knowledge,
+                "fields[abilities]": abilities,
+                "fields[ownerships]": ownerships,
+            }
+            requests.post(
+                Apeks.URL + "/api/call/system-database/edit",
+                params=params,
+                data=data,
+            )
+
+    def comp_data_get(self):
+        """Получение данных о заполненных данных компетенций."""
+        return db_filter_req(
+            "mm_work_programs_competencies_data",
+            "work_program_id",
+            self.wp_data[0]["id"],
+        )
+
+    def comp_data_add(self, competency_id, field_id, value):
+        """
+        Загрузка данных компетенции
+        (field_id 1-знать, 2-уметь, 3-владеть).
+        """
+        params = {"token": Apeks.TOKEN}
+        data = {
+            "table": "mm_work_programs_competencies_data",
+            "fields[work_program_id]": self.wp_data[0]["id"],
+            "fields[competency_id]": competency_id,
+            "fields[field_id]": field_id,
+            "fields[value]": value,
+        }
+        requests.post(
+            Apeks.URL + "/api/call/system-database/add",
+            params=params,
+            data=data
+        )
+
+    def comp_data_del(self):
+        """Удаление содержания компетенций."""
+        params = {
+            "token": Apeks.TOKEN,
+            "table": "mm_work_programs_competencies_data",
+            "filter[work_program_id]": self.wp_data[0]["id"],
+        }
+        requests.delete(
+            Apeks.URL + "/api/call/system-database/delete",
+            params=params
+        )

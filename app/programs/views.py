@@ -9,7 +9,8 @@ from app.common.classes.EducationPlan import (
     EducationPlanWorkProgram,
 )
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.exceptions import ApeksWrongParameterException
+from app.common.exceptions import ApeksWrongParameterException, \
+    ApeksParameterNonExistException
 from app.common.func.api_get import (
     get_departments,
     check_api_db_response,
@@ -26,15 +27,13 @@ from app.common.func.api_get import (
 from app.common.func.api_post import (
     work_programs_dates_update,
     edit_work_programs_data,
-    create_work_program,
+    create_work_program, work_program_add_parameter,
 )
 from app.common.func.app_core import (
     data_processor,
     work_program_field_tb_table,
-    work_program_get_parameter_info,
-)
+    work_program_get_parameter_info, )
 from app.common.reports.wp_title_pages import generate_wp_title_pages
-from app.main.func import db_filter_req
 from app.programs import bp
 from app.programs.forms import (
     WorkProgramDatesUpdate,
@@ -44,7 +43,7 @@ from app.programs.forms import (
     WorkProgramFieldUpdate,
     TitlePagesGenerator,
 )
-from app.programs.models import WorkProgramBunchData, WorkProgram
+from app.programs.func import work_program_view_data
 from config import ApeksConfig as Apeks
 
 
@@ -116,15 +115,14 @@ bp.add_url_rule(
 )
 
 
-@bp.route("/dept_check", methods=["GET", "POST"])
-async def dept_check():
+@bp.route("/wp_dept_check", methods=["GET", "POST"])
+async def wp_dept_check():
     form = DepartmentWPCheck()
     departments = await get_departments()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
-        programs_info = {}
         edu_spec = request.form.get("edu_spec")
         department = request.form.get("department")
         year = request.form.get("year")
@@ -139,6 +137,7 @@ async def dept_check():
             else False
         )
         plan_list = await get_education_plans(edu_spec, year=year)
+        programs_info = {}
         if plan_list:
             for plan_id in plan_list:
                 plan_disciplines = await get_plan_curriculum_disciplines(
@@ -154,25 +153,11 @@ async def dept_check():
                     plan_curriculum_disciplines=plan_disciplines,
                     work_programs_data=await get_work_programs_data(
                         curriculum_discipline_id=[*plan_disciplines],
-                        fields=db_fields,
                         sections=db_sections,
+                        fields=db_fields,
                     ),
                 )
-                programs_info[plan.name] = {}
-                for disc in plan.disc_wp_match:
-                    disc_name = plan.discipline_name(disc)
-                    programs_info[plan.name][disc_name] = {}
-                    if not plan.disc_wp_match[disc]:
-                        programs_info[plan.name][disc_name][
-                            "none"
-                        ] = "-->Программа отсутствует<--"
-                    else:
-                        for wp in plan.disc_wp_match[disc]:
-                            field_data = work_program_get_parameter_info(
-                                plan.work_programs_data[wp], parameter
-                            )
-                            field_data = "" if not field_data else field_data
-                            programs_info[plan.name][disc_name][wp] = field_data
+                programs_info[plan.name] = await work_program_view_data(plan, parameter)
         else:
             programs_info = {
                 "Нет планов": {
@@ -180,7 +165,7 @@ async def dept_check():
                 }
             }
         return render_template(
-            "programs/dept_check.html",
+            "programs/wp_dept_check.html",
             active="programs",
             form=form,
             edu_spec=edu_spec,
@@ -189,12 +174,12 @@ async def dept_check():
             wp_field=parameter,
             wp_data=programs_info,
         )
-    return render_template("programs/dept_check.html", active="programs", form=form)
+    return render_template("programs/wp_dept_check.html", active="programs", form=form)
 
 
-@bp.route("/dates_update", methods=["GET", "POST"])
+@bp.route("/wp_dates_update", methods=["GET", "POST"])
 @login_required
-async def dates_update():
+async def wp_dates_update():
     form = WorkProgramDatesUpdate()
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
@@ -237,7 +222,7 @@ async def dates_update():
             )
             non_exist = [plan.discipline_name(disc) for disc in plan.non_exist]
             return render_template(
-                "programs/dates_update.html",
+                "programs/wp_dates_update.html",
                 active="programs",
                 form=form,
                 edu_plan=plan_id,
@@ -247,30 +232,59 @@ async def dates_update():
             )
         else:
             return render_template(
-                "programs/dates_update.html",
+                "programs/wp_dates_update.html",
                 active="programs",
                 form=form,
                 edu_spec=edu_spec,
             )
-    return render_template("programs/dates_update.html", active="programs", form=form)
+    return render_template("programs/wp_dates_update.html", active="programs", form=form)
 
 
 @bp.route("/wp_fields/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-def wp_fields(plan_id):
+async def wp_fields(plan_id):
     form = FieldsForm()
-    plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
+    plan_education_plans = await check_api_db_response(
+        await api_get_db_table(
+            Apeks.TABLES.get("plan_education_plans"), id=plan_id
+        )
+    )
+    plan_name = plan_education_plans[0].get('name')
     if request.method == "POST":
-        wp_field = request.form.get("wp_fields")
-        wp_plan_data = WorkProgramBunchData(plan_id, wp_field)
-        wp_data = wp_plan_data.all()
+        parameter = request.form.get("wp_fields")
+        field_db_table = work_program_field_tb_table(parameter)
+        db_sections = (
+            True if field_db_table == Apeks.TABLES.get("mm_sections") else False
+        )
+        db_fields = (
+            True
+            if field_db_table == Apeks.TABLES.get("mm_work_programs_data")
+            else False
+        )
+        plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+        plan = EducationPlanWorkProgram(
+            education_plan_id=plan_id,
+            plan_education_plans=await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                )
+            ),
+            plan_curriculum_disciplines=plan_disciplines,
+            work_programs_data=await get_work_programs_data(
+                curriculum_discipline_id=[*plan_disciplines],
+                sections=db_sections,
+                fields=db_fields,
+            ),
+        )
+        programs_info = await work_program_view_data(plan, parameter)
+
         return render_template(
             "programs/wp_fields.html",
             active="programs",
             form=form,
             plan_name=plan_name,
-            wp_field=wp_field,
-            wp_data=wp_data,
+            wp_field=parameter,
+            wp_data=programs_info,
         )
     return render_template(
         "programs/wp_fields.html", active="programs", form=form, plan_name=plan_name
@@ -283,31 +297,48 @@ async def wp_field_edit():
     form = WorkProgramFieldUpdate()
     wp_id = int(request.args.get("wp_id"))
     parameter = request.args.get("parameter")
+    if request.method == "POST":
+        parameter = request.form.get("wp_fields")
+        if request.form.get("fields_data"):
+            return redirect(url_for("programs.wp_field_edit", wp_id=wp_id, parameter=parameter))
+        if request.form.get("field_update") and form.validate_on_submit():
+            load_data = request.form.get("wp_field_edit")
+            kwargs = {parameter: load_data}
+            try:
+                await edit_work_programs_data(wp_id, **kwargs)
+                flash("Данные обновлены")
+            except ApeksWrongParameterException:
+                if parameter == "department_data":
+                    parameter1 = Apeks.MM_WORK_PROGRAMS.get('date_department')
+                    d = load_data.split("\r\n")[0].replace("Дата заседания кафедры:", "").replace(" ", "")
+                    d = datetime.strptime(d, '%d.%m.%Y')
+                    p1_data = date.isoformat(d)
+                    parameter2 = Apeks.MM_WORK_PROGRAMS.get('document_department')
+                    p2_data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
+                    kwargs = {parameter1: p1_data, parameter2: p2_data}
+                    await edit_work_programs_data(wp_id, **kwargs)
+                    flash("Данные обновлены")
+                else:
+                    flash(f"Передан неверный параметр: {parameter}")
+
+    form.wp_fields.data = parameter
     db_sections = True if parameter in Apeks.MM_SECTIONS else False
     db_fields = True if parameter in Apeks.MM_WORK_PROGRAMS_DATA else False
     work_program_data = await get_work_programs_data(
         id=wp_id, fields=db_fields, sections=db_sections
     )
-    if request.method == "POST":
-        parameter = request.form.get("wp_fields")
-
-        if request.form.get("field_update") and form.validate_on_submit():
-            load_data = request.form.get("wp_field_edit")
-            kwargs = {parameter: load_data}
-            await edit_work_programs_data(wp_id, **kwargs)
-        #     load_data = request.form.get("wp_field_edit")
-        #     wp.edit(parameter, load_data)
-        #     flash("Данные обновлены")
-
-    form.wp_fields.data = parameter
-
     try:
         form.wp_field_edit.data = work_program_get_parameter_info(
             work_program_data[wp_id], parameter
         )
     except ApeksWrongParameterException:
-        form.wp_field_edit.data = f"ApeksWrongParameterException {work_program_data}"
-
+        form.wp_field_edit.data = f"ApeksWrongParameterException {work_program_data[wp_id]}"
+        flash(f"Передан неверный параметр: {parameter}")
+    except ApeksParameterNonExistException:
+        await work_program_add_parameter(
+            wp_id, parameter
+        )
+        form.wp_field_edit.data = ""
 
     return render_template(
         "programs/wp_field_edit.html",

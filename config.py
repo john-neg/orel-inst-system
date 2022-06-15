@@ -130,14 +130,14 @@ class ApeksConfig(object):
         "tasks": "tasks",
         # Место в структуре ООП
         "place_in_structure": "place_in_structure",
-        # # Знать
-        # "knowledge": "knowledge",
-        # # Уметь
-        # "skills": "skills",
-        # # Владеть
-        # "abilities": "abilities",
-        # # Навыки
-        # "ownerships": "ownerships",
+        # Знать
+        "knowledge": "knowledge",
+        # Уметь
+        "skills": "skills",
+        # Владеть
+        "abilities": "abilities",
+        # Навыки
+        "ownerships": "ownerships",
     }
     MM_WORK_PROGRAMS_DATA = {
         # Автор(ы) рабочей программы (для печати)
@@ -179,23 +179,23 @@ class ApeksConfig(object):
         # Описание материально-технической базы
         "materials_base": 20,
     }
-    # MM_WORK_PROGRAMS_SIGNS = {
-    #     # ID пользователя
-    #     "user_id": "user_id",
-    #     # Время в формате "ГГГГ-ММ-ДД ЧЧ:ММ:СС"
-    #     "timestamp": "timestamp",
-    # }
-    # MM_WORK_PROGRAMS_COMPETENCIES_DATA = {
-    #     # Знать
-    #     "knowledge": 1,
-    #     # Уметь
-    #     "abilities": 2,
-    #     # Владеть
-    #     "ownerships": 3,
-    # }
+    MM_WORK_PROGRAMS_SIGNS = {
+        # ID пользователя
+        "user_id": "user_id",
+        # Время в формате "ГГГГ-ММ-ДД ЧЧ:ММ:СС"
+        "timestamp": "timestamp",
+    }
+    MM_WORK_PROGRAMS_COMPETENCIES_DATA = {
+        # Знать
+        "knowledge": 1,
+        # Уметь
+        "abilities": 2,
+        # Владеть
+        "ownerships": 3,
+    }
     MM_COMPETENCY_LEVELS = {
-        # # Номер уровня сформированности
-        # "level": "level",
+        # Номер уровня сформированности
+        "level": "level",
         # ID семестра
         "semester_id": "semester_id",
         # ID формы контроля
