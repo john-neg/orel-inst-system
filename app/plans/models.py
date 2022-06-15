@@ -19,8 +19,7 @@ from app.plans.func import (
     disciplines_comp_del,
 )
 from config import FlaskConfig, ApeksConfig as Apeks
-from main.func import db_filter_req
-from plans.func import create_wp
+from app.plans.func import create_wp
 
 
 class CompPlan(EducationPlan):

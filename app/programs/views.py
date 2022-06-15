@@ -32,10 +32,8 @@ from app.common.func.api_post import (
 from app.common.func.app_core import (
     data_processor,
     work_program_field_tb_table,
-    work_program_get_parameter_info,
-)
+    work_program_get_parameter_info, )
 from app.common.reports.wp_title_pages import generate_wp_title_pages
-from app.main.func import db_filter_req
 from app.programs import bp
 from app.programs.forms import (
     WorkProgramDatesUpdate,
@@ -45,7 +43,7 @@ from app.programs.forms import (
     WorkProgramFieldUpdate,
     TitlePagesGenerator,
 )
-from app.programs.models import WorkProgramBunchData
+from app.programs.func import work_program_view_data
 from config import ApeksConfig as Apeks
 
 
@@ -125,7 +123,6 @@ async def wp_dept_check():
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
     if request.method == "POST":
-        programs_info = {}
         edu_spec = request.form.get("edu_spec")
         department = request.form.get("department")
         year = request.form.get("year")
@@ -140,6 +137,7 @@ async def wp_dept_check():
             else False
         )
         plan_list = await get_education_plans(edu_spec, year=year)
+        programs_info = {}
         if plan_list:
             for plan_id in plan_list:
                 plan_disciplines = await get_plan_curriculum_disciplines(
@@ -159,28 +157,7 @@ async def wp_dept_check():
                         fields=db_fields,
                     ),
                 )
-                programs_info[plan.name] = {}
-                for disc in plan.disc_wp_match:
-                    disc_name = plan.discipline_name(disc)
-                    programs_info[plan.name][disc_name] = {}
-                    if not plan.disc_wp_match[disc]:
-                        programs_info[plan.name][disc_name][
-                            "none"
-                        ] = "-->Программа отсутствует<--"
-                    else:
-                        for wp in plan.disc_wp_match[disc]:
-                            try:
-                                field_data = work_program_get_parameter_info(
-                                    plan.work_programs_data[wp], parameter
-                                )
-                            except ApeksParameterNonExistException:
-                                await work_program_add_parameter(
-                                    wp, parameter
-                                )
-                                field_data = ""
-                            else:
-                                field_data = "" if not field_data else field_data
-                            programs_info[plan.name][disc_name][wp] = field_data
+                programs_info[plan.name] = await work_program_view_data(plan, parameter)
         else:
             programs_info = {
                 "Нет планов": {
@@ -299,35 +276,7 @@ async def wp_fields(plan_id):
                 fields=db_fields,
             ),
         )
-        programs_info = {}
-        programs_info[plan.name] = {}
-        for disc in plan.disc_wp_match:
-            disc_name = plan.discipline_name(disc)
-            programs_info[plan.name][disc_name] = {}
-            if not plan.disc_wp_match[disc]:
-                programs_info[plan.name][disc_name][
-                    "none"
-                ] = "-->Программа отсутствует<--"
-            else:
-                for wp in plan.disc_wp_match[disc]:
-                    try:
-                        field_data = work_program_get_parameter_info(
-                            plan.work_programs_data[wp], parameter
-                        )
-                    except ApeksParameterNonExistException:
-                        await work_program_add_parameter(
-                            wp, parameter
-                        )
-                        field_data = ""
-                    else:
-                        field_data = "" if not field_data else field_data
-                    programs_info[plan.name][disc_name][wp] = field_data
-        else:
-            programs_info = {
-                "Нет планов": {
-                    "Нет дисциплин": {"Нет программы": "Информация отсутствует"}
-                }
-            }
+        programs_info = await work_program_view_data(plan, parameter)
 
         return render_template(
             "programs/wp_fields.html",

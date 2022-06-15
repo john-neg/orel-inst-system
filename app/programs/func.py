@@ -1,25 +1,49 @@
-from app.main.func import db_filter_req
+from __future__ import annotations
+
+from app.common.classes.EducationPlan import EducationPlanWorkProgram
+from app.common.exceptions import ApeksParameterNonExistException
+from app.common.func.api_post import work_program_add_parameter
+from app.common.func.app_core import work_program_get_parameter_info
 
 
-def plan_department_disciplines(education_plan_id, department_id):
+async def work_program_view_data(
+        plan: EducationPlanWorkProgram, parameter: str
+) -> dict:
     """
-    Getting department disciplines info as dict
-    (disc_ID:[disc_code:disc_name]).
+    Возвращает список параметров рабочих программ плана.
+    Если параметра нет в рабочей программе создает его.
+
+    Parameters
+    ----------
+        plan: EducationPlanWorkProgram
+            экземпляр класса EducationPlanWorkProgram
+        parameter: str
+            параметр поля рабочей программы значение которого нужно вернуть
+
+    Returns
+    -------
+        dict
+            значение параметра для дисциплины
+            {"Название дисциплины плана": {work_program_id: "Значение параметра"}}
     """
-    disciplines = {}
-    resp = db_filter_req(
-        "plan_curriculum_disciplines", "education_plan_id", education_plan_id
-    )
-    for disc in resp:
-        if disc["level"] == "3" and disc["department_id"] == str(
-                department_id
-        ):
-            disciplines[disc["id"]] = [
-                disc["code"],
-                db_filter_req(
-                    "plan_disciplines",
-                    "id",
-                    disc["discipline_id"]
-                )[0]["name"],
-            ]
-    return disciplines
+    programs_info = {}
+    for disc in plan.disc_wp_match:
+        disc_name = plan.discipline_name(disc)
+        programs_info[disc_name] = {}
+        if not plan.disc_wp_match[disc]:
+            programs_info[disc_name]["none"] = "-->Программа отсутствует<--"
+        else:
+            for wp in plan.disc_wp_match[disc]:
+                try:
+                    field_data = work_program_get_parameter_info(
+                        plan.work_programs_data[wp], parameter
+                    )
+                except ApeksParameterNonExistException:
+                    await work_program_add_parameter(
+                        wp, parameter
+                    )
+                    field_data = ""
+                else:
+                    field_data = "" if not field_data else field_data
+                programs_info[disc_name][wp] = field_data
+    return programs_info
