@@ -10,7 +10,7 @@ from app.common.func.app_core import allowed_file
 from app.plans import bp
 from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
-from app.programs.models import WorkProgramProcessing
+from plans.models import WorkProgramProcessing
 from config import FlaskConfig
 
 

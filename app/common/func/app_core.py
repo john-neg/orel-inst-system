@@ -59,8 +59,6 @@ def work_program_field_tb_table(parameter: str) -> str:
         table_name = Apeks.TABLES.get("mm_work_programs")
     elif parameter in Apeks.MM_SECTIONS:
         table_name = Apeks.TABLES.get("mm_sections")
-    elif parameter in Apeks.MM_COMPETENCY_LEVELS:
-        table_name = Apeks.TABLES.get("mm_competency_levels")
     elif parameter in Apeks.MM_WORK_PROGRAMS_DATA:
         table_name = Apeks.TABLES.get("mm_work_programs_data")
     else:
@@ -89,18 +87,18 @@ def work_program_get_parameter_info(wp_data: dict, parameter: str) -> str:
     """
 
     if parameter in Apeks.MM_SECTIONS:
-        if wp_data["sections"]:
-            field_data = wp_data["sections"].get(parameter)
-        else:
+        try:
+            field_data = wp_data["sections"][parameter]
+        except KeyError:
             message = (f"Параметр '{parameter}' отсутствует в таблице: "
                        f"{Apeks.TABLES.get('mm_sections')}")
             logging.error(message)
             raise ApeksParameterNonExistException(message)
     elif parameter in Apeks.MM_WORK_PROGRAMS_DATA:
-        if wp_data["fields"]:
-            field_id = Apeks.MM_WORK_PROGRAMS_DATA.get(parameter)
-            field_data = wp_data["fields"].get(field_id)
-        else:
+        field_id = Apeks.MM_WORK_PROGRAMS_DATA.get(parameter)
+        try:
+            field_data = wp_data["fields"][field_id]
+        except KeyError:
             message = (f"Параметр '{parameter}' отсутствует в таблице: "
                        f"{Apeks.TABLES.get('mm_work_programs_data')}")
             logging.error(message)

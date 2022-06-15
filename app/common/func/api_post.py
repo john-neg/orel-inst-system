@@ -84,11 +84,98 @@ async def api_add_to_db_table(
     return endpoint, params, data
 
 
+async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
+    """
+    Добавления пустого поля (field) списка литературы в рабочую программу.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+        field_id: int | str
+            id поля для загрузки данных
+    """
+    response = await api_add_to_db_table(
+        "mm_work_programs_data",
+        work_program_id=work_program_id,
+        field_id=field_id,
+        data="",
+    )
+    logging.debug(f"В рабочую программу '{work_program_id}' добавлено поле '{field_id}'.")
+    return response
+
+
+async def create_work_program(curriculum_discipline_id, name, user_id):
+    """Создание пустой рабочей программы"""
+
+    response = await api_add_to_db_table(
+        "mm_work_programs",
+        curriculum_discipline_id=curriculum_discipline_id,
+        name=name,
+        user_id=user_id,
+        status=0,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            f"Создана рабочая программа disc_id:{curriculum_discipline_id} {name}."
+        )
+    else:
+        logging.debug(
+            f"Рабочая программа disc_id:{curriculum_discipline_id} {name} не создана."
+        )
+    return response
+
+
+async def work_program_add_parameter(
+    work_program_id: int | str, parameter: str, load_data: str = ""
+):
+    """
+    Добавления пустого поля (parameter) в рабочую программу.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+        parameter: str
+            id поля для загрузки данных
+        load_data: str
+            содержимое поля для загрузки. (необязательное)
+    """
+    table_name = work_program_field_tb_table(parameter)
+    if table_name == Apeks.TABLES.get("mm_sections"):
+        fields = {
+            "work_program_id": work_program_id,
+            Apeks.MM_SECTIONS.get(parameter): load_data,
+        }
+        response = await api_add_to_db_table(
+            table_name,
+            fields,
+        )
+        print(response)
+    elif table_name == Apeks.TABLES.get("mm_work_programs_data"):
+        fields = {
+            "work_program_id": work_program_id,
+            "field_id": Apeks.MM_WORK_PROGRAMS_DATA.get(parameter),
+            "data": "",
+        }
+        response = await api_add_to_db_table(
+            table_name,
+            **fields,
+        )
+    else:
+        message = f"Передан неверный параметр '{parameter}' для загрузки в программу"
+        logging.debug(message)
+        raise ApeksWrongParameterException(message)
+    logging.debug(f"В рабочую программу '{work_program_id}' добавлено "
+                  f"поле '{parameter}' со значением '{load_data}'.")
+    return response
+
+
 @api_post_request_handler
 async def api_edit_db_table(
     table_name: str,
-    filters: dict[int | str: int | str | tuple[int | str] | list[int | str]],
-    fields: dict[int | str: int | str],
+    filters: dict[int | str : int | str | tuple[int | str] | list[int | str]],
+    fields: dict[int | str : int | str],
     url: str = Apeks.URL,
     token: str = Apeks.TOKEN,
 ):
@@ -120,30 +207,9 @@ async def api_edit_db_table(
     for db_field, db_value in fields.items():
         data[f"fields[{db_field}]"] = str(db_value)
     logging.debug(
-        f"Переданы параметры для запроса 'api_edit_db_table': к таблице {table_name}"
+        f"Переданы параметры для запроса 'api_edit_db_table': к таблице '{table_name}'"
     )
     return endpoint, params, data
-
-
-async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
-    """
-    Добавления пустого поля (field) в рабочую программу.
-
-    Parameters
-    ----------
-        work_program_id: int | str
-            id рабочей программы
-        field_id: int | str
-            id поля для загрузки данных
-    """
-    response = await api_add_to_db_table(
-        "mm_work_programs_data",
-        work_program_id=work_program_id,
-        field_id=field_id,
-        data="",
-    )
-    logging.debug(f"В рабочую программу {work_program_id} добавлено поле {field_id}.")
-    return response
 
 
 async def load_lib_edit_field(
@@ -183,27 +249,6 @@ async def load_lib_edit_field(
         fields,
     )
     logging.debug(f"В рабочей программе {work_program_id} обновлено поле {field_id}.")
-    return response
-
-
-async def create_work_program(curriculum_discipline_id, name, user_id):
-    """Создание пустой рабочей программы"""
-
-    response = await api_add_to_db_table(
-        "mm_work_programs",
-        curriculum_discipline_id=curriculum_discipline_id,
-        name=name,
-        user_id=user_id,
-        status=0,
-    )
-    if response.get("status") == 1:
-        logging.debug(
-            f"Создана рабочая программа disc_id:{curriculum_discipline_id} {name}."
-        )
-    else:
-        logging.debug(
-            f"Рабочая программа disc_id:{curriculum_discipline_id} {name} не создана."
-        )
     return response
 
 

@@ -9,7 +9,8 @@ from app.common.classes.EducationPlan import (
     EducationPlanWorkProgram,
 )
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.exceptions import ApeksWrongParameterException
+from app.common.exceptions import ApeksWrongParameterException, \
+    ApeksParameterNonExistException
 from app.common.func.api_get import (
     get_departments,
     check_api_db_response,
@@ -26,7 +27,7 @@ from app.common.func.api_get import (
 from app.common.func.api_post import (
     work_programs_dates_update,
     edit_work_programs_data,
-    create_work_program,
+    create_work_program, work_program_add_parameter,
 )
 from app.common.func.app_core import (
     data_processor,
@@ -154,8 +155,8 @@ async def dept_check():
                     plan_curriculum_disciplines=plan_disciplines,
                     work_programs_data=await get_work_programs_data(
                         curriculum_discipline_id=[*plan_disciplines],
-                        fields=True,
-                        sections=True,
+                        sections=db_sections,
+                        fields=db_fields,
                     ),
                 )
                 programs_info[plan.name] = {}
@@ -168,10 +169,17 @@ async def dept_check():
                         ] = "-->Программа отсутствует<--"
                     else:
                         for wp in plan.disc_wp_match[disc]:
-                            field_data = work_program_get_parameter_info(
-                                plan.work_programs_data[wp], parameter
-                            )
-                            field_data = "" if not field_data else field_data
+                            try:
+                                field_data = work_program_get_parameter_info(
+                                    plan.work_programs_data[wp], parameter
+                                )
+                            except ApeksParameterNonExistException:
+                                await work_program_add_parameter(
+                                    wp, parameter
+                                )
+                                field_data = ""
+                            else:
+                                field_data = "" if not field_data else field_data
                             programs_info[plan.name][disc_name][wp] = field_data
         else:
             programs_info = {
@@ -259,6 +267,19 @@ async def dates_update():
 @login_required
 def wp_fields(plan_id):
     form = FieldsForm()
+    plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+    plan = EducationPlanWorkProgram(
+        education_plan_id=plan_id,
+        plan_education_plans=await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_plans"), id=plan_id
+            )
+        ),
+        plan_curriculum_disciplines=plan_disciplines,
+        work_programs_data=await get_work_programs_data(
+            curriculum_discipline_id=[*plan_disciplines]
+        ),
+    )
     plan_name = db_filter_req("plan_education_plans", "id", plan_id)[0]["name"]
     if request.method == "POST":
         wp_field = request.form.get("wp_fields")
@@ -320,6 +341,11 @@ async def wp_field_edit():
     except ApeksWrongParameterException:
         form.wp_field_edit.data = f"ApeksWrongParameterException {work_program_data[wp_id]}"
         flash(f"Передан неверный параметр: {parameter}")
+    except ApeksParameterNonExistException:
+        await work_program_add_parameter(
+            wp_id, parameter
+        )
+        form.wp_field_edit.data = ""
 
     return render_template(
         "programs/wp_field_edit.html",

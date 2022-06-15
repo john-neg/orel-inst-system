@@ -51,7 +51,7 @@
             <tr class="table-success">
               <td>
                 <span style="white-space: pre-line">{{ disc }}</span>
-                {% if wp_data[plan][disc][wp] != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
+                {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
                   <a href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}"
                      target="_blank"
                      class="btn btn-success btn-block p-0"
