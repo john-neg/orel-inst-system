@@ -154,8 +154,8 @@ async def dept_check():
                     plan_curriculum_disciplines=plan_disciplines,
                     work_programs_data=await get_work_programs_data(
                         curriculum_discipline_id=[*plan_disciplines],
-                        fields=db_fields,
-                        sections=db_sections,
+                        fields=True,
+                        sections=True,
                     ),
                 )
                 programs_info[plan.name] = {}
@@ -283,31 +283,43 @@ async def wp_field_edit():
     form = WorkProgramFieldUpdate()
     wp_id = int(request.args.get("wp_id"))
     parameter = request.args.get("parameter")
+    if request.method == "POST":
+        parameter = request.form.get("wp_fields")
+        if request.form.get("fields_data"):
+            return redirect(url_for("programs.wp_field_edit", wp_id=wp_id, parameter=parameter))
+        if request.form.get("field_update") and form.validate_on_submit():
+            load_data = request.form.get("wp_field_edit")
+            kwargs = {parameter: load_data}
+            try:
+                await edit_work_programs_data(wp_id, **kwargs)
+                flash("Данные обновлены")
+            except ApeksWrongParameterException:
+                if parameter == "department_data":
+                    parameter1 = Apeks.MM_WORK_PROGRAMS.get('date_department')
+                    d = load_data.split("\r\n")[0].replace("Дата заседания кафедры:", "").replace(" ", "")
+                    d = datetime.strptime(d, '%d.%m.%Y')
+                    p1_data = date.isoformat(d)
+                    parameter2 = Apeks.MM_WORK_PROGRAMS.get('document_department')
+                    p2_data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
+                    kwargs = {parameter1: p1_data, parameter2: p2_data}
+                    await edit_work_programs_data(wp_id, **kwargs)
+                    flash("Данные обновлены")
+                else:
+                    flash(f"Передан неверный параметр: {parameter}")
+
+    form.wp_fields.data = parameter
     db_sections = True if parameter in Apeks.MM_SECTIONS else False
     db_fields = True if parameter in Apeks.MM_WORK_PROGRAMS_DATA else False
     work_program_data = await get_work_programs_data(
         id=wp_id, fields=db_fields, sections=db_sections
     )
-    if request.method == "POST":
-        parameter = request.form.get("wp_fields")
-
-        if request.form.get("field_update") and form.validate_on_submit():
-            load_data = request.form.get("wp_field_edit")
-            kwargs = {parameter: load_data}
-            await edit_work_programs_data(wp_id, **kwargs)
-        #     load_data = request.form.get("wp_field_edit")
-        #     wp.edit(parameter, load_data)
-        #     flash("Данные обновлены")
-
-    form.wp_fields.data = parameter
-
     try:
         form.wp_field_edit.data = work_program_get_parameter_info(
             work_program_data[wp_id], parameter
         )
     except ApeksWrongParameterException:
-        form.wp_field_edit.data = f"ApeksWrongParameterException {work_program_data}"
-
+        form.wp_field_edit.data = f"ApeksWrongParameterException {work_program_data[wp_id]}"
+        flash(f"Передан неверный параметр: {parameter}")
 
     return render_template(
         "programs/wp_field_edit.html",

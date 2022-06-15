@@ -281,10 +281,7 @@ async def edit_work_programs_data(
 
     if kwargs:
         for db_field, db_value in kwargs.items():
-            try:
-                table_name = work_program_field_tb_table(db_field)
-            except ApeksWrongParameterException:
-                return f"Передан неизвестный параметр {db_field}."
+            table_name = work_program_field_tb_table(db_field)
 
             if table_name == Apeks.TABLES.get("mm_work_programs_data"):
                 field_data = {
