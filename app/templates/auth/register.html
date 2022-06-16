@@ -1,109 +1,73 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends 'base.html' %}
+{% block title %}
+  Регистрация
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h3 class="text-dark mb-1" style="text-align: center;">
+      Регистрация нового пользователя
+    </h3>
+</div>
+<section class="position-relative py-2 py-xl-2">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-6 col-xl-4">
+                <div class="card mb-5">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <div class="bs-icon-xl bs-icon-circle bs-icon-primary bs-icon my-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-plus">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
+                            </svg></div>
+                        <form class="text-center" method="post">
+                            {{ form.hidden_tag() }}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Blank Page - Brand</title>
-    <meta property="og:type" content="website">
-    <meta name="description" content="Расширения базовых функций Апекс-ВУЗ">
-    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/favicons/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/favicons/android-chrome-512x512.png">
-    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
-    <link rel="manifest" href="../manifest.json">
-    <link rel="stylesheet" href="../assets/css/Nunito.css">
-    <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="../assets/css/Features-Cards.css">
-</head>
-
-<body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
-            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="opacity: 0.80;">
-                    <div class="sidebar-brand-icon"><i class="fas fa-hands-helping"></i></div>
-                    <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
-                </a>
-                <ul class="navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item"><a class="nav-link py-2" href="../index.html"><i class="fas fa-home"></i><span>Главная</span></a></li>
-                    <li class="nav-item dropdown" style="--bs-danger-rgb: 211,5,71;"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-user-cog"></i><span>Пользователи</span></a>
-                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../auth/register.html">Регистрация</a><a class="dropdown-item text-center py-1" href="#">Управление</a></div>
-                    </li>
-                    <li class="nav-item text-start"><a class="nav-link py-2" href="../schedule/schedule.html"><i class="far fa-calendar-alt"></i><span>Расписание</span></a></li>
-                    <li class="nav-item"><a class="nav-link py-2" href="../load/load_report.html"><i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a></li>
-                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-layer-group"></i><span>Учебные планы</span></a>
-                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../plans/comp_load.html">Загрузка компетенций</a><a class="dropdown-item text-center py-1" href="../plans/matrix_simple_load.html">Матрица простая</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_load.html">Матрица с индикаторами</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_file.html">Индикаторы по дисциплинам</a></div>
-                    </li>
-                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-clipboard-list"></i><span>Программы</span></a>
-                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../programs/wp_dept_check.html">Проверка по кафедре<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_dates_update.html">Обновление дат</a><a class="dropdown-item text-center py-1" href="../programs/wp_fields.html">Значения полей<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_data.html">Общая информация<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_title.html">Титульные листы<br></a></div>
-                    </li>
-                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-book-open"></i><span>Обеспечение</span></a>
-                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../library/library_choose_plan.html">Список литературы<br></a><a class="dropdown-item text-center py-1" href="../library/library_upload.html">Интернет ресурсы</a><a class="dropdown-item text-center py-1" href="#">Базы и справочные системы<br></a><a class="dropdown-item text-center py-1" href="#">Научная продукция<br></a></div>
-                    </li>
-                </ul>
-                <div class="text-center d-none d-md-inline"></div>
-            </div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
-                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
-                        <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
-                        <ul class="navbar-nav flex-nowrap ms-auto">
-                            <div class="d-none d-sm-block topbar-divider"></div>
-                            <li class="nav-item dropdown no-arrow">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">user_name</span><i class="far fa-check-square" style="font-size: 16px;color: var(--bs-green);"></i></a>
-                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Выйти</a></div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="container-fluid">
-                    <h3 class="text-dark mb-1" style="text-align: center;">Регистрация нового пользователя<br></h3>
-                </div>
-                <section class="position-relative py-4 py-xl-5">
-                    <div class="container">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-md-6 col-xl-4">
-                                <div class="card mb-5">
-                                    <div class="card-body d-flex flex-column align-items-center">
-                                        <div class="bs-icon-xl bs-icon-circle bs-icon-primary bs-icon my-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-plus">
-                                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
-                                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
-                                            </svg></div>
-                                        <form class="text-center" method="post">
-                                            <div class="mb-3"><input class="form-control" type="text" id="username" name="username" placeholder="Логин"><span id="username_errors" style="color: var(--bs-danger);">ошибка</span></div>
-                                            <div class="mb-3"><input class="form-control" type="password" id="password" name="password" placeholder="Пароль"><span id="password_errors" style="color: var(--bs-danger);">ошибка</span></div>
-                                            <div class="mb-3"><input class="form-control" type="password" id="password2" name="password2" placeholder="Повторите пароль"><span id="password2_errors" style="color: var(--bs-danger);">ошибка</span></div>
-                                            <div class="mb-3"><select class="form-select" id="role" name="role" placeholder="Права доступа">
-                                                    <optgroup label="This is a group">
-                                                        <option value="12" selected="">This is item 1</option>
-                                                        <option value="13">This is item 2</option>
-                                                        <option value="14">This is item 3</option>
-                                                    </optgroup>
-                                                </select></div>
-                                            <div class="mb-3"><button class="btn btn-primary d-block w-100" id="submit" type="submit">Зарегистрировать</button></div>
-                                        </form>
-                                    </div>
-                                </div>
+                            <div class="form-floating mb-3">
+                                <input class="form-control" type="text" id="username" name="username" placeholder="{{ form.username.data }}">
+                                <label class="form-label">{{ form.username.label }}</label>
+                                {% for error in form.username.errors %}
+                                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                                {% endfor %}
                             </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-            <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
-                <div class="container my-auto">
-                    <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>
-                </div>
-            </footer>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
-    </div>
-    <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="../assets/js/theme.js"></script>
-</body>
 
-</html>
+                            <div class="form-floating mb-3">
+                                <input class="form-control" type="password" id="password" name="password" placeholder="{{ form.password.data }}">
+                                <label class="form-label">{{ form.password.label }}</label>
+                                {% for error in form.password.errors %}
+                                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input class="form-control" type="password" id="password2" name="password2" placeholder="{{ form.password2.data }}">
+                                <label class="form-label">{{ form.password2.label }}</label>
+                                {% for error in form.password2.errors %}
+                                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3 form-floating">
+                              {{ form.role(class="form-select") }}
+                              <label>{{ form.role.label }}</label>
+                              {% for error in form.role.errors %}
+                                <span style="color: var(--bs-danger);">{{ error }}</span>
+                              {% endfor %}
+                            </div>
+
+                            <div class="mb-3"><button class="btn btn-primary d-block w-100" id="submit" type="submit">{{ form.submit.label }}</button></div>
+
+                            {% if message %}
+                              <span id="message" class="text-success" style="color: var(--bs-success);">{{ message }}</span>
+                            {% endif %}
+
+                            {% if form.form_errors %}
+                              <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+                            {% endif %}
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

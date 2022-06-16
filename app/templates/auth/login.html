@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
-    <h4 class="text-dark mb-1" style="text-align: center;"><span style="color: rgb(33, 37, 41);">{% block title %}Авторизация{% endblock %}</span><br></h4>
+    <h4 class="text-dark mb-1" style="text-align: center;">
+      {% block title %}Авторизация{% endblock %}<br>
+    </h4>
 </div>
-<section class="position-relative py-4 py-xl-5">
+<section class="position-relative py-2 py-xl-2">
     <div class="container">
         <div class="row d-flex justify-content-center">
             <div class="col-md-6 col-xl-4">
@@ -20,24 +22,28 @@
                             <div class="form-floating mb-3">
                                 <input class="form-control" type="text" id="username" name="username" placeholder="{{ form.username.data }}">
                                 <label class="form-label">{{ form.username.label }}</label>
-                                    {% for error in form.username.errors %}
-                                        <span style="color: var(--bs-danger);">{{ error }}</span>
-                                    {% endfor %}
+                                {% for error in form.username.errors %}
+                                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                                {% endfor %}
                             </div>
 
                             <div class="form-floating mb-3">
                                 <input class="form-control" type="password" id="password" name="password" placeholder="{{ form.password.data }}">
                                 <label class="form-label">{{ form.password.label }}</label>
-                                      {% for error in form.password.errors %}
-                                          <span style="color: var(--bs-danger);">{{ error }}</span>
-                                      {% endfor %}
+                                {% for error in form.password.errors %}
+                                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                                {% endfor %}
                             </div>
+
                             {% if error %}
                                 <span id="error" style="color: var(--bs-danger);">{{ error }}</span>
                             {% endif %}
 
-                            <div class="mb-3"><button class="btn btn-primary d-block w-100" id="submit" type="submit" name="submit">Войти</button></div>
-                            <div class="form-check" style="text-align: left;"><input class="form-check-input" type="checkbox" id="formRememberMe" name="remember_me"><label class="form-check-label" id="remember_me_label" for="formRememberMe">Запомнить</label></div>
+                            <div class="mb-3"><button class="btn btn-primary d-block w-100" id="submit" type="submit" name="submit">
+                                {{ form.submit.label }}</button></div>
+
+                            <div class="form-check" style="text-align: left;"><input class="form-check-input" type="checkbox" id="formRememberMe" name="remember_me">
+                                <label class="form-check-label" id="remember_me_label" for="formRememberMe">{{ form.remember_me.label }}</label></div>
                         </form>
                     </div>
                 </div>

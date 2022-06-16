@@ -7,6 +7,14 @@ from config import FlaskConfig
 
 
 class LoginForm(FlaskForm):
+    """Класс аутентификации"""
+
+    class Meta(FlaskForm.Meta):
+        locales = ['ru_RU', 'ru']
+
+        def get_translations(self, form):
+            return super(FlaskForm.Meta, self).get_translations(form)
+
     username = StringField("Логин", validators=[DataRequired()])
     password = PasswordField("Пароль", validators=[DataRequired()])
     remember_me = BooleanField("Запомнить")
@@ -14,6 +22,14 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
+    """Класс регистрации"""
+
+    class Meta(FlaskForm.Meta):
+        locales = ['ru_RU', 'ru']
+
+        def get_translations(self, form):
+            return super(FlaskForm.Meta, self).get_translations(form)
+
     username = StringField('Логин', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     password2 = PasswordField(
@@ -30,3 +46,9 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Имя уже существует')
+
+    class Meta(FlaskForm.Meta):
+        locales = ['ru_RU', 'ru']
+
+        def get_translations(self, form):
+            return super(FlaskForm.Meta, self).get_translations(form)
