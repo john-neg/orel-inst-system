@@ -48,57 +48,73 @@
             {% endif %}
 
             <!-- Расписание -->
-            <li class="nav-item text-start"><a class="nav-link py-2" href="../schedule/schedule.html">
+            <li class="nav-item text-start"><a class="nav-link py-2" href="{{ url_for('schedule.schedule') }}">
               <i class="far fa-calendar-alt"></i><span>Расписание</span></a>
             </li>
 
             <!-- Отчет о нагрузке -->
-            <li class="nav-item"><a class="nav-link py-2" href="../load/load_report.html">
+            <li class="nav-item"><a class="nav-link py-2" href="{{ url_for('load.load_report') }}">
               <i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a>
             </li>
 
             <!-- Учебные планы -->
-            <li class="nav-item dropdown">
-              <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
-                <i class="fas fa-layer-group"></i>
-                <span>Учебные планы</span>
-              </a>
-              <div class="dropdown-menu text-center py-0">
-                <a class="dropdown-item text-center py-1" href="../plans/comp_load.html">Загрузка компетенций</a>
-                <a class="dropdown-item text-center py-1" href="../plans/matrix_simple_load.html">Матрица простая</a>
-                <a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_load.html">Матрица с индикаторами</a>
-                <a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_file.html">Индикаторы по дисциплинам</a>
-              </div>
-            </li>
+            {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
+                  <i class="fas fa-layer-group"></i><span>Учебные планы</span>
+                </a>
+                <div class="dropdown-menu text-center py-0">
+                  {% if current_user.role in (config.ROLE_ADMIN, ) %}
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.comp_choose_plan') }}">Загрузка компетенций</a>
+                  {% endif %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_simple_choose_plan') }}">Матрица простая</a>
+                  {% if current_user.role in (config.ROLE_ADMIN, ) %}
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_choose_plan') }}">Матрица с индикаторами</a>
+                  {% endif %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_file_upload') }}">Индикаторы по дисциплинам</a>
+                </div>
+              </li>
+            {% endif %}
 
             <!-- Программы -->
             <li class="nav-item dropdown">
               <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Программы</span>
+                <i class="fas fa-clipboard-list"></i><span>Программы</span>
               </a>
               <div class="dropdown-menu text-center py-0">
-                <a class="dropdown-item text-center py-1" href="../programs/wp_dept_check.html">Проверка по кафедре<br></a>
-                <a class="dropdown-item text-center py-1" href="../programs/wp_dates_update.html">Обновление дат</a>
-                <a class="dropdown-item text-center py-1" href="../programs/wp_fields.html">Значения полей<br></a>
-                <a class="dropdown-item text-center py-1" href="../programs/wp_data.html">Общая информация<br></a>
-                <a class="dropdown-item text-center py-1" href="../programs/wp_title.html">Титульные листы<br></a>
+                <a class="dropdown-item text-center py-1" href="{{ url_for('programs.wp_dept_check') }}">Проверка по кафедре</a>
+                {% if current_user.role in (config.ROLE_ADMIN, ) %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('programs.wp_dates_update') }}">Обновление дат</a>
+                {% endif %}
+                {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('programs.wp_fields_choose_plan') }}">Значения полей</a>
+                {% endif %}
+                {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('programs.wp_data_choose_plan') }}">Общая информация</a>
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('programs.wp_title_choose_plan') }}">Титульные листы</a>
+                {% endif %}
               </div>
             </li>
 
             <!-- Обеспечение -->
-            <li class="nav-item dropdown">
-              <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
-                <i class="fas fa-book-open"></i>
-                <span>Обеспечение</span>
-              </a>
-              <div class="dropdown-menu text-center py-0">
-                <a class="dropdown-item text-center py-1" href="../library/library_choose_plan.html">Список литературы<br></a>
-                <a class="dropdown-item text-center py-1" href="../library/library_upload.html">Интернет ресурсы</a>
-                <a class="dropdown-item text-center py-1" href="#">Базы и справочные системы<br></a>
-                <a class="dropdown-item text-center py-1" href="#">Научная продукция<br></a>
-              </div>
-            </li>
+            {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
+                  <i class="fas fa-book-open"></i><span>Обеспечение</span>
+                </a>
+                <div class="dropdown-menu text-center py-0">
+                  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_BIBL) %}
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('library.library_choose_plan') }}">Список литературы</a>
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('library.library_int_choose_plan') }}">Интернет ресурсы</a>
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('library.library_db_choose_plan') }}">Базы и справочные системы</a>
+                  {% endif %}
+                  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('library.library_np_choose_plan') }}">Научная продукция</a>
+                  {% endif %}
+                </div>
+              </li>
+            {% endif %}
+
           </ul>
         </div>
       </nav>
