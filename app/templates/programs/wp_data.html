@@ -1,122 +1,238 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="ru">
 
-{% block content %}
-  <h1 class="display-6">
-      {% block title %} Информация по рабочим программам учебного плана {% endblock %}
-  </h1>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Blank Page - Brand</title>
+    <meta property="og:type" content="website">
+    <meta name="description" content="Расширения базовых функций Апекс-ВУЗ">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/favicons/android-chrome-512x512.png">
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../assets/css/Nunito.css">
+    <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../assets/css/Features-Cards.css">
+</head>
 
-  <div class="d-grid col-xl-8">
-    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal">
-      <b>{{ plan_name }}</b>
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="opacity: 0.80;">
+                    <div class="sidebar-brand-icon"><i class="fas fa-hands-helping"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
+                </a>
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link py-2" href="../index.html"><i class="fas fa-home"></i><span>Главная</span></a></li>
+                    <li class="nav-item dropdown" style="--bs-danger-rgb: 211,5,71;"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-user-cog"></i><span>Пользователи</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../auth/register.html">Регистрация</a><a class="dropdown-item text-center py-1" href="#">Управление</a></div>
+                    </li>
+                    <li class="nav-item text-start"><a class="nav-link py-2" href="../schedule/schedule.html"><i class="far fa-calendar-alt"></i><span>Расписание</span></a></li>
+                    <li class="nav-item"><a class="nav-link py-2" href="../load/load_report.html"><i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a></li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-layer-group"></i><span>Учебные планы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../plans/comp_load.html">Загрузка компетенций</a><a class="dropdown-item text-center py-1" href="../plans/matrix_simple_load.html">Матрица простая</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_load.html">Матрица с индикаторами</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_file.html">Индикаторы по дисциплинам</a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-clipboard-list"></i><span>Программы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../programs/wp_dept_check.html">Проверка по кафедре<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_dates_update.html">Обновление дат</a><a class="dropdown-item text-center py-1" href="../programs/wp_fields.html">Значения полей<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_data.html">Общая информация<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_title.html">Титульные листы<br></a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-book-open"></i><span>Обеспечение</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../library/library_choose_plan.html">Список литературы<br></a><a class="dropdown-item text-center py-1" href="../library/library_upload.html">Интернет ресурсы</a><a class="dropdown-item text-center py-1" href="#">Базы и справочные системы<br></a><a class="dropdown-item text-center py-1" href="#">Научная продукция<br></a></div>
+                    </li>
+                </ul>
+                <div class="text-center d-none d-md-inline"></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper" style="background: rgb(248, 249, 252);">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">user_name</span><i class="far fa-check-square" style="font-size: 16px;color: var(--bs-green);"></i></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Выйти</a></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <h3 class="text-center text-dark mb-1">Информация по рабочим программам учебного плана<br></h3>
+                </div>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col">
+                            <h5 class="fw-normal text-center text-primary mt-2 mb-3">40.05.01 Правовое обеспечение национальной безопасности {{ plan_name }}<br></h5>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mb-3">
+                        <div class="col-md-10 col-xl-8">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="card shadow border-start-success py-2">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-success fw-bold text-xs mb-1" id="status_label"><span>Статус</span></div>
+                                                    <div class="text-dark fw-bold h5 mb-0"><span id="status">Утвержден</span></div>
+                                                </div>
+                                                <div class="col-auto"><i class="fas fa-clipboard-check fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card shadow border-start-primary py-2">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-primary fw-bold text-xs mb-1"><span id="generation_label">Поколение</span></div>
+                                                    <div class="text-dark fw-bold h5 mb-0"><span id="generation">3++</span></div>
+                                                </div>
+                                                <div class="col-auto"><i class="fas fa-user-graduate fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="card shadow border-start-info py-2">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-info fw-bold text-xs mb-1"><span id="disciplines_number_label">Количество дисциплин</span></div>
+                                                    <div class="row g-0 align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="text-dark fw-bold h5 mb-0"><span id="disciplines_number">18</span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto"><i class="far fa-clipboard fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card shadow border-start-warning py-2">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span id="programs_number_label">Количество программ</span></div>
+                                                    <div class="text-dark fw-bold h5 mb-0"><span id="programs_number">18</span></div>
+                                                </div>
+                                                <div class="col-auto"><i class="fas fa-clipboard-list fa-2x text-gray-300"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="alert alert-primary text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                        <h6 class="alert-heading fw-bold text-center" id="duplicates_label">В плане есть дубликаты рабочих программ:</h6><span id="duplicates">Б.1.В.7 Учения<br></span>
+                                    </div>
+                                    <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                        <h6 class="alert-heading fw-bold text-center" id="wrong_name_label">Название дисциплины плана не соответствует названию программы:</h6><span id="wrong_name">План - "Организация раскрытия и расследования преступлений отдельных видов"<br>Программа - "Организация раскрытия и расследования преступлений отдельных видов "<br>План - "Автомобильная подготовка"<br>Программа - "Автомобильная подготовка "<br></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <div class="col">
+                                    <div class="card shadow mb-2">
+                                        <div class="card-header py-3">
+                                            <p class="text-center text-primary m-0 fw-bold" id="programs_table_header">Список созданных рабочих программ:<br></p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive table mt-2" id="programs_table" role="grid" aria-describedby="programs_table_info">
+                                                <table class="table my-0" id="dataTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Дисциплина<br></th>
+                                                            <th>Согласование</th>
+                                                            <th>Утверждение<br></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>"История органов внутренних дел"</td>
+                                                            <td>Беляева Ольга Васильевна (2022-05-30 13:04:54)</td>
+                                                            <td>Утверждена</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>"Гражданское процессуальное право (гражданский процесс)"</td>
+                                                            <td>Не согласована</td>
+                                                            <td class="fw-bold text-center">Нет</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td><strong>Дисциплина</strong></td>
+                                                            <td><strong>Согласование</strong></td>
+                                                            <td><strong>Утверждение</strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card shadow">
+                                        <div class="card-header py-3" id="non_exist_table_header">
+                                            <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive table mt-2" id="non_exist_table" role="grid" aria-describedby="non_exist_table_info">
+                                                <table class="table my-0" id="dataTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Дисциплина<br></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Б.1.Б.22 Предпринимательское право</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Б.3.2 Подготовка к защите и защита выпускной квалификационной работы по дисциплинам: "Предварительное следствие в органах внутренних дел", "Криминалистика"</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td><strong>Дисциплина</strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form method="post">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8 mb-2"><button class="btn btn-warning mb-3" id="create_wp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="create_wp">Создать отсутствующие программы</button><button class="btn btn-secondary mb-3" id="wp_status_0" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="wp_status_0">Разутвердить все программы плана</button><button class="btn btn-success link-light mb-3" id="wp_status_1" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="wp_status_1">Утвердить все программы плана</button></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
-  </div>
-  {% if programs %}
-  <div class="d-grid col-xl-8">
-    <table class="col-md-7 mt-3 table">
-      <tr class="table-success">
-        <td>Список созданных рабочих программ:</td>
-            <td>Согласование:</td>
-        <td>Утверждение:</td>
-      </tr>
-      {% for wp in programs %}
-        <tr>
-          <td>
-            <a href="{{ url }}/mm/materials/view-wp?id={{ programs[wp].get('disc_id') }}&work_program_id={{ wp }}" target="_blank">
-              <svg class="bi me-2" width="16" height="16"><use xlink:href="#open"/></svg>
-            </a>
-            <span style="white-space: pre-line"><b>{{ programs[wp].get('name') }}</b></span>
-          </td>
-          <td>
-            {% for sign in programs[wp].get('signs') %}
-              {{ sign }}
-            {% endfor %}
-          </td>
-          <td>
-            {% if programs[wp].get('status') == '1' %}
-              Утверждена
-            {% else %}
-              <b>Не утвержд.</b>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-  </div>
-  {% endif %}
+    <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../assets/js/theme.js"></script>
+</body>
 
-  {% if no_program %}
-    <div class="d-grid col-xl-8">
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-warning">
-            <td>В плане отсутствуют рабочие программы:</td>
-        </tr>
-          {% for disc in no_program %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>{{ no_program[disc] }}</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if duplicate %}
-    <div class="d-grid col-xl-8">
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-info">
-            <td>В плане есть дубликаты рабочих программ:</td>
-        </tr>
-          {% for disc in duplicate %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>{{ duplicate[disc] }}</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if wrong_name %}
-    <div class="d-grid col-xl-8">
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-danger">
-            <td>Название дисциплины плана не соответствует названию программы:</td>
-        </tr>
-          {% for disc in wrong_name %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>План - "{{ wrong_name[disc][0] }}"</b></span></td>
-            </tr>
-            <tr>
-              <td><span style="white-space: pre-line"><b>Программа - "{{ wrong_name[disc][1] }}"</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-    <form action="" method="post">
-      {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
-        <div class="d-grid mt-3 mb-3 col-xl-8">
-          <input type="submit"
-                 name="create_wp"
-                 value="Создать отсутствующие программы"
-                 class="btn btn-warning"
-          >
-        </div>
-      {% endif %}
-      <div class="d-grid mt-3 mb-3 col-xl-8">
-        <input type="submit"
-               name="wp_status_0"
-               value="Разутвердить все программы плана"
-               class="btn btn-primary"
-        >
-      </div>
-      <div class="d-grid mt-3 mb-3 col-xl-8">
-        <input type="submit"
-               name="wp_status_1"
-               value="Утвердить все программы плана"
-               class="btn btn-success"
-        >
-      </div>
-    </form>
-  {% endif %}
-{% endblock %}
+</html>

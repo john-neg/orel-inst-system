@@ -1,132 +1,126 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="ru">
 
-{% block content %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Blank Page - Brand</title>
+    <meta property="og:type" content="website">
+    <meta name="description" content="Расширения базовых функций Апекс-ВУЗ">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/favicons/android-chrome-512x512.png">
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../assets/css/Nunito.css">
+    <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../assets/css/Features-Cards.css">
+</head>
 
-<h1 class="display-6">
-  {% block title %} {{ title }} {% endblock %}
-</h1>
-<p>в рабочие программы дисциплин учебного плана:</p>
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="opacity: 0.80;">
+                    <div class="sidebar-brand-icon"><i class="fas fa-hands-helping"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
+                </a>
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link py-2" href="../index.html"><i class="fas fa-home"></i><span>Главная</span></a></li>
+                    <li class="nav-item dropdown" style="--bs-danger-rgb: 211,5,71;"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-user-cog"></i><span>Пользователи</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../auth/register.html">Регистрация</a><a class="dropdown-item text-center py-1" href="#">Управление</a></div>
+                    </li>
+                    <li class="nav-item text-start"><a class="nav-link py-2" href="../schedule/schedule.html"><i class="far fa-calendar-alt"></i><span>Расписание</span></a></li>
+                    <li class="nav-item"><a class="nav-link py-2" href="../load/load_report.html"><i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a></li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-layer-group"></i><span>Учебные планы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../plans/comp_load.html">Загрузка компетенций</a><a class="dropdown-item text-center py-1" href="../plans/matrix_simple_load.html">Матрица простая</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_load.html">Матрица с индикаторами</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_file.html">Индикаторы по дисциплинам</a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-clipboard-list"></i><span>Программы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../programs/wp_dept_check.html">Проверка по кафедре<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_dates_update.html">Обновление дат</a><a class="dropdown-item text-center py-1" href="../programs/wp_fields.html">Значения полей<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_data.html">Общая информация<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_title.html">Титульные листы<br></a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-book-open"></i><span>Обеспечение</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../library/library_choose_plan.html">Список литературы<br></a><a class="dropdown-item text-center py-1" href="../library/library_upload.html">Интернет ресурсы</a><a class="dropdown-item text-center py-1" href="#">Базы и справочные системы<br></a><a class="dropdown-item text-center py-1" href="#">Научная продукция<br></a></div>
+                    </li>
+                </ul>
+                <div class="text-center d-none d-md-inline"></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper" style="background: rgb(248, 249, 252);">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">user_name</span><i class="far fa-check-square" style="font-size: 16px;color: var(--bs-green);"></i></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Выйти</a></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <h3 class="text-center text-dark mb-1">Загрузка списка литературы</h3>
+                    <h6 class="text-center text-dark mb-1">в рабочие программы дисциплин учебного плана</h6>
+                </div>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col">
+                            <h5 class="fw-normal text-center text-primary mb-3">40.05.01 Правовое обеспечение национальной безопасности<br></h5>
+                        </div>
+                    </div>
+                </div>
+                <form method="post">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8">
+                                <div class="row" style="text-align: center;">
+                                    <div class="col-md-6"><button class="btn btn-warning" id="mtrx_ind_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);" name="mtrx_ind_temp">Шаблон</button><small class="form-text" style="text-align: center;">(скачать образец заполнения файла для загрузки)</small></div>
+                                    <div class="col-md-6"><button class="btn btn-primary" id="mtrx_download-1" type="submit" style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);" name="mtrx_download">Литература в РП плана</button><small class="form-text" style="text-align: center;">(таблица с данными из рабочих программ плана)</small></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8 mt-2 mb-3"><label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label><input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file"></div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-secondary" id="library_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="library_check">Проверка данных</button></div>
+                            <div class="col-md-10 col-xl-8">
+                                <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                    <h6 class="alert-heading fw-bold text-center">В загруженном файле нет данных для дисциплин:<br></h6><span>Философия<br></span>
+                                </div>
+                                <div class="alert alert-info text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                    <h6 class="alert-heading fw-bold text-center">В плане отсутствуют рабочие программы:<br></h6><span>Информатика<br></span>
+                                </div>
+                                <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                    <h6 class="alert-heading fw-bold text-center">В плане существуют дубликаты программ:<br></h6><span>История<br></span>
+                                </div>
+                                <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                    <h6 class="alert-heading fw-bold text-center">Название рабочей программы не соответствует названию дисциплины:</h6><span>Основы управления<br></span>
+                                </div>
+                                <div class="alert alert-success text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                                    <h6 class="alert-heading fw-bold text-center">Будет(ут) загружена(ы) <strong>{{ lib_type_name }}</strong> для следующих программ:</h6><span>Основы управления<br></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center mt-2 mb-2">
+                            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-success link-light" id="library_update" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="library_update">Загрузить данные</button></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../assets/js/theme.js"></script>
+</body>
 
-<div class="d-grid col-xl-8">
-  <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal">
-    <b>{{ plan_name }}</b>
-  </div>
-</div>
-
-<form action="" enctype="multipart/form-data" method="post">
-  {{ form.hidden_tag() }}
-
-  <div class="row">
-    <div class="d-grid col-xl-4">
-      <input type="submit" name="library_load_temp" value="Шаблон" class="btn btn-warning bg-opacity-75">
-    </div>
-    <div class="d-grid col-xl-4">
-      <input type="submit" name="library_plan_content" value="{{ lib_type_name }} в РПД плана" class="btn btn-primary bg-opacity-75">
-    </div>
-  </div>
-  <div class="row mb-4 gy-3">
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (Скачать образец заполнения файла для загрузки)
-    </div>
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (Таблица с данными из рабочих программ плана)
-    </div>
-  </div>
-
-  <div class="row mb-3 gy-3">
-    <div class="col-xl-8">
-      <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
-      <input class="form-control" type="file" name="file" id="formFile">
-    </div>
-  </div>
-  <div class="row mb-3 gy-3">
-    <div class="d-grid col-xl-8">
-      <input type="submit" name="library_check" value="Проверка данных" class="btn btn-secondary">
-    </div>
-  </div>
-
-  {% if no_data %}
-    <div>
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-danger">
-          <td>В загруженном файле нет данных для дисциплин:</td>
-        </tr>
-        {% for disc in no_data %}
-          <tr>
-            <td><span style="white-space: pre-line"><b>{{ disc }}</b></span></td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if no_program %}
-    <div>
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-warning">
-            <td>В плане отсутствуют рабочие программы:</td>
-        </tr>
-          {% for disc in no_program %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>{{ no_program[disc] }}</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if duplicate %}
-    <div>
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-warning">
-            <td>В плане существуют дубликаты программ:</td>
-        </tr>
-          {% for disc in duplicate %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>{{ duplicate[disc] }}</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if wrong_name %}
-    <div>
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-danger">
-            <td>Название рабочей программы не соответствует названию дисциплины:</td>
-        </tr>
-          {% for disc in wrong_name %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>План - "{{ wrong_name[disc][0] }}"</b></span></td>
-            </tr>
-            <tr>
-              <td><span style="white-space: pre-line"><b>Программа - "{{ wrong_name[disc][1] }}"</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  {% if work_programs %}
-    <div>
-      <table class="col-md-7 mt-3 table">
-        <tr class="table-success">
-          <td>Будет(ут) загружена(ы) <b>{{ lib_type_name }}</b> для следующих программ:</td>
-        </tr>
-          {% for prog in work_programs %}
-            <tr>
-              <td><span style="white-space: pre-line"><b>{{ prog }}</b></span></td>
-            </tr>
-          {% endfor %}
-      </table>
-    </div>
-  {% endif %}
-
-  <div class="row mb-3 gy-3">
-    <div class="d-grid col-xl-8">
-      <input type="submit" name="library_update" value="Загрузить данные" class="btn btn-success">
-    </div>
-  </div>
-</form>
-{% endblock %}
+</html>
