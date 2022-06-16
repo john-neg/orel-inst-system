@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1 class="display-6">
+      {% block title %} Информация по рабочим программам учебного плана {% endblock %}
+  </h1>
+
+  <div class="d-grid col-xl-8">
+    <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal">
+      <b>{{ plan_name }}</b>
+    </div>
+  </div>
+  {% if programs %}
+  <div class="d-grid col-xl-8">
+    <table class="col-md-7 mt-3 table">
+      <tr class="table-success">
+        <td>Список созданных рабочих программ:</td>
+            <td>Согласование:</td>
+        <td>Утверждение:</td>
+      </tr>
+      {% for wp in programs %}
+        <tr>
+          <td>
+            <a href="{{ url }}/mm/materials/view-wp?id={{ programs[wp].get('disc_id') }}&work_program_id={{ wp }}" target="_blank">
+              <svg class="bi me-2" width="16" height="16"><use xlink:href="#open"/></svg>
+            </a>
+            <span style="white-space: pre-line"><b>{{ programs[wp].get('name') }}</b></span>
+          </td>
+          <td>
+            {% for sign in programs[wp].get('signs') %}
+              {{ sign }}
+            {% endfor %}
+          </td>
+          <td>
+            {% if programs[wp].get('status') == '1' %}
+              Утверждена
+            {% else %}
+              <b>Не утвержд.</b>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  {% if no_program %}
+    <div class="d-grid col-xl-8">
+      <table class="col-md-7 mt-3 table">
+        <tr class="table-warning">
+            <td>В плане отсутствуют рабочие программы:</td>
+        </tr>
+          {% for disc in no_program %}
+            <tr>
+              <td><span style="white-space: pre-line"><b>{{ no_program[disc] }}</b></span></td>
+            </tr>
+          {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+
+  {% if duplicate %}
+    <div class="d-grid col-xl-8">
+      <table class="col-md-7 mt-3 table">
+        <tr class="table-info">
+            <td>В плане есть дубликаты рабочих программ:</td>
+        </tr>
+          {% for disc in duplicate %}
+            <tr>
+              <td><span style="white-space: pre-line"><b>{{ duplicate[disc] }}</b></span></td>
+            </tr>
+          {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+
+  {% if wrong_name %}
+    <div class="d-grid col-xl-8">
+      <table class="col-md-7 mt-3 table">
+        <tr class="table-danger">
+            <td>Название дисциплины плана не соответствует названию программы:</td>
+        </tr>
+          {% for disc in wrong_name %}
+            <tr>
+              <td><span style="white-space: pre-line"><b>План - "{{ wrong_name[disc][0] }}"</b></span></td>
+            </tr>
+            <tr>
+              <td><span style="white-space: pre-line"><b>Программа - "{{ wrong_name[disc][1] }}"</b></span></td>
+            </tr>
+          {% endfor %}
+      </table>
+    </div>
+  {% endif %}
+
+  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+    <form action="" method="post">
+      {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
+        <div class="d-grid mt-3 mb-3 col-xl-8">
+          <input type="submit"
+                 name="create_wp"
+                 value="Создать отсутствующие программы"
+                 class="btn btn-warning"
+          >
+        </div>
+      {% endif %}
+      <div class="d-grid mt-3 mb-3 col-xl-8">
+        <input type="submit"
+               name="wp_status_0"
+               value="Разутвердить все программы плана"
+               class="btn btn-primary"
+        >
+      </div>
+      <div class="d-grid mt-3 mb-3 col-xl-8">
+        <input type="submit"
+               name="wp_status_1"
+               value="Утвердить все программы плана"
+               class="btn btn-success"
+        >
+      </div>
+    </form>
+  {% endif %}
+{% endblock %}

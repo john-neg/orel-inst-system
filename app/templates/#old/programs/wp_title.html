@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="display-6">
+  {% block title %} Формирование титульных листов рабочих программ {% endblock %}
+</h1>
+
+<div class="d-grid col-xl-8">
+  <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal"><b>{{ plan_name }}</b></div>
+</div>
+
+<form action="" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      {{ form.organization_name (class="form-control form-control-ld", rows="3") }}
+    </div>
+  </div>
+  <div class="row mb-3 gy-3">
+    <div class="col-xl-4">
+      <label class="form-label">{{ form.wp_approval_info.label }}</label>
+      {{ form.wp_approval_info (class="form-control form-control-ld", rows="4") }}
+    </div>
+    <div class="col-xl-4">
+      <label class="form-label">{{ form.chief_rank.label }}</label>
+      {{ form.chief_rank (class="form-control form-control-ld") }}
+      <label class="form-label">{{ form.chief_name.label }}</label>
+      {{ form.chief_name (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-4">
+      <div class="mb-2 form-check form-switch">
+        <input class="form-check-input" name="switch_foreign" type="checkbox" role="switch" id="flexSwitchForeigns">
+        <label class="form-check-label" for="flexSwitchForeigns">{{ form.switch_foreign.label }}</label>
+      </div>
+      {{ form.wp_type_name (class="form-control form-control-ld") }}
+    </div>
+    <div class="col-sm-4 col-xl-1">
+      <label class="form-label">{{ form.wp_approval_day.label }}</label>
+      {{ form.wp_approval_day (class="form-control form-control-ld") }}
+    </div>
+    <div class="col-sm-4 col-xl-2">
+      <label class="form-label">{{ form.wp_approval_month.label }}</label>
+      {{ form.wp_approval_month (class="form-select form-select-ld") }}
+    </div>
+    <div class="col-sm-4 col-xl-1">
+      <label class="form-label">{{ form.wp_approval_year.label }}</label>
+      {{ form.wp_approval_year (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      {{ form.wp_speciality_type (class="form-select form-select-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      {{ form.wp_speciality (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      {{ form.wp_specialization_type (class="form-select form-select-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      {{ form.wp_specialization (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-2">
+      <label class="form-label">{{ form.wp_education_form.label }}</label>
+      {{ form.wp_education_form (class="form-control form-control-ld") }}
+    </div>
+    <div class="col-xl-2">
+      <label class="form-label">{{ form.wp_year.label }}</label>
+      {{ form.wp_year (class="form-control form-control-ld") }}
+    </div>
+    <div class="col-xl-4">
+      <div class="mb-2 form-check form-switch">
+        <input class="form-check-input" name="switch_qualification" type="checkbox" role="switch" id="flexSwitchQualification" checked>
+        <label class="form-check-label" for="flexSwitchQualification">{{ form.switch_qualification.label }}</label>
+      </div>
+      {{ form.wp_qualification (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-xl-8">
+      <div class="mb-2 form-check form-switch">
+        <input class="form-check-input" name="switch_narrow_spec" type="checkbox" role="switch" id="flexSwitchNarrowSpec">
+        <label class="form-check-label" for="flexSwitchNarrowSpec">{{ form.switch_narrow_spec.label }}</label>
+      </div>
+      {{ form.wp_narrow_specialization (class="form-control form-control-ld") }}
+    </div>
+  </div>
+  <div class="d-grid mt-3 mb-3 col-xl-8">
+    {{ form.title_pages(class="btn btn-success mb-2") }}
+  </div>
+</form>
+
+{% endblock %}

@@ -1,92 +1,146 @@
-{% extends 'base.html' %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="ru">
 
-<h1 class="display-6">
-  {% block title %} Загрузка компетенций в учебный план {% endblock %}
-</h1>
-<div class="d-grid col-xl-8">
-  <div class="h4 mt-2 mb-4 text-white text-center bg-dark fw-normal">
-    <b>{{ plan_name }}</b>
-  </div>
-</div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Blank Page - Brand</title>
+    <meta property="og:type" content="website">
+    <meta name="description" content="Расширения базовых функций Апекс-ВУЗ">
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/favicons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/favicons/android-chrome-512x512.png">
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../assets/css/Nunito.css">
+    <link rel="stylesheet" href="../assets/fonts/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../assets/css/Features-Cards.css">
+</head>
 
-<form action="" enctype="multipart/form-data" method="post">
-  {{ form.hidden_tag() }}
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#" style="opacity: 0.80;">
+                    <div class="sidebar-brand-icon"><i class="fas fa-hands-helping"></i></div>
+                    <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
+                </a>
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link py-2" href="../index.html"><i class="fas fa-home"></i><span>Главная</span></a></li>
+                    <li class="nav-item dropdown" style="--bs-danger-rgb: 211,5,71;"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-user-cog"></i><span>Пользователи</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../auth/register.html">Регистрация</a><a class="dropdown-item text-center py-1" href="#">Управление</a></div>
+                    </li>
+                    <li class="nav-item text-start"><a class="nav-link py-2" href="../schedule/schedule.html"><i class="far fa-calendar-alt"></i><span>Расписание</span></a></li>
+                    <li class="nav-item"><a class="nav-link py-2" href="../load/load_report.html"><i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a></li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-layer-group"></i><span>Учебные планы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../plans/comp_load.html">Загрузка компетенций</a><a class="dropdown-item text-center py-1" href="../plans/matrix_simple_load.html">Матрица простая</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_load.html">Матрица с индикаторами</a><a class="dropdown-item text-center py-1" href="../plans/matrix_indicator_file.html">Индикаторы по дисциплинам</a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-clipboard-list"></i><span>Программы</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../programs/wp_dept_check.html">Проверка по кафедре<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_dates_update.html">Обновление дат</a><a class="dropdown-item text-center py-1" href="../programs/wp_fields.html">Значения полей<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_data.html">Общая информация<br></a><a class="dropdown-item text-center py-1" href="../programs/wp_title.html">Титульные листы<br></a></div>
+                    </li>
+                    <li class="nav-item dropdown"><a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#"><i class="fas fa-book-open"></i><span>Обеспечение</span></a>
+                        <div class="dropdown-menu text-center py-0"><a class="dropdown-item text-center py-1" href="../library/library_choose_plan.html">Список литературы<br></a><a class="dropdown-item text-center py-1" href="../library/library_upload.html">Интернет ресурсы</a><a class="dropdown-item text-center py-1" href="#">Базы и справочные системы<br></a><a class="dropdown-item text-center py-1" href="#">Научная продукция<br></a></div>
+                    </li>
+                </ul>
+                <div class="text-center d-none d-md-inline"></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper" style="background: rgb(248, 249, 252);">
+            <div id="content">
+                <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
+                    <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button"><i class="fas fa-bars"></i></button>
+                        <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
+                        <ul class="navbar-nav flex-nowrap ms-auto">
+                            <div class="d-none d-sm-block topbar-divider"></div>
+                            <li class="nav-item dropdown no-arrow">
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#"><span class="d-none d-lg-inline me-2 text-gray-600 small">user_name</span><i class="far fa-check-square" style="font-size: 16px;color: var(--bs-green);"></i></a>
+                                    <div class="dropdown-menu shadow dropdown-menu-end animated--grow-in"><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>&nbsp;Выйти</a></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="container-fluid">
+                    <h3 class="text-center text-dark mb-1">Загрузка компетенций в учебный план<br></h3>
+                </div>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col">
+                            <h5 class="fw-normal text-center text-primary mb-3">40.05.01 Правовое обеспечение национальной безопасности<br></h5>
+                        </div>
+                    </div>
+                </div>
+                <form method="post">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8">
+                                <div class="row" style="text-align: center;">
+                                    <div class="col-md-6"><button class="btn btn-warning" id="comp_load_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_load_temp">Шаблон</button><small class="form-text" style="text-align: center;">(образец заполнения файла для загрузки)</small></div>
+                                    <div class="col-md-6 col-md-4"><button class="btn btn-danger" id="comp_delete" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_delete">Полная очистка</button><small class="form-text">(удаление компетенций, связей и их содержимого из рабочих программ)</small></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-xl-8 mb-3"><label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label><input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file"></div>
+                        </div>
+                        <div class="row justify-content-center mb-2">
+                            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-secondary" id="comp_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_check">Проверка файла</button></div>
+                            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-primary" id="comp_load" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="comp_load">Загрузка компетенций</button></div>
+                        </div>
+                    </div>
+                </form>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10 col-xl-8">
+                            <h6 class="fw-normal text-center text-primary"><strong>Текущий план не содержит компетенций</strong><br></h6>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-md-10 col-xl-8">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <p class="text-primary m-0 fw-bold">Компетенций в текущем плане (очистить перед загрузкой!)<br></p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
+                                        <table class="table my-0" id="dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Код<br></th>
+                                                    <th>Содержание<br></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>ОК-1</td>
+                                                    <td>способностью понимать и анализировать мировоззренческие, социально и личностно значимые философские проблемы</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td><strong>Код</strong></td>
+                                                    <td><strong>Содержание</strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../assets/js/theme.js"></script>
+</body>
 
-  <div class="row">
-    <div class="d-grid col-xl-4">
-      <input type="submit" name="comp_load_temp" value="Шаблон" class="btn btn-warning bg-opacity-75">
-    </div>
-    <div class="d-grid col-xl-4">
-      <input type="submit" name="comp_delete" value="Полная очистка" class="btn btn-danger bg-opacity-75">
-    </div>
-  </div>
-  <div class="row mb-4 gy-3">
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (Скачать образец заполнения файла для загрузки)
-    </div>
-    <div class="d-grid col-xl-4 text-center text-wrap">
-      (Удаление компетенций, связей и их содержимого из рабочих программ)
-    </div>
-  </div>
-
-  <div class="row mb-3 gy-3">
-    <div class="col-xl-8">
-      <label for="formFile" class="form-label">Выберите файл Excel для загрузки</label>
-      <input class="form-control" type="file" name="file" id="formFile">
-    </div>
-  </div>
-  <div class="row mb-3 gy-3">
-    <div class="d-grid col-xl-8">
-      <input type="submit" name="comp_check" value="Проверка файла" class="btn btn-secondary">
-    </div>
-  </div>
-
-  {% if comps %}
-    <table class="col-lg-7 gy-5 table">
-    <tr>
-      <td></td>
-      <td><b>Компетенции для загрузки:</b></td>
-    </tr>
-    {% for comp in comps %}
-      <tr class="">
-        <td><span style="white-space: pre-line">{{ comp[0] }}</span></td>
-        <td><span style="white-space: pre-line">{{ comp[1] }}</span></td>
-      </tr>
-    {% endfor %}
-    </table>
-  {% endif %}
-
-  <div class="row mb-3 gy-3">
-    <div class="d-grid col-xl-8">
-      <input type="submit" name="comp_load" value="Загрузка компетенций" class="btn btn-success">
-    </div>
-  </div>
-
-  {% if plan_comp %}
-    <table class="col-lg-7 mt-5 gy-5 table">
-      <tr class="table-primary">
-        <td></td>
-        <td><b>Компетенций в текущем плане (очистить перед загрузкой!)</b></td>
-      </tr>
-
-    <tr class="table-success">
-      <td>Код</td>
-      <td>Содержание</td>
-    </tr>
-    {% for comp in plan_comp %}
-      <tr class="">
-        <td><span style="white-space: pre-line">{{ comp['code'] }}</span></td>
-        <td><span style="white-space: pre-line">{{ comp['description'] }}</span></td>
-      </tr>
-    {% endfor %}
-    </table>
-  {% else %}
-  <div class="d-grid mt-5 gy-5 col-xl-8">
-    <div class="alert alert-primary text-center" role="alert">
-      Текущий план не содержит компетенций
-    </div>
-  </div>
-  {% endif %}
-</form>
-{% endblock %}
+</html>

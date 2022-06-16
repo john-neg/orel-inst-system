@@ -14,10 +14,10 @@ def index():
     return render_template("index.html", active="index")
 
 
-@bp.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(FlaskConfig.STATIC_FILE_DIR, 'favicons'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+# @bp.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(os.path.join(FlaskConfig.STATIC_FILE_DIR, 'favicons'),
+#                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @bp.route("/<string:filename>", methods=["GET"])
