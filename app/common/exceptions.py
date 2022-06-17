@@ -4,10 +4,10 @@ class ApeksApiException(Exception):
 
 
 class ApeksWrongParameterException(Exception):
-    """Исключение - передан неверный параметр рабочей программы"""
+    """Передан неверный параметр рабочей программы"""
     pass
 
 
 class ApeksParameterNonExistException(Exception):
-    """Исключение - параметр не существует в таблице базы данных"""
+    """Параметр не существует в таблице базы данных"""
     pass

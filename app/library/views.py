@@ -27,7 +27,7 @@ class LibraryChoosePlanView(View):
     methods = ["GET", "POST"]
 
     def __init__(self, lib_type, title, lib_type_name):
-        self.template_name = "library/library_choose_plan.html"
+        self.template_name = "library/choose_plan.html"
         self.lib_type = lib_type
         self.lib_type_name = lib_type_name
         self.title = title
@@ -106,7 +106,7 @@ class LibraryUploadView(View):
     methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name, title):
-        self.template_name = "library/library_upload.html"
+        self.template_name = "library/upload_data.html"
         self.lib_type = lib_type
         self.lib_type_name = lib_type_name
         self.title = title
@@ -210,7 +210,7 @@ class LibraryCheckView(View):
     methods = ["GET", "POST"]
 
     def __init__(self, lib_type, lib_type_name, title):
-        self.template_name = "library/library_upload.html"
+        self.template_name = "library/upload_data.html"
         self.lib_type = lib_type
         self.lib_type_name = lib_type_name
         self.title = title

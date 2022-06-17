@@ -24,12 +24,20 @@
       <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
         <div class="container-fluid d-flex flex-column p-0">
           <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/" style="opacity: 0.80;">
-            <div class="sidebar-brand-icon"><i class="fas fa-hands-helping"></i></div>
-            <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
+            <div class="sidebar-brand-icon">
+              <i class="fas fa-hands-helping"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">
+              <span>Сервисы</span>
+            </div>
           </a>
           <ul class="navbar-nav text-light" id="accordionSidebar">
             <!-- Главная -->
-            <li class="nav-item"><a class="nav-link py-2" href="/"><i class="fas fa-home"></i><span>Главная</span></a></li>
+            <li class="nav-item">
+              <a class="nav-link py-2" href="/"><i class="fas fa-home"></i>
+                <span>Главная</span>
+              </a>
+            </li>
             {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, ) %}
               <!-- Администрирование -->
               <li class="nav-item dropdown">
@@ -166,10 +174,13 @@
         <!-- Footer -->
         <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
           <div class="container my-auto">
-            <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>
+            <div class="text-center my-auto copyright">
+              <span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span>
+            </div>
           </div>
         </footer>
-      </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+      </div>
+      <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
     <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>

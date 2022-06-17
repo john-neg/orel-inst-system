@@ -29,14 +29,14 @@ async def comp_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.comp_load", plan_id=edu_plan))
         return render_template(
-            "plans/plans_choose_plan.html",
+            "plans/choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plans_choose_plan.html",
+        "plans/choose_plan.html",
         active="plans",
         form=form,
         title=title,
@@ -58,14 +58,14 @@ async def matrix_simple_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_simple_load", plan_id=edu_plan))
         return render_template(
-            "plans/plans_choose_plan.html",
+            "plans/choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plans_choose_plan.html",
+        "plans/choose_plan.html",
         active="plans",
         form=form,
         title=title,
@@ -87,14 +87,14 @@ async def matrix_indicator_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=edu_plan))
         return render_template(
-            "plans/plans_choose_plan.html",
+            "plans/choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plans_choose_plan.html",
+        "plans/choose_plan.html",
         active="plans",
         form=form,
         title=title,
@@ -132,7 +132,7 @@ def comp_load(plan_id):
                         url_for("plans.comp_update", plan_id=plan_id, filename=filename)
                     )
     return render_template(
-        "plans/plans_comp_load.html",
+        "plans/comp_load.html",
         active="plans",
         form=form,
         plan_name=plan.name,
@@ -178,7 +178,7 @@ def matrix_simple_load(plan_id):
                         )
                     )
     return render_template(
-        "plans/plans_matrix_simple_load.html",
+        "plans/matrix_simple_load.html",
         active="plans",
         form=form,
         plan_name=plan.name,
@@ -220,7 +220,7 @@ def matrix_indicator_load(plan_id):
                         )
                     )
     return render_template(
-        "plans/plans_matrix_indicator_load.html",
+        "plans/matrix_indicator_load.html",
         active="plans",
         form=form,
         plan_name=plan.name,
@@ -263,7 +263,7 @@ def comp_check(plan_id, filename):
                 url_for("plans.comp_update", plan_id=plan_id, filename=filename)
             )
     return render_template(
-        "plans/plans_comp_load.html",
+        "plans/comp_load.html",
         active="plans",
         form=form,
         plan_name=plan.name,
@@ -314,7 +314,7 @@ def matrix_simple_check(plan_id, filename):
                 )
             )
     return render_template(
-        "plans/plans_matrix_simple_load.html",
+        "plans/matrix_simple_load.html",
         active="plans",
         form=form,
         plan_name=plan.name,
@@ -445,7 +445,7 @@ def matrix_indicator_check(plan_id, filename):
             os.remove(file)
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
     return render_template(
-        "plans/plans_matrix_indicator_load.html",
+        "plans/matrix_indicator_load.html",
         active="plans",
         form=form,
         filename=filename,
@@ -499,7 +499,7 @@ def matrix_indicator_file_upload():
                         url_for("plans.matrix_indicator_file_check", filename=filename)
                     )
     return render_template(
-        "plans/plans_indicator_file.html",
+        "plans/indicator_file.html",
         active="plans",
         form=form,
     )
@@ -532,7 +532,7 @@ def matrix_indicator_file_check(filename):
         os.remove(file)
         return redirect(url_for("main.get_file", filename=filename))
     return render_template(
-        "plans/plans_indicator_file.html",
+        "plans/indicator_file.html",
         active="plans",
         file_errors=matrix.file_errors(),
         message="Ошибки не обнаружены",

@@ -51,7 +51,7 @@ class ProgramsChoosePlanView(View):
     methods = ["GET", "POST"]
 
     def __init__(self, wp_type, title):
-        self.template_name = "programs/programs_choose_plan.html"
+        self.template_name = "programs/choose_plan.html"
         self.wp_type = wp_type
         self.title = title
 
@@ -165,7 +165,7 @@ async def wp_dept_check():
                 }
             }
         return render_template(
-            "programs/programs_dept_check.html",
+            "programs/dept_check.html",
             active="programs",
             form=form,
             edu_spec=edu_spec,
@@ -174,7 +174,7 @@ async def wp_dept_check():
             wp_field=parameter,
             wp_data=programs_info,
         )
-    return render_template("programs/programs_dept_check.html", active="programs", form=form)
+    return render_template("programs/dept_check.html", active="programs", form=form)
 
 
 @bp.route("/wp_dates_update", methods=["GET", "POST"])
@@ -222,7 +222,7 @@ async def wp_dates_update():
             )
             non_exist = [plan.discipline_name(disc) for disc in plan.non_exist]
             return render_template(
-                "programs/programs_dates_update.html",
+                "programs/dates_update.html",
                 active="programs",
                 form=form,
                 edu_plan=plan_id,
@@ -232,12 +232,12 @@ async def wp_dates_update():
             )
         else:
             return render_template(
-                "programs/programs_dates_update.html",
+                "programs/dates_update.html",
                 active="programs",
                 form=form,
                 edu_spec=edu_spec,
             )
-    return render_template("programs/programs_dates_update.html", active="programs", form=form)
+    return render_template("programs/dates_update.html", active="programs", form=form)
 
 
 @bp.route("/wp_fields/<int:plan_id>", methods=["GET", "POST"])
@@ -279,7 +279,7 @@ async def wp_fields(plan_id):
         programs_info = await work_program_view_data(plan, parameter)
 
         return render_template(
-            "programs/programs_fields.html",
+            "programs/fields.html",
             active="programs",
             form=form,
             plan_name=plan_name,
@@ -287,7 +287,7 @@ async def wp_fields(plan_id):
             wp_data=programs_info,
         )
     return render_template(
-        "programs/programs_fields.html", active="programs", form=form, plan_name=plan_name
+        "programs/fields.html", active="programs", form=form, plan_name=plan_name
     )
 
 
@@ -341,7 +341,7 @@ async def wp_field_edit():
         form.wp_field_edit.data = ""
 
     return render_template(
-        "programs/programs_field_edit.html",
+        "programs/field_edit.html",
         active="programs",
         form=form,
         wp_name=work_program_data[wp_id].get("name"),
@@ -434,7 +434,7 @@ async def wp_data(plan_id):
         programs[wp]["status"] = plan.work_programs_data[wp].get("status")
 
     return render_template(
-        "programs/programs_data.html",
+        "programs/wp_data.html",
         active="programs",
         url=Apeks.URL,
         plan_name=plan.name,
@@ -531,7 +531,7 @@ async def wp_title(plan_id):
         )
         return redirect(url_for("main.get_file", filename=filename))
     return render_template(
-        "programs/programs_title.html",
+        "programs/title_pages.html",
         active="programs",
         plan_name=plan_name,
         form=form,
