@@ -46,6 +46,7 @@ async def schedule():
             ),
             departments=departments,
         )
+
         form.staff.choices = list(staff.department_staff(department).items())
         if (
             request.form.get("ical_exp") or request.form.get("xlsx_exp")

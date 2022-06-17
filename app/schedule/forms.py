@@ -1,14 +1,15 @@
 from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField
+from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
+from common.forms import ChooseDepartment
 from config import ApeksConfig as Apeks
 
 
-class CalendarForm(FlaskForm):
-    department = SelectField("Кафедра:", coerce=int, validators=[DataRequired()])
+class CalendarForm(ChooseDepartment):
+    # department = SelectField("Кафедра:", coerce=int, validators=[DataRequired()])
     year = SelectField(
         "Год",
         coerce=int,
@@ -29,3 +30,5 @@ class CalendarForm(FlaskForm):
         validators=[DataRequired()],
     )
     staff = SelectField("Преподаватель", coerce=int, validators=[DataRequired()])
+    ical_exp = SubmitField("Экспорт в iCal")
+    xlsx_exp = SubmitField("Экспорт в Excel")
