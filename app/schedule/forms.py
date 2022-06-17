@@ -8,6 +8,8 @@ from config import ApeksConfig as Apeks
 
 
 class CalendarForm(ChooseDepartment):
+    """Форма для экспорта расписания"""
+
     year = SelectField(
         "Год",
         coerce=int,

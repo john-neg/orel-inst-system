@@ -226,7 +226,9 @@ class LibraryCheckView(View):
                 )
             ),
             plan_curriculum_disciplines=plan_disciplines,
-            work_programs_data=await get_work_programs_data([*plan_disciplines]),
+            work_programs_data=await get_work_programs_data(
+                curriculum_discipline_id=[*plan_disciplines]
+            ),
         )
         lib_data = library_file_processing(file)
         if request.method == "POST":
@@ -342,7 +344,7 @@ class LibraryUpdateView(View):
             ),
             plan_curriculum_disciplines=plan_disciplines,
             work_programs_data=await get_work_programs_data(
-                [*plan_disciplines], fields=True
+                curriculum_discipline_id=[*plan_disciplines], fields=True
             ),
         )
         file_data = library_file_processing(file)
@@ -414,7 +416,7 @@ class LibraryExportView(View):
             ),
             plan_curriculum_disciplines=plan_disciplines,
             work_programs_data=await get_work_programs_data(
-                [*plan_disciplines], fields=True
+                curriculum_discipline_id=[*plan_disciplines], fields=True
             ),
         )
         lib_data = plan.library_content()

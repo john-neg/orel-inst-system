@@ -1,24 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Загрузка списка литературы</h3>
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Загрузка списка литературы{% endblock %}
+    </h3>
     <h6 class="text-center text-dark mb-1">в рабочие программы дисциплин учебного плана</h6>
 </div>
-<form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="mb-2"><label class="form-label text-dark"><span style="color: rgb(33, 37, 41); background-color: rgb(245, 245, 245);">Специальность:</span></label><select class="form-select">
-                        <option value="12" selected="">This is item 1</option>
-                        <option value="13">This is item 2</option>
-                        <option value="14">This is item 3</option>
-                    </select></div>
-                <div class="mb-4"><button class="btn btn-secondary border-0" id="spec_choose" type="submit" name="spec_choose">Выбор</button></div>
-                <div class="mb-2"><label class="form-label text-dark">Учебный план:</label><select class="form-select">
-                        <option value="12" selected="">This is item 1</option>
-                        <option value="13">This is item 2</option>
-                        <option value="14">This is item 3</option>
-                    </select></div>
-                <div class="mb-4"><button class="btn btn-secondary border-0" id="plan_choose" type="submit" name="plan_choose">Выбор</button></div>
-            </div>
-        </div>
-    </div>
-</form>
+{% include "common/choose_plan.html" %}
+{% endblock %}

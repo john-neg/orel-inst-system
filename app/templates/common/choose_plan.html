@@ -1,26 +1,27 @@
-<div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Заголовок действия</h3>
-</div>
 <form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="mb-2"><label class="form-label text-dark" id="edu_spec_label" name="edu_spec_label">
-                  <span style="color: rgb(33, 37, 41); background-color: rgb(245, 245, 245);">Специальность:</span></label>
-                    <select class="form-select" id="edu_spec" name="edu_spec">
-                          <option value="12" selected="">This is item 1</option>
-                          <option value="13">This is item 2</option>
-                          <option value="14">This is item 3</option>
-                    </select></div>
-                <div class="mb-4"><button class="btn btn-secondary border-0" id="spec_choose" type="submit" name="spec_choose">Выбор</button></div>
-                <div class="mb-2"><label class="form-label text-dark" id="edu_plan_label" name="edu_plan_label">Учебный план:</label>
-                    <select class="form-select" id="edu_plan" name="edu_plan">
-                          <option value="12" selected="">This is item 1</option>
-                          <option value="13">This is item 2</option>
-                          <option value="14">This is item 3</option>
-                    </select></div>
-                <div class="mb-4"><button class="btn btn-secondary border-0" id="plan_choose" type="submit" name="plan_choose">Выбор</button></div>
-            </div>
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="mb-2">
+          {{ form.edu_spec.label(class="text-dark") }}
+          {{ form.edu_spec(class="form-select") }}
         </div>
+        <div class="mb-4">
+          {{ form.spec_choose(class="btn btn-secondary border-0", type="submit") }}
+        </div>
+        <div class="mb-2">
+          <label class="form-label text-dark" id="edu_plan_label" name="edu_plan_label">Учебный план:</label>
+            <select class="form-select" id="edu_plan" name="edu_plan">
+                  <option value="12" selected="">This is item 1</option>
+                  <option value="13">This is item 2</option>
+                  <option value="14">This is item 3</option>
+            </select>
+        </div>
+        <div class="mb-4">
+          <button class="btn btn-secondary border-0" id="plan_choose" type="submit" name="plan_choose">Выбор</button>
+        </div>
+      </div>
     </div>
+  </div>
 </form>

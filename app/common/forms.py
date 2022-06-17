@@ -18,12 +18,15 @@ class ChoosePlan(FlaskForm):
         coerce=str,
         validators=[DataRequired()]
     )
+    spec_choose = SubmitField("Выбор")
     edu_plan = SelectField(
         "План:",
         coerce=str,
         validators=[DataRequired()]
     )
+    plan_choose = SubmitField("Выбор")
 
 
 class FileForm(FlaskForm):
     file = FileField('file')
+    upload = SubmitField("Проверка файла")
