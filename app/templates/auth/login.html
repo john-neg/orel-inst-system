@@ -19,14 +19,14 @@
             <form class="text-center" method="post">
               {{ form.hidden_tag() }}
               <div class="form-floating mb-3">
-                {{ form.username(class="form-control", type="text", placeholder=form.username.data) }}
+                {{ form.username(class="form-control", placeholder=form.username.data) }}
                 {{ form.username.label }}
                 {% for error in form.username.errors %}
                   <span style="color: var(--bs-danger);">{{ error }}</span>
                 {% endfor %}
               </div>
               <div class="form-floating mb-3">
-                {{ form.password(class="form-control", type="text", placeholder=form.password.data) }}
+                {{ form.password(class="form-control", placeholder=form.password.data) }}
                 {{ form.password.label }}
                 {% for error in form.password.errors %}
                   <span style="color: var(--bs-danger);">{{ error }}</span>
@@ -36,10 +36,10 @@
                 <span id="error" style="color: var(--bs-danger);">{{ error }}</span>
               {% endif %}
               <div class="mb-3">
-                {{ form.submit(class="btn btn-primary d-block w-100", type="submit") }}
+                {{ form.submit(class="btn btn-primary d-block w-100") }}
               </div>
               <div class="form-check" style="text-align: left;">
-                {{ form.remember_me(class="form-check-input", type="checkbox", id="formRememberMe") }}
+                {{ form.remember_me(class="form-check-input", id="formRememberMe") }}
                 {{ form.remember_me.label(class="form-check-label", for="formRememberMe") }}
               </div>
             </form>

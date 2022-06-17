@@ -7,7 +7,7 @@
 <div class="container">
   <div class="row justify-content-center">
     <div class="col">
-      <h5 class="fw-normal text-center text-primary mb-3">{{ plan_name }}<br></h5>
+      <h5 class="fw-bold text-center text-primary mb-3">{{ plan_name }}<br></h5>
     </div>
   </div>
 </div>
@@ -18,11 +18,11 @@
       <div class="col-md-10 col-xl-8">
         <div class="row" style="text-align: center;">
           <div class="col-md-6">
-            {{ form.library_load_temp(class="btn btn-warning", type="submit", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
+            {{ form.library_load_temp(class="btn btn-warning", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
             <small class="form-text" style="text-align: center;">(скачать образец заполнения файла для загрузки)</small>
           </div>
           <div class="col-md-6">
-            {{ form.library_plan_content(class="btn btn-primary", value=form.library_plan_content.data, type="submit", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
+            {{ form.library_plan_content(class="btn btn-primary", value=form.library_plan_content.data, style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
             <small class="form-text" style="text-align: center;">(таблица с данными из рабочих программ плана)</small>
           </div>
         </div>
@@ -32,12 +32,12 @@
       <div class="col-md-10 col-xl-8 mt-2 mb-3">
         <label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br /></label>
         {{ form.file.label(class="form-label", style="color: var(--bs-dark);") }}
-        {{ form.file(class="form-control", type="file", id="formFile", style="border-color: var(--bs-gray-400);") }}
+        {{ form.file(class="form-control", style="border-color: var(--bs-gray-400);") }}
       </div>
     </div>
     <div class="row justify-content-center">
       <div class="col-md-10 col-xl-8 mb-3">
-        {{ form.library_check(class="btn btn-secondary", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+        {{ form.library_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
       </div>
       <div class="col-md-10 col-xl-8">
         {% if no_data %}
@@ -59,9 +59,9 @@
         {% if duplicate %}
           <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">В плане существуют дубликаты программ:</h6>
-                {% for disc in duplicate %}
-                  <span>{{ duplicate[disc] }}<br></span>
-                {% endfor %}
+              {% for disc in duplicate %}
+                <span>{{ duplicate[disc] }}<br></span>
+              {% endfor %}
           </div>
         {% endif %}
         {% if wrong_name %}
@@ -85,7 +85,7 @@
     </div>
     <div class="row justify-content-center mt-2 mb-2">
       <div class="col-md-10 col-xl-8 mb-3">
-        {{ form.library_update(class="btn btn-success link-light", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+        {{ form.library_update(class="btn btn-success link-light", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
       </div>
     </div>
   </div>

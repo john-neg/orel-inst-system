@@ -13,17 +13,29 @@
         <div class="row justify-content-center">
             <div class="col-md-10 col-xl-8">
                 <div class="row" style="text-align: center;">
-                    <div class="col-md-6"><button class="btn btn-warning" id="comp_load_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_load_temp">Шаблон</button><small class="form-text" style="text-align: center;">(образец заполнения файла для загрузки)</small></div>
-                    <div class="col-md-6 col-md-4"><button class="btn btn-danger" id="comp_delete" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_delete">Полная очистка</button><small class="form-text">(удаление компетенций, связей и их содержимого из рабочих программ)</small></div>
+                    <div class="col-md-6"><button class="btn btn-warning" id="comp_load_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_load_temp">Шаблон</button>
+                      <small class="form-text" style="text-align: center;">(образец заполнения файла для загрузки)</small>
+                    </div>
+                    <div class="col-md-6 col-md-4">
+                      <button class="btn btn-danger" id="comp_delete" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_delete">Полная очистка</button>
+                      <small class="form-text">(удаление компетенций, связей и их содержимого из рабочих программ)</small>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3"><label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label><input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file"></div>
+            <div class="col-md-10 col-xl-8 mb-3">
+              <label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label>
+              <input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file">
+            </div>
         </div>
         <div class="row justify-content-center mb-2">
-            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-secondary" id="comp_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_check">Проверка файла</button></div>
-            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-primary" id="comp_load" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="comp_load">Загрузка компетенций</button></div>
+            <div class="col-md-10 col-xl-8 mb-3">
+              <button class="btn btn-secondary" id="comp_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_check">Проверка файла</button>
+            </div>
+            <div class="col-md-10 col-xl-8 mb-3">
+              <button class="btn btn-primary" id="comp_load" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="comp_load">Загрузка компетенций</button>
+            </div>
         </div>
     </div>
 </form>

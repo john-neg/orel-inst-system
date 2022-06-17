@@ -15,7 +15,7 @@
           {{ form.department(class="form-select") }}
         </div>
         <div class="mb-3">
-          {{ form.dept_choose(class="btn btn-secondary", type="submit", style="background: var(--bs-gray-dark);") }}
+          {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }}
         </div>
         {% if department %}
         <div class="row mb-4">
@@ -34,11 +34,11 @@
         </div>
         <div class="row mb-2">
           <div class="col-md-6 text-center">
-            {{ form.ical_exp(class="btn btn-danger", type="submit", style="width: 100%;border-style: none;") }}
+            {{ form.ical_exp(class="btn btn-danger", style="width: 100%;border-style: none;") }}
             <small class="form-text">(для загрузки в календарь)</small>
           </div>
           <div class="col-md-6 text-center">
-            {{ form.xlsx_exp(class="btn btn-primary", id="xlsx_exp", type="submit", style="background: #008751;width: 100%;border-style: none;") }}
+            {{ form.xlsx_exp(class="btn btn-primary", style="background: #008751;width: 100%;border-style: none;") }}
             <small class="form-text">(список для работы и печати)</small>
           </div>
         </div>

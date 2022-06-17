@@ -6,15 +6,19 @@
         <div class="row justify-content-center">
             <div class="col-md-10 col-xl-8">
                 <div class="row mb-2">
-                    <div class="col"><label class="form-label text-dark" id="wp_fields_label" name="wp_fields_label">Поле рабочей программы:</label><select class="form-select" id="wp_fields" name="wp_fields">
+                    <div class="col"><label class="form-label text-dark" id="wp_fields_label" name="wp_fields_label">Поле рабочей программы:</label>
+                      <select class="form-select" id="wp_fields" name="wp_fields">
                             <optgroup label="Выберите год:">
                                 <option value="13">This is item 2</option>
                                 <option value="14">This is item 3</option>
                             </optgroup>
-                        </select></div>
+                        </select>
+                    </div>
                 </div>
                 <div class="row mb-2">
-                    <div class="col"><button class="btn btn-secondary mb-1 mt-1" id="fields_data" type="button" name="fields_data">Выбрать</button></div>
+                    <div class="col">
+                      <button class="btn btn-secondary mb-1 mt-1" id="fields_data" type="button" name="fields_data">Выбрать</button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -27,12 +31,17 @@
                                     <table class="table">
                                         <thead class="text-danger">
                                             <tr>
-                                                <th><span style="white-space: pre-line">Б.1.О.16 Административное право</span><a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}">EDIT</a></th>
+                                                <th>
+                                                  <span style="white-space: pre-line">Б.1.О.16 Административное право</span>
+                                                  <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}">EDIT</a>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td><span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span></td>
+                                                <td>
+                                                  <span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -41,12 +50,17 @@
                                     <table class="table">
                                         <thead class="text-danger">
                                             <tr>
-                                                <th><span style="white-space: pre-line">Б.1.О.33 Государственная служба в органах внутренних дел</span><a class="btn btn-light btn-sm border rounded mx-1" role="button" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}" target="_blank">EDIT</a></th>
+                                                <th>
+                                                  <span style="white-space: pre-line">Б.1.О.33 Государственная служба в органах внутренних дел</span>
+                                                  <a class="btn btn-light btn-sm border rounded mx-1" role="button" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}" target="_blank">EDIT</a>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td><span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span></td>
+                                                <td>
+                                                  <span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
