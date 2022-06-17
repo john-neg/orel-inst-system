@@ -29,4 +29,4 @@ class ChoosePlan(FlaskForm):
 
 class FileForm(FlaskForm):
     file = FileField('file')
-    upload = SubmitField("Проверка файла")
+    # upload = SubmitField("Проверка файла")

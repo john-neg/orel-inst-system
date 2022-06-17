@@ -29,14 +29,14 @@ async def comp_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.comp_load", plan_id=edu_plan))
         return render_template(
-            "plans/plan_choose_plan.html",
+            "plans/plans_choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plan_choose_plan.html",
+        "plans/plans_choose_plan.html",
         active="plans",
         form=form,
         title=title,
@@ -58,14 +58,14 @@ async def matrix_simple_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_simple_load", plan_id=edu_plan))
         return render_template(
-            "plans/plan_choose_plan.html",
+            "plans/plans_choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plan_choose_plan.html",
+        "plans/plans_choose_plan.html",
         active="plans",
         form=form,
         title=title,
@@ -87,14 +87,14 @@ async def matrix_indicator_choose_plan():
             edu_plan = request.form.get("edu_plan")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=edu_plan))
         return render_template(
-            "plans/plan_choose_plan.html",
+            "plans/plans_choose_plan.html",
             active="plans",
             form=form,
             title=title,
             edu_spec=edu_spec,
         )
     return render_template(
-        "plans/plan_choose_plan.html",
+        "plans/plans_choose_plan.html",
         active="plans",
         form=form,
         title=title,

@@ -5,7 +5,7 @@ from flask.views import View
 from flask_login import login_required
 
 from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkProgram
-from app.common.forms import ChoosePlan, FileForm
+from app.common.forms import ChoosePlan
 from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
@@ -20,6 +20,7 @@ from app.common.reports.library_report import library_report
 from app.library import bp
 from app.library.func import library_file_processing
 from config import FlaskConfig, ApeksConfig as Apeks
+from library.forms import LibraryForm
 
 
 class LibraryChoosePlanView(View):
@@ -112,7 +113,8 @@ class LibraryUploadView(View):
 
     @login_required
     async def dispatch_request(self, plan_id):
-        form = FileForm()
+        form = LibraryForm()
+        form.library_plan_content.data = f"{self.lib_type_name} в РП плана"
         plan = EducationPlan(
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
@@ -216,7 +218,7 @@ class LibraryCheckView(View):
     @login_required
     async def dispatch_request(self, plan_id, filename):
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        form = FileForm()
+        form = LibraryForm()
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
         plan = EducationPlanWorkProgram(
             education_plan_id=plan_id,
@@ -263,7 +265,7 @@ class LibraryCheckView(View):
                         filename=filename,
                     )
                 )
-        # Check if program in uploaded file
+        # Проверяем что программа находится в загруженном файле
         work_programs, no_data = [], []
         for wp in plan.work_programs_data:
             wp_name = plan.work_programs_data[wp].get("name").strip()
@@ -359,7 +361,7 @@ class LibraryUpdateView(View):
                         await load_lib_edit_field(
                             wp_id, lib_items[i], file_data[disc][i], check
                         )
-        flash(f"Данные из файла - {filename}: успешно загружены")
+        flash(f"Данные из файла - '{filename}': успешно загружены")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 
 

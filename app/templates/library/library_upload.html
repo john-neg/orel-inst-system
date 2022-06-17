@@ -1,49 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Загрузка списка литературы</h3>
-    <h6 class="text-center text-dark mb-1">в рабочие программы дисциплин учебного плана</h6>
+  <h3 class="text-center text-dark mb-1">{{ title }}</h3>
+  <h6 class="text-center text-dark mb-1">в рабочие программы дисциплин учебного плана</h6>
 </div>
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col">
-            <h5 class="fw-normal text-center text-primary mb-3">40.05.01 Правовое обеспечение национальной безопасности<br></h5>
-        </div>
+  <div class="row justify-content-center">
+    <div class="col">
+      <h5 class="fw-normal text-center text-primary mb-3">{{ plan_name }}<br></h5>
     </div>
+  </div>
 </div>
-<form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="row" style="text-align: center;">
-                    <div class="col-md-6"><button class="btn btn-warning" id="mtrx_ind_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);" name="mtrx_ind_temp">Шаблон</button><small class="form-text" style="text-align: center;">(скачать образец заполнения файла для загрузки)</small></div>
-                    <div class="col-md-6"><button class="btn btn-primary" id="mtrx_download-1" type="submit" style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);" name="mtrx_download">Литература в РП плана</button><small class="form-text" style="text-align: center;">(таблица с данными из рабочих программ плана)</small></div>
-                </div>
-            </div>
+<form method="post" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row" style="text-align: center;">
+          <div class="col-md-6">
+            {{ form.library_load_temp(class="btn btn-warning", type="submit", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
+            <small class="form-text" style="text-align: center;">(скачать образец заполнения файла для загрузки)</small>
+          </div>
+          <div class="col-md-6">
+            {{ form.library_plan_content(class="btn btn-primary", value=form.library_plan_content.data, type="submit", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
+            <small class="form-text" style="text-align: center;">(таблица с данными из рабочих программ плана)</small>
+          </div>
         </div>
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mt-2 mb-3"><label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label><input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file"></div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-secondary" id="library_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="library_check">Проверка данных</button></div>
-            <div class="col-md-10 col-xl-8">
-                <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">В загруженном файле нет данных для дисциплин:<br></h6><span>Философия<br></span>
-                </div>
-                <div class="alert alert-info text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">В плане отсутствуют рабочие программы:<br></h6><span>Информатика<br></span>
-                </div>
-                <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">В плане существуют дубликаты программ:<br></h6><span>История<br></span>
-                </div>
-                <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">Название рабочей программы не соответствует названию дисциплины:</h6><span>Основы управления<br></span>
-                </div>
-                <div class="alert alert-success text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">Будет(ут) загружена(ы) <strong>{{ lib_type_name }}</strong> для следующих программ:</h6><span>Основы управления<br></span>
-                </div>
-            </div>
-        </div>
-        <div class="row justify-content-center mt-2 mb-2">
-            <div class="col-md-10 col-xl-8 mb-3"><button class="btn btn-success link-light" id="library_update" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="library_update">Загрузить данные</button></div>
-        </div>
+      </div>
     </div>
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8 mt-2 mb-3">
+        <label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br /></label>
+        {{ form.file.label(class="form-label", style="color: var(--bs-dark);") }}
+        {{ form.file(class="form-control", type="file", id="formFile", style="border-color: var(--bs-gray-400);") }}
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.library_check(class="btn btn-secondary", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
+      <div class="col-md-10 col-xl-8">
+        {% if no_data %}
+          <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">В загруженном файле нет данных для дисциплин:</h6>
+              {% for disc in no_data %}
+                <span>{{ disc }}<br></span>
+              {% endfor %}
+          </div>
+        {% endif %}
+        {% if no_program %}
+          <div class="alert alert-info text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">В плане отсутствуют рабочие программы:</h6>
+            {% for disc in no_program %}
+              <span>{{ no_program[disc] }}<br></span>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if duplicate %}
+          <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">В плане существуют дубликаты программ:</h6>
+                {% for disc in duplicate %}
+                  <span>{{ duplicate[disc] }}<br></span>
+                {% endfor %}
+          </div>
+        {% endif %}
+        {% if wrong_name %}
+          <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">Название рабочей программы не соответствует названию дисциплины:</h6>
+              {% for disc in wrong_name %}
+                <span>План - "{{ wrong_name[disc][0] }}"<br></span>
+                <span>Программа - "{{ wrong_name[disc][1] }}"<br></span>
+              {% endfor %}
+          </div>
+        {% endif %}
+        {% if work_programs %}
+          <div class="alert alert-success text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">Будет(ут) загружена(ы) <strong>{{ lib_type_name }}</strong> для следующих программ:</h6>
+              {% for prog in work_programs %}
+                <span>{{ prog }}<br></span>
+              {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="row justify-content-center mt-2 mb-2">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.library_update(class="btn btn-success link-light", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
+    </div>
+  </div>
 </form>
+{% endblock %}

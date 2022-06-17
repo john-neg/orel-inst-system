@@ -22,6 +22,7 @@
 
   <body id="page-top">
     <div id="wrapper">
+      <!-- Меню -->
       <nav class="navbar navbar-dark sticky-top align-items-start sidebar sidebar-dark mobile-hid" style="background: #002649;">
         <div class="container-fluid d-flex flex-column p-0">
           <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/" style="opacity: 0.80;">
@@ -29,12 +30,10 @@
             <div class="sidebar-brand-text mx-3"><span>Сервисы</span></div>
           </a>
           <ul class="navbar-nav text-light" id="accordionSidebar">
-
             <!-- Главная -->
             <li class="nav-item"><a class="nav-link py-2" href="/"><i class="fas fa-home"></i><span>Главная</span></a></li>
-
-            <!-- Администрирование -->
             {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, ) %}
+              <!-- Администрирование -->
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
                   <i class="fas fa-user-cog"></i>
@@ -46,19 +45,16 @@
                   </div>
               </li>
             {% endif %}
-
             <!-- Расписание -->
             <li class="nav-item text-start"><a class="nav-link py-2" href="{{ url_for('schedule.schedule') }}">
               <i class="far fa-calendar-alt"></i><span>Расписание</span></a>
             </li>
-
             <!-- Отчет о нагрузке -->
             <li class="nav-item"><a class="nav-link py-2" href="{{ url_for('load.load_report') }}">
               <i class="fas fa-receipt"></i><span>Отчет о нагрузке</span></a>
             </li>
-
-            <!-- Учебные планы -->
             {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+              <!-- Учебные планы -->
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
                   <i class="fas fa-layer-group"></i><span>Учебные планы</span>
@@ -75,7 +71,6 @@
                 </div>
               </li>
             {% endif %}
-
             <!-- Программы -->
             <li class="nav-item dropdown">
               <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
@@ -95,9 +90,8 @@
                 {% endif %}
               </div>
             </li>
-
-            <!-- Обеспечение -->
             {% if current_user.is_authenticated and current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
+              <!-- Обеспечение -->
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle nav-link py-2" aria-expanded="false" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
                   <i class="fas fa-book-open"></i><span>Обеспечение</span>
@@ -114,10 +108,10 @@
                 </div>
               </li>
             {% endif %}
-
           </ul>
         </div>
       </nav>
+      <!-- Header -->
       <div class="d-flex flex-column" id="content-wrapper">
         <div id="content">
           <nav class="navbar navbar-light navbar-expand bg-white shadow mb-4 topbar static-top">
@@ -151,9 +145,27 @@
               </ul>
             </div>
           </nav>
+
           {% block content %}
           {% endblock %}
+
+          <div class="container">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="row justify-content-center mt-2 mb-2">
+                  <div class="col-md-10 col-xl-8 mb-3">
+                    {% for message in messages %}
+                      <div class="alert alert-info text-center" role="alert">
+                        <span>{{ message }}<br /></span>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          </div>
         </div>
+        <!-- Footer -->
         <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">
           <div class="container my-auto">
             <div class="text-center my-auto copyright"><span style="font-size: 9.8px;">Copyright © Evgeny Semenov, 2022</span></div>

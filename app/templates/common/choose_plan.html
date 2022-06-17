@@ -10,17 +10,15 @@
         <div class="mb-4">
           {{ form.spec_choose(class="btn btn-secondary border-0", type="submit") }}
         </div>
-        <div class="mb-2">
-          <label class="form-label text-dark" id="edu_plan_label" name="edu_plan_label">Учебный план:</label>
-            <select class="form-select" id="edu_plan" name="edu_plan">
-                  <option value="12" selected="">This is item 1</option>
-                  <option value="13">This is item 2</option>
-                  <option value="14">This is item 3</option>
-            </select>
-        </div>
-        <div class="mb-4">
-          <button class="btn btn-secondary border-0" id="plan_choose" type="submit" name="plan_choose">Выбор</button>
-        </div>
+        {% if edu_spec %}
+          <div class="mb-2">
+            {{ form.edu_plan.label(class="text-dark") }}
+            {{ form.edu_plan(class="form-select") }}
+          </div>
+          <div class="mb-4">
+            {{ form.plan_choose(class="btn btn-secondary border-0", type="submit") }}
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
