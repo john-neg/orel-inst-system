@@ -1,49 +1,51 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">{% block title %}Расписание{% endblock %}</h3>
+  <h3 class="text-center text-dark mb-1">{% block title %}Расписание{% endblock %}</h3>
 </div>
 <form method="post">
-    {{ form.hidden_tag() }}
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="mb-2"><label class="form-label text-dark">{{ form.department.label }}</label>
-                    {{ form.department (class="form-select") }}
-                </div>
-                <div class="mb-3">
-                    <button class="btn btn-secondary" type="submit" name="dept_choose" style="background: var(--bs-gray-dark);">{{ form.dept_choose.label }}</button>
-                </div>
-                {% if department %}
-                <div class="row mb-4">
-                    <div class="col-md-3"><label class="form-label text-dark">{{ form.year.label }}</label>
-                        {{ form.year(class="form-select") }}
-                    </div>
-                    <div class="col-md-3"><label class="form-label text-dark">{{ form.month.label }}</label>
-                        {{ form.month(class="form-select") }}
-                    </div>
-                    <div class="col-md-6"><label class="form-label text-dark">{{ form.staff.label }}</label>
-                        {{ form.staff(class="form-select") }}
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-6 text-center"><button class="btn btn-danger" id="ical_exp" type="submit" style="width: 100%;border-style: none;" name="ical_exp">Экспорт в iCal</button>
-                        <small class="form-text">(для загрузки в календарь)</small></div>
-                    <div class="col-md-6 text-center"><button class="btn btn-primary" id="xlsx_exp" type="submit" style="background: #008751;width: 100%;border-style: none;" name="xlsx_exp">Экспорт в Excel</button>
-                        <small class="form-text">(список для работы и печати)</small></div>
-                </div>
-                {% endif %}
-                {% if error %}
-                    <div class="row mb-3 gy-3">
-                        <div class="d-grid col-xl-8">
-                            <div class="alert alert-warning" role="alert">
-                                {{ error }}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="mb-2">
+          {{ form.department.label(class="text-dark") }}
+          {{ form.department(class="form-select") }}
         </div>
+        <div class="mb-3">
+          {{ form.dept_choose(class="btn btn-secondary", type="submit", style="background: var(--bs-gray-dark);") }}
+        </div>
+        {% if department %}
+        <div class="row mb-4">
+          <div class="col-md-3">
+            {{ form.year.label(class="text-dark") }}
+            {{ form.year(class="form-select") }}
+          </div>
+          <div class="col-md-3">
+            {{ form.month.label(class="text-dark") }}
+            {{ form.month(class="form-select") }}
+          </div>
+          <div class="col-md-6">
+            {{ form.staff.label(class="text-dark") }}
+            {{ form.staff(class="form-select") }}
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-md-6 text-center">
+            {{ form.ical_exp(class="btn btn-danger", type="submit", style="width: 100%;border-style: none;") }}
+            <small class="form-text">(для загрузки в календарь)</small>
+          </div>
+          <div class="col-md-6 text-center">
+            {{ form.xlsx_exp(class="btn btn-primary", id="xlsx_exp", type="submit", style="background: #008751;width: 100%;border-style: none;") }}
+            <small class="form-text">(список для работы и печати)</small>
+          </div>
+        </div>
+        {% endif %}
+        {% if error %}
+          <div class="alert alert-warning" role="alert"><span>{{ error }}</span></div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </form>
 {% endblock %}

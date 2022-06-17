@@ -2,70 +2,66 @@
 {% block title %}Регистрация{% endblock %}
 {% block content %}
 <div class="container-fluid">
-    <h3 class="text-dark mb-1" style="text-align: center;">
-      Регистрация нового пользователя
-    </h3>
+  <h3 class="text-dark mb-1" style="text-align: center;">
+    Регистрация нового пользователя
+  </h3>
 </div>
 <section class="position-relative py-2 py-xl-2">
-    <div class="container">
-        <div class="row d-flex justify-content-center">
-            <div class="col-md-6 col-xl-4">
-                <div class="card mb-5">
-                    <div class="card-body d-flex flex-column align-items-center">
-                        <div class="bs-icon-xl bs-icon-circle bs-icon-primary bs-icon my-4"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-plus">
-                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
-                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
-                            </svg></div>
-                        <form class="text-center" method="post">
-                            {{ form.hidden_tag() }}
-
-                            <div class="form-floating mb-3">
-                                <input class="form-control" type="text" id="username" name="username" placeholder="{{ form.username.data }}">
-                                <label class="form-label">{{ form.username.label }}</label>
-                                {% for error in form.username.errors %}
-                                    <span style="color: var(--bs-danger);">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-
-                            <div class="form-floating mb-3">
-                                <input class="form-control" type="password" id="password" name="password" placeholder="{{ form.password.data }}">
-                                <label class="form-label">{{ form.password.label }}</label>
-                                {% for error in form.password.errors %}
-                                    <span style="color: var(--bs-danger);">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-
-                            <div class="form-floating mb-3">
-                                <input class="form-control" type="password" id="password2" name="password2" placeholder="{{ form.password2.data }}">
-                                <label class="form-label">{{ form.password2.label }}</label>
-                                {% for error in form.password2.errors %}
-                                    <span style="color: var(--bs-danger);">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-
-                            <div class="mb-3 form-floating">
-                              {{ form.role(class="form-select") }}
-                              <label>{{ form.role.label }}</label>
-                              {% for error in form.role.errors %}
-                                <span style="color: var(--bs-danger);">{{ error }}</span>
-                              {% endfor %}
-                            </div>
-
-                            <div class="mb-3"><button class="btn btn-primary d-block w-100" id="submit" type="submit">{{ form.submit.label }}</button></div>
-
-                            {% if message %}
-                              <span id="message" class="text-success" style="color: var(--bs-success);">{{ message }}</span>
-                            {% endif %}
-
-                            {% if form.form_errors %}
-                              <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
-                            {% endif %}
-
-                        </form>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-6 col-xl-4">
+        <div class="card mb-5">
+          <div class="card-body d-flex flex-column align-items-center">
+            <div class="bs-icon-xl bs-icon-circle bs-icon-primary bs-icon my-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-plus">
+                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
+                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
+              </svg>
             </div>
+            <form class="text-center" method="post">
+              {{ form.hidden_tag() }}
+              <div class="form-floating mb-3">
+                {{ form.username(class="form-control", type="text", placeholder=form.username.data) }}
+                {{ form.username.label }}
+                {% for error in form.username.errors %}
+                  <span style="color: var(--bs-danger);">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="form-floating mb-3">
+                {{ form.password(class="form-control", type="text", placeholder=form.password.data) }}
+                {{ form.password.label }}
+                {% for error in form.password.errors %}
+                  <span style="color: var(--bs-danger);">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="form-floating mb-3">
+                {{ form.password2(class="form-control", type="text", placeholder=form.password2.data) }}
+                {{ form.password2.label }}
+                {% for error in form.password2.errors %}
+                  <span style="color: var(--bs-danger);">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="mb-3 form-floating">
+                {{ form.role(class="form-select") }}
+                <label>{{ form.role.label }}</label>
+                {% for error in form.role.errors %}
+                  <span style="color: var(--bs-danger);">{{ error }}</span>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                {{ form.submit(class="btn btn-primary d-block w-100", type="submit") }}
+              </div>
+              {% if message %}
+                <span id="message" class="text-success" style="color: var(--bs-success);">{{ message }}</span>
+              {% endif %}
+              {% if form.form_errors %}
+                <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+              {% endif %}
+            </form>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}

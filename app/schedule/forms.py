@@ -1,6 +1,5 @@
 from datetime import date
 
-from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
@@ -9,7 +8,6 @@ from config import ApeksConfig as Apeks
 
 
 class CalendarForm(ChooseDepartment):
-    # department = SelectField("Кафедра:", coerce=int, validators=[DataRequired()])
     year = SelectField(
         "Год",
         coerce=int,
@@ -21,7 +19,6 @@ class CalendarForm(ChooseDepartment):
         default=date.today().year,
         validators=[DataRequired()],
     )
-
     month = SelectField(
         "Месяц",
         coerce=int,
