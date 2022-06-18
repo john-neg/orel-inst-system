@@ -1,75 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Сводная информация по полям рабочих программ<br></h3>
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Сводная информация по полям рабочих программ{% endblock %}
+  </h3>
+</div>
+<div class="col">
+  <h5 class="fw-normal text-center text-primary mt-2 mb-3">{{ plan_name }}<br /></h5>
 </div>
 <form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="row mb-2">
-                    <div class="col"><label class="form-label text-dark" id="wp_fields_label" name="wp_fields_label">Поле рабочей программы:</label>
-                      <select class="form-select" id="wp_fields" name="wp_fields">
-                            <optgroup label="Выберите год:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col">
-                      <button class="btn btn-secondary mb-1 mt-1" id="fields_data" type="button" name="fields_data">Выбрать</button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="card shadow mb-2">
-                            <div class="card-header py-3">
-                                <p class="text-start text-primary m-0 fw-bold">40.05.01 Правовое обеспечение национальной безопасности 2022<br></p>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="text-danger">
-                                            <tr>
-                                                <th>
-                                                  <span style="white-space: pre-line">Б.1.О.16 Административное право</span>
-                                                  <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}">EDIT</a>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                  <span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="text-danger">
-                                            <tr>
-                                                <th>
-                                                  <span style="white-space: pre-line">Б.1.О.33 Государственная служба в органах внутренних дел</span>
-                                                  <a class="btn btn-light btn-sm border rounded mx-1" role="button" href="{{ url_for('programs.wp_field_edit') }}?disc_id={{ wp_data[plan][wp][1] }}&amp;parameter={{ wp_field }}" target="_blank">EDIT</a>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                  <span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row mb-2">
+          <div class="col">
+            {{ form.wp_fields.label(class="text-dark") }}
+            {{ form.wp_fields(class="form-select") }}
+          </div>
         </div>
+        <div class="row mb-2">
+          <div class="col">
+            {{ form.fields_data(class="btn btn-secondary mb-1 mt-1", type="submit") }}
+          </div>
+        </div>
+          {% if wp_data %}
+            <div class="row">
+              <div class="col">
+                <div class="card shadow mb-2">
+                  <div class="card-body">
+                    {% for disc in wp_data %}
+                      {% for wp in wp_data[disc] %}
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead class="text-danger">
+                              <tr>
+                                <th>
+                                  <span style="white-space: pre-line">{{ disc }}</span>
+                                  {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
+                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                       href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}">EDIT</a>
+                                  {% endif %}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <span class="text-dark" style="white-space: pre-line">{{ wp_data[disc][wp] }}</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+      </div>
     </div>
+  </div>
 </form>
+{% endblock %}

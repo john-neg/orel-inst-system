@@ -1,121 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Информация по рабочим программам учебного плана<br></h3>
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Формирование титульных листов рабочих программ{% endblock %}
+  </h3>
 </div>
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col">
-            <h5 class="fw-normal text-center text-primary mt-2 mb-3">40.05.01 Правовое обеспечение национальной безопасности {{ plan_name }}<br></h5>
-        </div>
+  <div class="row justify-content-center">
+    <div class="col">
+      <h5 class="fw-normal text-center text-primary mt-2 mb-3">
+        {{ plan_name }}
+      </h5>
     </div>
+  </div>
 </div>
 <form method="post">
+  {{ form.hidden_tag() }}
     <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8 mb-2">
-            <div class="row">
-                <div class="col"><textarea class="form-control mb-2" id="organization_name" placeholder="ФЕДЕРАЛЬНОЕ ГОСУДАРСТВЕННОЕ КАЗЕННОЕ ОБРАЗОВАТЕЛЬНОЕ УЧРЕЖДЕНИЕ ВЫСШЕГО ОБРАЗОВАНИЯ «ОРЛОВСКИЙ ЮРИДИЧЕСКИЙ ИНСТИТУТ МИНИСТЕРСТВА ВНУТРЕННИХ ДЕЛ РОССИЙСКОЙ ФЕДЕРАЦИИ ИМЕНИ В.В. ЛУКЬЯНОВА»" rows="3" name="organization_name"></textarea></div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-md-6 mb-2">
-                  <label class="form-label" id="wp_approval_info_label" name="wp_approval_info_label">Информация об утверждении</label>
-                  <textarea class="form-control" id="wp_approval_info" placeholder="УТВЕРЖДАЮ Начальник Орловского юридического института МВД России имени В.В. Лукьянова" rows="4" name="wp_approval_info"></textarea>
-                </div>
-                <div class="col-md-6 mb-2">
-                  <label class="form-label" id="chief_rank_label" name="chief_rank_label">Звание руководителя</label>
-                  <input class="form-control" type="text" id="chief_rank" name="chief_rank">
-                  <label class="form-label" id="chief_name_label">Имя руководителя</label>
-                  <input class="form-control" type="text" id="chief_name">
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-md-6 offset-lg-0 mb-2">
-                    <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="flexSwitchForeigns" name="switch_foreign">
-                      <label class="form-check-label" id="switch_foreign_label" for="flexSwitchForeigns" name="switch_foreign_label">Иностранные слушатели<br></label>
-                    </div>
-                  <input class="form-control" type="text">
-                </div>
-                <div class="col">
-                  <label class="form-label" id="wp_approval_day_label" name="wp_approval_day_label">День</label>
-                  <input class="form-control" type="text" id="wp_approval_day" name="wp_approval_day">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label" id="wp_approval_month_label" name="wp_approval_month_label">Месяц</label>
-                  <select class="form-select" id="wp_approval_month" name="wp_approval_month">
-                        <optgroup label="This is a group">
-                            <option value="12" selected="">This is item 1</option>
-                            <option value="13">This is item 2</option>
-                            <option value="14">This is item 3</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div class="col">
-                  <label class="form-label" id="wp_approval_year_label" name="wp_approval_year_label">Год</label>
-                  <input class="form-control" type="text" id="wp_approval_year" name="wp_approval_year">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                  <select class="form-select mb-2" id="wp_speciality_type" name="wp_speciality_type">
-                        <optgroup label="This is a group">
-                            <option value="12" selected="">This is item 1</option>
-                            <option value="13">This is item 2</option>
-                            <option value="14">This is item 3</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                  <input class="form-control mb-2" type="text" id="wp_speciality" name="wp_speciality">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                  <select class="form-select mb-2" id="wp_specialization_type" name="wp_specialization_type">
-                        <optgroup label="This is a group">
-                            <option value="12" selected="">This is item 1</option>
-                            <option value="13">This is item 2</option>
-                            <option value="14">This is item 3</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                  <input class="form-control mb-2" type="text" id="wp_specialization" name="wp_specialization">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3">
-                  <label class="form-label" id="wp_education_form_label" name="wp_education_form_label">Форма обучения:</label>
-                  <input class="form-control mb-2" type="text" id="wp_education_form" name="wp_education_form">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label" id="wp_year_label" name="wp_year_label">Год набора:</label>
-                  <input class="form-control mb-2" type="text" id="wp_year" name="wp_year">
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="flexSwitchQualification" checked="" name="switch_qualification">
-                      <label class="form-check-label" id="switch_qualification_label" for="flexSwitchQualification">Квалификация:<br></label>
-                    </div>
-                  <input class="form-control mb-2" type="text" id="wp_qualification" name="wp_qualification">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col mb-2">
-                    <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="flexSwitchNarrowSpec" name="switch_narrow_spec">
-                      <label class="form-check-label" id="switch_narrow_spec_label" for="flexSwitchNarrowSpec">Узкая специализация:<br></label>
-                    </div>
-                  <input class="form-control" type="text" id="wp_narrow_specialization" name="wp_narrow_specialization">
-                </div>
-            </div>
+      <div class="col-md-10 col-xl-8 mb-2">
+        <div class="row">
+          <div class="col">
+            {{ form.organization_name.label }}
+            {{ form.organization_name(class="form-control mb-2", rows="3") }}
+          </div>
         </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6 mb-2">
+            {{ form.wp_approval_info.label }}
+            {{ form.wp_approval_info(class="form-control", rows="4") }}
+          </div>
+          <div class="col-md-6 mb-2">
+            {{ form.chief_rank.label }}
+            {{ form.chief_rank(class="form-control mb-2") }}
+            {{ form.chief_name.label }}
+            {{ form.chief_name(class="form-control") }}
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6 offset-lg-0 mb-2">
+            <div class="form-check form-switch mb-1">
+              {{ form.switch_foreign(class="form-check-input", type="checkbox", id="flexSwitchForeigns") }}
+              {{ form.switch_foreign.label(class="form-check-label", for="flexSwitchForeigns") }}
+            </div>
+            {{ form.wp_type_name(class="form-control") }}
+          </div>
+          <div class="col mt-1">
+            {{ form.wp_approval_day.label }}
+            {{ form.wp_approval_day(class="form-control", type="text") }}
+          </div>
+          <div class="col-md-3 mt-1">
+            {{ form.wp_approval_month.label }}
+            {{ form.wp_approval_month(class="form-select") }}
+          </div>
+          <div class="col mt-1">
+            {{ form.wp_approval_year.label }}
+            {{ form.wp_approval_year(class="form-control", type="text") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {{ form.wp_speciality_type(class="form-select mb-2") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {{ form.wp_speciality(class="form-control mb-2", type="text") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {{ form.wp_specialization_type(class="form-select mb-2") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {{ form.wp_specialization(class="form-control mb-2", type="text") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 mt-2">
+            {{ form.wp_education_form.label }}
+            {{ form.wp_education_form(class="form-control mb-2", type="text") }}
+          </div>
+          <div class="col-md-3 mt-2">
+            {{ form.wp_year.label }}
+            {{ form.wp_year(class="form-control mb-2", type="text") }}
+          </div>
+          <div class="col-md-6">
+            <div class="form-check form-switch mb-2">
+              {{ form.switch_qualification(class="form-check-input", type="checkbox", id="flexSwitchQualification", checked=true) }}
+              {{ form.switch_qualification.label(class="form-check-label", for="flexSwitchQualification") }}
+            </div>
+            {{ form.wp_qualification(class="form-control mb-2", type="text") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-2">
+            <div class="form-check form-switch mb-2">
+              {{ form.switch_narrow_spec(class="form-check-input", type="checkbox", id="flexSwitchNarrowSpec") }}
+              {{ form.switch_narrow_spec.label(class="form-check-label", for="flexSwitchNarrowSpec") }}
+            </div>
+            {{ form.wp_narrow_specialization(class="form-control mb-2", type="text") }}
+          </div>
+        </div>
+      </div>
     </div>
     <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8 mb-2">
-          <button class="btn btn-success link-light mb-3" id="title_pages" type="button" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="title_pages">Сформировать титульные листы<br></button>
-        </div>
+      <div class="col-md-10 col-xl-8 mb-2">
+        {{ form.title_pages(class="btn btn-success link-light mb-3", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
     </div>
 </form>
+{% endblock %}

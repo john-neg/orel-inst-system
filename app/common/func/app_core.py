@@ -55,7 +55,7 @@ def work_program_field_tb_table(parameter: str) -> str:
         str
             имя_таблицы
     """
-    if parameter in Apeks.MM_WORK_PROGRAMS:
+    if parameter in Apeks.MM_WORK_PROGRAMS or parameter == 'department_data':
         table_name = Apeks.TABLES.get("mm_work_programs")
     elif parameter in Apeks.MM_SECTIONS:
         table_name = Apeks.TABLES.get("mm_sections")

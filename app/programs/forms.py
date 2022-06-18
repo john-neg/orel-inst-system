@@ -21,7 +21,7 @@ class FieldsForm(FlaskForm):
         coerce=str,
         choices=[
             ("name", "Название программы"),
-            ("date_department", "Дата и протокол заседания кафедры"),
+            ("department_data", "Дата и протокол заседания кафедры"),
             ("reviewers_ext", "Рецензенты"),
             ("purposes", "Цели дисциплины"),
             ("tasks", "Задачи дисциплины"),
@@ -85,7 +85,6 @@ class DepartmentWPCheck(FieldsForm):
 
 
 class WorkProgramDatesUpdate(ChoosePlan):
-    # TODO добавить валидаторы для дат
     date_methodical = StringField(
         "Дата методического совета",
         validators=[Length(min=10, max=10, message="Формат даты - ГГГГ-ММ-ДД")],
@@ -112,6 +111,12 @@ class WorkProgramDatesUpdate(ChoosePlan):
 class WorkProgramFieldUpdate(FieldsForm):
     wp_field_edit = TextAreaField("Данные поля программы")
     field_update = SubmitField("Обновить")
+
+
+class WorkProgramDataSubmit(FlaskForm):
+    create_wp = SubmitField("Создать отсутствующие программы")
+    wp_status_0 = SubmitField("Разутвердить все программы плана")
+    wp_status_1 = SubmitField("Утвердить все программы плана")
 
 
 class TitlePagesGenerator(FlaskForm):

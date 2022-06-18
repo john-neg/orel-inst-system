@@ -1,191 +1,233 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Информация по рабочим программам учебного плана<br></h3>
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Информация о рабочих программах учебного плана{% endblock %}
+  </h3>
 </div>
 <div class="container">
-    <div class="row justify-content-center">
+  <div class="row justify-content-center">
+    <div class="col">
+      <h5 class="fw-normal text-center text-primary mt-3">{{ plan_name }}<br></h5>
+    </div>
+  </div>
+  <div class="row justify-content-center mb-3">
+    <div class="col-md-10 col-xl-8">
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card shadow border-start-success py-2">
+            <div class="card-body">
+              <div class="row align-items-center no-gutters">
+                <div class="col me-2">
+                  <div class="text-uppercase text-success fw-bold text-xs mb-1" id="status_label">
+                    <span>Статус плана</span>
+                  </div>
+                  <div class="text-dark fw-bold h5 mb-0">
+                    <span id="status">Утвержден</span>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-4">
+          <div class="card shadow border-start-primary py-2">
+            <div class="card-body">
+              <div class="row align-items-center no-gutters">
+                <div class="col me-2">
+                  <div class="text-uppercase text-primary fw-bold text-xs mb-1">
+                    <span id="generation_label">Поколение</span>
+                  </div>
+                  <div class="text-dark fw-bold h5 mb-0">
+                    <span id="generation">3++</span>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="card shadow border-start-info py-2">
+            <div class="card-body">
+              <div class="row align-items-center no-gutters">
+                <div class="col me-2">
+                  <div class="text-uppercase text-info fw-bold text-xs mb-1">
+                    <span id="disciplines_number_label">Количество дисциплин</span>
+                  </div>
+                  <div class="row g-0 align-items-center">
+                    <div class="col-auto">
+                      <div class="text-dark fw-bold h5 mb-0">
+                        <span id="disciplines_number">18</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="far fa-clipboard fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-4">
+          <div class="card shadow border-start-warning py-2">
+            <div class="card-body">
+              <div class="row align-items-center no-gutters">
+                <div class="col me-2">
+                  <div class="text-uppercase text-warning fw-bold text-xs mb-1">
+                    <span id="programs_number_label">Количество программ</span>
+                  </div>
+                  <div class="text-dark fw-bold h5 mb-0">
+                    <span id="programs_number">18</span>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="col">
-            <h5 class="fw-normal text-center text-primary mt-2 mb-3">40.05.01 Правовое обеспечение национальной безопасности {{ plan_name }}<br></h5>
+          {% if duplicate %}
+            <div class="alert alert-primary text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center" id="duplicates_label">В плане есть дубликаты рабочих программ:</h6>
+                <span id="duplicates">
+                  {% for disc in duplicate %}
+                    {{ duplicate[disc] }}<br>
+                  {% endfor %}
+                </span>
+            </div>
+          {% endif %}
+          {% if wrong_name %}
+            <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center" id="wrong_name_label">Название дисциплины плана не соответствует названию программы:</h6>
+              <span id="wrong_name">
+                {% for disc in wrong_name %}
+                  План - "{{ wrong_name[disc][0] }}"<br>
+                  Программа - "{{ wrong_name[disc][1] }}"<br>
+                {% endfor %}
+              </span>
+            </div>
+          {% endif %}
         </div>
-    </div>
-    <div class="row justify-content-center mb-3">
-        <div class="col-md-10 col-xl-8">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow border-start-success py-2">
-                        <div class="card-body">
-                            <div class="row align-items-center no-gutters">
-                                <div class="col me-2">
-                                    <div class="text-uppercase text-success fw-bold text-xs mb-1" id="status_label">
-                                      <span>Статус</span>
-                                    </div>
-                                    <div class="text-dark fw-bold h5 mb-0">
-                                      <span id="status">Утвержден</span>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col">
+          {% if programs %}
+            <div class="card shadow mb-2">
+              <div class="card-header py-3">
+                <p class="text-center text-primary m-0 fw-bold" id="programs_table_header">Список созданных рабочих программ:<br></p>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive table mt-2" id="programs_table" role="grid" aria-describedby="programs_table_info">
+                  <table class="table my-0" id="dataTable">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Дисциплина</th>
+                        <th>Согласование</th>
+                        <th>Утверждение</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for wp in programs %}
+                        <tr>
+                          <td>
+                            <a href="{{ url }}/mm/materials/view-wp?id={{ programs[wp].get('disc_id') }}&work_program_id={{ wp }}" target="_blank">
+                              <i class="fas fa-external-link-alt"></i>
+                            </a>
+                          </td>
+                          <td>
+                            {{ programs[wp].get('name') }}
+                          </td>
+                          <td>
+                            {% for sign in programs[wp].get('signs') %}
+                              {{ sign }}
+                            {% endfor %}
+                          </td>
+                          <td>
+                            {% if programs[wp].get('status') == '1' %}
+                              Утверждена
+                            {% else %}
+                              <b>Не утвержд.</b>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <th></th>
+                        <td><strong>Дисциплина</strong></td>
+                        <td><strong>Согласование</strong></td>
+                        <td><strong>Утверждение</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow border-start-primary py-2">
-                        <div class="card-body">
-                            <div class="row align-items-center no-gutters">
-                                <div class="col me-2">
-                                    <div class="text-uppercase text-primary fw-bold text-xs mb-1">
-                                      <span id="generation_label">Поколение</span>
-                                    </div>
-                                    <div class="text-dark fw-bold h5 mb-0">
-                                      <span id="generation">3++</span>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow border-start-info py-2">
-                        <div class="card-body">
-                            <div class="row align-items-center no-gutters">
-                                <div class="col me-2">
-                                    <div class="text-uppercase text-info fw-bold text-xs mb-1">
-                                      <span id="disciplines_number_label">Количество дисциплин</span>
-                                    </div>
-                                    <div class="row g-0 align-items-center">
-                                        <div class="col-auto">
-                                            <div class="text-dark fw-bold h5 mb-0">
-                                              <span id="disciplines_number">18</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="far fa-clipboard fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          {% endif %}
+          {% if no_program %}
+            <div class="card shadow">
+              <div class="card-header py-3" id="non_exist_table_header">
+                <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive table mt-2" id="non_exist_table" role="grid" aria-describedby="non_exist_table_info">
+                  <table class="table my-0" id="dataTable">
+                    <thead>
+                      <tr>
+                        <th>Дисциплина</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for disc in no_program %}
+                        <tr>
+                          <td>{{ no_program[disc] }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td><strong>Дисциплина</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow border-start-warning py-2">
-                        <div class="card-body">
-                            <div class="row align-items-center no-gutters">
-                                <div class="col me-2">
-                                    <div class="text-uppercase text-warning fw-bold text-xs mb-1">
-                                      <span id="programs_number_label">Количество программ</span>
-                                    </div>
-                                    <div class="text-dark fw-bold h5 mb-0">
-                                      <span id="programs_number">18</span>
-                                    </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <div class="alert alert-primary text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                        <h6 class="alert-heading fw-bold text-center" id="duplicates_label">В плане есть дубликаты рабочих программ:</h6>
-                      <span id="duplicates">Б.1.В.7 Учения<br></span>
-                    </div>
-                    <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                        <h6 class="alert-heading fw-bold text-center" id="wrong_name_label">Название дисциплины плана не соответствует названию программы:</h6>
-                      <span id="wrong_name">План - "Организация раскрытия и расследования преступлений отдельных видов"<br>Программа - "Организация раскрытия и расследования преступлений отдельных видов "<br>План - "Автомобильная подготовка"<br>Программа - "Автомобильная подготовка "<br></span>
-                    </div>
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col">
-                    <div class="card shadow mb-2">
-                        <div class="card-header py-3">
-                            <p class="text-center text-primary m-0 fw-bold" id="programs_table_header">Список созданных рабочих программ:<br></p>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive table mt-2" id="programs_table" role="grid" aria-describedby="programs_table_info">
-                                <table class="table my-0" id="dataTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Дисциплина<br></th>
-                                            <th>Согласование</th>
-                                            <th>Утверждение<br></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>"История органов внутренних дел"</td>
-                                            <td>Беляева Ольга Васильевна (2022-05-30 13:04:54)</td>
-                                            <td>Утверждена</td>
-                                        </tr>
-                                        <tr>
-                                            <td>"Гражданское процессуальное право (гражданский процесс)"</td>
-                                            <td>Не согласована</td>
-                                            <td class="fw-bold text-center">Нет</td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td><strong>Дисциплина</strong></td>
-                                            <td><strong>Согласование</strong></td>
-                                            <td><strong>Утверждение</strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card shadow">
-                        <div class="card-header py-3" id="non_exist_table_header">
-                            <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive table mt-2" id="non_exist_table" role="grid" aria-describedby="non_exist_table_info">
-                                <table class="table my-0" id="dataTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Дисциплина<br></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Б.1.Б.22 Предпринимательское право</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Б.3.2 Подготовка к защите и защита выпускной квалификационной работы по дисциплинам: "Предварительное следствие в органах внутренних дел", "Криминалистика"</td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td><strong>Дисциплина</strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          {% endif %}
         </div>
+      </div>
     </div>
+  </div>
 </div>
-<form method="post">
+{% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+  <form method="post">
+    {{ form.hidden_tag() }}
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-2">
-              <button class="btn btn-warning mb-3" id="create_wp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="create_wp">Создать отсутствующие программы</button>
-              <button class="btn btn-secondary mb-3" id="wp_status_0" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="wp_status_0">Разутвердить все программы плана</button>
-              <button class="btn btn-success link-light mb-3" id="wp_status_1" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="wp_status_1">Утвердить все программы плана</button>
-            </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8 mb-2">
+          {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
+            {{ form.create_wp(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+          {% endif %}
+          {{ form.wp_status_0(class="btn btn-secondary mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+          {{ form.wp_status_1(class="btn btn-success link-light mb-3", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
         </div>
+      </div>
     </div>
-</form>
+  </form>
+{% endif %}
+{% endblock %}

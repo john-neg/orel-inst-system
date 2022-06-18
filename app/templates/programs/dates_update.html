@@ -1,72 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Обновление информации об утверждении программ<br></h3>
+  <h3 class="text-center text-dark mb-1">{% block title %}Обновление информации об утверждении программ{% endblock %}</h3>
 </div>
 <form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="row mb-2">
-                    <div class="col-md-12">
-                      <label class="form-label text-dark" id="edu_spec" name="edu_spec">Специальность:</label>
-                      <select class="form-select" id="edu_spec" name="edu_spec">
-                            <optgroup label="Выберите месяц:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col">
-                      <button class="btn btn-secondary mb-1 mt-1" id="spec_choose" type="submit" name="spec_choose">Выбор</button>
-                    </div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col">
-                      <label class="form-label text-dark" id="edu_plan" name="">План:</label>
-                      <select class="form-select" id="edu_plan" name="edu_plan">
-                            <optgroup label="Выберите год:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-6">
-                      <label class="form-label text-dark" id="date_methodical_label" name="date_methodical_label">Дата методического совета<br></label>
-                      <input class="form-control" id="date_methodical" name="date_methodical" type="date">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark" id="date_academic_label" name="date_academic_label">Дата Ученого совета<br></label>
-                      <input class="form-control" id="date_academic" name="date_academic" type="date">
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-6">
-                      <label class="form-label text-dark" id="document_methodical_label" name="document_methodical_label">Номер протокола метод. совета<br></label>
-                      <input class="form-control" type="number" id="document_methodical" name="document_methodical" placeholder="1">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark" id="document_academic_label" name="document_academic_label">Номер протокола&nbsp; ученого совета<br></label>
-                      <input class="form-control" type="number" id="document_academic" name="document_academic" placeholder="1">
-                    </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                      <label class="form-label text-dark" id="date_approval_label" name="date_approval_label">Дата утверждения<br></label>
-                      <input class="form-control" id="date_approval" name="date_approval" type="date">
-                    </div>
-                    <div class="col-md-3"></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6 mt-3">
-                      <button class="btn btn-success fw-normal link-light" id="wp_dates_update" type="button" style="background: #008751;font-weight: bold;border-style: none;width: 100%;" name="wp_dates_update">Обновить данные</button>
-                    </div>
-                    <div class="col-md-3"></div>
-                </div>
-            </div>
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="mb-2">
+          {{ form.edu_spec.label(class="text-dark") }}
+          {{ form.edu_spec(class="form-select") }}
         </div>
+        <div class="mb-2">
+          {{ form.spec_choose(class="btn btn-secondary border-0") }}
+        </div>
+        {% if edu_spec %}
+        <div class="mb-4">
+          {{ form.edu_plan.label(class="text-dark") }}
+          {{ form.edu_plan(class="form-select") }}
+        </div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              {{ form.date_methodical.label(class="text-dark") }}
+              {{ form.date_methodical(class="form-control", type="date") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.date_academic.label(class="text-dark") }}
+              {{ form.date_academic(class="form-control", type="date") }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              {{ form.document_methodical.label(class="text-dark") }}
+              {{ form.document_methodical(class="form-control") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.document_academic.label(class="text-dark") }}
+              {{ form.document_academic(class="form-control") }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+              {{ form.date_approval.label(class="text-dark") }}
+              {{ form.date_approval(class="form-control", type="date") }}
+            </div>
+            <div class="col-md-3"></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 mt-3">
+              {{ form.wp_dates_update(class="btn btn-success fw-normal link-light", style="background: #008751;font-weight: bold;border-style: none;width: 100%;", type="submit") }}
+            </div>
+            <div class="col-md-3"></div>
+          </div>
+        {% endif %}
+        {% if results %}
+          <div class="row">
+            <div class="col">
+              <div class="alert alert-success text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                <h6 class="alert-heading fw-bold text-center">Программы в учебном плане:</h6>
+                {% for program in results %}
+                  <span>{{ program }}<br /></span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% if non_exist %}
+          <div class="row">
+            <div class="col">
+              <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                <h6 class="alert-heading fw-bold text-center">Не существуют программы дисциплин:</h6>
+                {% for program in non_exist %}
+                  <span>{{ program }}<br /></span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </form>
+{% endblock %}

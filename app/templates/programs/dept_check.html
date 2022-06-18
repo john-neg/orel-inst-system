@@ -1,83 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Сводная информация по полям РП плана<br></h3>
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Сводная информация по полям РП плана{% endblock %}
+  </h3>
 </div>
 <form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="row mb-2">
-                    <div class="col-md-3"><label class="form-label text-dark">Год</label><select class="form-select">
-                            <optgroup label="Выберите год:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select></div>
-                    <div class="col-md-9"><label class="form-label text-dark">Специальность:</label><select class="form-select">
-                            <optgroup label="Выберите месяц:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col"><label class="form-label text-dark">Кафедра:</label><select class="form-select">
-                            <optgroup label="Выберите год:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col"><label class="form-label text-dark">Поле рабочей программы:</label><select class="form-select">
-                            <optgroup label="Выберите год:">
-                                <option value="13">This is item 2</option>
-                                <option value="14">This is item 3</option>
-                            </optgroup>
-                        </select></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col"><button class="btn btn-secondary mb-1 mt-1" id="fields_data" type="button" name="fields_data">Выбрать</button></div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="card shadow mb-2">
-                            <div class="card-header py-3">
-                                <p class="text-start text-primary m-0 fw-bold">40.05.01 Правовое обеспечение национальной безопасности 2022<br></p>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="text-danger">
-                                            <tr>
-                                                <th><span style="white-space: pre-line">Б.1.О.16 Административное право</span><a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank" href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}">EDIT</a></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead class="text-danger">
-                                            <tr>
-                                                <th><span style="white-space: pre-line">Б.1.О.33 Государственная служба в органах внутренних дел</span><a class="btn btn-light btn-sm border rounded mx-1" role="button" href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}" target="_blank">EDIT</a></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><span class="text-dark" style="white-space: pre-line">Дата заседания кафедры: 06.04.2022 Протокол № 7</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row mt-1 mb-2">
+          <div class="col-md-3">
+            {{ form.year.label(class="text-dark") }}
+            {{ form.year(class="form-select") }}
+          </div>
+          <div class="col-md-9">
+            {{ form.edu_spec.label(class="text-dark") }}
+            {{ form.edu_spec(class="form-select") }}
+          </div>
         </div>
+        <div class="row mb-2">
+          <div class="col">
+            {{ form.department.label(class="text-dark") }}
+            {{ form.department(class="form-select") }}
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            {{ form.wp_fields.label(class="text-dark") }}
+            {{ form.wp_fields(class="form-select") }}
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            {{ form.fields_data(class="btn btn-secondary mb-1 mt-1", type="submit") }}
+          </div>
+        </div>
+        {% if wp_data %}
+          <div class="row">
+            <div class="col">
+              {% for plan in wp_data %}
+                <div class="card shadow mb-2">
+                  <div class="card-header py-3">
+                    <p class="text-start text-primary m-0 fw-bold">{{ plan }}<br></p>
+                  </div>
+                  <div class="card-body">
+                    {% for disc in wp_data[plan] %}
+                      {% for wp in wp_data[plan][disc] %}
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead class="text-danger">
+                              <tr>
+                                <th>
+                                  <span style="white-space: pre-line">{{ disc }}</span>
+                                  {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
+                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                       href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}">EDIT</a>
+                                  {% endif %}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <span class="text-dark" style="white-space: pre-line">{{ wp_data[plan][disc][wp] }}</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </form>
+{% endblock %}

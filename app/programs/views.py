@@ -41,7 +41,7 @@ from app.programs.forms import (
     ChoosePlan,
     DepartmentWPCheck,
     WorkProgramFieldUpdate,
-    TitlePagesGenerator,
+    TitlePagesGenerator, WorkProgramDataSubmit,
 )
 from app.programs.func import work_program_view_data
 from config import ApeksConfig as Apeks
@@ -127,7 +127,11 @@ async def wp_dept_check():
         department = request.form.get("department")
         year = request.form.get("year")
         parameter = request.form.get("wp_fields")
-        field_db_table = work_program_field_tb_table(parameter)
+        try:
+            field_db_table = work_program_field_tb_table(parameter)
+        except ApeksWrongParameterException:
+            flash("Передан неверный параметр")
+            return redirect(url_for("programs.wp_dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
         )
@@ -252,7 +256,11 @@ async def wp_fields(plan_id):
     plan_name = plan_education_plans[0].get('name')
     if request.method == "POST":
         parameter = request.form.get("wp_fields")
-        field_db_table = work_program_field_tb_table(parameter)
+        try:
+            field_db_table = work_program_field_tb_table(parameter)
+        except ApeksWrongParameterException:
+            flash("Передан неверный параметр")
+            return redirect(url_for("programs.wp_dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
         )
@@ -351,6 +359,7 @@ async def wp_field_edit():
 @bp.route("/wp_data/<int:plan_id>", methods=["GET", "POST"])
 @login_required
 async def wp_data(plan_id):
+    form = WorkProgramDataSubmit()
     plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
     plan = EducationPlanWorkProgram(
         education_plan_id=plan_id,
@@ -436,6 +445,7 @@ async def wp_data(plan_id):
     return render_template(
         "programs/wp_data.html",
         active="programs",
+        form=form,
         url=Apeks.URL,
         plan_name=plan.name,
         programs=programs,
