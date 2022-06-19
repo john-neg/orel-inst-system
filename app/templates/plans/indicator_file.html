@@ -1,33 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Экспорт индикаторов по дисциплинам<br></h3>
+  <h3 class="text-center text-dark mb-1">{% block title %}Экспорт индикаторов по дисциплинам{% endblock %}</h3>
 </div>
-<form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3">
-              <label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel с индикаторами (из Google форм)<br></label>
-              <input class="form-control" type="file" id="xlsx_file" style="border-color: var(--bs-gray-400);" name="xlsx_file">
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3">
-              <button class="btn btn-secondary" id="mtrx_file_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="mtrx_file_check">Проверка файла</button>
-            </div>
-            <div class="col-md-10 col-xl-8">
-                <div class="alert alert-danger text-center py-1 mb-3" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">Индикаторы файла, которые не удалось прочитать (необходимо исправить):</h6>
-                    <span>ОК-1.з.1<br></span>
-                </div>
-                <div class="alert alert-success text-center py-1 mb-3" role="alert" style="opacity: 0.80;">
-                    <h6 class="alert-heading fw-bold text-center">Загруженный файл: {{ filename }}<br></h6>
-                    <span>{{ message }}<br></span>
-                </div>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3">
-              <button class="btn btn-success link-light mt-2" id="mtrx_ind_load" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="mtrx_ind_load">Скачать список индикаторов в формате docx<br></button>
-            </div>
-        </div>
+<form method="post" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.file.label(class="form-label", style="color: var(--bs-dark);") }}
+        {{ form.file(class="form-control", style="border-color: var(--bs-gray-400);") }}
+      </div>
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.file_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
     </div>
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        {% if file_errors %}
+          <div class="alert alert-danger text-center py-1 mb-3" role="alert" style="opacity: 0.80;">
+            <h6 class="alert-heading fw-bold text-center">Индикаторы файла, которые не удалось прочитать (необходимо исправить):</h6>
+            <span>{{ '\n'.join(file_errors) }}</span>
+          </div>
+        {% else %}
+          {% if message %}
+            <div class="alert alert-success text-center py-1 mb-3" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center">Загруженный файл:<br>{{ filename }}</h6>
+              <span>{{ message }}</span>
+            </div>
+            {{ form.generate_report(class="btn btn-success link-light mt-2", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </form>
+{% endblock %}
+
+
+
+

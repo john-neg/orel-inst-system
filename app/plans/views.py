@@ -12,6 +12,7 @@ from app.plans.func import comps_file_processing, disciplines_comp_load
 from app.plans.models import CompPlan, MatrixIndicatorsFile
 from app.plans.models import WorkProgramProcessing
 from config import FlaskConfig
+from plans.forms import CompLoadForm, IndicatorsFile
 
 
 @bp.route("/comp_choose_plan", endpoint="comp_choose_plan", methods=["GET", "POST"])
@@ -105,14 +106,14 @@ async def matrix_indicator_choose_plan():
 @login_required
 def comp_load(plan_id):
     plan = CompPlan(plan_id)
-    form = FileForm()
+    form = CompLoadForm()
     if request.method == "POST":
-        if request.form.get("comp_load_temp"):
+        if request.form.get("data_template"):
             # Шаблон
             return redirect(
                 url_for("main.get_temp_file", filename="comp_load_temp.xlsx")
             )
-        if request.form.get("comp_delete"):
+        if request.form.get("data_delete"):
             # Полная очистка
             plan.disciplines_all_comp_del()
             return redirect(url_for("plans.comp_load", plan_id=plan_id))
@@ -121,12 +122,12 @@ def comp_load(plan_id):
             if file and allowed_file(file.filename):
                 filename = file.filename
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                if request.form.get("comp_check"):
+                if request.form.get("file_check"):
                     # Проверка файла
                     return redirect(
                         url_for("plans.comp_check", plan_id=plan_id, filename=filename)
                     )
-                if request.form.get("comp_load"):
+                if request.form.get("file_load"):
                     # Загрузка компетенций
                     return redirect(
                         url_for("plans.comp_update", plan_id=plan_id, filename=filename)
@@ -233,7 +234,7 @@ def matrix_indicator_load(plan_id):
 def comp_check(plan_id, filename):
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     plan = CompPlan(plan_id)
-    form = FileForm()
+    form = CompLoadForm()
     comps = comps_file_processing(file)
     if request.method == "POST":
         if request.files["file"]:
@@ -241,23 +242,23 @@ def comp_check(plan_id, filename):
             if file and allowed_file(file.filename):
                 filename = file.filename
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                if request.form.get("comp_check"):
+                if request.form.get("file_check"):
                     # Проверка файла
                     return redirect(
                         url_for("plans.comp_check", plan_id=plan_id, filename=filename)
                     )
-        if request.form.get("comp_load_temp"):
+        if request.form.get("data_template"):
             # Шаблон
             return redirect(
                 url_for("main.get_temp_file", filename="comp_load_temp.xlsx")
             )
-        if request.form.get("comp_delete"):
+        if request.form.get("data_delete"):
             # Полная очистка
             plan.disciplines_all_comp_del()
             return redirect(
                 url_for("plans.comp_check", plan_id=plan_id, filename=filename)
             )
-        if request.form.get("comp_load"):
+        if request.form.get("file_load"):
             # Загрузка компетенций
             return redirect(
                 url_for("plans.comp_update", plan_id=plan_id, filename=filename)
@@ -471,6 +472,7 @@ def comp_update(plan_id, filename):
         left_node += 2
         right_node += 2
     os.remove(file)
+    flash("Данные успешно загружены")
     return redirect(url_for("plans.comp_load", plan_id=plan_id))
 
 
@@ -487,14 +489,14 @@ def matrix_simple_update(plan_id, filename):
 @bp.route("/matrix_indicator_file_upload", methods=["GET", "POST"])
 @login_required
 def matrix_indicator_file_upload():
-    form = FileForm()
+    form = IndicatorsFile()
     if request.method == "POST":
-        if request.files["xlsx_file"]:
-            file = request.files["xlsx_file"]
+        if request.files["file"]:
+            file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                if request.form.get("mtrx_file_check"):
+                if request.form.get("file_check"):
                     return redirect(
                         url_for("plans.matrix_indicator_file_check", filename=filename)
                     )
@@ -508,28 +510,29 @@ def matrix_indicator_file_upload():
 @bp.route("/matrix_indicator_file_check/<string:filename>", methods=["GET", "POST"])
 @login_required
 def matrix_indicator_file_check(filename):
-    form = FileForm()
+    form = IndicatorsFile()
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     matrix = MatrixIndicatorsFile(file)
     if request.method == "POST":
-        if request.files["xlsx_file"]:
-            file = request.files["xlsx_file"]
+        if request.files["file"]:
+            file = request.files["file"]
             if file and allowed_file(file.filename):
                 filename = file.filename
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                 file_path = FlaskConfig.UPLOAD_FILE_DIR + filename
-                if request.form.get("mtrx_file_check"):
+                if request.form.get("file_check"):
                     return redirect(
                         url_for("plans.matrix_indicator_file_check", filename=filename)
                     )
-                if request.form.get("mtrx_indicator_export"):
+                if request.form.get("generate_report"):
                     matrix = MatrixIndicatorsFile(file_path)
                     filename = matrix.list_to_word()
                     os.remove(file_path)
                     return redirect(url_for("main.get_file", filename=filename))
-    if request.form.get("mtrx_indicator_export"):
+    if request.form.get("generate_report"):
         filename = matrix.list_to_word()
         os.remove(file)
+        flash("Файл отправлен")
         return redirect(url_for("main.get_file", filename=filename))
     return render_template(
         "plans/indicator_file.html",

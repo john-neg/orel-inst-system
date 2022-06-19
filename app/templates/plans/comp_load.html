@@ -1,81 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
 <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">Загрузка компетенций в учебный план<br></h3>
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Загрузка компетенций в учебный план{% endblock %}
+  </h3>
 </div>
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col">
-            <h5 class="fw-normal text-center text-primary mb-3">40.05.01 Правовое обеспечение национальной безопасности<br></h5>
-        </div>
+  <div class="row justify-content-center">
+    <div class="col">
+      <h5 class="fw-normal text-center text-primary mb-3">{{ plan_name }}<br></h5>
     </div>
+  </div>
 </div>
-<form method="post">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-                <div class="row" style="text-align: center;">
-                    <div class="col-md-6"><button class="btn btn-warning" id="comp_load_temp" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_load_temp">Шаблон</button>
-                      <small class="form-text" style="text-align: center;">(образец заполнения файла для загрузки)</small>
-                    </div>
-                    <div class="col-md-6 col-md-4">
-                      <button class="btn btn-danger" id="comp_delete" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_delete">Полная очистка</button>
-                      <small class="form-text">(удаление компетенций, связей и их содержимого из рабочих программ)</small>
-                    </div>
-                </div>
-            </div>
+<form method="post" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row" style="text-align: center;">
+          <div class="col-md-6">
+            {{ form.data_template(class="btn btn-warning", style="width: 100%;font-weight: bold;border-style: none;") }}
+            <small class="form-text" style="text-align: center;">(образец заполнения файла для загрузки)</small>
+          </div>
+          <div class="col-md-6 col-md-4">
+            {{ form.data_delete(class="btn btn-danger", style="width: 100%;font-weight: bold;border-style: none;") }}
+            <small class="form-text">(удаление компетенций, связей и их содержимого из рабочих программ)</small>
+          </div>
         </div>
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-3">
-              <label class="form-label" style="color: var(--bs-dark);">Выберите файл Excel для загрузки<br></label>
-              <input class="form-control" type="file" id="formFile" style="border-color: var(--bs-gray-400);" name="file">
-            </div>
-        </div>
-        <div class="row justify-content-center mb-2">
-            <div class="col-md-10 col-xl-8 mb-3">
-              <button class="btn btn-secondary" id="comp_check" type="submit" style="width: 100%;font-weight: bold;border-style: none;" name="comp_check">Проверка файла</button>
-            </div>
-            <div class="col-md-10 col-xl-8 mb-3">
-              <button class="btn btn-primary" id="comp_load" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="comp_load">Загрузка компетенций</button>
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.file.label }}
+        {{ form.file(class="form-control") }}
+      </div>
+    </div>
+    <div class="row justify-content-center mb-2">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.file_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
+    </div>
+    {% if comps %}
+      <div class="row justify-content-center mb-3">
+        <div class="col-md-10 col-xl-8">
+          <div class="card shadow">
+            <div class="card-header py-3">
+              <p class="text-info m-0 fw-bold">Компетенции для загрузки:<br /></p>
+            </div>
+            <div class="card-body">
+              <div id="dataTable-2" class="table-responsive table mt-2" role="grid" aria-describedby="dataTable_info">
+                <table id="dataTable" class="table my-0">
+                  <thead>
+                    <tr>
+                      <th>Код<br /></th>
+                      <th>Содержание<br /></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for comp in comps %}
+                      <tr>
+                        <td>{{ comp[0] }}</td>
+                        <td>{{ comp[1] }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td><strong>Код</strong></td>
+                      <td><strong>Содержание</strong></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8 mb-3">
+        {{ form.file_load(class="btn btn-primary", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+      </div>
+    </div>
+  </div>
 </form>
 <div class="container">
+  {% if plan_comp %}
     <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
-            <h6 class="fw-normal text-center text-primary"><strong>Текущий план не содержит компетенций</strong><br></h6>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <p class="text-primary m-0 fw-bold">Компетенций в текущем плане (очистить перед загрузкой!)<br></p>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
-                        <table class="table my-0" id="dataTable">
-                            <thead>
-                                <tr>
-                                    <th>Код<br></th>
-                                    <th>Содержание<br></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>ОК-1</td>
-                                    <td>способностью понимать и анализировать мировоззренческие, социально и личностно значимые философские проблемы</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td><strong>Код</strong></td>
-                                    <td><strong>Содержание</strong></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+      <div class="col-md-10 col-xl-8">
+        <div class="card shadow">
+          <div class="card-header py-3">
+            <p class="text-primary m-0 fw-bold">Компетенций в текущем плане (очистить перед загрузкой!)<br></p>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
+              <table class="table my-0" id="dataTable">
+                <thead>
+                  <tr>
+                    <th>Код<br></th>
+                    <th>Содержание<br></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for comp in plan_comp %}
+                    <tr>
+                      <td>{{ comp['code'] }}</td>
+                      <td>{{ comp['description'] }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td><strong>Код</strong></td>
+                    <td><strong>Содержание</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <h6 class="fw-normal text-center text-primary"><strong>Текущий план не содержит компетенций</strong><br></h6>
+      </div>
+    </div>
+  {% endif %}
 </div>
+{% endblock %}
