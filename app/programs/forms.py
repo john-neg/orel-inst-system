@@ -15,8 +15,8 @@ from app.common.forms import ChoosePlan
 from config import ApeksConfig as Apeks
 
 
-class FieldsForm(FlaskForm):
-    wp_fields = SelectField(
+class ProgramFieldsForm(FlaskForm):
+    program_fields = SelectField(
         "Поле рабочей программы:",
         coerce=str,
         choices=[
@@ -64,7 +64,7 @@ class FieldsForm(FlaskForm):
     fields_data = SubmitField("Выбрать")
 
 
-class DepartmentWPCheck(FieldsForm):
+class DepartmentProgramCheck(ProgramFieldsForm):
     edu_spec = SelectField("Специальность:", coerce=str, validators=[DataRequired()])
     department = SelectField("Кафедра:", coerce=str, validators=[DataRequired()])
     year = SelectField(
@@ -84,7 +84,7 @@ class DepartmentWPCheck(FieldsForm):
     )
 
 
-class WorkProgramDatesUpdate(ChoosePlan):
+class ProgramDatesUpdate(ChoosePlan):
     date_methodical = StringField(
         "Дата методического совета",
         validators=[Length(min=10, max=10, message="Формат даты - ГГГГ-ММ-ДД")],
@@ -105,18 +105,18 @@ class WorkProgramDatesUpdate(ChoosePlan):
         "Дата утверждения",
         validators=[Length(min=10, max=10, message="Формат даты - ГГГГ-ММ-ДД")],
     )
-    wp_dates_update = SubmitField("Обновить данные")
+    program_dates_update = SubmitField("Обновить данные")
 
 
-class WorkProgramFieldUpdate(FieldsForm):
-    wp_field_edit = TextAreaField("Данные поля программы")
+class ProgramFieldUpdate(ProgramFieldsForm):
+    field_edit = TextAreaField("Данные поля программы")
     field_update = SubmitField("Обновить")
 
 
-class WorkProgramDataSubmit(FlaskForm):
-    create_wp = SubmitField("Создать отсутствующие программы")
-    wp_status_0 = SubmitField("Разутвердить все программы плана")
-    wp_status_1 = SubmitField("Утвердить все программы плана")
+class ProgramDataSubmit(FlaskForm):
+    create_program = SubmitField("Создать отсутствующие программы")
+    program_status_0 = SubmitField("Разутвердить все программы плана")
+    program_status_1 = SubmitField("Утвердить все программы плана")
 
 
 class TitlePagesGenerator(FlaskForm):

@@ -7,7 +7,7 @@ from docx.shared import Cm, Pt
 from config import FlaskConfig
 
 
-def generate_wp_title_pages(form_data: dict, plan_name: str, wp_data: dict) -> str:
+def generate_program_title_pages(form_data: dict, plan_name: str, wp_data: dict) -> str:
     """
     Формирует титульные листы рабочих программ учебного плана в формате docx.
 

@@ -15,8 +15,8 @@
       <div class="col-md-10 col-xl-8">
         <div class="row mb-2">
           <div class="col">
-            {{ form.wp_fields.label(class="text-dark") }}
-            {{ form.wp_fields(class="form-select") }}
+            {{ form.program_fields.label(class="text-dark") }}
+            {{ form.program_fields(class="form-select") }}
           </div>
         </div>
         <div class="row mb-2">
@@ -24,13 +24,13 @@
             {{ form.fields_data(class="btn btn-secondary mb-1 mt-1", type="submit") }}
           </div>
         </div>
-          {% if wp_data %}
+          {% if program_data %}
             <div class="row">
               <div class="col">
                 <div class="card shadow mb-2">
                   <div class="card-body">
-                    {% for disc in wp_data %}
-                      {% for wp in wp_data[disc] %}
+                    {% for disc in program_data %}
+                      {% for wp in program_data[disc] %}
                         <div class="table-responsive">
                           <table class="table">
                             <thead class="text-danger">
@@ -39,7 +39,7 @@
                                   <span style="white-space: pre-line">{{ disc }}</span>
                                   {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
                                     <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
-                                       href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}">EDIT</a>
+                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
                                   {% endif %}
                                 </th>
                               </tr>
@@ -47,7 +47,7 @@
                             <tbody>
                               <tr>
                                 <td>
-                                  <span class="text-dark" style="white-space: pre-line">{{ wp_data[disc][wp] }}</span>
+                                  <span class="text-dark" style="white-space: pre-line">{{ program_data[disc][wp] }}</span>
                                 </td>
                               </tr>
                             </tbody>

@@ -221,10 +221,10 @@
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mb-2">
           {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
-            {{ form.create_wp(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+            {{ form.create_program(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
           {% endif %}
-          {{ form.wp_status_0(class="btn btn-secondary mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
-          {{ form.wp_status_1(class="btn btn-success link-light mb-3", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          {{ form.program_status_0(class="btn btn-secondary mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+          {{ form.program_status_1(class="btn btn-success link-light mb-3", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
         </div>
       </div>
     </div>

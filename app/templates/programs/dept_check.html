@@ -28,8 +28,8 @@
         </div>
         <div class="row mb-2">
           <div class="col">
-            {{ form.wp_fields.label(class="text-dark") }}
-            {{ form.wp_fields(class="form-select") }}
+            {{ form.program_fields.label(class="text-dark") }}
+            {{ form.program_fields(class="form-select") }}
           </div>
         </div>
         <div class="row mb-2">
@@ -37,17 +37,17 @@
             {{ form.fields_data(class="btn btn-secondary mb-1 mt-1", type="submit") }}
           </div>
         </div>
-        {% if wp_data %}
+        {% if program_data %}
           <div class="row">
             <div class="col">
-              {% for plan in wp_data %}
+              {% for plan in program_data %}
                 <div class="card shadow mb-2">
                   <div class="card-header py-3">
                     <p class="text-start text-primary m-0 fw-bold">{{ plan }}<br></p>
                   </div>
                   <div class="card-body">
-                    {% for disc in wp_data[plan] %}
-                      {% for wp in wp_data[plan][disc] %}
+                    {% for disc in program_data[plan] %}
+                      {% for wp in program_data[plan][disc] %}
                         <div class="table-responsive">
                           <table class="table">
                             <thead class="text-danger">
@@ -56,7 +56,7 @@
                                   <span style="white-space: pre-line">{{ disc }}</span>
                                   {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
                                     <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
-                                       href="{{ url_for('programs.wp_field_edit') }}?wp_id={{ wp }}&parameter={{ wp_field }}">EDIT</a>
+                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
                                   {% endif %}
                                 </th>
                               </tr>
@@ -64,7 +64,7 @@
                             <tbody>
                               <tr>
                                 <td>
-                                  <span class="text-dark" style="white-space: pre-line">{{ wp_data[plan][disc][wp] }}</span>
+                                  <span class="text-dark" style="white-space: pre-line">{{ program_data[plan][disc][wp] }}</span>
                                 </td>
                               </tr>
                             </tbody>

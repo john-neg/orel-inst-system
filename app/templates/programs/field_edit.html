@@ -10,11 +10,11 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
-          <h4 class="fw-lighter text-center text-primary mt-2 mb-2">{{ wp_name }}<br></h4>
+          <h4 class="fw-lighter text-center text-primary mt-2 mb-2">{{ program_name }}<br></h4>
           <div class="row mb-2">
             <div class="col">
-              {{ form.wp_fields.label(class="text-dark") }}
-              {{ form.wp_fields(class="form-select") }}
+              {{ form.program_fields.label(class="text-dark") }}
+              {{ form.program_fields(class="form-select") }}
             </div>
           </div>
           <div class="row mb-2">
@@ -26,10 +26,10 @@
             <div class="col">
               <div class="card shadow mb-2">
                 <div class="card-header py-3">
-                  {{ form.wp_field_edit.label(class="text-center text-primary m-0 fw-bold") }}
+                  {{ form.program_field_edit.label(class="text-center text-primary m-0 fw-bold") }}
                 </div>
                 <div class="card-body">
-                  {{ form.wp_field_edit(class="form-control", rows="8", value=wp_field_data) }}
+                  {{ form.program_field_edit(class="form-control", rows="8", value=program_field_data) }}
                 </div>
               </div>
             </div>
