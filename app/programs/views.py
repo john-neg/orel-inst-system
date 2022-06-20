@@ -442,6 +442,13 @@ async def wp_data(plan_id):
         programs[wp]["signs"] = signs
         programs[wp]["status"] = plan.work_programs_data[wp].get("status")
 
+    widget_data = {
+        'generation': plan.plan_education_plans[-1].get('generation'),
+        'status': Apeks.PLAN_STATUS.get(int(plan.plan_education_plans[-1].get('status'))),
+        'disciplines_count': len(plan.plan_curriculum_disciplines),
+        'programs_count': len(plan.work_programs_data)
+    }
+
     return render_template(
         "programs/wp_data.html",
         active="programs",
@@ -453,6 +460,7 @@ async def wp_data(plan_id):
         duplicate=plan.duplicate,
         wrong_name=plan.wrong_name,
         sign_users_data=sign_users_data,
+        widget_data=widget_data,
     )
 
 

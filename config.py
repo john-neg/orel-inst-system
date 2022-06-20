@@ -246,6 +246,13 @@ class ApeksConfig(object):
         "kandidat_exam": 16,
     }
 
+    # Статусы плана
+    PLAN_STATUS = {
+        0: "Не утвержден",
+        1: "Утвержден",
+        2: "Просрочен"
+    }
+
     # Идентификаторы форм обучения в таблице 'education_form_id'
     EDUCATION_FORM_ID = {
         # Очное обучение

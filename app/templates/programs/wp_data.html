@@ -23,7 +23,7 @@
                     <span>Статус плана</span>
                   </div>
                   <div class="text-dark fw-bold h5 mb-0">
-                    <span id="status">Утвержден</span>
+                    <span id="status">{{ widget_data.get('status') }}</span>
                   </div>
                 </div>
                 <div class="col-auto">
@@ -42,7 +42,7 @@
                     <span id="generation_label">Поколение</span>
                   </div>
                   <div class="text-dark fw-bold h5 mb-0">
-                    <span id="generation">3++</span>
+                    <span id="generation">{{ widget_data.get('generation') }}</span>
                   </div>
                 </div>
                 <div class="col-auto">
@@ -65,7 +65,7 @@
                   <div class="row g-0 align-items-center">
                     <div class="col-auto">
                       <div class="text-dark fw-bold h5 mb-0">
-                        <span id="disciplines_number">18</span>
+                        <span id="disciplines_number">{{ widget_data.get('disciplines_count') }}</span>
                       </div>
                     </div>
                   </div>
@@ -86,7 +86,7 @@
                     <span id="programs_number_label">Количество программ</span>
                   </div>
                   <div class="text-dark fw-bold h5 mb-0">
-                    <span id="programs_number">18</span>
+                    <span id="programs_number">{{ widget_data.get('programs_count') }}</span>
                   </div>
                 </div>
                 <div class="col-auto">

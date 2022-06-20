@@ -664,83 +664,85 @@ async def get_work_programs_data(
 
     wp_list = [wp_data[wp].get("id") for wp in wp_data]
 
-    if sections:
-        sections_data = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_sections"),
-                work_program_id=wp_list,
+    if wp_list:
+        if sections:
+            sections_data = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_sections"),
+                    work_program_id=wp_list,
+                )
             )
-        )
-        for sect in sections_data:
-            wp_id = int(sect.get("work_program_id"))
-            not_include = {"id", "work_program_id"}
-            items = [item for item in [*sect] if item not in not_include]
-            for item in items:
-                wp_data[wp_id]["sections"][item] = sect.get(item)
+            for sect in sections_data:
+                wp_id = int(sect.get("work_program_id"))
+                not_include = {"id", "work_program_id"}
+                items = [item for item in [*sect] if item not in not_include]
+                for item in items:
+                    wp_data[wp_id]["sections"][item] = sect.get(item)
 
-    if fields:
-        field_data = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_work_programs_data"),
-                work_program_id=wp_list,
+        if fields:
+            field_data = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs_data"),
+                    work_program_id=wp_list,
+                )
             )
-        )
-        for field in field_data:
-            wp_id = int(field.get("work_program_id"))
-            field_id = int(field.get("field_id"))
-            data = field.get("data")
-            wp_data[wp_id]["fields"][field_id] = data
+            for field in field_data:
+                wp_id = int(field.get("work_program_id"))
+                field_id = int(field.get("field_id"))
+                data = field.get("data")
+                wp_data[wp_id]["fields"][field_id] = data
 
-    if signs:
-        signs_data = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_work_programs_signs"),
-                work_program_id=wp_list,
+        if signs:
+            signs_data = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs_signs"),
+                    work_program_id=wp_list,
+                )
             )
-        )
-        for sign in signs_data:
-            wp_id = int(sign.get("work_program_id"))
-            user_id = int(sign.get("user_id"))
-            wp_data[wp_id]["signs"][user_id] = sign.get("timestamp")
+            for sign in signs_data:
+                wp_id = int(sign.get("work_program_id"))
+                user_id = int(sign.get("user_id"))
+                wp_data[wp_id]["signs"][user_id] = sign.get("timestamp")
 
-    if competencies:
-        competencies_fields = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_work_programs_competencies_fields"),
+        if competencies:
+            competencies_fields = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs_competencies_fields"),
+                )
             )
-        )
-        comp_fields = {}
-        for field in competencies_fields:
-            comp_fields[field.get("id")] = field.get("code")
-        comp_data = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_work_programs_competencies_data"),
-                work_program_id=wp_list,
+            comp_fields = {}
+            for field in competencies_fields:
+                comp_fields[field.get("id")] = field.get("code")
+            comp_data = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_work_programs_competencies_data"),
+                    work_program_id=wp_list,
+                )
             )
-        )
-        for data in comp_data:
-            wp_id = int(data.get("work_program_id"))
-            comp_id = int(data.get("competency_id"))
-            field = comp_fields.get(data.get("field_id"))
-            if not wp_data[wp_id]["competencies_data"].get(comp_id):
-                wp_data[wp_id]["competencies_data"][comp_id] = {}
-            wp_data[wp_id]["competencies_data"][comp_id][field] = data.get("value")
+            for data in comp_data:
+                wp_id = int(data.get("work_program_id"))
+                comp_id = int(data.get("competency_id"))
+                field = comp_fields.get(data.get("field_id"))
+                if not wp_data[wp_id]["competencies_data"].get(comp_id):
+                    wp_data[wp_id]["competencies_data"][comp_id] = {}
+                wp_data[wp_id]["competencies_data"][comp_id][field] = data.get("value")
 
-        comp_levels = await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_competency_levels"),
-                work_program_id=wp_list,
+            comp_levels = await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("mm_competency_levels"),
+                    work_program_id=wp_list,
+                )
             )
-        )
-        for level in comp_levels:
-            wp_id = int(level.get("work_program_id"))
-            level_id = int(level.get("level"))
-            not_include = {"id", "work_program_id"}
-            items = [item for item in [*level] if item not in not_include]
-            for item in items:
-                if not wp_data[wp_id]["competency_levels"].get(level_id):
-                    wp_data[wp_id]["competency_levels"][level_id] = {}
-                wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
+            for level in comp_levels:
+                wp_id = int(level.get("work_program_id"))
+                level_id = int(level.get("level"))
+                not_include = {"id", "work_program_id"}
+                items = [item for item in [*level] if item not in not_include]
+                for item in items:
+                    if not wp_data[wp_id]["competency_levels"].get(level_id):
+                        wp_data[wp_id]["competency_levels"][level_id] = {}
+                    wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
+
     logging.debug(
         "Передана информация о рабочих программах "
         f"дисциплин {wp_list}"
