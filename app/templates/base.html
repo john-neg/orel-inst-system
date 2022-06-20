@@ -67,7 +67,7 @@
                 </a>
                 <div class="dropdown-menu text-center py-0">
                   {% if current_user.role in (config.ROLE_ADMIN, ) %}
-                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.comp_choose_plan') }}">Загрузка компетенций</a>
+                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.competencies_choose_plan') }}">Загрузка компетенций</a>
                   {% endif %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_simple_choose_plan') }}">Матрица простая</a>
                   {% if current_user.role in (config.ROLE_ADMIN, ) %}

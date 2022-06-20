@@ -13,9 +13,15 @@ class CompLoadForm(PlanForm):
     data_template = SubmitField("Шаблон")
 
 
-class MatrixForm(PlanForm):
+class MatrixSimpleForm(PlanForm):
+    make_matrix = SubmitField("Сформировать простую матрицу")
+
+
+class MatrixIndicatorForm(PlanForm):
     data_template = SubmitField("Образец файла")
-    make_matrix = SubmitField("Сформировать матрицу")
+    make_matrix = SubmitField("Сформировать простую матрицу")
+    switch_relations = SubmitField("Загружать связи")
+    switch_programs = SubmitField("Загружать индикаторы в программы")
 
 
 class IndicatorsFile(FlaskForm):

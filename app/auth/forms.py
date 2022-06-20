@@ -15,7 +15,7 @@ class LoginForm(FlaskForm):
         def get_translations(self, form):
             return super(FlaskForm.Meta, self).get_translations(form)
 
-    username = StringField("Логин", validators=[DataRequired(), Length(min=6, max=20)])
+    username = StringField("Логин", validators=[DataRequired(), Length(min=4, max=20)])
     password = PasswordField("Пароль", validators=[DataRequired()])
     remember_me = BooleanField("Запомнить")
     submit = SubmitField("Войти")
@@ -35,7 +35,7 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Имя уже существует')
 
-    username = StringField('Логин', validators=[DataRequired(), Length(min=6, max=20)])
+    username = StringField('Логин', validators=[DataRequired(), Length(min=4, max=20)])
     password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6, max=20)])
     password2 = PasswordField(
         'Повторите пароль', validators=[DataRequired(), EqualTo('password')])

@@ -25,8 +25,3 @@ class ChoosePlan(FlaskForm):
         validators=[DataRequired()]
     )
     plan_choose = SubmitField("Выбор")
-
-
-class FileForm(FlaskForm):
-    file = FileField('file')
-    # upload = SubmitField("Проверка файла")
