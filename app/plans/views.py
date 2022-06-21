@@ -80,9 +80,19 @@ bp.add_url_rule(
 
 @bp.route("/competencies_load/<int:plan_id>", methods=["GET", "POST"])
 @login_required
+
 def competencies_load(plan_id):
     plan = CompPlan(plan_id)
     form = CompLoadForm()
+
+    filename = request.args.get("filename")
+    if filename:
+        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        comps = comps_file_processing(file)
+    else:
+        file = ""
+        comps = ""
+
     if request.method == "POST":
         # Шаблон
         if request.form.get("data_template"):
@@ -101,7 +111,7 @@ def competencies_load(plan_id):
                 # Проверка файла
                 if request.form.get("file_check"):
                     return redirect(
-                        url_for("plans.competencies_check", plan_id=plan_id, filename=filename)
+                        url_for("plans.competencies_load", plan_id=plan_id, filename=filename)
                     )
                 # Загрузка компетенций
                 if request.form.get("file_load"):
@@ -114,7 +124,75 @@ def competencies_load(plan_id):
         form=form,
         plan_name=plan.name,
         plan_comp=plan.competencies,
+        comps=comps,
     )
+
+
+
+
+@bp.route("/competencies_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"])
+@login_required
+def competencies_check(plan_id, filename):
+    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    plan = CompPlan(plan_id)
+    form = CompLoadForm()
+    comps = comps_file_processing(file)
+    if request.method == "POST":
+        if request.files["file"]:
+            file = request.files["file"]
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+                # Проверка файла
+                if request.form.get("file_check"):
+                    return redirect(
+                        url_for("plans.competencies_check", plan_id=plan_id, filename=filename)
+                    )
+        # Шаблон
+        if request.form.get("data_template"):
+            return redirect(
+                url_for("main.get_temp_file", filename="comp_load_temp.xlsx")
+            )
+        # Полная очистка
+        if request.form.get("data_delete"):
+            plan.disciplines_all_comp_del()
+            return redirect(
+                url_for("plans.competencies_check", plan_id=plan_id, filename=filename)
+            )
+        # Загрузка компетенций
+        if request.form.get("file_load"):
+            return redirect(
+                url_for("plans.competencies_update", plan_id=plan_id, filename=filename)
+            )
+    return render_template(
+        "plans/competencies_load.html",
+        active="plans",
+        form=form,
+        plan_name=plan.name,
+        plan_comp=plan.competencies,
+        comps=comps,
+    )
+
+
+
+@bp.route("/competencies_update/<int:plan_id>/<string:filename>", methods=["GET"])
+@login_required
+def competencies_update(plan_id, filename):
+    file = FlaskConfig.UPLOAD_FILE_DIR + filename
+    plan = CompPlan(plan_id)
+    comps = comps_file_processing(file)
+    left_node, right_node = 1, 2
+    for comp in comps:
+        code = comp[0]
+        description = comp[1]
+        plan.load_comp(code, description, left_node, right_node)
+        left_node += 2
+        right_node += 2
+    os.remove(file)
+    flash("Данные успешно загружены")
+    return redirect(url_for("plans.competencies_load", plan_id=plan_id))
+
+
 
 
 @bp.route("/matrix_simple_load/<int:plan_id>", methods=["GET", "POST"])
@@ -205,48 +283,6 @@ def matrix_indicator_load(plan_id):
     )
 
 
-@bp.route("/competencies_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"])
-@login_required
-def competencies_check(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
-    plan = CompPlan(plan_id)
-    form = CompLoadForm()
-    comps = comps_file_processing(file)
-    if request.method == "POST":
-        if request.files["file"]:
-            file = request.files["file"]
-            if file and allowed_file(file.filename):
-                filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                # Проверка файла
-                if request.form.get("file_check"):
-                    return redirect(
-                        url_for("plans.competencies_check", plan_id=plan_id, filename=filename)
-                    )
-        # Шаблон
-        if request.form.get("data_template"):
-            return redirect(
-                url_for("main.get_temp_file", filename="comp_load_temp.xlsx")
-            )
-        # Полная очистка
-        if request.form.get("data_delete"):
-            plan.disciplines_all_comp_del()
-            return redirect(
-                url_for("plans.competencies_check", plan_id=plan_id, filename=filename)
-            )
-        # Загрузка компетенций
-        if request.form.get("file_load"):
-            return redirect(
-                url_for("plans.competencies_update", plan_id=plan_id, filename=filename)
-            )
-    return render_template(
-        "plans/competencies_load.html",
-        active="plans",
-        form=form,
-        plan_name=plan.name,
-        plan_comp=plan.competencies,
-        comps=comps,
-    )
 
 
 @bp.route(
@@ -434,22 +470,6 @@ def matrix_indicator_check(plan_id, filename):
     )
 
 
-@bp.route("/competencies_update/<int:plan_id>/<string:filename>", methods=["GET"])
-@login_required
-def competencies_update(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
-    plan = CompPlan(plan_id)
-    comps = comps_file_processing(file)
-    left_node, right_node = 1, 2
-    for comp in comps:
-        code = comp[0]
-        description = comp[1]
-        plan.load_comp(code, description, left_node, right_node)
-        left_node += 2
-        right_node += 2
-    os.remove(file)
-    flash("Данные успешно загружены")
-    return redirect(url_for("plans.competencies_load", plan_id=plan_id))
 
 
 @bp.route("/matrix_simple_update/<int:plan_id>/<string:filename>", methods=["GET"])
