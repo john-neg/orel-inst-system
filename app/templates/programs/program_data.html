@@ -150,6 +150,10 @@
                           </td>
                           <td>
                             {{ programs[wp].get('name') }}
+                                    {% if current_user.role in (config.ROLE_ADMIN, ) %}
+                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter=name">EDIT</a>
+                                  {% endif %}
                           </td>
                           <td>
                             {% for sign in programs[wp].get('signs') %}
