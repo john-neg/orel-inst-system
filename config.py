@@ -54,8 +54,10 @@ class ApeksConfig(object):
         "mm_work_programs_signs": "mm_work_programs_signs",
         "mm_work_programs_competencies_data": "mm_work_programs_competencies_data",
         "mm_work_programs_competencies_fields": "mm_work_programs_competencies_fields",
+        "plan_competencies": "plan_competencies",
         "plan_disciplines": "plan_disciplines",
         "plan_curriculum_disciplines": "plan_curriculum_disciplines",
+        "plan_curriculum_discipline_competencies": "plan_curriculum_discipline_competencies",
         "plan_education_plans": "plan_education_plans",
         "plan_education_plans_education_forms": "plan_education_plans_education_forms",
         "plan_education_levels": "plan_education_levels",
@@ -321,6 +323,30 @@ class ApeksConfig(object):
 
     # Часовой пояс для правильного отображения времени занятий
     TIMEZONE = pytz.timezone("Europe/Moscow")
+
+    # Словарь для коррекции данных в загружаемых файлах
+    COMP_REPLACE_DICT = {
+        "     ": " ",
+        "    ": " ",
+        "   ": " ",
+        "  ": " ",
+        "–": "-",
+        ". - ": " - ",
+        "K": "К",  # Eng to RUS
+        "O": "О",
+        "A": "А",
+        "B": "В",
+        "C": "С",
+        "H": "Н",
+        "y": "у",
+        ". з.": ".з.",
+        ". у.": ".у.",
+        ". в.": ".в.",
+        ".з .": ".з.",
+        ".у .": ".у.",
+        ".в .": ".в.",
+        "None": "",
+    }
 
 
 # Создание директорий если отсутствуют

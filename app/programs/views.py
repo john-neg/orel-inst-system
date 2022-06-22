@@ -6,7 +6,7 @@ from flask_login import login_required
 
 from app.common.classes.EducationPlan import (
     EducationPlanExtended,
-    EducationPlanWorkProgram,
+    EducationPlanWorkPrograms,
 )
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.exceptions import ApeksWrongParameterException, \
@@ -147,7 +147,7 @@ async def dept_check():
                 plan_disciplines = await get_plan_curriculum_disciplines(
                     plan_id, department_id=department
                 )
-                plan = EducationPlanWorkProgram(
+                plan = EducationPlanWorkPrograms(
                     education_plan_id=plan_id,
                     plan_education_plans=await check_api_db_response(
                         await api_get_db_table(
@@ -194,7 +194,7 @@ async def dates_update():
         if request.form.get("dates_update") and form.validate_on_submit():
             plan_id = request.form.get("edu_plan")
             plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-            plan = EducationPlanWorkProgram(
+            plan = EducationPlanWorkPrograms(
                 education_plan_id=plan_id,
                 plan_education_plans=await check_api_db_response(
                     await api_get_db_table(
@@ -270,7 +270,7 @@ async def program_fields(plan_id):
             else False
         )
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-        plan = EducationPlanWorkProgram(
+        plan = EducationPlanWorkPrograms(
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
@@ -361,7 +361,7 @@ async def field_edit():
 async def program_data(plan_id):
     form = ProgramDataSubmit()
     plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-    plan = EducationPlanWorkProgram(
+    plan = EducationPlanWorkPrograms(
         education_plan_id=plan_id,
         plan_education_plans=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)

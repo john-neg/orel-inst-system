@@ -156,12 +156,12 @@
           {% endblock %}
           <!-- Flash сообщения -->
           <div class="container">
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
                 <div class="row justify-content-center mt-2 mb-2">
                   <div class="col-md-10 col-xl-8 mb-3">
-                    {% for message in messages %}
-                      <div class="alert alert-info text-center" role="alert">
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} text-center" role="alert">
                         <span>{{ message }}<br /></span>
                       </div>
                     {% endfor %}

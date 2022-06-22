@@ -6,6 +6,24 @@ from app.main.func import db_filter_req
 from config import ApeksConfig as Apeks
 
 
+def comps_file_processing(file: str) -> list:
+    """Обработка загруженного файла c компетенциями (to list without first string)"""
+    wb = load_workbook(file)
+    ws = wb.active
+    ws = xlsx_normalize(ws, Apeks.COMP_REPLACE_DICT)
+    comps = list(xlsx_iter_rows(ws))
+    del comps[0]
+    return comps
+
+
+
+
+
+
+
+
+
+
 def disciplines_comp_load(curriculum_discipline_id, competency_id):
     """Загрузка связи дисциплины с компетенцией"""
     params = {"token": Apeks.TOKEN}
@@ -57,17 +75,7 @@ def comp_delete(education_plan_id):
         )
 
 
-def comps_file_processing(filename):
-    """Обработка загруженного файла c компетенциями (to list without first string)"""
-    wb = load_workbook(filename)
-    ws = wb.active
 
-    replace_dict = {"  ": " ", "–": "-", ". - ": " - ", "K": "К", "O": "О"}
-    ws = xlsx_normalize(ws, replace_dict)
-
-    comps = list(xlsx_iter_rows(ws))
-    del comps[0]
-    return comps
 
 
 def create_wp(curriculum_discipline_id):

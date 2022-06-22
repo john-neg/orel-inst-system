@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from app.common.classes.EducationPlan import EducationPlanWorkProgram
+from app.common.classes.EducationPlan import EducationPlanWorkPrograms
 from app.common.exceptions import ApeksParameterNonExistException
 from app.common.func.api_post import work_program_add_parameter
 from app.common.func.app_core import work_program_get_parameter_info
 
 
 async def work_program_view_data(
-        plan: EducationPlanWorkProgram, parameter: str
+        plan: EducationPlanWorkPrograms, parameter: str
 ) -> dict:
     """
     Возвращает список параметров рабочих программ плана.
@@ -15,7 +15,7 @@ async def work_program_view_data(
 
     Parameters
     ----------
-        plan: EducationPlanWorkProgram
+        plan: EducationPlanWorkPrograms
             экземпляр класса EducationPlanWorkProgram
         parameter: str
             параметр поля рабочей программы значение которого нужно вернуть

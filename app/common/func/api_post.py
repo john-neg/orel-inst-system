@@ -84,7 +84,11 @@ async def api_add_to_db_table(
     return endpoint, params, data
 
 
-async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
+async def load_lib_add_field(
+        work_program_id: int | str,
+        field_id: int | str,
+        table_name: str = Apeks.TABLES.get("mm_work_programs_data")
+) -> dict:
     """
     Добавления пустого поля (field) списка литературы в рабочую программу.
 
@@ -94,9 +98,11 @@ async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
             id рабочей программы
         field_id: int | str
             id поля для загрузки данных
+        table_name: str
+            имя таблицы в БД
     """
     response = await api_add_to_db_table(
-        "mm_work_programs_data",
+        table_name,
         work_program_id=work_program_id,
         field_id=field_id,
         data="",
@@ -105,15 +111,85 @@ async def load_lib_add_field(work_program_id: int | str, field_id: int | str):
     return response
 
 
-async def create_work_program(curriculum_discipline_id, name, user_id):
-    """Создание пустой рабочей программы"""
+async def plan_competency_add(
+        education_plan_id: int | str,
+        code: str,
+        description: str,
+        left_node: int | str,
+        right_node: int | str,
+        level: int | str = 1,
+        table_name: str = Apeks.TABLES.get("plan_competencies"),
+) -> dict:
+    """Добавление компетенции в учебный план.
+
+    Parameters
+    ----------
+        education_plan_id: int | str
+            id учебного плана
+        code: str
+            код компетенции
+        description: str
+            описание компетенции
+        left_node: int | str
+            начальная граница сортировки
+        right_node: int | str
+            конечная граница сортировки
+        level: int | str = 1
+            код уровня компетенции
+        table_name: str
+            имя таблицы в БД
+    """
 
     response = await api_add_to_db_table(
-        "mm_work_programs",
+        table_name,
+        education_plan_id=education_plan_id,
+        code=code,
+        description=description,
+        level=level,
+        left_node=left_node,
+        right_node=right_node,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            f"Добавлена компетенция {code} в учебный план: {education_plan_id}."
+        )
+    else:
+        logging.debug(
+            f"Компетенция {code} не добавлена в учебный план: {education_plan_id}."
+        )
+    return response
+
+
+async def create_work_program(
+        curriculum_discipline_id: int | str,
+        name: str,
+        user_id: int | str,
+        status: int | str = 0,
+        table_name: str = Apeks.TABLES.get("mm_work_programs"),
+) -> dict:
+    """
+    Создание пустой рабочей программы.
+
+    Parameters
+    ----------
+        curriculum_discipline_id: int | str
+            id учебной дисциплины
+        name: str
+            название
+        user_id: int | str
+            id пользователя владельца
+        status: int | str
+            статус утверждения
+        table_name: str
+            имя таблицы в БД
+    """
+
+    response = await api_add_to_db_table(
+        table_name,
         curriculum_discipline_id=curriculum_discipline_id,
         name=name,
         user_id=user_id,
-        status=0,
+        status=status,
     )
     if response.get("status") == 1:
         logging.debug(
@@ -128,7 +204,7 @@ async def create_work_program(curriculum_discipline_id, name, user_id):
 
 async def work_program_add_parameter(
     work_program_id: int | str, parameter: str, load_data: str = ""
-):
+) -> dict:
     """
     Добавления пустого поля (parameter) в рабочую программу.
 
@@ -217,7 +293,8 @@ async def load_lib_edit_field(
     field_id: int | str,
     load_data: str,
     check: int | str = 1,
-):
+    table_name: str = Apeks.TABLES.get("mm_work_programs_data"),
+) -> dict:
     """
     Изменения поля поля (field) в рабочей программе.
 
@@ -230,8 +307,11 @@ async def load_lib_edit_field(
         load_data: str
             данные для загрузки
         check: int | str
-            отметка 0 - не проверять поле, если нет данных
+            отметка для статуса логического контроля проверки данных
+            0 - не проверять поле, если нет данных
             по умолчанию - 1
+        table_name: str
+            имя таблицы в БД
     """
     if not load_data:
         load_data = ""
@@ -244,7 +324,7 @@ async def load_lib_edit_field(
         "check": check,
     }
     response = await api_edit_db_table(
-        "mm_work_programs_data",
+        table_name,
         filters,
         fields,
     )
@@ -259,6 +339,7 @@ async def work_programs_dates_update(
     date_academic: str,
     document_academic: str,
     date_approval: str,
+    table_name: str = Apeks.TABLES.get("mm_work_programs"),
 ):
     """
     Обновление информации о рассмотрении и утверждении рабочих программ.
@@ -277,6 +358,8 @@ async def work_programs_dates_update(
             номер протокола заседания ученого совета
         date_approval: str
             дата утверждения
+        table_name: str
+            имя таблицы в БД
     """
     filters = {
         "id": work_program_id,
@@ -289,7 +372,7 @@ async def work_programs_dates_update(
         "date_approval": date_approval,
     }
     response = await api_edit_db_table(
-        "mm_work_programs",
+        table_name,
         filters,
         fields,
     )

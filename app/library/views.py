@@ -4,7 +4,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
-from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkProgram
+from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkPrograms
 from app.common.forms import ChoosePlan
 from app.common.func.api_get import (
     check_api_db_response,
@@ -220,7 +220,7 @@ class LibraryCheckView(View):
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         form = LibraryForm()
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-        plan = EducationPlanWorkProgram(
+        plan = EducationPlanWorkPrograms(
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
@@ -337,7 +337,7 @@ class LibraryUpdateView(View):
     async def dispatch_request(self, plan_id, filename):
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-        plan = EducationPlanWorkProgram(
+        plan = EducationPlanWorkPrograms(
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
@@ -409,7 +409,7 @@ class LibraryExportView(View):
     @login_required
     async def dispatch_request(self, plan_id):
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-        plan = EducationPlanWorkProgram(
+        plan = EducationPlanWorkPrograms(
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(

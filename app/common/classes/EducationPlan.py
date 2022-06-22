@@ -57,7 +57,7 @@ class EducationPlan:
 
 
 @dataclass(repr=False, eq=False)
-class EducationPlanWorkProgram(EducationPlan):
+class EducationPlanWorkPrograms(EducationPlan):
     """
     Сведения об учебном плане и содержащихся в нем дисциплинах
     и рабочих программах.
@@ -142,7 +142,7 @@ class EducationPlanWorkProgram(EducationPlan):
 
 
 @dataclass(repr=False, eq=False)
-class EducationPlanExtended(EducationPlanWorkProgram):
+class EducationPlanExtended(EducationPlanWorkPrograms):
     """
     Расширенные сведения об учебном плане и содержащихся в нем дисциплинах.
 
@@ -245,3 +245,20 @@ class EducationPlanExtended(EducationPlanWorkProgram):
         for data in plan_table_data:
             if data.get(source_field_name) == str(source_field_id):
                 return data.get(target_field_name)
+
+
+@dataclass(repr=False, eq=False)
+class EducationPlanCompetencies(EducationPlan):
+    """
+    Сведения об учебном плане и содержащихся в нем дисциплинах
+    и компетенциях.
+
+
+    Attributes:
+    ----------
+        plan_competencies: list
+            данные из таблицы 'plan_competencies'
+            (информация об уровнях образования)
+    """
+
+    plan_competencies: list

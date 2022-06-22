@@ -283,29 +283,8 @@ class MatrixIndicatorsFile:
 
     def normalize(self):
         """Коррекция ошибок в загруженном файле"""
-        replace_dict = {
-            "     ": " ",
-            "    ": " ",
-            "   ": " ",
-            "  ": " ",
-            "–": "-",
-            ". - ": " - ",
-            "K": "К",  # Eng to RUS
-            "O": "О",
-            "A": "А",
-            "B": "В",
-            "C": "С",
-            "H": "Н",
-            "y": "у",
-            ". з.": ".з.",
-            ". у.": ".у.",
-            ". в.": ".в.",
-            ".з .": ".з.",
-            ".у .": ".у.",
-            ".в .": ".в.",
-            "None": "",
-        }
-        xlsx_normalize(self.ws, replace_dict)
+
+        xlsx_normalize(self.ws, Apeks.COMP_REPLACE_DICT)
 
     def file_errors(self):
         """
