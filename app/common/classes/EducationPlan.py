@@ -256,9 +256,31 @@ class EducationPlanCompetencies(EducationPlan):
 
     Attributes:
     ----------
-        plan_competencies: list
+        plan_competencies: dict
             данные из таблицы 'plan_competencies'
-            (информация об уровнях образования)
+            (информация об компетенциях плана)
+        discipline_competencies: dict
+            данные из таблицы 'plan_curriculum_discipline_competencies'
+            (информация об связях дисциплин и компетенций)
     """
 
-    plan_competencies: list
+    plan_competencies: dict
+    discipline_competencies: dict
+
+    def named_disc_comp_relations(self) -> dict:
+        """
+        Возвращает данные о связях дисциплин и компетенций с названиями.
+
+        Returns
+        -------
+            dict
+                {discipline_name: [comp_name]}
+        """
+        relations = {}
+        for disc in self.discipline_competencies:
+            relations[self.discipline_name(disc)] = [
+                (f"{self.plan_competencies[comp].get('code')} - "
+                 f"{self.plan_competencies[comp].get('description')}")
+                for comp in self.discipline_competencies[disc]
+            ]
+        return relations

@@ -104,8 +104,8 @@
                 <tbody>
                   {% for comp in plan_comp %}
                     <tr>
-                      <td>{{ comp['code'] }}</td>
-                      <td>{{ comp['description'] }}</td>
+                      <td>{{ plan_comp[comp].get('code') }}</td>
+                      <td>{{ plan_comp[comp].get('description') }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>

@@ -61,7 +61,10 @@ def api_get_request_handler(func):
 
 @api_get_request_handler
 async def api_get_db_table(
-    table_name: str, url: str = Apeks.URL, token: str = Apeks.TOKEN, **kwargs
+    table_name: str,
+    url: str = Apeks.URL,
+    token: str = Apeks.TOKEN,
+    **kwargs,
 ):
     """
     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ.
@@ -387,7 +390,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
         staff_dict[int(staff.get("id"))] = {
             "full": f"{family_name} {first_name} {second_name}",
             "short": f"{family_name} {first_name[0]}.{second_name[0]}.",
-            "user_id": staff.get("user_id")
+            "user_id": staff.get("user_id"),
         }
     logging.debug("Информация о преподавателях успешно передана")
     return staff_dict
@@ -568,14 +571,49 @@ async def get_plan_curriculum_disciplines(
             name = disc_name(disc.get("discipline_id"))
             department_id = disc.get("department_id")
             disciplines[int(disc.get("id"))] = {
-                'code': code,
-                'name': name,
-                'department_id': department_id,
+                "code": code,
+                "name": name,
+                "department_id": department_id,
             }
     logging.debug(
         f"Передана информация о дисциплинах " f"education_plan_id: {education_plan_id}"
     )
     return disciplines
+
+
+async def get_plan_discipline_competencies(
+    curriculum_discipline_id: tuple[int | str] | list[int | str],
+) -> dict:
+    """
+    Получение данных о связях дисциплин и компетенций учебного плана
+
+    Parameters
+    ----------
+        curriculum_discipline_id: int | str
+            id учебной дисциплины плана
+
+    Returns
+    ----------
+        dict
+            {curriculum_discipline_id: []}
+    """
+    discipline_competencies = {} #{disc_id: [] for disc_id in curriculum_discipline_id}
+    response = await check_api_db_response(
+        await api_get_db_table(
+            Apeks.TABLES.get("plan_curriculum_discipline_competencies"),
+            curriculum_discipline_id=curriculum_discipline_id,
+        )
+    )
+    for res in response:
+        disc_id = int(res.get("curriculum_discipline_id"))
+        comp_id = int(res.get("competency_id"))
+        # discipline_competencies[disc_id].append(comp_id)
+        discipline_competencies.setdefault(disc_id, []).append(comp_id)
+
+    logging.debug(
+        f"Передана информация о компетенциях учебных дисциплин {curriculum_discipline_id}"
+    )
+    return discipline_competencies
 
 
 async def get_work_programs_data(
@@ -649,10 +687,7 @@ async def get_work_programs_data(
     """
     wp_data = data_processor(
         await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("mm_work_programs"),
-                **kwargs
-            )
+            await api_get_db_table(Apeks.TABLES.get("mm_work_programs"), **kwargs)
         )
     )
     for wp in wp_data:
@@ -741,12 +776,11 @@ async def get_work_programs_data(
                 for item in items:
                     if not wp_data[wp_id]["competency_levels"].get(level_id):
                         wp_data[wp_id]["competency_levels"][level_id] = {}
-                    wp_data[wp_id]["competency_levels"][level_id][item] = level.get(item)
+                    wp_data[wp_id]["competency_levels"][level_id][item] = level.get(
+                        item
+                    )
 
-    logging.debug(
-        "Передана информация о рабочих программах "
-        f"дисциплин {wp_list}"
-    )
+    logging.debug("Передана информация о рабочих программах " f"дисциплин {wp_list}")
     return wp_data
 
 

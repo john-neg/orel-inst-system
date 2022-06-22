@@ -361,7 +361,7 @@ class LibraryUpdateView(View):
                         await load_lib_edit_field(
                             wp_id, lib_items[i], file_data[disc][i], check
                         )
-        flash(f"Данные из файла - '{filename}': успешно загружены")
+        flash(f"Данные из файла - '{filename}': успешно загружены", category='success')
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 
 

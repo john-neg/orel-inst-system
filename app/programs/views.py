@@ -130,7 +130,7 @@ async def dept_check():
         try:
             field_db_table = work_program_field_tb_table(parameter)
         except ApeksWrongParameterException:
-            flash("Передан неверный параметр")
+            flash("Передан неверный параметр", category='danger')
             return redirect(url_for("programs.dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
@@ -259,7 +259,7 @@ async def program_fields(plan_id):
         try:
             field_db_table = work_program_field_tb_table(parameter)
         except ApeksWrongParameterException:
-            flash("Передан неверный параметр")
+            flash("Передан неверный параметр", category='danger')
             return redirect(url_for("programs.dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
@@ -314,7 +314,7 @@ async def field_edit():
             kwargs = {parameter: load_data}
             try:
                 await edit_work_programs_data(program_id, **kwargs)
-                flash("Данные обновлены")
+                flash("Данные обновлены", category='success')
             except ApeksWrongParameterException:
                 if parameter == "department_data":
                     parameter1 = Apeks.MM_WORK_PROGRAMS.get('date_department')
@@ -325,9 +325,9 @@ async def field_edit():
                     p2_data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
                     kwargs = {parameter1: p1_data, parameter2: p2_data}
                     await edit_work_programs_data(program_id, **kwargs)
-                    flash("Данные обновлены")
+                    flash("Данные обновлены", category='success')
                 else:
-                    flash(f"Передан неверный параметр: {parameter}")
+                    flash(f"Передан неверный параметр: {parameter}", category='danger')
 
     form.program_fields.data = parameter
     db_sections = True if parameter in Apeks.MM_SECTIONS else False
@@ -341,7 +341,7 @@ async def field_edit():
         )
     except ApeksWrongParameterException:
         form.field_edit.data = f"ApeksWrongParameterException {work_program_data[program_id]}"
-        flash(f"Передан неверный параметр: {parameter}")
+        flash(f"Передан неверный параметр: {parameter}", category='danger')
     except ApeksParameterNonExistException:
         await work_program_add_parameter(
             program_id, parameter
