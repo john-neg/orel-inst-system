@@ -3,12 +3,23 @@ from openpyxl import load_workbook
 from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
 
 
-def library_file_processing(filename) -> dict:
+def library_file_processing(file: str) -> dict:
     """
-    Обработка загруженного файла c обеспечением
+    Обработка загруженного файла c данными об обеспечении.
     (словарь без первой строки файла).
+
+    Parameters
+    ----------
+        file: str
+            полный путь к файлу с обеспечением для дисциплины
+
+    Returns
+    -------
+        dict
+            {"Название дисциплины": ["данные об обеспечении"]}
+
     """
-    wb = load_workbook(filename)
+    wb = load_workbook(file)
     ws = wb.active
     replace_dict = {
         "  ": " ",

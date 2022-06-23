@@ -252,7 +252,9 @@ class EducationPlanCompetencies(EducationPlan):
     """
     Сведения об учебном плане и содержащихся в нем дисциплинах
     и компетенциях.
-
+    Для правильно работы отчетов сведения из таблицы "plan_curriculum_disciplines"
+    необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
+    с параметром disc_filter=False
 
     Attributes:
     ----------
@@ -262,6 +264,12 @@ class EducationPlanCompetencies(EducationPlan):
         discipline_competencies: dict
             данные из таблицы 'plan_curriculum_discipline_competencies'
             (информация об связях дисциплин и компетенций)
+
+    Methods:
+    -------
+        named_disc_comp_relations()  -> dict:
+            возвращает данные о связях дисциплин и компетенций с названиями.
+
     """
 
     plan_competencies: dict

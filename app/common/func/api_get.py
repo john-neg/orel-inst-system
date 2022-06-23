@@ -527,7 +527,7 @@ async def get_education_plans(
 
 
 async def get_plan_curriculum_disciplines(
-    education_plan_id: int | str, **kwargs
+    education_plan_id: int | str, disc_filter: bool = True, **kwargs
 ) -> dict:
     """
     Получение данных о дисциплинах учебного плана
@@ -536,6 +536,9 @@ async def get_plan_curriculum_disciplines(
     ----------
         education_plan_id: int | str
             id учебного плана
+        disc_filter: bool
+            фильтр удаляет блоки, части блоков и группы дисциплин. Если True,
+            то остаются только фактически изучаемые дисциплины.
         **kwargs
             дополнительные фильтры (например department_id)
 
@@ -544,7 +547,9 @@ async def get_plan_curriculum_disciplines(
         dict
             {curriculum_discipline_id: {'code': code,
                                         'name': name,
-                                        'department_id': department_id}}
+                                        'department_id': department_id
+                                        'level': value
+                                        'left_node: value}}
     """
 
     def disc_name(discipline_id: int) -> str:
@@ -552,7 +557,6 @@ async def get_plan_curriculum_disciplines(
             if discipline.get("id") == discipline_id:
                 return discipline.get("name")
 
-    disciplines = {}
     disciplines_list = await check_api_db_response(
         await api_get_db_table(Apeks.TABLES.get("plan_disciplines"))
     )
@@ -563,18 +567,22 @@ async def get_plan_curriculum_disciplines(
             **kwargs,
         )
     )
+    disciplines = {}
     for disc in plan_disciplines:
-        if str(disc.get("level")) == str(Apeks.DISC_LEVEL) and str(
-            disc.get("type")
-        ) != str(Apeks.DISC_TYPE):
-            code = disc.get("code")
-            name = disc_name(disc.get("discipline_id"))
-            department_id = disc.get("department_id")
-            disciplines[int(disc.get("id"))] = {
-                "code": code,
-                "name": name,
-                "department_id": department_id,
-            }
+        disciplines[int(disc.get("id"))] = {
+            "code": disc.get("code"),
+            "name": disc_name(disc.get("discipline_id")),
+            "department_id": disc.get("department_id"),
+            "level": disc.get("level"),
+            "type": disc.get("type"),
+            "left_node": disc.get("left_node"),
+        }
+    if disc_filter:
+        for disc in [*disciplines]:
+            if str(disciplines[disc].get("level")) != str(Apeks.DISC_LEVEL) or str(
+                disciplines[disc].get("type")
+            ) == str(Apeks.DISC_TYPE):
+                del disciplines[disc]
     logging.debug(
         f"Передана информация о дисциплинах " f"education_plan_id: {education_plan_id}"
     )
@@ -597,17 +605,17 @@ async def get_plan_discipline_competencies(
         dict
             {curriculum_discipline_id: []}
     """
-    discipline_competencies = {} #{disc_id: [] for disc_id in curriculum_discipline_id}
+
     response = await check_api_db_response(
         await api_get_db_table(
             Apeks.TABLES.get("plan_curriculum_discipline_competencies"),
             curriculum_discipline_id=curriculum_discipline_id,
         )
     )
+    discipline_competencies = {}
     for res in response:
         disc_id = int(res.get("curriculum_discipline_id"))
         comp_id = int(res.get("competency_id"))
-        # discipline_competencies[disc_id].append(comp_id)
         discipline_competencies.setdefault(disc_id, []).append(comp_id)
 
     logging.debug(

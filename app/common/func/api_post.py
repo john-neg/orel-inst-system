@@ -160,6 +160,41 @@ async def plan_competency_add(
     return response
 
 
+async def discipline_competency_add(
+        curriculum_discipline_id: int | str,
+        competency_id: int | str,
+        table_name: str = Apeks.TABLES.get("plan_curriculum_discipline_competencies"),
+) -> dict:
+    """Добавление компетенции в учебный план.
+
+    Parameters
+    ----------
+        curriculum_discipline_id: int | str,
+            id дисциплины учебного плана
+        competency_id: int | str
+            id компетенции учебного плана
+        table_name: str
+            имя таблицы в БД
+    """
+    response = await api_add_to_db_table(
+        table_name,
+        curriculum_discipline_id=curriculum_discipline_id,
+        competency_id=competency_id,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            f"Добавлена связь дисциплины ({curriculum_discipline_id}) "
+            f"и компетенции ({competency_id})."
+        )
+    else:
+        logging.debug(
+            f"Не удалось добавить связь дисциплины ({curriculum_discipline_id}) "
+            f"и компетенции ({competency_id})."
+        )
+    return response
+
+
+
 async def create_work_program(
         curriculum_discipline_id: int | str,
         name: str,

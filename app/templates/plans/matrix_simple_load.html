@@ -64,16 +64,24 @@
           <div class="col-md-10 col-xl-8 mb-3">
             {{ form.file_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
           </div>
-          {% if comp_code_errors %}
+          {% if comp_not_in_plan %}
             <div class="col-md-10 col-xl-8">
               <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
                 <h6 class="alert-heading fw-bold text-center">Коды компетенций файла, которые не найдены в плане</h6>
-                <span>{{ ', '.join(comp_code_errors) }}</span>
+                <span>{{ ', '.join(comp_not_in_plan) }}</span>
+              </div>
+            </div>
+          {% endif %}
+          {% if comp_not_in_file %}
+            <div class="col-md-10 col-xl-8">
+              <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+                <h6 class="alert-heading fw-bold text-center">Коды компетенций плана, которые не найдены в файле</h6>
+                <span>{{ ', '.join(comp_not_in_file) }}</span>
               </div>
             </div>
           {% endif %}
         </div>
-        {% if report %}
+        {% if match_data %}
           <div class="row justify-content-center">
             <div class="col-md-10 col-xl-8">
               <div class="card shadow">
@@ -90,15 +98,15 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for disc in report %}
+                        {% for disc in match_data %}
                           <tr>
                             <td>{{ disc }}</td>
-                            {% if report[disc] == ['None'] %}
+                            {% if match_data[disc].get('comps') %}
+                              <td>{{ ', '.join(match_data[disc]['comps']) }}</td>
+                            {% elif 'comps' in match_data[disc] %}
                               <td class="fw-bold text-danger">Нет связей в файле</td>
-                            {% elif not report[disc] %}
-                              <td class="fw-bold text-danger">Отсутствует в файле </td>
                             {% else %}
-                              <td>{{ ', '.join(report[disc]) }}</td>
+                              <td class="fw-bold text-danger">Отсутствует в файле </td>
                             {% endif %}
                           </tr>
                         {% endfor %}
@@ -115,12 +123,12 @@
               </div>
             </div>
           </div>
-        {% endif %}
-        <div class="row justify-content-center mb-2">
-          <div class="col-md-10 col-xl-8 mb-3">
-            {{ form.file_load(class="btn btn-success link-light mt-2", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          <div class="row justify-content-center mb-2">
+            <div class="col-md-10 col-xl-8 mb-3">
+              {{ form.file_load(class="btn btn-success link-light mt-2", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
           </div>
-        </div>
+        {% endif %}
       {% endif %}
     </div>
 </form>
