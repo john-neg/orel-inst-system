@@ -14,7 +14,7 @@ from app.common.func.api_get import (
     get_plan_education_specialties,
     get_education_plans,
 )
-from app.common.func.api_post import load_lib_add_field, load_lib_edit_field
+from library.func import load_lib_add_field, load_lib_edit_field
 from app.common.func.app_core import allowed_file
 from app.common.reports.library_report import library_report
 from app.library import bp

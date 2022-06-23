@@ -8,34 +8,27 @@ from app.common.forms import ChoosePlan
 from app.common.func.api_get import (
     get_plan_education_specialties,
     get_education_plans,
-    check_api_db_response,
-    api_get_db_table,
-    get_plan_curriculum_disciplines,
-    get_work_programs_data,
-    get_plan_discipline_competencies,
 )
-from app.common.func.app_core import allowed_file, data_processor
+from app.common.func.app_core import allowed_file
 from app.plans import bp
-from app.plans.func import comps_file_processing, disciplines_comp_load, \
-    matrix_simple_file_processor
-from app.plans.models import CompPlan, MatrixIndicatorsFile
-from app.plans.models import WorkProgramProcessing
-from common.classes.EducationPlan import EducationPlanCompetencies
-from common.func.api_delete import (
-    plan_competencies_del,
-    work_programs_competencies_del,
-    plan_disciplines_competencies_del,
+from app.plans.func import (
+    comps_file_processing,
+    plan_competencies_data_delete, get_plan_competency_instance,
 )
-from common.func.api_post import plan_competency_add, discipline_competency_add
+from app.plans.models import MatrixIndicatorsFile
+from common.classes.PlanMatrixProcessor import PlanMatrixProcessor
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
+from config import FlaskConfig
 from plans.forms import (
     CompLoadForm,
-    IndicatorsFile,
+    IndicatorsFileForm,
     MatrixIndicatorForm,
     MatrixSimpleForm,
 )
-
-from config import FlaskConfig, ApeksConfig as Apeks
+from plans.func import (
+    plan_competency_add,
+    discipline_competency_add,
+)
 
 
 class PlanChoosePlanView(View):
@@ -105,30 +98,12 @@ bp.add_url_rule(
 @login_required
 async def competencies_load(plan_id):
     form = CompLoadForm()
-    plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-    plan = EducationPlanCompetencies(
-        education_plan_id=plan_id,
-        plan_education_plans=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
-        ),
-        plan_curriculum_disciplines=plan_disciplines,
-        plan_competencies=data_processor(
-            await check_api_db_response(
-                await api_get_db_table(
-                    Apeks.TABLES.get("plan_competencies"), education_plan_id=plan_id
-                )
-            )
-        ),
-        discipline_competencies=await get_plan_discipline_competencies(
-            [*plan_disciplines]
-        ),
-    )
+    plan = await get_plan_competency_instance(plan_id)
     file, comps = None, None
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         comps = comps_file_processing(file)
-
     if request.method == "POST":
         # Шаблон
         if request.form.get("data_template"):
@@ -137,24 +112,14 @@ async def competencies_load(plan_id):
             )
         # Полная очистка
         if request.form.get("data_delete"):
-            work_programs_data = await get_work_programs_data(
-                curriculum_discipline_id=[*plan_disciplines]
+            message = await plan_competencies_data_delete(
+                plan_id,
+                plan.plan_curriculum_disciplines,
+                plan_comp=True,
+                relations=True,
+                work_program=True,
             )
-            wp_resp = await work_programs_competencies_del(
-                work_program_id=[*work_programs_data]
-            )
-            disc_resp = await plan_disciplines_competencies_del(
-                curriculum_discipline_id=[*plan_disciplines]
-            )
-            plan_resp = await plan_competencies_del(education_plan_id=plan_id)
-            flash(
-                "Произведена очистка компетенций. "
-                "Количество удаленных записей "
-                f"в рабочих программах - {wp_resp.get('data')}, "
-                f"связей с дисциплинами - {disc_resp.get('data')}, "
-                f"компетенций - {plan_resp.get('data')}.",
-                category="success",
-            )
+            flash(message, category="success")
             return redirect(
                 url_for("plans.competencies_load", plan_id=plan_id, filename=filename)
             )
@@ -199,55 +164,31 @@ async def competencies_load(plan_id):
 @login_required
 async def matrix_simple_load(plan_id):
     form = MatrixSimpleForm()
-    plan_disciplines = await get_plan_curriculum_disciplines(plan_id, disc_filter=False)
-    plan = EducationPlanCompetencies(
-        education_plan_id=plan_id,
-        plan_education_plans=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
-        ),
-        plan_curriculum_disciplines=plan_disciplines,
-        plan_competencies=data_processor(
-            await check_api_db_response(
-                await api_get_db_table(
-                    Apeks.TABLES.get("plan_competencies"), education_plan_id=plan_id
-                )
-            )
-        ),
-        discipline_competencies=await get_plan_discipline_competencies(
-            [*plan_disciplines]
-        ),
-    )
+    plan = await get_plan_competency_instance(plan_id)
     file, match_data, comp_not_in_file, comp_not_in_plan = None, None, None, None
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        match_data, comp_not_in_file, comp_not_in_plan = matrix_simple_file_processor(plan, file)
-
+        processor = PlanMatrixProcessor(plan, file)
+        comp_not_in_file = processor.comp_not_in_file()
+        comp_not_in_plan = processor.comp_not_in_plan()
+        match_data = processor.matrix_simple_match_data()
     if request.method == "POST":
         # Текущая матрица
         if request.form.get("make_matrix"):
             return redirect(
-                url_for(
-                    "main.get_file", filename=generate_plans_comp_matrix(plan)
-                )
+                url_for("main.get_file", filename=generate_plans_comp_matrix(plan))
             )
         # Удаление связей
         if request.form.get("data_delete"):
-            work_programs_data = await get_work_programs_data(
-                curriculum_discipline_id=[*plan_disciplines]
+            message = await plan_competencies_data_delete(
+                plan_id,
+                plan.plan_curriculum_disciplines,
+                plan_comp=False,
+                relations=True,
+                work_program=True,
             )
-            wp_resp = await work_programs_competencies_del(
-                work_program_id=[*work_programs_data]
-            )
-            disc_resp = await plan_disciplines_competencies_del(
-                curriculum_discipline_id=[*plan_disciplines]
-            )
-            flash(
-                "Произведена очистка компетенций. Количество удаленных записей "
-                f"в рабочих программах - {wp_resp.get('data')}, "
-                f"связей с дисциплинами - {disc_resp.get('data')}.",
-                category="success")
-            flash("Все связи удалены", category="success")
+            flash(message, category="success")
             return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
         if request.files["file"]:
             file = request.files["file"]
@@ -266,17 +207,14 @@ async def matrix_simple_load(plan_id):
         # Загрузка связей
         if request.form.get("file_load"):
             for disc in match_data:
-                if match_data[disc].get('comps'):
-                    for comp in match_data[disc].get('comps'):
+                if match_data[disc].get("comps"):
+                    for comp in match_data[disc].get("comps"):
                         await discipline_competency_add(
-                            match_data[disc].get('id'),
-                            match_data[disc]['comps'][comp]
+                            match_data[disc].get("id"), match_data[disc]["comps"][comp]
                         )
             os.remove(file)
             flash("Данные успешно загружены", category="success")
-            return redirect(
-                url_for("plans.matrix_simple_load", plan_id=plan_id))
-
+            return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
     return render_template(
         "plans/matrix_simple_load.html",
         active="plans",
@@ -291,9 +229,17 @@ async def matrix_simple_load(plan_id):
 
 @bp.route("/matrix_indicator_load/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-def matrix_indicator_load(plan_id):
-    plan = CompPlan(plan_id)
+async def matrix_indicator_load(plan_id):
     form = MatrixIndicatorForm()
+    plan = await get_plan_competency_instance(plan_id)
+    file, match_data, comp_not_in_file, comp_not_in_plan = None, None, None, None
+    filename = request.args.get("filename")
+    if filename:
+        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        processor = PlanMatrixProcessor(plan, file)
+        comp_not_in_file = processor.comp_not_in_file()
+        comp_not_in_plan = processor.comp_not_in_plan()
+
     if request.method == "POST":
         # Шаблон
         if request.form.get("data_template"):
@@ -302,11 +248,19 @@ def matrix_indicator_load(plan_id):
             )
         # Текущая матрица
         if request.form.get("make_matrix"):
-            return redirect(url_for("main.get_file", filename=plan.matrix_generate()))
+            return redirect(
+                url_for("main.get_file", filename=generate_plans_comp_matrix(plan))
+            )
         # Удаление связей
         if request.form.get("data_delete"):
-            plan.matrix_delete()
-            flash("Все связи удалены", category="success")
+            message = await plan_competencies_data_delete(
+                plan_id,
+                plan.plan_curriculum_disciplines,
+                plan_comp=False,
+                relations=True,
+                work_program=True,
+            )
+            flash(message, category="success")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
         if request.files["file"]:
             file = request.files["file"]
@@ -317,160 +271,197 @@ def matrix_indicator_load(plan_id):
                 if request.form.get("file_check"):
                     return redirect(
                         url_for(
-                            "plans.matrix_indicator_check",
-                            plan_id=plan_id,
-                            filename=filename,
-                        )
-                    )
-    return render_template(
-        "plans/matrix_indicator_load.html",
-        active="plans",
-        form=form,
-        plan_name=plan.name,
-        plan_relations=plan.disciplines_comp_dict(),
-    )
-
-
-@bp.route(
-    "/matrix_indicator_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"]
-)
-@login_required
-def matrix_indicator_check(plan_id, filename):
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
-    plan = CompPlan(plan_id)
-    matrix = MatrixIndicatorsFile(file)
-    form = MatrixIndicatorForm()
-
-    # File check
-    report = {}
-    for disc_id in plan.disciplines:
-        discipline_name = plan.discipline_name(disc_id)
-        if matrix.find_discipline(discipline_name):
-            comp_data = matrix.disc_comp(discipline_name)
-            if comp_data:
-                report[discipline_name] = list(comp_data.keys())
-            else:
-                report[discipline_name] = ["None"]
-        else:
-            report[discipline_name] = []
-    # Comp check
-    no_comp_list = []
-    matrix_comp_list = matrix.comp_list()
-    plan_comp_list = plan.get_comp_list()
-    for comp in matrix_comp_list:
-        if comp not in plan_comp_list:
-            no_comp_list.append(comp)
-
-    def disc_load_ids(curriculum_discipline_id):
-        """Получение ID компетенций плана для дисциплины для загрузки."""
-        disc_comp_load = []
-        disc_name = plan.discipline_name(curriculum_discipline_id)
-        compet_data = matrix.disc_comp(disc_name)
-        for compet in compet_data:
-            for v in range(len(plan.competencies)):
-                if compet == plan.competencies[v]["code"]:
-                    disc_comp_load.append(plan.competencies[v]["id"])
-        return disc_comp_load
-
-    def disc_comp_upload(curriculum_discipline_id):
-        """Загрузка связей дисциплин и компетенций из файла в план."""
-        for compet in disc_load_ids(curriculum_discipline_id):
-            disciplines_comp_load(curriculum_discipline_id, compet)
-
-    def work_program_load(curriculum_discipline_id):
-        """Загрузка индикаторов в программу"""
-        wp = WorkProgramProcessing(curriculum_discipline_id)
-        wp.comp_data_del()
-        disc_name = plan.discipline_name(curriculum_discipline_id)
-        compet_data = matrix.disc_comp(disc_name)
-        fields = {1: "knowledge", 2: "abilities", 3: "ownerships"}
-        knowledge, abilities, ownerships = [], [], []
-
-        for compet in compet_data.keys():
-            for v in range(len(plan.competencies)):
-                if compet == plan.competencies[v]["code"]:
-                    competency_id = plan.competencies[v]["id"]
-                    for f in fields:
-                        value = ";\n".join(compet_data[compet][fields[f]])
-                        if value:
-                            wp.comp_data_add(competency_id, f, value)
-
-            knowledge += compet_data[compet]["knowledge"]
-            abilities += compet_data[compet]["abilities"]
-            ownerships += compet_data[compet]["ownerships"]
-
-        wp.comp_level_edit(
-            ";\n".join(knowledge), ";\n".join(abilities), ";\n".join(ownerships)
-        )
-
-    if request.method == "POST":
-        # Шаблон
-        if request.form.get("data_template"):
-            return redirect(
-                url_for("main.get_temp_file", filename="matrix_ind_temp.xlsx")
-            )
-        # Текущая матрица
-        if request.form.get("make_matrix"):
-            return redirect(url_for("main.get_file", filename=plan.matrix_generate()))
-        # Удаление связей
-        if request.form.get("data_delete"):
-            plan.matrix_delete()
-            flash("Все связи удалены", category="success")
-            return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
-        if request.files["file"]:
-            file = request.files["file"]
-            if file and allowed_file(file.filename):
-                filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                # Проверка файла
-                if request.form.get("file_check"):
-                    return redirect(
-                        url_for(
-                            "plans.matrix_indicator_check",
+                            "plans.matrix_indicator_load",
                             plan_id=plan_id,
                             filename=filename,
                         )
                     )
         if request.form.get("file_load"):
-            if request.form.get("switch_relations") and request.form.get(
-                "switch_programs"
-            ):
-                for disc_id in plan.disciplines.keys():
-                    disc_comp_upload(disc_id)
-                    work_program_load(disc_id)
-                flash("Связи и программы обновлены", category="success")
-            elif request.form.get("switch_relations"):
-                for disc_id in plan.disciplines.keys():
-                    disc_comp_upload(disc_id)
-                flash("Связи обновлены", category="success")
-            elif request.form.get("switch_programs"):
-                for disc_id in plan.disciplines.keys():
-                    work_program_load(disc_id)
-                flash("Программы обновлены", category="success")
-            else:
-                flash(
-                    "Ничего не загружено, т.к. все опции были выключены",
-                    category="warning",
-                )
-            os.remove(file)
+            # if request.form.get("switch_relations") and request.form.get(
+            #         "switch_programs"
+            # ):
+            #     for disc_id in plan.disciplines.keys():
+            #         disc_comp_upload(disc_id)
+            #         work_program_load(disc_id)
+            #     flash("Связи и программы обновлены", category="success")
+            # elif request.form.get("switch_relations"):
+            #     for disc_id in plan.disciplines.keys():
+            #         disc_comp_upload(disc_id)
+            #     flash("Связи обновлены", category="success")
+            # elif request.form.get("switch_programs"):
+            #     for disc_id in plan.disciplines.keys():
+            #         work_program_load(disc_id)
+            #     flash("Программы обновлены", category="success")
+            # else:
+            #     flash(
+            #         "Ничего не загружено, т.к. все опции были выключены",
+            #         category="warning",
+            #     )
+            # os.remove(file)
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
+        # return render_template(
+        #     "plans/matrix_indicator_load.html",
+        #     active="plans",
+        #     form=form,
+        #     filename=filename,
+        #     plan_name=plan.name,
+        #     plan_relations=plan.disciplines_comp_dict(),
+        #     report=report,
+        #     file_errors=matrix.file_errors(),
+        #     no_comp_list=no_comp_list,
+        # )
     return render_template(
         "plans/matrix_indicator_load.html",
         active="plans",
         form=form,
-        filename=filename,
         plan_name=plan.name,
-        plan_relations=plan.disciplines_comp_dict(),
-        report=report,
-        file_errors=matrix.file_errors(),
-        no_comp_list=no_comp_list,
+        plan_relations=plan.named_disc_comp_relations(),
+        match_data=match_data,
+        comp_not_in_file=comp_not_in_file,
+        comp_not_in_plan=comp_not_in_plan,
     )
+
+
+# @bp.route(
+#     "/matrix_indicator_check/<int:plan_id>/<string:filename>", methods=["GET", "POST"]
+# )
+# @login_required
+# def matrix_indicator_check(plan_id, filename):
+#     file = FlaskConfig.UPLOAD_FILE_DIR + filename
+#     plan = CompPlan(plan_id)
+#     matrix = MatrixIndicatorsFile(file)
+#     form = MatrixIndicatorForm()
+#
+#     # File check
+#     report = {}
+#     for disc_id in plan.disciplines:
+#         discipline_name = plan.discipline_name(disc_id)
+#         if matrix.find_discipline(discipline_name):
+#             comp_data = matrix.disc_comp(discipline_name)
+#             if comp_data:
+#                 report[discipline_name] = list(comp_data.keys())
+#             else:
+#                 report[discipline_name] = ["None"]
+#         else:
+#             report[discipline_name] = []
+#     # Comp check
+#     no_comp_list = []
+#     matrix_comp_list = matrix.comp_list()
+#     plan_comp_list = plan.get_comp_list()
+#     for comp in matrix_comp_list:
+#         if comp not in plan_comp_list:
+#             no_comp_list.append(comp)
+#
+#     def disc_load_ids(curriculum_discipline_id):
+#         """Получение ID компетенций плана для дисциплины для загрузки."""
+#         disc_comp_load = []
+#         disc_name = plan.discipline_name(curriculum_discipline_id)
+#         compet_data = matrix.disc_comp(disc_name)
+#         for compet in compet_data:
+#             for v in range(len(plan.competencies)):
+#                 if compet == plan.competencies[v]["code"]:
+#                     disc_comp_load.append(plan.competencies[v]["id"])
+#         return disc_comp_load
+#
+#     def disc_comp_upload(curriculum_discipline_id):
+#         """Загрузка связей дисциплин и компетенций из файла в план."""
+#         for compet in disc_load_ids(curriculum_discipline_id):
+#             disciplines_comp_load(curriculum_discipline_id, compet)
+#
+#     def work_program_load(curriculum_discipline_id):
+#         """Загрузка индикаторов в программу"""
+#         wp = WorkProgramProcessing(curriculum_discipline_id)
+#         wp.comp_data_del()
+#         disc_name = plan.discipline_name(curriculum_discipline_id)
+#         compet_data = matrix.disc_comp(disc_name)
+#         fields = {1: "knowledge", 2: "abilities", 3: "ownerships"}
+#         knowledge, abilities, ownerships = [], [], []
+#
+#         for compet in compet_data.keys():
+#             for v in range(len(plan.competencies)):
+#                 if compet == plan.competencies[v]["code"]:
+#                     competency_id = plan.competencies[v]["id"]
+#                     for f in fields:
+#                         value = ";\n".join(compet_data[compet][fields[f]])
+#                         if value:
+#                             wp.comp_data_add(competency_id, f, value)
+#
+#             knowledge += compet_data[compet]["knowledge"]
+#             abilities += compet_data[compet]["abilities"]
+#             ownerships += compet_data[compet]["ownerships"]
+#
+#         wp.comp_level_edit(
+#             ";\n".join(knowledge), ";\n".join(abilities), ";\n".join(ownerships)
+#         )
+#
+#     if request.method == "POST":
+#         # Шаблон
+#         if request.form.get("data_template"):
+#             return redirect(
+#                 url_for("main.get_temp_file", filename="matrix_ind_temp.xlsx")
+#             )
+#         # Текущая матрица
+#         if request.form.get("make_matrix"):
+#             return redirect(url_for("main.get_file", filename=plan.matrix_generate()))
+#         # Удаление связей
+#         if request.form.get("data_delete"):
+#             plan.matrix_delete()
+#             flash("Все связи удалены", category="success")
+#             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
+#         if request.files["file"]:
+#             file = request.files["file"]
+#             if file and allowed_file(file.filename):
+#                 filename = file.filename
+#                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+#                 # Проверка файла
+#                 if request.form.get("file_check"):
+#                     return redirect(
+#                         url_for(
+#                             "plans.matrix_indicator_check",
+#                             plan_id=plan_id,
+#                             filename=filename,
+#                         )
+#                     )
+#         if request.form.get("file_load"):
+#             if request.form.get("switch_relations") and request.form.get(
+#                 "switch_programs"
+#             ):
+#                 for disc_id in plan.disciplines.keys():
+#                     disc_comp_upload(disc_id)
+#                     work_program_load(disc_id)
+#                 flash("Связи и программы обновлены", category="success")
+#             elif request.form.get("switch_relations"):
+#                 for disc_id in plan.disciplines.keys():
+#                     disc_comp_upload(disc_id)
+#                 flash("Связи обновлены", category="success")
+#             elif request.form.get("switch_programs"):
+#                 for disc_id in plan.disciplines.keys():
+#                     work_program_load(disc_id)
+#                 flash("Программы обновлены", category="success")
+#             else:
+#                 flash(
+#                     "Ничего не загружено, т.к. все опции были выключены",
+#                     category="warning",
+#                 )
+#             os.remove(file)
+#             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
+#     return render_template(
+#         "plans/matrix_indicator_load.html",
+#         active="plans",
+#         form=form,
+#         filename=filename,
+#         plan_name=plan.name,
+#         plan_relations=plan.disciplines_comp_dict(),
+#         report=report,
+#         file_errors=matrix.file_errors(),
+#         no_comp_list=no_comp_list,
+#     )
 
 
 @bp.route("/matrix_indicator_file_upload", methods=["GET", "POST"])
 @login_required
 def matrix_indicator_file_upload():
-    form = IndicatorsFile()
+    form = IndicatorsFileForm()
     if request.method == "POST":
         if request.files["file"]:
             file = request.files["file"]
@@ -491,7 +482,7 @@ def matrix_indicator_file_upload():
 @bp.route("/matrix_indicator_file_check/<string:filename>", methods=["GET", "POST"])
 @login_required
 def matrix_indicator_file_check(filename):
-    form = IndicatorsFile()
+    form = IndicatorsFileForm()
     file = FlaskConfig.UPLOAD_FILE_DIR + filename
     matrix = MatrixIndicatorsFile(file)
     if request.method == "POST":

@@ -348,6 +348,8 @@ class ApeksConfig(object):
         "None": "",
     }
 
+    INDICATOR_SPLIT_REGEX = '\.[а-я]\.'
+
 
 # Создание директорий если отсутствуют
 for local_directory in (

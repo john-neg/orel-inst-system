@@ -24,15 +24,12 @@ from app.common.func.api_get import (
     get_work_programs_data,
     get_state_staff,
 )
-from app.common.func.api_post import (
-    work_programs_dates_update,
-    edit_work_programs_data,
-    create_work_program, work_program_add_parameter,
-)
 from app.common.func.app_core import (
     data_processor,
-    work_program_field_tb_table,
-    work_program_get_parameter_info, )
+)
+from programs.func import work_program_field_tb_table, work_program_get_parameter_info, \
+    create_work_program, work_program_add_parameter, work_programs_dates_update, \
+    edit_work_programs_data
 from app.common.reports.program_title_pages import generate_program_title_pages
 from app.programs import bp
 from app.programs.forms import (

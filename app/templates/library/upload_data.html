@@ -38,6 +38,8 @@
       <div class="col-md-10 col-xl-8 mb-3">
         {{ form.library_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
       </div>
+    </div>
+    <div class="row justify-content-center">
       <div class="col-md-10 col-xl-8">
         {% if no_data %}
           <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
@@ -72,20 +74,20 @@
               {% endfor %}
           </div>
         {% endif %}
-        {% if work_programs %}
+      </div>
+      {% if work_programs %}
+        <div class="col-md-10 col-xl-8">
           <div class="alert alert-success text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">Будет(ут) загружена(ы) <strong>{{ lib_type_name }}</strong> для следующих программ:</h6>
               {% for prog in work_programs %}
                 <span>{{ prog }}<br></span>
               {% endfor %}
           </div>
-        {% endif %}
-      </div>
-    </div>
-    <div class="row justify-content-center mt-2 mb-2">
-      <div class="col-md-10 col-xl-8 mb-3">
-        {{ form.library_update(class="btn btn-success link-light", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
-      </div>
+        </div>
+        <div class="col-md-10 col-xl-8 mt-2 mb-3">
+          {{ form.library_update(class="btn btn-success link-light", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+        </div>
+      {% endif %}
     </div>
   </div>
 </form>

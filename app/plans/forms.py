@@ -24,7 +24,7 @@ class MatrixIndicatorForm(PlanForm):
     switch_programs = SubmitField("Загружать индикаторы в программы")
 
 
-class IndicatorsFile(FlaskForm):
+class IndicatorsFileForm(FlaskForm):
     file = FileField('Выберите файл Excel с индикаторами (из Google форм)')
     file_check = SubmitField("Проверка данных в файле")
     generate_report = SubmitField("Скачать список индикаторов в формате docx")

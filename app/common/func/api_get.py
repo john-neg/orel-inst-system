@@ -790,22 +790,3 @@ async def get_work_programs_data(
 
     logging.debug("Передана информация о рабочих программах " f"дисциплин {wp_list}")
     return wp_data
-
-
-# import asyncio
-# from pprint import pprint
-#
-#
-# async def main():
-#     pprint(await get_work_programs_data(
-#         [11234],
-#         )
-#     )
-#     # pprint(await get_plan_curriculum_disciplines(
-#     #     education_plan_id=133,
-#     # ))
-#
-# if __name__ == '__main__':
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(main())
-#     loop.close()
