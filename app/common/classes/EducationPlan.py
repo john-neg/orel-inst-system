@@ -142,6 +142,82 @@ class EducationPlanWorkPrograms(EducationPlan):
 
 
 @dataclass(repr=False, eq=False)
+class EducationPlanCompetencies(EducationPlan):
+    """
+    Сведения об учебном плане и содержащихся в нем дисциплинах
+    и компетенциях.
+    Для правильной работы отчетов сведения из таблицы "plan_curriculum_disciplines"
+    необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
+    с параметром disc_filter=False
+
+    Attributes:
+    ----------
+        plan_competencies: dict
+            данные из таблицы 'plan_competencies'
+            (информация о компетенциях плана)
+        discipline_competencies: dict
+            данные из таблицы 'plan_curriculum_discipline_competencies'
+            (информация о связях дисциплин и компетенций)
+
+    Methods:
+    -------
+        named_disc_comp_relations()  -> dict:
+            возвращает данные о связях дисциплин и компетенций с названиями.
+
+    """
+
+    plan_competencies: dict
+    discipline_competencies: dict
+
+    def named_disc_comp_relations(self) -> dict:
+        """
+        Возвращает данные о связях дисциплин и компетенций с названиями.
+
+        Returns
+        -------
+            dict
+                {discipline_name: [comp_name]}
+        """
+        relations = {}
+        for disc in self.discipline_competencies:
+            relations[self.discipline_name(disc)] = [
+                (f"{self.plan_competencies[comp].get('code')} - "
+                 f"{self.plan_competencies[comp].get('description')}")
+                for comp in self.discipline_competencies[disc]
+            ]
+        return relations
+
+
+@dataclass(repr=False, eq=False)
+class EducationPlanIndicators(EducationPlanCompetencies, EducationPlanWorkPrograms):
+    """
+    Сведения об учебном плане, содержащихся в нем дисциплинах, компетенциях
+    рабочих программах.
+    Для правильно работы отчетов сведения из таблицы "plan_curriculum_disciplines"
+    необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
+    с параметром disc_filter=False
+
+    Attributes:
+    ----------
+        mm_competency_levels: list
+            данные из таблицы 'mm_competency_levels'
+            (информация о уровнях компетенций рабочих программ плана)
+        plan_control_works: list
+            данные из таблицы 'plan_control_works'
+            (информация об установленных в плане для учебных дисциплин
+            формах контроля и семестрах)
+
+    Methods:
+    -------
+        named_disc_comp_relations()  -> dict:
+
+
+    """
+
+    plan_control_works: dict
+
+
+@dataclass(repr=False, eq=False)
 class EducationPlanExtended(EducationPlanWorkPrograms):
     """
     Расширенные сведения об учебном плане и содержащихся в нем дисциплинах.
@@ -245,50 +321,3 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
         for data in plan_table_data:
             if data.get(source_field_name) == str(source_field_id):
                 return data.get(target_field_name)
-
-
-@dataclass(repr=False, eq=False)
-class EducationPlanCompetencies(EducationPlan):
-    """
-    Сведения об учебном плане и содержащихся в нем дисциплинах
-    и компетенциях.
-    Для правильно работы отчетов сведения из таблицы "plan_curriculum_disciplines"
-    необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
-    с параметром disc_filter=False
-
-    Attributes:
-    ----------
-        plan_competencies: dict
-            данные из таблицы 'plan_competencies'
-            (информация об компетенциях плана)
-        discipline_competencies: dict
-            данные из таблицы 'plan_curriculum_discipline_competencies'
-            (информация об связях дисциплин и компетенций)
-
-    Methods:
-    -------
-        named_disc_comp_relations()  -> dict:
-            возвращает данные о связях дисциплин и компетенций с названиями.
-
-    """
-
-    plan_competencies: dict
-    discipline_competencies: dict
-
-    def named_disc_comp_relations(self) -> dict:
-        """
-        Возвращает данные о связях дисциплин и компетенций с названиями.
-
-        Returns
-        -------
-            dict
-                {discipline_name: [comp_name]}
-        """
-        relations = {}
-        for disc in self.discipline_competencies:
-            relations[self.discipline_name(disc)] = [
-                (f"{self.plan_competencies[comp].get('code')} - "
-                 f"{self.plan_competencies[comp].get('description')}")
-                for comp in self.discipline_competencies[disc]
-            ]
-        return relations

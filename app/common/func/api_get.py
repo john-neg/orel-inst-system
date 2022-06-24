@@ -545,7 +545,8 @@ async def get_plan_curriculum_disciplines(
     Returns
     ----------
         dict
-            {curriculum_discipline_id: {'code': code,
+            {curriculum_discipline_id: {'id': id,
+                                        'code': code,
                                         'name': name,
                                         'department_id': department_id
                                         'level': value
@@ -570,6 +571,7 @@ async def get_plan_curriculum_disciplines(
     disciplines = {}
     for disc in plan_disciplines:
         disciplines[int(disc.get("id"))] = {
+            "id": int(disc.get("id")),
             "code": disc.get("code"),
             "name": disc_name(disc.get("discipline_id")),
             "department_id": disc.get("department_id"),
@@ -591,6 +593,7 @@ async def get_plan_curriculum_disciplines(
 
 async def get_plan_discipline_competencies(
     curriculum_discipline_id: tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("plan_curriculum_discipline_competencies")
 ) -> dict:
     """
     Получение данных о связях дисциплин и компетенций учебного плана
@@ -599,6 +602,8 @@ async def get_plan_discipline_competencies(
     ----------
         curriculum_discipline_id: int | str
             id учебной дисциплины плана
+        table_name: str
+            имя_таблицы
 
     Returns
     ----------
@@ -608,7 +613,7 @@ async def get_plan_discipline_competencies(
 
     response = await check_api_db_response(
         await api_get_db_table(
-            Apeks.TABLES.get("plan_curriculum_discipline_competencies"),
+            table_name,
             curriculum_discipline_id=curriculum_discipline_id,
         )
     )
@@ -779,8 +784,7 @@ async def get_work_programs_data(
             for level in comp_levels:
                 wp_id = int(level.get("work_program_id"))
                 level_id = int(level.get("level"))
-                not_include = {"id", "work_program_id"}
-                items = [item for item in [*level] if item not in not_include]
+                items = [item for item in [*level]]
                 for item in items:
                     if not wp_data[wp_id]["competency_levels"].get(level_id):
                         wp_data[wp_id]["competency_levels"][level_id] = {}

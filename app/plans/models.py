@@ -66,8 +66,8 @@ class CompPlan(EducationPlan):
             "fields[code]": code,
             "fields[description]": description,
             "fields[level]": "1",
-            "fields[left_node]": str(left_node),
-            "fields[right_node]": str(right_node),
+            "fields[left_node]": left_node,
+            "fields[right_node]": right_node,
         }
         load = requests.post(
             Apeks.URL + "/api/call/system-database/add", params=params, data=data

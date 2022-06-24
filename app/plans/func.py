@@ -21,7 +21,8 @@ from config import ApeksConfig as Apeks
 
 
 def comps_file_processing(file: str) -> list:
-    """Обработка загруженного файла c компетенциями.
+    """
+    Обработка загруженного файла c компетенциями.
 
     Parameters
     ----------
@@ -77,7 +78,8 @@ async def plan_competency_add(
     level: int | str = 1,
     table_name: str = Apeks.TABLES.get("plan_competencies"),
 ) -> dict:
-    """Добавление компетенции в учебный план.
+    """
+    Добавление компетенции в учебный план.
 
     Parameters
     ----------
@@ -252,6 +254,28 @@ async def plan_competencies_data_delete(
     relations: bool = True,
     work_program: bool = True,
 ) -> str:
+    """
+    Удаляет данные о компетенциях и связях дисциплин и компетенций из
+    учебного плана и рабочих программ.
+
+    Parameters
+    ----------
+        plan_id: int | str
+            id учебного плана
+        plan_disciplines: list | tuple | dict
+            id дисциплин учебного плана
+        plan_comp: bool
+            удалять компетенции
+        relations: bool
+            удалять связи
+        work_program: bool
+            удалять из рабочих программ
+
+    Returns
+    -------
+        str
+            сведения о количестве удаленных элементов
+    """
     message = ["Произведена очистка компетенций. ", "Количество удаленных записей: "]
     if work_program:
         work_programs_data = await get_work_programs_data(
@@ -270,6 +294,51 @@ async def plan_competencies_data_delete(
         plan_resp = await plan_competencies_del(education_plan_id=plan_id)
         message.append(f"компетенций плана - {plan_resp.get('data')}.")
     return " ".join(message)
+
+
+async def get_plan_control_works(
+    curriculum_discipline_id: tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("plan_control_works"),
+    control_type_id: tuple
+    | list = (
+        Apeks.CONTROL_TYPE_ID.get("exam"),
+        Apeks.CONTROL_TYPE_ID.get("zachet"),
+        Apeks.CONTROL_TYPE_ID.get("zachet_mark"),
+        Apeks.CONTROL_TYPE_ID.get("final_att"),
+    ),
+) -> dict:
+    """
+    Возвращает данные из таблицы "plan_control_works" о завершающих формах
+    контроля для дисциплин учебного плана (отбираются записи с наибольшим
+    значением "semester_id").
+
+    :param curriculum_discipline_id: id учебной дисциплины
+    :param table_name: имя таблицы
+    :param control_type_id: фильтр по id форм контроля
+    :return: {"curriculum_discipline_id": {"id": record_id,
+    "curriculum_discipline_id": id, "control_type_id": id, "semester_id": id,
+    "hours": val, "is_classroom": val}
+    """
+    response = await check_api_db_response(
+        await api_get_db_table(
+            table_name,
+            curriculum_discipline_id=[*curriculum_discipline_id],
+            control_type_id=[*control_type_id],
+        )
+    )
+    control_works = {}
+    for record in response:
+        disc_id = record.get("curriculum_discipline_id")
+        control = control_works.setdefault(disc_id, record)
+        if int(control.get("semester_id")) < int(record.get("semester_id")):
+            control_works[disc_id] = record
+    return control_works
+
+
+
+
+
+
 
 
 def disciplines_comp_load(curriculum_discipline_id, competency_id):

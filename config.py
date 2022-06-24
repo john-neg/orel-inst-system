@@ -55,9 +55,10 @@ class ApeksConfig(object):
         "mm_work_programs_competencies_data": "mm_work_programs_competencies_data",
         "mm_work_programs_competencies_fields": "mm_work_programs_competencies_fields",
         "plan_competencies": "plan_competencies",
-        "plan_disciplines": "plan_disciplines",
+        "plan_control_works": "plan_control_works",
         "plan_curriculum_disciplines": "plan_curriculum_disciplines",
         "plan_curriculum_discipline_competencies": "plan_curriculum_discipline_competencies",
+        "plan_disciplines": "plan_disciplines",
         "plan_education_plans": "plan_education_plans",
         "plan_education_plans_education_forms": "plan_education_plans_education_forms",
         "plan_education_levels": "plan_education_levels",
@@ -249,11 +250,7 @@ class ApeksConfig(object):
     }
 
     # Статусы плана
-    PLAN_STATUS = {
-        0: "Не утвержден",
-        1: "Утвержден",
-        2: "Просрочен"
-    }
+    PLAN_STATUS = {0: "Не утвержден", 1: "Утвержден", 2: "Просрочен"}
 
     # Идентификаторы форм обучения в таблице 'education_form_id'
     EDUCATION_FORM_ID = {
@@ -315,16 +312,16 @@ class ApeksConfig(object):
     FINAL_KF_MAX: float = 8
 
     # Типы занятий в отчете о нагрузке
-    LOAD_LESSON_TYPES = ["lecture", "seminar", "pract", "group_cons"]
-    LOAD_CONTROL_TYPES = ["zachet", "exam", "final_att"]
+    LOAD_LESSON_TYPES = ("lecture", "seminar", "pract", "group_cons")
+    LOAD_CONTROL_TYPES = ("zachet", "exam", "final_att")
 
     # Типы обучающихся в отчете о нагрузке
-    LOAD_STUDENT_TYPES = ["och", "zo_high", "zo_mid", "adj", "prof_pod", "dpo"]
+    LOAD_STUDENT_TYPES = ("och", "zo_high", "zo_mid", "adj", "prof_pod", "dpo")
 
     # Часовой пояс для правильного отображения времени занятий
     TIMEZONE = pytz.timezone("Europe/Moscow")
 
-    # Словарь для коррекции данных в загружаемых файлах
+    # Словарь для коррекции данных в загружаемых файлах матрицы компетенций
     COMP_REPLACE_DICT = {
         "     ": " ",
         "    ": " ",
@@ -348,7 +345,20 @@ class ApeksConfig(object):
         "None": "",
     }
 
-    INDICATOR_SPLIT_REGEX = '\.[а-я]\.'
+    # Регулярные выражения для выделения кодов индикаторов и компетенций
+    COMPETENCY_SPLIT_REGEX = r"\.[а-я]\."
+    INDICATOR_SPLIT_REGEX = r"\s[-–]\s"
+
+    # Виды индикаторов дисциплин
+    INDICATOR_TYPES = {
+        ".з.": "knowledge",
+        ".у.": "abilities",
+        ".в.": "ownerships",
+    }
+
+    # Индексы расположения дисциплин и компетенций в загружаемых файлах матриц
+    MATRIX_COMP_ROW = 0
+    MATRIX_DISC_COL = 1
 
 
 # Создание директорий если отсутствуют

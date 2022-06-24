@@ -35,7 +35,7 @@ def library_file_processing(file: str) -> dict:
         "None": "",
         "Нет программы": ""
     }
-    xlsx_normalize(ws, replace_dict)
+    ws = xlsx_normalize(ws, replace_dict)
     lib_list = list(xlsx_iter_rows(ws))
     del lib_list[0]
     lib_dict = {}

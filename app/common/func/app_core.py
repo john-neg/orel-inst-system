@@ -67,9 +67,9 @@ def xlsx_normalize(worksheet: Workbook.active, replace: dict):
         worksheet: Workbook.active
             измененный лист
     """
-    for key, val in replace.items():
-        for r in range(1, worksheet.max_row + 1):
-            for c in range(1, worksheet.max_column + 1):
+    for r in range(1, worksheet.max_row + 1):
+        for c in range(1, worksheet.max_column + 1):
+            for key, val in replace.items():
                 s = str(worksheet.cell(r, c).value).strip()
                 worksheet.cell(r, c).value = s.replace(key, val)
     return worksheet
