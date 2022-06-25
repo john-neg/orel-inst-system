@@ -5,6 +5,7 @@ from json import JSONDecodeError
 
 import httpx
 
+from common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
 
@@ -115,6 +116,10 @@ async def api_edit_db_table(
         else:
             values = [str(val) for val in db_value]
         data[f"filter[{db_field}][]"] = values
+        if not values:
+            message = "Для фильтра операции 'edit' передан параметр с пустым значением"
+            logging.error(message)
+            raise ApeksApiException(message)
     for db_field, db_value in fields.items():
         data[f"fields[{db_field}]"] = str(db_value)
     logging.debug(

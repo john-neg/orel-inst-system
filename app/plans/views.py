@@ -16,6 +16,10 @@ from app.plans.func import (
     plan_competencies_data_delete,
     get_plan_competency_instance,
     get_plan_indicator_instance,
+    work_programs_competencies_level_del,
+    work_program_competency_data_add,
+    work_program_competency_level_add,
+    work_program_competency_level_edit,
 )
 from app.plans.models import MatrixIndicatorsFile
 from common.classes.PlanMatrixProcessor import (
@@ -170,7 +174,7 @@ async def competencies_load(plan_id):
 async def matrix_simple_load(plan_id):
     form = MatrixSimpleForm()
     plan = await get_plan_competency_instance(plan_id)
-    file, match_data, comp_not_in_file, comp_not_in_plan = (None for _ in range(4))
+    (file, match_data, comp_not_in_file, comp_not_in_plan) = (None for _ in range(4))
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
@@ -195,6 +199,7 @@ async def matrix_simple_load(plan_id):
             )
             flash(message, category="success")
             return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
+        # Загрузка файла
         if request.files["file"]:
             file = request.files["file"]
             if file and allowed_file(file.filename):
@@ -237,10 +242,6 @@ async def matrix_simple_load(plan_id):
 async def matrix_indicator_load(plan_id):
     form = MatrixIndicatorForm()
     plan = await get_plan_indicator_instance(plan_id)
-    program_wrong_name = plan.wrong_name
-    duplicate = plan.duplicate
-    non_exist = plan.non_exist
-    plan_no_control_data = plan.plan_no_control_data
     program_control_extra_levels = plan.program_control_extra_levels
     (
         file,
@@ -248,7 +249,10 @@ async def matrix_indicator_load(plan_id):
         comp_not_in_file,
         comp_not_in_plan,
         indicator_errors,
-    ) = (None for _ in range(5))
+        program_comp_level_add,
+        program_comp_level_edit,
+        program_competency_add,
+    ) = (None for _ in range(8))
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
@@ -262,7 +266,6 @@ async def matrix_indicator_load(plan_id):
             program_comp_level_edit,
             program_competency_add,
         ) = processor.program_load_data()
-        program_comp_level_delete = plan.program_comp_level_delete
     if request.method == "POST":
         # Шаблон
         if request.form.get("data_template"):
@@ -285,6 +288,7 @@ async def matrix_indicator_load(plan_id):
             )
             flash(message, category="success")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
+        # Загрузка файла
         if request.files["file"]:
             file = request.files["file"]
             if file and allowed_file(file.filename):
@@ -299,55 +303,90 @@ async def matrix_indicator_load(plan_id):
                             filename=filename,
                         )
                     )
+        # Загрузка данных
         if request.form.get("file_load"):
             # Загрузка связей
-            # for disc in match_data:
-            #     if match_data[disc].get("comps"):
-            #         for comp in match_data[disc].get("comps"):
-            #             await discipline_competency_add(
-            #                 match_data[disc].get("id"), match_data[disc]["comps"][comp]
-            #             )
-            # os.remove(file)
-            flash("Данные успешно загружены", category="success")
+            if request.form.get("switch_relations"):
+                comp_relations_counter = 0
+                for disc in match_data:
+                    if match_data[disc].get("comps"):
+                        for comp in match_data[disc].get("comps"):
+                            resp = await discipline_competency_add(
+                                match_data[disc].get("id"),
+                                match_data[disc]["comps"][comp].get("id"),
+                            )
+                            if resp.get("data"):
+                                comp_relations_counter += int(resp.get("data"))
+                flash(
+                    "Добавлены связи дисциплин и "
+                    f"компетенций - {comp_relations_counter}",
+                    category="success",
+                )
+            # Загрузка данных в рабочие программы
+            if request.form.get("switch_programs"):
+                resp = await work_programs_competencies_level_del(
+                    level_id=plan.program_comp_level_delete
+                )
+                level_delete_counter = resp.get("data")
+                flash(
+                    "Удалены лишние уровни формирования "
+                    f"компетенций - {level_delete_counter}",
+                    category="success",
+                )
 
-            # program_comp_level_delete,
-            # program_comp_level_add,
-            # program_comp_level_edit,
-            # program_competency_add
+                comp_add_counter = 0
+                # Очищаем ранее загруженные в программу данные
+                await plan_competencies_data_delete(
+                    plan_id,
+                    plan.plan_curriculum_disciplines,
+                    plan_comp=False,
+                    relations=False,
+                    work_program=True,
+                )
+                for comp_data in program_competency_add:
+                    resp = await work_program_competency_data_add(comp_data)
+                    if resp.get("data"):
+                        comp_add_counter += int(resp.get("data"))
+                flash(
+                    "Добавлена информация об индикаторах компетенций "
+                    f"в рабочие программы - {comp_add_counter}",
+                    category="success",
+                )
 
-            # if request.form.get("switch_relations") and request.form.get(
-            #         "switch_programs"
-            # ):
-            #     for disc_id in plan.disciplines.keys():
-            #         disc_comp_upload(disc_id)
-            #         work_program_load(disc_id)
-            #     flash("Связи и программы обновлены", category="success")
-            # elif request.form.get("switch_relations"):
-            #     for disc_id in plan.disciplines.keys():
-            #         disc_comp_upload(disc_id)
-            #     flash("Связи обновлены", category="success")
-            # elif request.form.get("switch_programs"):
-            #     for disc_id in plan.disciplines.keys():
-            #         work_program_load(disc_id)
-            #     flash("Программы обновлены", category="success")
-            # else:
-            #     flash(
-            #         "Ничего не загружено, т.к. все опции были выключены",
-            #         category="warning",
-            #     )
-            # os.remove(file)
+                level_add_counter = 0
+                for level_add in program_comp_level_add:
+
+                    resp = await work_program_competency_level_add(level_add)
+                    if resp.get("data"):
+                        level_add_counter += int(resp.get("data"))
+                flash(
+                    "Добавлены отсутствовавшие уровни формирования "
+                    f"компетенций - {level_add_counter}",
+                    category="success",
+                )
+
+                level_edit_counter = 0
+                for wp in program_comp_level_edit:
+                    resp = await work_program_competency_level_edit(
+                        work_program_id=wp, fields=program_comp_level_edit[wp]
+                    )
+                    if resp.get("data"):
+                        level_edit_counter += int(resp.get("data"))
+                flash(
+                    "Отредактированы уровни формирования "
+                    f"компетенций - {level_edit_counter}",
+                    category="success",
+                )
+
+            if not request.form.get("switch_relations") and not request.form.get(
+                "switch_programs"
+            ):
+                flash(
+                    "Ничего не загружено, т.к. все опции были выключены",
+                    category="warning",
+                )
+            os.remove(file)
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
-        # return render_template(
-        #     "plans/matrix_indicator_load.html",
-        #     active="plans",
-        #     form=form,
-        #     filename=filename,
-        #     plan_name=plan.name,
-        #     plan_relations=plan.disciplines_comp_dict(),
-        #     report=report,
-        #     file_errors=matrix.file_errors(),
-        #     no_comp_list=no_comp_list,
-        # )
     return render_template(
         "plans/matrix_indicator_load.html",
         active="plans",
@@ -357,7 +396,7 @@ async def matrix_indicator_load(plan_id):
         program_non_exist=plan.non_exist,
         program_duplicate=plan.duplicate,
         program_wrong_name=plan.wrong_name,
-        plan_no_control_data=plan_no_control_data,
+        plan_no_control_data=plan.plan_no_control_data,
         program_control_extra_levels=program_control_extra_levels,
         match_data=match_data,
         indicator_errors=indicator_errors,

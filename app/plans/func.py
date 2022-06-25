@@ -16,7 +16,7 @@ from common.func.api_get import (
     api_get_db_table,
     get_plan_discipline_competencies,
 )
-from common.func.api_post import api_add_to_db_table
+from common.func.api_post import api_add_to_db_table, api_edit_db_table
 from common.func.app_core import xlsx_iter_rows, xlsx_normalize, data_processor
 from config import ApeksConfig as Apeks
 
@@ -98,7 +98,6 @@ async def get_plan_indicator_instance(plan_id: int | str) -> EducationPlanIndica
         work_programs_data=work_programs_data
     )
     return plan
-
 
 
 
@@ -329,6 +328,130 @@ async def plan_competencies_data_delete(
     return " ".join(message)
 
 
+async def work_programs_competencies_level_del(
+    level_id: int | str | tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("mm_competency_levels"),
+) -> dict:
+    """
+    Удаление данных об уровнях сформированности компетенций из рабочих программ.
+
+    Parameters
+    ----------
+        level_id: int | str | tuple[int | str] | list[int | str]
+            id уровня сформированности компетенций
+        table_name: str
+            имя таблицы в БД
+    """
+    if level_id:
+        response = await api_delete_from_db_table(
+            table_name,
+            id=level_id,
+        )
+    else:
+        response = {'status': 1, 'data': 0}
+    if response.get("status") == 1:
+        logging.debug(
+            f"Удалены уровни (кол-во - {response.get('data')}) формирования "
+            "компетенций из рабочих программ."
+        )
+    else:
+        logging.error(
+            f"Не удалось удалить уровни {level_id} формирования компетенций "
+            "из рабочих программ."
+        )
+    return response
+
+
+async def work_program_competency_data_add(
+    fields: dict,
+    table_name: str = Apeks.TABLES.get("mm_work_programs_competencies_data"),
+) -> dict:
+    """
+    Добавление данных о компетенции в рабочую программу.
+
+    :param fields: {"work_program_id": val, "competency_id": val,
+        "field_id": val, "value": val}
+    :param table_name: имя таблицы БД
+    :return: ответ api {status: code, data: val}
+    """
+    response = await api_add_to_db_table(
+        table_name,
+        **fields,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            "Добавлены данные о компетенции в рабочую программу "
+            f"{fields.get('work_program_id')}."
+        )
+    else:
+        logging.error(
+            f"Не удалось добавить данные о компетенции в рабочую программу "
+            f"{fields.get('work_program_id')}."
+        )
+    return response
+
+
+async def work_program_competency_level_add(
+    fields: dict,
+    table_name: str = Apeks.TABLES.get("mm_competency_levels"),
+) -> dict:
+    """
+    Добавление данных об уровне формирования компетенций в рабочую программу.
+
+    :param fields: {"work_program_id": val, "level": val, "semester_id": val,
+        "control_type_id": val, "knowledge": val, "abilities": val,
+        "ownerships": val, "level1": "", "level2": "", "level3": ""}
+    :param table_name: имя таблицы БД
+    :return: ответ api {status: code, data: value}
+    """
+    response = await api_add_to_db_table(
+        table_name,
+        **fields,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            "Добавлены данные об уровне формирования компетенций в "
+            f"рабочую программу {fields.get('work_program_id')}."
+        )
+    else:
+        logging.error(
+            "Не удалось добавить данные об уровне формирования компетенций в "
+            f"рабочую программу {fields.get('work_program_id')}."
+        )
+    return response
+
+
+async def work_program_competency_level_edit(
+    work_program_id: int | str,
+    fields: dict,
+    level: int | str = Apeks.BASE_COMP_LEVEL,
+    table_name: str = Apeks.TABLES.get("mm_competency_levels"),
+) -> dict:
+    """
+    Изменение данных об уровне формирования компетенций в рабочей программе.
+
+    :param work_program_id: id рабочей программы
+    :param fields: поля для редактирования {"semester_id": val,
+        "control_type_id": val, "knowledge": val, "abilities": val,
+        "ownerships": val, "level1": "", "level2": "", "level3": ""}
+    :param level: номер уровня сформированности для редактирования
+    :param table_name: имя таблицы БД
+    :return: ответ api {status: code, data: value}
+    """
+    filters = {'work_program_id': work_program_id, 'level': level}
+    response = await api_edit_db_table(table_name, filters, fields)
+
+    if response.get("status") == 1:
+        logging.debug(
+            "Изменены сведения об уровне формирования компетенций "
+            f"в рабочей программе {work_program_id}."
+        )
+    else:
+        logging.error(
+            "Не удалось изменить сведения об уровне формирования компетенций "
+            f"в рабочей программе {work_program_id}."
+        )
+    return response
 
 
 

@@ -5,6 +5,7 @@ from json import JSONDecodeError
 
 import httpx
 
+from common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
 
@@ -32,7 +33,7 @@ def api_delete_request_handler(func):
                 try:
                     resp_json = response.json()
                     del params["token"]
-                    if resp_json.get('status') == 1:
+                    if resp_json.get("status") == 1:
                         logging.debug(
                             f"{func.__name__}. Запрос успешно выполнен: "
                             f"{params}. Данные удалены: {resp_json.get('data')}"
@@ -65,4 +66,8 @@ async def api_delete_from_db_table(
     params = {"token": token, "table": table_name}
     for db_field, db_value in kwargs.items():
         params[f"filter[{db_field}][]"] = db_value
+        if not db_value:
+            message = "Для операции 'delete' передан параметр с пустым значением"
+            logging.error(message)
+            raise ApeksApiException(message)
     return endpoint, params

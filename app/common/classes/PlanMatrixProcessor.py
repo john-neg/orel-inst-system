@@ -76,28 +76,36 @@ class PlanSimpleMatrixProcessor:
         return file_dict
 
     def matrix_file_comp(self) -> set:
-        """Возвращает множество (set) компетенций файла матрицы."""
+        """
+        Выводит компетенции файла матрицы.
+
+        :return: set
+        """
 
         file_comp = set()
         for i in range(2, len(self.file_list[0])):
-            split = re.split(
-                Apeks.INDICATOR_COMP_SPLIT_REGEX, self.file_list[0][i]
-            )[0]
+            split = re.split(Apeks.INDICATOR_COMP_SPLIT_REGEX, self.file_list[0][i])[0]
             if len(split) > 10:
-                split = re.split(
-                    Apeks.COMP_CODE_SPLIT_REGEX, self.file_list[0][i]
-                )[0]
+                split = re.split(Apeks.COMP_CODE_SPLIT_REGEX, self.file_list[0][i])[0]
             file_comp.add(split)
         return file_comp
 
     def comp_not_in_file(self) -> set:
-        """Компетенции плана, отсутствующие в файле."""
+        """
+        Выводит компетенции плана, отсутствующие в файле.
+
+        :return: set
+        """
         plan_comp = set(self.plan_competencies)
         file_comp = self.matrix_file_comp()
         return plan_comp.difference(file_comp)
 
     def comp_not_in_plan(self) -> set:
-        """Компетенции файла, отсутствующие в плане."""
+        """
+        Выводит компетенции файла, отсутствующие в плане.
+
+        :return: set
+        """
         plan_comp: set = set(self.plan_competencies)
         file_comp = self.matrix_file_comp()
         return file_comp.difference(plan_comp)

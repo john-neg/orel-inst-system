@@ -209,7 +209,6 @@ async def work_program_add_parameter(
             table_name,
             **fields,
         )
-        print(response)
     elif table_name == Apeks.TABLES.get("mm_work_programs_data"):
         fields = {
             "work_program_id": work_program_id,
