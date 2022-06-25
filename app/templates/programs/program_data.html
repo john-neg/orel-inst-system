@@ -99,23 +99,23 @@
       </div>
       <div class="row">
         <div class="col">
-          {% if duplicate %}
+          {% if program_duplicate %}
             <div class="alert alert-primary text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
               <h6 class="alert-heading fw-bold text-center" id="duplicates_label">В плане есть дубликаты рабочих программ:</h6>
                 <span id="duplicates">
-                  {% for disc in duplicate %}
-                    {{ duplicate[disc] }}<br>
+                  {% for disc in program_duplicate %}
+                    {{ program_duplicate[disc] }}<br>
                   {% endfor %}
                 </span>
             </div>
           {% endif %}
-          {% if wrong_name %}
+          {% if program_wrong_name %}
             <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
               <h6 class="alert-heading fw-bold text-center" id="wrong_name_label">Название дисциплины плана не соответствует названию программы:</h6>
               <span id="wrong_name">
-                {% for disc in wrong_name %}
-                  План - "{{ wrong_name[disc][0] }}"<br>
-                  Программа - "{{ wrong_name[disc][1] }}"<br>
+                {% for disc in program_wrong_name %}
+                  План - "{{ program_wrong_name[disc][0] }}"<br>
+                  Программа - "{{ program_wrong_name[disc][1] }}"<br>
                 {% endfor %}
               </span>
             </div>
@@ -183,7 +183,7 @@
               </div>
             </div>
           {% endif %}
-          {% if no_program %}
+          {% if program_non_exist %}
             <div class="card shadow">
               <div class="card-header py-3" id="non_exist_table_header">
                 <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
@@ -197,9 +197,9 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {% for disc in no_program %}
+                      {% for disc in program_non_exist %}
                         <tr>
-                          <td>{{ no_program[disc] }}</td>
+                          <td>{{ program_non_exist[disc] }}</td>
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -224,7 +224,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mb-2">
-          {% if no_program and current_user.role in (config.ROLE_ADMIN, ) %}
+          {% if program_non_exist and current_user.role in (config.ROLE_ADMIN, ) %}
             {{ form.create_program(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
           {% endif %}
           {{ form.program_status_0(class="btn btn-secondary mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}

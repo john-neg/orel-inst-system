@@ -644,8 +644,8 @@ async def get_plan_control_works(
     :param table_name: имя таблицы
     :param kwargs: дополнительные фильтры
     :return: {"curriculum_discipline_id": {"id": record_id,
-    "curriculum_discipline_id": id, "control_type_id": id, "semester_id": id,
-    "hours": val, "is_classroom": val}
+              "curriculum_discipline_id": id, "control_type_id": id,
+              "semester_id": id, "hours": val, "is_classroom": val}
     """
     response = await check_api_db_response(
         await api_get_db_table(

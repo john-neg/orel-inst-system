@@ -453,9 +453,9 @@ async def program_data(plan_id):
         url=Apeks.URL,
         plan_name=plan.name,
         programs=programs,
-        no_program=plan.non_exist,
-        duplicate=plan.duplicate,
-        wrong_name=plan.wrong_name,
+        program_non_exist=plan.non_exist,
+        program_duplicate=plan.duplicate,
+        program_wrong_name=plan.wrong_name,
         sign_users_data=sign_users_data,
         widget_data=widget_data,
     )

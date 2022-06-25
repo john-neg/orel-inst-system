@@ -73,7 +73,7 @@
                   {% if current_user.role in (config.ROLE_ADMIN, ) %}
                     <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_choose_plan') }}">Матрица с индикаторами</a>
                   {% endif %}
-                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_file_upload') }}">Индикаторы по дисциплинам</a>
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_file') }}">Индикаторы по дисциплинам</a>
                 </div>
               </li>
             {% endif %}

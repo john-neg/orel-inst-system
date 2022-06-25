@@ -49,28 +49,28 @@
               {% endfor %}
           </div>
         {% endif %}
-        {% if no_program %}
+        {% if program_non_exist %}
           <div class="alert alert-info text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">В плане отсутствуют рабочие программы:</h6>
-            {% for disc in no_program %}
-              <span>{{ no_program[disc] }}<br></span>
+            {% for disc in program_non_exist %}
+              <span>{{ program_non_exist[disc] }}<br></span>
             {% endfor %}
           </div>
         {% endif %}
-        {% if duplicate %}
+        {% if program_duplicate %}
           <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">В плане существуют дубликаты программ:</h6>
-              {% for disc in duplicate %}
-                <span>{{ duplicate[disc] }}<br></span>
+              {% for disc in program_duplicate %}
+                <span>{{ program_duplicate[disc] }}<br></span>
               {% endfor %}
           </div>
         {% endif %}
-        {% if wrong_name %}
+        {% if program_wrong_name %}
           <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">Название рабочей программы не соответствует названию дисциплины:</h6>
-              {% for disc in wrong_name %}
-                <span>План - "{{ wrong_name[disc][0] }}"<br></span>
-                <span>Программа - "{{ wrong_name[disc][1] }}"<br></span>
+              {% for disc in program_wrong_name %}
+                <span>План - "{{ program_wrong_name[disc][0] }}"<br></span>
+                <span>Программа - "{{ program_wrong_name[disc][1] }}"<br></span>
               {% endfor %}
           </div>
         {% endif %}

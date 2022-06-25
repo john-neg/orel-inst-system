@@ -281,9 +281,9 @@ class LibraryCheckView(View):
             form=form,
             plan_name=plan.name,
             no_data=no_data,
-            no_program=plan.non_exist,
-            duplicate=plan.duplicate,
-            wrong_name=plan.wrong_name,
+            program_non_exist=plan.non_exist,
+            program_duplicate=plan.duplicate,
+            program_wrong_name=plan.wrong_name,
             work_programs=work_programs,
         )
 

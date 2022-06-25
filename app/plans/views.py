@@ -15,10 +15,13 @@ from app.plans.func import (
     comps_file_processing,
     plan_competencies_data_delete,
     get_plan_competency_instance,
+    get_plan_indicator_instance,
 )
 from app.plans.models import MatrixIndicatorsFile
-from common.classes.PlanMatrixProcessor import PlanSimpleMatrixProcessor, \
-    PlanIndicatorMatrixProcessor
+from common.classes.PlanMatrixProcessor import (
+    PlanSimpleMatrixProcessor,
+    PlanIndicatorMatrixProcessor,
+)
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
 from config import FlaskConfig
 from plans.forms import (
@@ -172,9 +175,9 @@ async def matrix_simple_load(plan_id):
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         processor = PlanSimpleMatrixProcessor(plan, file)
+        match_data = processor.matrix_match_data
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
-        match_data = processor.matrix_match_data
     if request.method == "POST":
         # Текущая матрица
         if request.form.get("make_matrix"):
@@ -231,17 +234,35 @@ async def matrix_simple_load(plan_id):
 
 @bp.route("/matrix_indicator_load/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-async def get_plan_indicator_instance(plan_id):
+async def matrix_indicator_load(plan_id):
     form = MatrixIndicatorForm()
-    plan = await get_plan_competency_instance(plan_id)
-    file, match_data, comp_not_in_file, comp_not_in_plan = (None for _ in range(4))
+    plan = await get_plan_indicator_instance(plan_id)
+    program_wrong_name = plan.wrong_name
+    duplicate = plan.duplicate
+    non_exist = plan.non_exist
+    plan_no_control_data = plan.plan_no_control_data
+    program_control_extra_levels = plan.program_control_extra_levels
+    (
+        file,
+        match_data,
+        comp_not_in_file,
+        comp_not_in_plan,
+        indicator_errors,
+    ) = (None for _ in range(5))
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
         processor = PlanIndicatorMatrixProcessor(plan, file)
+        match_data = processor.matrix_match_data
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
-
+        indicator_errors = processor.indicator_errors
+        (
+            program_comp_level_add,
+            program_comp_level_edit,
+            program_competency_add,
+        ) = processor.program_load_data()
+        program_comp_level_delete = plan.program_comp_level_delete
     if request.method == "POST":
         # Шаблон
         if request.form.get("data_template"):
@@ -279,6 +300,21 @@ async def get_plan_indicator_instance(plan_id):
                         )
                     )
         if request.form.get("file_load"):
+            # Загрузка связей
+            # for disc in match_data:
+            #     if match_data[disc].get("comps"):
+            #         for comp in match_data[disc].get("comps"):
+            #             await discipline_competency_add(
+            #                 match_data[disc].get("id"), match_data[disc]["comps"][comp]
+            #             )
+            # os.remove(file)
+            flash("Данные успешно загружены", category="success")
+
+            # program_comp_level_delete,
+            # program_comp_level_add,
+            # program_comp_level_edit,
+            # program_competency_add
+
             # if request.form.get("switch_relations") and request.form.get(
             #         "switch_programs"
             # ):
@@ -318,7 +354,13 @@ async def get_plan_indicator_instance(plan_id):
         form=form,
         plan_name=plan.name,
         plan_relations=plan.named_disc_comp_relations(),
+        program_non_exist=plan.non_exist,
+        program_duplicate=plan.duplicate,
+        program_wrong_name=plan.wrong_name,
+        plan_no_control_data=plan_no_control_data,
+        program_control_extra_levels=program_control_extra_levels,
         match_data=match_data,
+        indicator_errors=indicator_errors,
         comp_not_in_file=comp_not_in_file,
         comp_not_in_plan=comp_not_in_plan,
     )
@@ -460,9 +502,9 @@ async def get_plan_indicator_instance(plan_id):
 #     )
 
 
-@bp.route("/matrix_indicator_file_upload", methods=["GET", "POST"])
+@bp.route("/matrix_indicator_file", methods=["GET", "POST"])
 @login_required
-def matrix_indicator_file_upload():
+def matrix_indicator_file():
     form = IndicatorsFileForm()
     if request.method == "POST":
         if request.files["file"]:

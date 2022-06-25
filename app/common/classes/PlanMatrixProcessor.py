@@ -87,13 +87,13 @@ class PlanSimpleMatrixProcessor:
         """Компетенции плана, отсутствующие в файле."""
         plan_comp = set(self.plan_competencies)
         file_comp = self.matrix_file_comp()
-        return file_comp.difference(plan_comp)
+        return plan_comp.difference(file_comp)
 
     def comp_not_in_plan(self) -> set:
         """Компетенции файла, отсутствующие в плане."""
         plan_comp: set = set(self.plan_competencies)
         file_comp = self.matrix_file_comp()
-        return plan_comp.difference(file_comp)
+        return file_comp.difference(plan_comp)
 
     def get_match_data_template(self) -> dict:
         """
@@ -165,7 +165,7 @@ class PlanIndicatorMatrixProcessor(PlanSimpleMatrixProcessor):
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        # self.matrix_match_data = self.matrix_match_data()
+
 
     def get_matrix_match_data(self) -> dict:
         """
@@ -215,8 +215,11 @@ class PlanIndicatorMatrixProcessor(PlanSimpleMatrixProcessor):
         """
         Данные для добавления, обновления и удаления информации в рабочих программах.
 
-
-        :return:
+        :return: program_level_add - [список словарей для добавления уровней
+            компетенций в рабочие программы], program_level_edit - {work_program_id:
+            {данные для обновления существующих уровней компетенций }},
+            program_competency_add - [список словарей для загрузки сведений о
+            компетенциях в рабочие программы]
         """
         program_level_add = []
         program_level_edit = {}
