@@ -98,19 +98,25 @@
         {% if program_control_extra_levels %}
           <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">В рабочей программе больше одного уровня сформированности компетенций:</h6>
-            <span>{{ ', '.join(program_control_extra_levels) }}</span>
+            {% for program in program_control_extra_levels %}
+              <span>{{ program }}<br></span>
+            {% endfor %}
           </div>
         {% endif %}
         {% if plan_no_control_data %}
           <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
             <h6 class="alert-heading fw-bold text-center">В плане отсутствует форма контроля для дисциплины:</h6>
-            <span>{{ '\n'.join(plan_no_control_data) }}</span>
+            {% for disc in plan_no_control_data %}
+              <span>{{ disc }}<br></span>
+            {% endfor %}
           </div>
         {% endif %}
         {% if indicator_errors %}
           <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-            <h6 class="alert-heading fw-bold text-center">Индикаторы файла, которые не удалось прочитать:</h6>
-            <span>{{ '\n'.join(indicator_errors) }}</span>
+            <h6 class="alert-heading fw-bold text-center">Индикаторы файла, которые не удалось обработать:<br> (неверный код или отсутствует соответствующая компетенция в плане)</h6>
+            {% for indicator in indicator_errors %}
+              <span>{{ indicator }}<br></span>
+            {% endfor %}
           </div>
         {% endif %}
         {% if comp_not_in_plan %}
@@ -146,7 +152,7 @@
                   <tbody>
                     {% for disc in match_data %}
                       <tr>
-                        <td>{{ disc }}</td>
+                        <td>{{ match_data[disc].get('code') }} {{ disc }}</td>
                         {% if match_data[disc].get('comps') %}
                           <td>{{ ', '.join(match_data[disc]['comps']) }}</td>
                         {% elif 'comps' in match_data[disc] %}

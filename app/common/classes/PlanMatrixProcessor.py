@@ -77,10 +77,17 @@ class PlanSimpleMatrixProcessor:
 
     def matrix_file_comp(self) -> set:
         """Возвращает множество (set) компетенций файла матрицы."""
-        file_comp = {
-            re.split(Apeks.COMPETENCY_SPLIT_REGEX, self.file_list[0][i])[0]
-            for i in range(2, len(self.file_list[0]))
-        }
+
+        file_comp = set()
+        for i in range(2, len(self.file_list[0])):
+            split = re.split(
+                Apeks.INDICATOR_COMP_SPLIT_REGEX, self.file_list[0][i]
+            )[0]
+            if len(split) > 10:
+                split = re.split(
+                    Apeks.COMP_CODE_SPLIT_REGEX, self.file_list[0][i]
+                )[0]
+            file_comp.add(split)
         return file_comp
 
     def comp_not_in_file(self) -> set:
@@ -166,7 +173,6 @@ class PlanIndicatorMatrixProcessor(PlanSimpleMatrixProcessor):
     def __post_init__(self) -> None:
         super().__post_init__()
 
-
     def get_matrix_match_data(self) -> dict:
         """
         Сопоставляет данные из плана и файла для загрузки связей
@@ -180,16 +186,16 @@ class PlanIndicatorMatrixProcessor(PlanSimpleMatrixProcessor):
                 "knowledge": [val], "abilities": [val], "ownerships":[val]}}}}.
         """
         matrix_match_data = self.get_match_data_template()
-        ind_regex = re.compile(Apeks.COMPETENCY_SPLIT_REGEX)
+        ind_regex = re.compile(Apeks.INDICATOR_COMP_SPLIT_REGEX)
         for disc in matrix_match_data:
             disc_name = f"{matrix_match_data[disc].get('code')} {disc}"
             if disc_name in self.file_dict:
                 matrix_match_data[disc]["comps"] = {}
                 for ind in self.file_dict[disc_name]:
-                    comp_code = re.split(Apeks.COMPETENCY_SPLIT_REGEX, ind, 1)[0]
+                    comp_code = re.split(Apeks.INDICATOR_COMP_SPLIT_REGEX, ind, 1)[0]
                     try:
                         ind_code, ind_val = re.split(
-                            Apeks.INDICATOR_SPLIT_REGEX, ind, 1
+                            Apeks.COMP_CODE_SPLIT_REGEX, ind, 1
                         )
                         ind_separator = ind_regex.search(ind_code).group()
                     except AttributeError:
@@ -213,13 +219,14 @@ class PlanIndicatorMatrixProcessor(PlanSimpleMatrixProcessor):
 
     def program_load_data(self):
         """
-        Данные для добавления, обновления и удаления информации в рабочих программах.
+        Данные для добавления, обновления и удаления информации в рабочих
+        программах.
 
         :return: program_level_add - [список словарей для добавления уровней
-            компетенций в рабочие программы], program_level_edit - {work_program_id:
-            {данные для обновления существующих уровней компетенций }},
-            program_competency_add - [список словарей для загрузки сведений о
-            компетенциях в рабочие программы]
+            компетенций в рабочие программы], program_level_edit -
+            {work_program_id: {данные для обновления существующих уровней
+            компетенций }}, program_competency_add - [список словарей для
+            загрузки сведений о компетенциях в рабочие программы]
         """
         program_level_add = []
         program_level_edit = {}

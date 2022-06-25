@@ -221,8 +221,8 @@ class ApeksConfig(object):
     BASE_COMP_LEVEL = 1
 
     # Регулярные выражения для выделения кодов индикаторов и компетенций
-    COMPETENCY_SPLIT_REGEX = r"\.[а-я]\."
-    INDICATOR_SPLIT_REGEX = r"\s[-–]\s"
+    INDICATOR_COMP_SPLIT_REGEX = r"\.[а-я]\."
+    COMP_CODE_SPLIT_REGEX = r"\s[-–]\s"
 
     # Виды индикаторов дисциплин
     INDICATOR_TYPES = {
