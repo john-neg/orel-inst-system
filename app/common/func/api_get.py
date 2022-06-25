@@ -586,14 +586,14 @@ async def get_plan_curriculum_disciplines(
             ) == str(Apeks.DISC_TYPE):
                 del disciplines[disc]
     logging.debug(
-        f"Передана информация о дисциплинах " f"education_plan_id: {education_plan_id}"
+        f"Передана информация о дисциплинах education_plan_id: {education_plan_id}"
     )
     return disciplines
 
 
 async def get_plan_discipline_competencies(
     curriculum_discipline_id: tuple[int | str] | list[int | str],
-    table_name: str = Apeks.TABLES.get("plan_curriculum_discipline_competencies")
+    table_name: str = Apeks.TABLES.get("plan_curriculum_discipline_competencies"),
 ) -> dict:
     """
     Получение данных о связях дисциплин и компетенций учебного плана
@@ -624,9 +624,45 @@ async def get_plan_discipline_competencies(
         discipline_competencies.setdefault(disc_id, []).append(comp_id)
 
     logging.debug(
-        f"Передана информация о компетенциях учебных дисциплин {curriculum_discipline_id}"
+        "Передана информация о компетенциях "
+        f"учебных дисциплин {curriculum_discipline_id}"
     )
     return discipline_competencies
+
+
+async def get_plan_control_works(
+    curriculum_discipline_id: tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("plan_control_works"),
+    **kwargs
+) -> dict:
+    """
+    Возвращает данные из таблицы "plan_control_works" о завершающих формах
+    контроля для дисциплин учебного плана (отбираются записи с наибольшим
+    значением "semester_id").
+
+    :param curriculum_discipline_id: id учебной дисциплины
+    :param table_name: имя таблицы
+    :param kwargs: дополнительные фильтры
+    :return: {"curriculum_discipline_id": {"id": record_id,
+    "curriculum_discipline_id": id, "control_type_id": id, "semester_id": id,
+    "hours": val, "is_classroom": val}
+    """
+    response = await check_api_db_response(
+        await api_get_db_table(
+            table_name,
+            curriculum_discipline_id=curriculum_discipline_id,
+            **kwargs
+        )
+    )
+    control_works = {}
+    for record in response:
+        disc_id = int(record.get("curriculum_discipline_id"))
+        control = control_works.setdefault(disc_id, record)
+        if int(control.get("semester_id")) < int(record.get("semester_id")):
+            control_works[disc_id] = record
+    logging.debug("Передана информация о завершающих формах контроля "
+                  f"для дисциплин учебного плана {curriculum_discipline_id}")
+    return control_works
 
 
 async def get_work_programs_data(
@@ -689,14 +725,22 @@ async def get_work_programs_data(
                   "fields": {id: value},
                   "signs": {user_id: timestamp},
                   "competencies_data": {comp_id: {field_id: value}}
-                  "competency_levels": {level_id: {'abilities': value,
-                                                   'control_type_id': value,
-                                                   'knowledge': value,
-                                                   'level1': value,
-                                                   'level2': value,
-                                                   'level3': value,
-                                                   'ownerships': value
-                                                   'semester_id': value}}
+                  "competency_levels": {level_val: {'id': level_id,
+                                                    'work_program_id': id,
+                                                    'abilities': value,
+                                                    'control_type_id': value,
+                                                    'knowledge': value,
+                                                    'level1': value,
+                                                    'level2': value,
+                                                    'level3': value,
+                                                    'ownerships': value
+                                                    'semester_id': value},
+                  "control_works": {"id": record_id,
+                                    "curriculum_discipline_id": id,
+                                    "control_type_id": id,
+                                    "semester_id": id,
+                                    "hours": val,
+                                    "is_classroom": val}}
     """
     wp_data = data_processor(
         await check_api_db_response(
@@ -709,6 +753,7 @@ async def get_work_programs_data(
         wp_data[wp]["signs"] = {}
         wp_data[wp]["competencies_data"] = {}
         wp_data[wp]["competency_levels"] = {}
+        wp_data[wp]["control_works"] = {}
 
     wp_list = [wp_data[wp].get("id") for wp in wp_data]
 
@@ -753,6 +798,7 @@ async def get_work_programs_data(
                 wp_data[wp_id]["signs"][user_id] = sign.get("timestamp")
 
         if competencies:
+            # Получение групп компетенций
             competencies_fields = await check_api_db_response(
                 await api_get_db_table(
                     Apeks.TABLES.get("mm_work_programs_competencies_fields"),
@@ -761,6 +807,7 @@ async def get_work_programs_data(
             comp_fields = {}
             for field in competencies_fields:
                 comp_fields[field.get("id")] = field.get("code")
+            # Получение содержимого компетенций
             comp_data = await check_api_db_response(
                 await api_get_db_table(
                     Apeks.TABLES.get("mm_work_programs_competencies_data"),
@@ -774,7 +821,7 @@ async def get_work_programs_data(
                 if not wp_data[wp_id]["competencies_data"].get(comp_id):
                     wp_data[wp_id]["competencies_data"][comp_id] = {}
                 wp_data[wp_id]["competencies_data"][comp_id][field] = data.get("value")
-
+            # Получение уровней сформированности компетенций
             comp_levels = await check_api_db_response(
                 await api_get_db_table(
                     Apeks.TABLES.get("mm_competency_levels"),
@@ -783,14 +830,31 @@ async def get_work_programs_data(
             )
             for level in comp_levels:
                 wp_id = int(level.get("work_program_id"))
-                level_id = int(level.get("level"))
+                level_val = int(level.get("level"))
                 items = [item for item in [*level]]
                 for item in items:
-                    if not wp_data[wp_id]["competency_levels"].get(level_id):
-                        wp_data[wp_id]["competency_levels"][level_id] = {}
-                    wp_data[wp_id]["competency_levels"][level_id][item] = level.get(
+                    if not wp_data[wp_id]["competency_levels"].get(level_val):
+                        wp_data[wp_id]["competency_levels"][level_val] = {}
+                    wp_data[wp_id]["competency_levels"][level_val][item] = level.get(
                         item
                     )
-
-    logging.debug("Передана информация о рабочих программах " f"дисциплин {wp_list}")
+            # Получение данных о завершающих обучение формах контроля для
+            # проверки и создания уровней сформированности компетенций
+            curriculum_discipline_id = set([
+                    wp_data[wp].get("curriculum_discipline_id") for wp in wp_data
+                ])
+            control_works = await get_plan_control_works(
+                curriculum_discipline_id=[*curriculum_discipline_id],
+                control_type_id=(
+                    Apeks.CONTROL_TYPE_ID.get("exam"),
+                    Apeks.CONTROL_TYPE_ID.get("zachet"),
+                    Apeks.CONTROL_TYPE_ID.get("zachet_mark"),
+                    Apeks.CONTROL_TYPE_ID.get("final_att"),
+                ),
+            )
+            for wp in wp_data:
+                disc_id = int(wp_data[wp].get("curriculum_discipline_id"))
+                if disc_id in control_works:
+                    wp_data[wp]["control_works"] = control_works.get(disc_id)
+    logging.debug("Передана информация о рабочих программах дисциплин {wp_list}")
     return wp_data

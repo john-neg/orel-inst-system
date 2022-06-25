@@ -62,8 +62,8 @@ async def api_add_to_db_table(
 
     Parameters
     ----------
-        table_name: str
-            имя_таблицы
+
+
         url: str
             URL сервера
         token: str

@@ -6,7 +6,8 @@ import requests
 from openpyxl import load_workbook
 
 from app.main.func import db_filter_req
-from common.classes.EducationPlan import EducationPlanCompetencies
+from common.classes.EducationPlan import EducationPlanCompetencies, \
+    EducationPlanIndicators
 from common.func.api_delete import api_delete_from_db_table
 from common.func.api_get import (
     get_work_programs_data,
@@ -67,6 +68,38 @@ async def get_plan_competency_instance(plan_id: int | str) -> EducationPlanCompe
         ),
     )
     return plan
+
+
+async def get_plan_indicator_instance(plan_id: int | str) -> EducationPlanIndicators:
+    """
+    Возвращает экземпляр класса 'EducationPlanIndicators' с
+    данными, необходимыми для работы модуля Матрица с индикаторами
+    приложения 'plans'.
+    """
+    plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+    work_programs_data = await get_work_programs_data(
+        curriculum_discipline_id=[*plan_disciplines], competencies=True)
+    plan = EducationPlanIndicators(
+        education_plan_id=plan_id,
+        plan_education_plans=await check_api_db_response(
+            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
+        ),
+        plan_curriculum_disciplines=plan_disciplines,
+        plan_competencies=data_processor(
+            await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_competencies"), education_plan_id=plan_id
+                )
+            )
+        ),
+        discipline_competencies=await get_plan_discipline_competencies(
+            [*plan_disciplines]
+        ),
+        work_programs_data=work_programs_data
+    )
+    return plan
+
+
 
 
 async def plan_competency_add(
@@ -296,43 +329,7 @@ async def plan_competencies_data_delete(
     return " ".join(message)
 
 
-async def get_plan_control_works(
-    curriculum_discipline_id: tuple[int | str] | list[int | str],
-    table_name: str = Apeks.TABLES.get("plan_control_works"),
-    control_type_id: tuple
-    | list = (
-        Apeks.CONTROL_TYPE_ID.get("exam"),
-        Apeks.CONTROL_TYPE_ID.get("zachet"),
-        Apeks.CONTROL_TYPE_ID.get("zachet_mark"),
-        Apeks.CONTROL_TYPE_ID.get("final_att"),
-    ),
-) -> dict:
-    """
-    Возвращает данные из таблицы "plan_control_works" о завершающих формах
-    контроля для дисциплин учебного плана (отбираются записи с наибольшим
-    значением "semester_id").
 
-    :param curriculum_discipline_id: id учебной дисциплины
-    :param table_name: имя таблицы
-    :param control_type_id: фильтр по id форм контроля
-    :return: {"curriculum_discipline_id": {"id": record_id,
-    "curriculum_discipline_id": id, "control_type_id": id, "semester_id": id,
-    "hours": val, "is_classroom": val}
-    """
-    response = await check_api_db_response(
-        await api_get_db_table(
-            table_name,
-            curriculum_discipline_id=[*curriculum_discipline_id],
-            control_type_id=[*control_type_id],
-        )
-    )
-    control_works = {}
-    for record in response:
-        disc_id = record.get("curriculum_discipline_id")
-        control = control_works.setdefault(disc_id, record)
-        if int(control.get("semester_id")) < int(record.get("semester_id")):
-            control_works[disc_id] = record
-    return control_works
 
 
 

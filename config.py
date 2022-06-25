@@ -217,6 +217,24 @@ class ApeksConfig(object):
         "level3": "level3",
     }
 
+    # Базовый номер уровня сформированности
+    BASE_COMP_LEVEL = 1
+
+    # Регулярные выражения для выделения кодов индикаторов и компетенций
+    COMPETENCY_SPLIT_REGEX = r"\.[а-я]\."
+    INDICATOR_SPLIT_REGEX = r"\s[-–]\s"
+
+    # Виды индикаторов дисциплин
+    INDICATOR_TYPES = {
+        ".з.": "knowledge",
+        ".у.": "abilities",
+        ".в.": "ownerships",
+    }
+
+    # Индексы расположения дисциплин и компетенций в загружаемых файлах матриц
+    MATRIX_COMP_ROW = 0
+    MATRIX_DISC_COL = 1
+
     # Идентификаторы видов занятий в таблице 'class_type_id'
     CLASS_TYPE_ID = {
         # Лекция
@@ -344,21 +362,6 @@ class ApeksConfig(object):
         ".в .": ".в.",
         "None": "",
     }
-
-    # Регулярные выражения для выделения кодов индикаторов и компетенций
-    COMPETENCY_SPLIT_REGEX = r"\.[а-я]\."
-    INDICATOR_SPLIT_REGEX = r"\s[-–]\s"
-
-    # Виды индикаторов дисциплин
-    INDICATOR_TYPES = {
-        ".з.": "knowledge",
-        ".у.": "abilities",
-        ".в.": "ownerships",
-    }
-
-    # Индексы расположения дисциплин и компетенций в загружаемых файлах матриц
-    MATRIX_COMP_ROW = 0
-    MATRIX_DISC_COL = 1
 
 
 # Создание директорий если отсутствуют

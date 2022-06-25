@@ -13,10 +13,12 @@ from app.common.func.app_core import allowed_file
 from app.plans import bp
 from app.plans.func import (
     comps_file_processing,
-    plan_competencies_data_delete, get_plan_competency_instance,
+    plan_competencies_data_delete,
+    get_plan_competency_instance,
 )
 from app.plans.models import MatrixIndicatorsFile
-from common.classes.PlanMatrixProcessor import PlanMatrixProcessor
+from common.classes.PlanMatrixProcessor import PlanSimpleMatrixProcessor, \
+    PlanIndicatorMatrixProcessor
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
 from config import FlaskConfig
 from plans.forms import (
@@ -165,14 +167,14 @@ async def competencies_load(plan_id):
 async def matrix_simple_load(plan_id):
     form = MatrixSimpleForm()
     plan = await get_plan_competency_instance(plan_id)
-    file, match_data, comp_not_in_file, comp_not_in_plan = None, None, None, None
+    file, match_data, comp_not_in_file, comp_not_in_plan = (None for _ in range(4))
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        processor = PlanMatrixProcessor(plan, file)
+        processor = PlanSimpleMatrixProcessor(plan, file)
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
-        match_data = processor.matrix_simple_match_data()
+        match_data = processor.matrix_match_data
     if request.method == "POST":
         # Текущая матрица
         if request.form.get("make_matrix"):
@@ -229,14 +231,14 @@ async def matrix_simple_load(plan_id):
 
 @bp.route("/matrix_indicator_load/<int:plan_id>", methods=["GET", "POST"])
 @login_required
-async def matrix_indicator_load(plan_id):
+async def get_plan_indicator_instance(plan_id):
     form = MatrixIndicatorForm()
     plan = await get_plan_competency_instance(plan_id)
-    file, match_data, comp_not_in_file, comp_not_in_plan = None, None, None, None
+    file, match_data, comp_not_in_file, comp_not_in_plan = (None for _ in range(4))
     filename = request.args.get("filename")
     if filename:
         file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        processor = PlanMatrixProcessor(plan, file)
+        processor = PlanIndicatorMatrixProcessor(plan, file)
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
 

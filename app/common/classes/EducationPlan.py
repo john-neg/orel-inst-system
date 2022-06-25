@@ -193,28 +193,29 @@ class EducationPlanIndicators(EducationPlanCompetencies, EducationPlanWorkProgra
     """
     Сведения об учебном плане, содержащихся в нем дисциплинах, компетенциях
     рабочих программах.
-    Для правильно работы отчетов сведения из таблицы "plan_curriculum_disciplines"
-    необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
-    с параметром disc_filter=False
 
-    Attributes:
-    ----------
-        mm_competency_levels: list
-            данные из таблицы 'mm_competency_levels'
-            (информация о уровнях компетенций рабочих программ плана)
-        plan_control_works: list
-            данные из таблицы 'plan_control_works'
-            (информация об установленных в плане для учебных дисциплин
-            формах контроля и семестрах)
-
-    Methods:
-    -------
-        named_disc_comp_relations()  -> dict:
-
-
+    Атрибут 'work_programs_data' - вывод функции 'get_work_programs_data'
+    c параметром 'competencies = True'
     """
 
-    plan_control_works: dict
+    def __post_init__(self):
+        super().__post_init__()
+        self.plan_no_control_data = []
+        self.program_control_extra_levels = []
+        self.program_comp_level_delete = []
+        self.analyze_control_data()
+
+    def analyze_control_data(self) -> None:
+        for wp_val in self.work_programs_data.values():
+            if not wp_val.get("control_works"):
+                self.plan_no_control_data.append(wp_val.get("name"))
+            if len(wp_val.get("competency_levels")) > 1:
+                self.program_control_extra_levels.append(wp_val.get("name"))
+                for level, value in wp_val.get("competency_levels").items():
+                    if level != 1:
+                        self.program_comp_level_delete.append(value.get('id'))
+
+
 
 
 @dataclass(repr=False, eq=False)
