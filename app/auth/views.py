@@ -1,13 +1,13 @@
 from flask import render_template, redirect, url_for
-from flask_admin.menu import MenuLink
 from flask_login import logout_user, login_user, current_user, login_required
+from flask_sqlalchemy import SQLAlchemy
 
-from app import db, admin
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
 from app.auth.models import User
-from app.common.auth.MyModelView import MyModelView
 from config import FlaskConfig
+
+db = SQLAlchemy()
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -38,8 +38,10 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        message = (f"Зарегистрирован пользователь {form.username.data} "
-                   f"({dict(form.role.choices).get(form.role.data)})")
+        message = (
+            f"Зарегистрирован пользователь {form.username.data} "
+            f"({dict(form.role.choices).get(form.role.data)})"
+        )
     return render_template(
         "auth/register.html",
         title="Регистрация нового пользователя",
@@ -54,7 +56,3 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for("main.index"))
-
-
-admin.add_link(MenuLink(name="Вернуться на основной сайт", category="", url="/"))
-admin.add_view(MyModelView(User, db.session))

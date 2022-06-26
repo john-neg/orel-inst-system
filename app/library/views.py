@@ -9,12 +9,11 @@ from app.common.forms import ChoosePlan
 from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
-    get_plan_curriculum_disciplines,
-    get_work_programs_data,
-    get_plan_education_specialties,
-    get_education_plans,
 )
-from library.func import load_lib_add_field, load_lib_edit_field
+from common.func.work_program import get_work_programs_data, load_lib_add_field, \
+    load_lib_edit_field
+from common.func.education_plan import get_plan_education_specialties, \
+    get_education_plans, get_plan_curriculum_disciplines
 from app.common.func.app_core import allowed_file
 from app.common.reports.library_report import library_report
 from app.library import bp

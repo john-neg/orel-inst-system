@@ -151,25 +151,26 @@
               </ul>
             </div>
           </nav>
-          <!-- Основная часть -->
-          {% block content %}
-          {% endblock %}
           <!-- Flash сообщения -->
-          <div class="container">
-            {% with messages = get_flashed_messages(with_categories=True) %}
-              {% if messages %}
-                <div class="row justify-content-center mt-2 mb-2">
-                  <div class="col-md-10 col-xl-8 mb-3">
+          {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+              <div class="container">
+                <div class="row justify-content-center">
+                  <div class="col-md-10 col-xl-8">
                     {% for category, message in messages %}
-                      <div class="alert alert-{{ category }} text-center" role="alert">
+                      <div class="alert alert-{{ category }} text-center alert-dismissible" role="alert">
+                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
                         <span>{{ message }}<br /></span>
                       </div>
                     {% endfor %}
                   </div>
                 </div>
-              {% endif %}
-            {% endwith %}
-          </div>
+              </div>
+            {% endif %}
+          {% endwith %}
+          <!-- Основная часть -->
+          {% block content %}
+          {% endblock %}
         </div>
         <!-- Footer -->
         <footer class="bg-white sticky-footer" style="padding-top: 4px;padding-bottom: 4px;--bs-body-bg: #f8f9fc;">

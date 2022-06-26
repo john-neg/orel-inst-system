@@ -6,12 +6,12 @@ from werkzeug.utils import redirect
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.classes.LoadReportProcessor import LoadReportProcessor
 from app.common.func.api_get import (
-    get_departments,
-    get_state_staff,
     check_api_db_response,
     api_get_db_table,
     get_lessons,
 )
+from common.func.staff import get_state_staff
+from common.func.organization import get_departments
 from app.common.reports.load_report import generate_load_report
 from app.load import bp
 from app.load.forms import LoadReportForm

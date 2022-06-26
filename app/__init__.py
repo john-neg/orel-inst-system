@@ -1,13 +1,16 @@
 import logging
+import os
 
 from flask import Flask
 from flask.logging import create_logger
 from flask_admin import Admin
+from flask_admin.menu import MenuLink
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-from app.common.auth.MyAdminIndexView import MyAdminIndexView
-from config import FlaskConfig, ApeksConfig as Apeks
+from auth.models import User, init_db
+from common.classes.MyModelView import MyModelView
+from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
 
 db = SQLAlchemy()
 login = LoginManager()
@@ -45,7 +48,7 @@ def create_app(config_class=FlaskConfig):
 
     db.init_app(app)
     login.init_app(app)
-    admin.init_app(app, index_view=MyAdminIndexView())
+    admin.init_app(app)
     create_logger(app)
 
     from app.auth import bp as login_bp
@@ -69,4 +72,34 @@ def create_app(config_class=FlaskConfig):
     from app.library import bp as library_bp
     app.register_blueprint(library_bp)
 
+    admin.add_link(MenuLink(name="Вернуться на основной сайт", category="", url="/"))
+    admin.add_view(MyModelView(User, db.session))
+
+    if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
+        with app.app_context():
+            init_db()
+
+    # Создание директорий если отсутствуют
+    for local_directory in (
+        FlaskConfig.TEMP_FILE_DIR,
+        FlaskConfig.EXPORT_FILE_DIR,
+        FlaskConfig.UPLOAD_FILE_DIR,
+        FlaskConfig.LOG_FILE_DIR,
+    ):
+        if not os.path.exists(local_directory):
+            os.mkdir(local_directory, 0o755)
+
+    # Очистка временных директорий
+    for temp_directory in (
+        FlaskConfig.EXPORT_FILE_DIR,
+        FlaskConfig.UPLOAD_FILE_DIR,
+    ):
+        for file in os.listdir(temp_directory):
+            os.remove(os.path.join(temp_directory, file))
+
     return app
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))

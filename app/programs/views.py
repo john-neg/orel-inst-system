@@ -12,24 +12,21 @@ from app.common.classes.EducationStaff import EducationStaff
 from app.common.exceptions import ApeksWrongParameterException, \
     ApeksParameterNonExistException
 from app.common.func.api_get import (
-    get_departments,
     check_api_db_response,
     api_get_db_table,
-    get_plan_curriculum_disciplines,
-    get_organization_name,
-    get_organization_chief_info,
-    get_rank_name,
-    get_plan_education_specialties,
-    get_education_plans,
-    get_work_programs_data,
-    get_state_staff, get_plan_discipline_competencies,
 )
+from common.func.work_program import get_work_programs_data, work_program_view_data, \
+    work_program_field_tb_table, work_program_get_parameter_info, create_work_program, \
+    work_program_add_parameter, work_programs_dates_update, edit_work_programs_data
+from common.func.education_plan import get_plan_education_specialties, \
+    get_education_plans, get_plan_curriculum_disciplines, \
+    get_plan_discipline_competencies
+from common.func.staff import get_rank_name, get_state_staff
+from common.func.organization import get_organization_name, get_organization_chief_info, \
+    get_departments
 from app.common.func.app_core import (
     data_processor,
 )
-from programs.func import work_program_field_tb_table, work_program_get_parameter_info, \
-    create_work_program, work_program_add_parameter, work_programs_dates_update, \
-    edit_work_programs_data
 from app.common.reports.program_title_pages import generate_program_title_pages
 from app.programs import bp
 from app.programs.forms import (
@@ -40,7 +37,6 @@ from app.programs.forms import (
     ProgramFieldUpdate,
     TitlePagesGenerator, ProgramDataSubmit,
 )
-from app.programs.func import work_program_view_data
 from config import ApeksConfig as Apeks
 
 

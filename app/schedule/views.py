@@ -2,19 +2,19 @@ import logging
 import os
 from datetime import date
 
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
 from app.common.func.api_get import (
-    get_departments,
-    get_state_staff,
     check_api_db_response,
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
-    get_plan_disciplines,
 )
+from common.func.staff import get_state_staff
+from common.func.organization import get_departments
+from common.func.education_plan import get_plan_disciplines
 from app.common.func.app_core import data_processor
 from app.common.reports.schedule_ical import generate_schedule_ical
 from app.common.reports.schedule_xlsx import generate_schedule_xlsx
@@ -80,13 +80,16 @@ async def schedule():
                 else generate_schedule_xlsx(staff_lessons, staff_name)
             )
             if filename == "no data":
+                flash(
+                    f"{staff_name} - нет занятий в указанный период",
+                    category="warning"
+                )
                 error = f"{staff_name} - нет занятий в указанный период"
                 return render_template(
                     "schedule/schedule.html",
                     active="schedule",
                     form=form,
                     department=department,
-                    error=error,
                 )
             else:
                 return redirect(url_for("main.get_file", filename=filename))

@@ -5,38 +5,31 @@ from flask.views import View
 from flask_login import login_required
 
 from app.common.forms import ChoosePlan
-from app.common.func.api_get import (
-    get_plan_education_specialties,
-    get_education_plans,
-)
+from common.func.education_plan import get_plan_education_specialties, \
+    get_education_plans, plan_competency_add, discipline_competency_add
+from plans.func import plan_competencies_data_cleanup
 from app.common.func.app_core import allowed_file
 from app.plans import bp
 from app.plans.func import (
     comps_file_processing,
-    plan_competencies_data_delete,
     get_plan_competency_instance,
     get_plan_indicator_instance,
-    work_programs_competencies_level_del,
-    work_program_competency_data_add,
-    work_program_competency_level_add,
-    work_program_competency_level_edit,
 )
+from common.func.work_program import work_programs_competencies_level_del, \
+    work_program_competency_data_add, work_program_competency_level_add, \
+    work_program_competency_level_edit
 from common.classes.PlanMatrixProcessor import (
     MatrixSimpleProcessor,
     MatrixIndicatorProcessor, MatrixFileProcessor,
 )
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
 from common.reports.plans_indicators_file import generate_indicators_file
-from config import FlaskConfig
+from config import FlaskConfig, ApeksConfig as Apeks
 from plans.forms import (
     CompLoadForm,
     IndicatorsFileForm,
     MatrixIndicatorForm,
     MatrixSimpleForm,
-)
-from plans.func import (
-    plan_competency_add,
-    discipline_competency_add,
 )
 
 
@@ -121,7 +114,7 @@ async def competencies_load(plan_id):
             )
         # Полная очистка
         if request.form.get("data_delete"):
-            message = await plan_competencies_data_delete(
+            message = await plan_competencies_data_cleanup(
                 plan_id,
                 plan.plan_curriculum_disciplines,
                 plan_comp=True,
@@ -190,7 +183,7 @@ async def matrix_simple_load(plan_id):
             )
         # Удаление связей
         if request.form.get("data_delete"):
-            message = await plan_competencies_data_delete(
+            message = await plan_competencies_data_cleanup(
                 plan_id,
                 plan.plan_curriculum_disciplines,
                 plan_comp=False,
@@ -279,7 +272,7 @@ async def matrix_indicator_load(plan_id):
             )
         # Удаление связей
         if request.form.get("data_delete"):
-            message = await plan_competencies_data_delete(
+            message = await plan_competencies_data_cleanup(
                 plan_id,
                 plan.plan_curriculum_disciplines,
                 plan_comp=False,
@@ -336,7 +329,7 @@ async def matrix_indicator_load(plan_id):
 
                 comp_add_counter = 0
                 # Очищаем ранее загруженные в программу данные
-                await plan_competencies_data_delete(
+                await plan_competencies_data_cleanup(
                     plan_id,
                     plan.plan_curriculum_disciplines,
                     plan_comp=False,
@@ -391,6 +384,8 @@ async def matrix_indicator_load(plan_id):
         "plans/matrix_indicator_load.html",
         active="plans",
         form=form,
+        url=Apeks.URL,
+        plan_id=plan_id,
         plan_name=plan.name,
         plan_relations=plan.named_disc_comp_relations(),
         program_non_exist=plan.non_exist,

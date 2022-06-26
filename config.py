@@ -372,26 +372,6 @@ class ApeksConfig(object):
         "None": "",
     }
 
-
-# Создание директорий если отсутствуют
-for local_directory in (
-    FlaskConfig.TEMP_FILE_DIR,
-    FlaskConfig.EXPORT_FILE_DIR,
-    FlaskConfig.UPLOAD_FILE_DIR,
-    FlaskConfig.LOG_FILE_DIR,
-):
-    if not os.path.exists(local_directory):
-        os.mkdir(local_directory, 0o755)
-
-# Очистка временных директорий
-for temp_directory in (
-    FlaskConfig.EXPORT_FILE_DIR,
-    FlaskConfig.UPLOAD_FILE_DIR,
-):
-    for file in os.listdir(temp_directory):
-        os.remove(os.path.join(temp_directory, file))
-
-
 # Logger Configuration
 logging.basicConfig(
     level=logging.DEBUG,
@@ -399,7 +379,9 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(stream=sys.stdout),
         RotatingFileHandler(
-            os.path.join(FlaskConfig.LOG_FILE_DIR, "system.log"), maxBytes=5000000, backupCount=5
+            os.path.join(FlaskConfig.LOG_FILE_DIR, "system.log"),
+            maxBytes=5000000,
+            backupCount=5
         ),
     ],
 )
