@@ -24,7 +24,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(stream=sys.stdout),
         RotatingFileHandler(
-            FlaskConfig.LOG_FILE_DIR + "telegram_bot.log",
+            os.path.join(FlaskConfig.LOG_FILE_DIR, "telegram_bot.log"),
             maxBytes=5000000,
             backupCount=5,
         ),

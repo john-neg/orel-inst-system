@@ -6,7 +6,7 @@ from flask_login import login_required
 
 from app.common.classes.EducationPlan import (
     EducationPlanExtended,
-    EducationPlanWorkPrograms,
+    EducationPlanWorkPrograms, EducationPlanIndicators,
 )
 from app.common.classes.EducationStaff import EducationStaff
 from app.common.exceptions import ApeksWrongParameterException, \
@@ -22,7 +22,7 @@ from app.common.func.api_get import (
     get_plan_education_specialties,
     get_education_plans,
     get_work_programs_data,
-    get_state_staff,
+    get_state_staff, get_plan_discipline_competencies,
 )
 from app.common.func.app_core import (
     data_processor,
@@ -358,14 +358,24 @@ async def field_edit():
 async def program_data(plan_id):
     form = ProgramDataSubmit()
     plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
-    plan = EducationPlanWorkPrograms(
+    plan = EducationPlanIndicators(
         education_plan_id=plan_id,
         plan_education_plans=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
         ),
         plan_curriculum_disciplines=plan_disciplines,
+        plan_competencies=data_processor(
+            await check_api_db_response(
+                await api_get_db_table(
+                    Apeks.TABLES.get("plan_competencies"), education_plan_id=plan_id
+                )
+            )
+        ),
+        discipline_competencies=await get_plan_discipline_competencies(
+            [*plan_disciplines]
+        ),
         work_programs_data=await get_work_programs_data(
-            curriculum_discipline_id=[*plan_disciplines], signs=True
+            curriculum_discipline_id=[*plan_disciplines], signs=True, competencies=True
         ),
     )
     if request.method == "POST":
@@ -456,6 +466,8 @@ async def program_data(plan_id):
         program_non_exist=plan.non_exist,
         program_duplicate=plan.duplicate,
         program_wrong_name=plan.wrong_name,
+        plan_no_control_data=plan.plan_no_control_data,
+        program_control_extra_levels=plan.program_control_extra_levels,
         sign_users_data=sign_users_data,
         widget_data=widget_data,
     )

@@ -399,7 +399,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(stream=sys.stdout),
         RotatingFileHandler(
-            FlaskConfig.LOG_FILE_DIR + "system.log", maxBytes=5000000, backupCount=5
+            os.path.join(FlaskConfig.LOG_FILE_DIR, "system.log"), maxBytes=5000000, backupCount=5
         ),
     ],
 )

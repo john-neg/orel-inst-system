@@ -29,7 +29,7 @@ def get_file(filename):
 @bp.route("/templates/<string:filename>", methods=["GET"])
 def get_temp_file(filename):
     """Отправляет файл шаблона."""
-    file = FlaskConfig.TEMPLATE_FILE_DIR + filename
+    file = os.path.join(FlaskConfig.TEMPLATE_FILE_DIR, filename)
     return send_file(
         file,
         mimetype="text/plain",
@@ -38,26 +38,26 @@ def get_temp_file(filename):
     )
 
 
-@bp.route("/upload", methods=["GET", "POST"])
-def upload():
-    if request.method == "POST":
-        file = request.files["user_file"]
-        if file and allowed_file(file.filename):
-            filename = file.filename
-            # name = secure_filename(file.name)
-            # (проблема с русскими названиями)
-            file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-            return filename
-    return render_template("common/upload.html")
+# @bp.route("/upload", methods=["GET", "POST"])
+# def upload():
+#     if request.method == "POST":
+#         file = request.files["user_file"]
+#         if file and allowed_file(file.filename):
+#             filename = file.filename
+#             # name = secure_filename(file.name)
+#             # (проблема с русскими названиями)
+#             file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+#             return filename
+#     return render_template("common/upload.html")
 
 
-@bp.route("/read_file/", methods=["GET"])
-def read_uploaded_file():
-    filename = secure_filename(request.args.get("name"))
-    try:
-        if filename and allowed_file(filename):
-            with open(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)) as f:
-                return f.read()
-    except IOError:
-        pass
-    return "Unable to read file"
+# @bp.route("/read_file/", methods=["GET"])
+# def read_uploaded_file():
+#     filename = secure_filename(request.args.get("name"))
+#     try:
+#         if filename and allowed_file(filename):
+#             with open(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)) as f:
+#                 return f.read()
+#     except IOError:
+#         pass
+#     return "Unable to read file"

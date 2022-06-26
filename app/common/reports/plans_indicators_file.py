@@ -1,3 +1,6 @@
+import logging
+import os
+
 from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Cm, Pt
@@ -44,5 +47,6 @@ def generate_indicators_file(plan_name: str, report_data: dict) -> str:
                 paragraph = document.add_paragraph(f"{ind};")
                 paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     filename = f"{plan_name}.docx"
-    document.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+    document.save(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
+    logging.debug(f"Сформирован файл - отчет по индикаторам: {filename}")
     return filename

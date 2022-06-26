@@ -1,4 +1,5 @@
 import logging
+import os
 
 from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
@@ -104,6 +105,6 @@ def generate_program_title_pages(form_data: dict, plan_name: str, wp_data: dict)
         document.add_page_break()
 
     filename = f"{plan_name}.docx"
-    document.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+    document.save(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
     logging.debug(f"Сформирован файл - титульные листы РП: {filename}")
     return filename

@@ -143,14 +143,14 @@ async def schedule_staff_chosen(message: types.Message, state: FSMContext):
             reply_markup=types.ReplyKeyboardRemove(),
         )
     else:
-        file = open(FlaskConfig.EXPORT_FILE_DIR + filename, "rb")
+        file = open(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename), "rb")
         await message.answer(
             "{}, Ваш файл готов!".format(message.from_user.first_name),
             reply_markup=types.ReplyKeyboardRemove(),
         )
         await message.answer_document(document=file)
 
-        os.remove(FlaskConfig.EXPORT_FILE_DIR + filename)
+        os.remove(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
 
     await message.answer(
         "{}, если Вам что-то еще необходимо, "

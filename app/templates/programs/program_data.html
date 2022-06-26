@@ -120,6 +120,22 @@
               </span>
             </div>
           {% endif %}
+          {% if program_control_extra_levels %}
+            <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center">В рабочей программе больше одного уровня сформированности компетенций:</h6>
+              {% for program in program_control_extra_levels %}
+                <span>{{ program }}<br></span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if plan_no_control_data %}
+            <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center">В плане отсутствует форма контроля для дисциплины:</h6>
+              {% for disc in plan_no_control_data %}
+                <span>{{ disc }}<br></span>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
       </div>
       <div class="row justify-content-center">

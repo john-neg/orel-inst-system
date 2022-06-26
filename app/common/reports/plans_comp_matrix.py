@@ -1,3 +1,6 @@
+import logging
+import os
+
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
@@ -70,5 +73,6 @@ def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:
         row += 1
 
     filename = f"Матрица - {plan.name}.xlsx"
-    wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+    wb.save(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
+    logging.debug(f"Сформирован файл: {filename}")
     return filename

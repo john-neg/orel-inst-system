@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -69,6 +70,6 @@ def generate_schedule_xlsx(schedule: ScheduleLessonsStaff, staff_name: str) -> s
             ws.cell(row, 4).style = ExcelStyle.Base_No_Wrap
             row += 1
 
-        wb.save(FlaskConfig.EXPORT_FILE_DIR + filename)
+        wb.save(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
         logging.debug(f'Файл c расписанием "{filename}" успешно сформирован')
         return filename

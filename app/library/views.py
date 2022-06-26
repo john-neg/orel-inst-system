@@ -217,7 +217,7 @@ class LibraryCheckView(View):
 
     @login_required
     async def dispatch_request(self, plan_id, filename):
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
         form = LibraryForm()
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
         plan = EducationPlanWorkPrograms(
@@ -335,7 +335,7 @@ class LibraryUpdateView(View):
 
     @login_required
     async def dispatch_request(self, plan_id, filename):
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
         plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
         plan = EducationPlanWorkPrograms(
             education_plan_id=plan_id,
