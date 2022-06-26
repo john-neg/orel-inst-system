@@ -1,6 +1,6 @@
 import os
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, send_file
 from flask.views import View
 from flask_login import login_required
 
@@ -21,12 +21,12 @@ from app.plans.func import (
     work_program_competency_level_add,
     work_program_competency_level_edit,
 )
-from app.plans.models import MatrixIndicatorsFile
 from common.classes.PlanMatrixProcessor import (
-    PlanSimpleMatrixProcessor,
-    PlanIndicatorMatrixProcessor,
+    MatrixSimpleProcessor,
+    MatrixIndicatorProcessor, MatrixFileProcessor,
 )
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
+from common.reports.plans_indicators_file import generate_indicators_file
 from config import FlaskConfig
 from plans.forms import (
     CompLoadForm,
@@ -111,7 +111,7 @@ async def competencies_load(plan_id):
     file, comps = None, None
     filename = request.args.get("filename")
     if filename:
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
         comps = comps_file_processing(file)
     if request.method == "POST":
         # Шаблон
@@ -177,8 +177,8 @@ async def matrix_simple_load(plan_id):
     (file, match_data, comp_not_in_file, comp_not_in_plan) = (None for _ in range(4))
     filename = request.args.get("filename")
     if filename:
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        processor = PlanSimpleMatrixProcessor(plan, file)
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
+        processor = MatrixSimpleProcessor(file, plan)
         match_data = processor.matrix_match_data
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
@@ -255,8 +255,8 @@ async def matrix_indicator_load(plan_id):
     ) = (None for _ in range(8))
     filename = request.args.get("filename")
     if filename:
-        file = FlaskConfig.UPLOAD_FILE_DIR + filename
-        processor = PlanIndicatorMatrixProcessor(plan, file)
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
+        processor = MatrixIndicatorProcessor(file, plan)
         match_data = processor.matrix_match_data
         comp_not_in_file = processor.comp_not_in_file()
         comp_not_in_plan = processor.comp_not_in_plan()
@@ -409,6 +409,12 @@ async def matrix_indicator_load(plan_id):
 @login_required
 def matrix_indicator_file():
     form = IndicatorsFileForm()
+    filename = request.args.get("filename")
+    indicator_errors, report_data = None, None
+    if filename:
+        file = os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)
+        processor = MatrixFileProcessor(file)
+        report_data, indicator_errors = processor.get_file_report_data()
     if request.method == "POST":
         if request.files["file"]:
             file = request.files["file"]
@@ -417,47 +423,18 @@ def matrix_indicator_file():
                 file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                 if request.form.get("file_check"):
                     return redirect(
-                        url_for("plans.matrix_indicator_file_check", filename=filename)
+                        url_for("plans.matrix_indicator_file", filename=filename)
                     )
+        if request.form.get("generate_report"):
+            report = generate_indicators_file("Название", report_data)
+            # os.remove(file)
+            # flash("Файл отправлен", category="success")
+            return redirect(url_for("main.get_file", filename=report))
     return render_template(
         "plans/indicator_file.html",
         active="plans",
-        form=form,
-    )
-
-
-@bp.route("/matrix_indicator_file_check/<string:filename>", methods=["GET", "POST"])
-@login_required
-def matrix_indicator_file_check(filename):
-    form = IndicatorsFileForm()
-    file = FlaskConfig.UPLOAD_FILE_DIR + filename
-    matrix = MatrixIndicatorsFile(file)
-    if request.method == "POST":
-        if request.files["file"]:
-            file = request.files["file"]
-            if file and allowed_file(file.filename):
-                filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
-                file_path = FlaskConfig.UPLOAD_FILE_DIR + filename
-                if request.form.get("file_check"):
-                    return redirect(
-                        url_for("plans.matrix_indicator_file_check", filename=filename)
-                    )
-                if request.form.get("generate_report"):
-                    matrix = MatrixIndicatorsFile(file_path)
-                    filename = matrix.list_to_word()
-                    os.remove(file_path)
-                    return redirect(url_for("main.get_file", filename=filename))
-    if request.form.get("generate_report"):
-        filename = matrix.list_to_word()
-        os.remove(file)
-        flash("Файл отправлен", category="success")
-        return redirect(url_for("main.get_file", filename=filename))
-    return render_template(
-        "plans/indicator_file.html",
-        active="plans",
-        file_errors=matrix.file_errors(),
-        message="Ошибки не обнаружены",
+        report_data=report_data,
+        indicator_errors=indicator_errors,
         form=form,
         filename=filename,
     )

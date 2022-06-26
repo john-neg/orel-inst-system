@@ -48,24 +48,3 @@ def plan_curriculum_disciplines(education_plan_id):
     return disciplines
 
 
-def get_system_user_name(user_id):
-    """Get name of system user by ID."""
-    resp = db_filter_req("state_staff", "user_id", user_id)
-    if resp:
-        return f'{resp[0]["family_name"]} {resp[0]["name"][0]}.{resp[0]["surname"][0]}.'
-    else:
-        return "Пользователь не существует"
-
-
-def add_wp_field(work_program_id, field_id):
-    """Добавление пустых полей в рабочую программу в случае их отсутствия."""
-    params = {"token": Apeks.TOKEN}
-    data = {
-        "table": "mm_work_programs_data",
-        "fields[work_program_id]": work_program_id,
-        "fields[field_id]": field_id,
-        "fields[data]": "",
-    }
-    requests.post(
-        Apeks.URL + "/api/call/system-database/add", params=params, data=data
-    )

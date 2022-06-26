@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import logging
+import re
 
-import requests
 from openpyxl import load_workbook
 
-from app.main.func import db_filter_req
-from common.classes.EducationPlan import EducationPlanCompetencies, \
-    EducationPlanIndicators
+from common.classes.EducationPlan import (
+    EducationPlanCompetencies,
+    EducationPlanIndicators,
+)
 from common.func.api_delete import api_delete_from_db_table
 from common.func.api_get import (
     get_work_programs_data,
@@ -44,6 +45,18 @@ def comps_file_processing(file: str) -> list:
     return comps
 
 
+def get_competency_code(indicator) -> str:
+    """
+    Выводит код компетенций индикатора.
+
+    :return: код компетенции
+    """
+    comp_code = re.split(Apeks.COMP_FROM_IND_REGEX, indicator, 1)[0]
+    if len(comp_code) > 12:
+        comp_code = re.split(Apeks.FULL_CODE_SPLIT_REGEX, indicator, 1)[0]
+    return comp_code
+
+
 async def get_plan_competency_instance(plan_id: int | str) -> EducationPlanCompetencies:
     """
     Возвращает экземпляр класса 'EducationPlanCompetencies' с
@@ -78,7 +91,8 @@ async def get_plan_indicator_instance(plan_id: int | str) -> EducationPlanIndica
     """
     plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
     work_programs_data = await get_work_programs_data(
-        curriculum_discipline_id=[*plan_disciplines], competencies=True)
+        curriculum_discipline_id=[*plan_disciplines], competencies=True
+    )
     plan = EducationPlanIndicators(
         education_plan_id=plan_id,
         plan_education_plans=await check_api_db_response(
@@ -95,10 +109,9 @@ async def get_plan_indicator_instance(plan_id: int | str) -> EducationPlanIndica
         discipline_competencies=await get_plan_discipline_competencies(
             [*plan_disciplines]
         ),
-        work_programs_data=work_programs_data
+        work_programs_data=work_programs_data,
     )
     return plan
-
 
 
 async def plan_competency_add(
@@ -348,7 +361,7 @@ async def work_programs_competencies_level_del(
             id=level_id,
         )
     else:
-        response = {'status': 1, 'data': 0}
+        response = {"status": 1, "data": 0}
     if response.get("status") == 1:
         logging.debug(
             f"Удалены уровни (кол-во - {response.get('data')}) формирования "
@@ -438,7 +451,7 @@ async def work_program_competency_level_edit(
     :param table_name: имя таблицы БД
     :return: ответ api {status: code, data: value}
     """
-    filters = {'work_program_id': work_program_id, 'level': level}
+    filters = {"work_program_id": work_program_id, "level": level}
     response = await api_edit_db_table(table_name, filters, fields)
 
     if response.get("status") == 1:
@@ -452,88 +465,3 @@ async def work_program_competency_level_edit(
             f"в рабочей программе {work_program_id}."
         )
     return response
-
-
-
-
-
-
-
-
-
-def disciplines_comp_load(curriculum_discipline_id, competency_id):
-    """Загрузка связи дисциплины с компетенцией"""
-    params = {"token": Apeks.TOKEN}
-    data = {
-        "table": "plan_curriculum_discipline_competencies",
-        "fields[curriculum_discipline_id]": curriculum_discipline_id,
-        "fields[competency_id]": competency_id,
-    }
-    requests.post(Apeks.URL + "/api/call/system-database/add", params=params, data=data)
-
-
-def disciplines_wp_clean(work_program_id):
-    """Удаление записей о компетенциях в РП"""
-    params = {
-        "token": Apeks.TOKEN,
-        "table": "mm_work_programs_competencies_data",
-        "filter[work_program_id]": work_program_id,
-    }
-    requests.delete(Apeks.URL + "/api/call/system-database/delete", params=params)
-
-
-def disciplines_comp_del(curriculum_discipline_id):
-    """Удаление связей дисциплины и компетенций"""
-    params = {
-        "token": Apeks.TOKEN,
-        "table": "plan_curriculum_discipline_competencies",
-        "filter[curriculum_discipline_id]": curriculum_discipline_id,
-    }
-    requests.delete(Apeks.URL + "/api/call/system-database/delete", params=params)
-
-
-def comp_delete(education_plan_id):
-    """Удаление компетенций из учебного плана"""
-    data = db_filter_req("plan_competencies", "education_plan_id", education_plan_id)
-    for i in range(len(data)):
-        params = {
-            "token": Apeks.TOKEN,
-            "table": "plan_competencies",
-            "filter[id]": data[i]["id"],
-        }
-        requests.delete(Apeks.URL + "/api/call/system-database/delete", params=params)
-
-
-def create_wp(curriculum_discipline_id):
-    """Создание программы"""
-    params = {"token": Apeks.TOKEN}
-    data = {
-        "table": "mm_work_programs",
-        "fields[curriculum_discipline_id]": curriculum_discipline_id,
-        "fields[name]": get_wp_name(curriculum_discipline_id),
-        "fields[user_id]": get_main_staff_id(curriculum_discipline_id),
-    }
-    requests.post(Apeks.URL + "/api/call/system-database/add", params=params, data=data)
-
-
-def get_wp_name(curriculum_discipline_id):
-    """Название программы как у дисциплины плана"""
-    disc_id = db_filter_req(
-        "plan_curriculum_disciplines", "id", curriculum_discipline_id
-    )[0]["discipline_id"]
-    return db_filter_req("plan_disciplines", "id", disc_id)[0]["name"]
-
-
-def get_main_staff_id(curriculum_discipline_id):
-    """
-    Получение идентификатора начальника кафедры
-    или самого старшего на момент запроса.
-    """
-    department_id = db_filter_req(
-        "plan_curriculum_disciplines", "id", curriculum_discipline_id
-    )[0]["department_id"]
-    state_staff_id = db_filter_req(
-        "state_staff_history", "department_id", department_id
-    )[0]["staff_id"]
-    user_id = db_filter_req("state_staff", "id", state_staff_id)[0]["user_id"]
-    return user_id

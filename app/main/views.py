@@ -14,12 +14,6 @@ def index():
     return render_template("index.html", active="index")
 
 
-# @bp.route('/favicon.ico')
-# def favicon():
-#     return send_from_directory(os.path.join(FlaskConfig.STATIC_FILE_DIR, 'favicons'),
-#                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
     """Отправляет файл и удаляет его из EXPORT_FILE_DIR."""
@@ -28,7 +22,7 @@ def get_file(filename):
         send_file(
             file,
             mimetype="text/plain",
-            attachment_filename=filename,
+            download_name=filename,
             as_attachment=True,
         ),
         os.remove(file)
@@ -42,7 +36,7 @@ def get_temp_file(filename):
     return send_file(
         file,
         mimetype="text/plain",
-        attachment_filename=filename,
+        download_name=filename,
         as_attachment=True,
     )
 
@@ -53,7 +47,7 @@ def upload():
         file = request.files["user_file"]
         if file and allowed_file(file.filename):
             filename = file.filename
-            # filename = secure_filename(file.filename)
+            # name = secure_filename(file.name)
             # (проблема с русскими названиями)
             file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
             return filename
@@ -62,7 +56,7 @@ def upload():
 
 @bp.route("/read_file/", methods=["GET"])
 def read_uploaded_file():
-    filename = secure_filename(request.args.get("filename"))
+    filename = secure_filename(request.args.get("name"))
     try:
         if filename and allowed_file(filename):
             with open(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename)) as f:

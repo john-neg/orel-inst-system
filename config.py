@@ -221,18 +221,27 @@ class ApeksConfig(object):
     BASE_COMP_LEVEL = 1
 
     # Регулярные выражения для выделения кодов индикаторов и компетенций
-    INDICATOR_COMP_SPLIT_REGEX = r"\.[а-я]\."
-    COMP_CODE_SPLIT_REGEX = r"\s[-–]\s"
+    COMP_FROM_IND_REGEX = r"\.[а-я]\."
+
+    # RegExp для о
+    FULL_CODE_SPLIT_REGEX = r"\s[-–]\s"
 
     # Виды индикаторов дисциплин
-    INDICATOR_TYPES = {
+    INDICATOR_CODES = {
         ".з.": "knowledge",
         ".у.": "abilities",
         ".в.": "ownerships",
     }
+    INDICATOR_TYPES = {
+        "knowledge": "Знать",
+        "abilities": "Уметь",
+        "ownerships": "Владеть",
+    }
 
-    # Индексы расположения дисциплин и компетенций в загружаемых файлах матриц
+    # Индекс строки расположения компетенций в загружаемых файлах матриц
     MATRIX_COMP_ROW = 0
+
+    # Индекс колонки расположения дисциплин в загружаемых файлах матриц
     MATRIX_DISC_COL = 1
 
     # Идентификаторы видов занятий в таблице 'class_type_id'

@@ -51,7 +51,7 @@ def xlsx_iter_rows(worksheet: Workbook.active):
         yield [cell.value for cell in row]
 
 
-def xlsx_normalize(worksheet: Workbook.active, replace: dict):
+def xlsx_normalize(worksheet: Workbook.active, replace: dict) -> Workbook.active:
     """
     Функция для замены символов в таблице.
 
