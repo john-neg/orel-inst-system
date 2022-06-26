@@ -6,24 +6,18 @@ from flask_login import login_required
 
 from app.common.classes.EducationPlan import (
     EducationPlanExtended,
-    EducationPlanWorkPrograms, EducationPlanIndicators,
+    EducationPlanWorkPrograms,
+    EducationPlanIndicators,
 )
 from app.common.classes.EducationStaff import EducationStaff
-from app.common.exceptions import ApeksWrongParameterException, \
-    ApeksParameterNonExistException
+from app.common.exceptions import (
+    ApeksWrongParameterException,
+    ApeksParameterNonExistException,
+)
 from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
 )
-from common.func.work_program import get_work_programs_data, work_program_view_data, \
-    work_program_field_tb_table, work_program_get_parameter_info, create_work_program, \
-    work_program_add_parameter, work_programs_dates_update, edit_work_programs_data
-from common.func.education_plan import get_plan_education_specialties, \
-    get_education_plans, get_plan_curriculum_disciplines, \
-    get_plan_discipline_competencies
-from common.func.staff import get_rank_name, get_state_staff
-from common.func.organization import get_organization_name, get_organization_chief_info, \
-    get_departments
 from app.common.func.app_core import (
     data_processor,
 )
@@ -35,7 +29,30 @@ from app.programs.forms import (
     ChoosePlan,
     DepartmentProgramCheck,
     ProgramFieldUpdate,
-    TitlePagesGenerator, ProgramDataSubmit,
+    TitlePagesGenerator,
+    ProgramDataSubmit,
+)
+from common.func.education_plan import (
+    get_plan_education_specialties,
+    get_education_plans,
+    get_plan_curriculum_disciplines,
+    get_plan_discipline_competencies,
+)
+from common.func.organization import (
+    get_organization_name,
+    get_organization_chief_info,
+    get_departments,
+)
+from common.func.staff import get_rank_name, get_state_staff
+from common.func.work_program import (
+    get_work_programs_data,
+    work_program_view_data,
+    work_program_field_tb_table,
+    work_program_get_parameter_info,
+    create_work_program,
+    work_program_add_parameter,
+    work_programs_dates_update,
+    edit_work_programs_data,
 )
 from config import ApeksConfig as Apeks
 
@@ -123,7 +140,7 @@ async def dept_check():
         try:
             field_db_table = work_program_field_tb_table(parameter)
         except ApeksWrongParameterException:
-            flash("Передан неверный параметр", category='danger')
+            flash("Передан неверный параметр", category="danger")
             return redirect(url_for("programs.dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
@@ -242,17 +259,15 @@ async def dates_update():
 async def program_fields(plan_id):
     form = ProgramFieldsForm()
     plan_education_plans = await check_api_db_response(
-        await api_get_db_table(
-            Apeks.TABLES.get("plan_education_plans"), id=plan_id
-        )
+        await api_get_db_table(Apeks.TABLES.get("plan_education_plans"), id=plan_id)
     )
-    plan_name = plan_education_plans[0].get('name')
+    plan_name = plan_education_plans[0].get("name")
     if request.method == "POST":
         parameter = request.form.get("program_fields")
         try:
             field_db_table = work_program_field_tb_table(parameter)
         except ApeksWrongParameterException:
-            flash("Передан неверный параметр", category='danger')
+            flash("Передан неверный параметр", category="danger")
             return redirect(url_for("programs.dept_check"))
         db_sections = (
             True if field_db_table == Apeks.TABLES.get("mm_sections") else False
@@ -301,26 +316,36 @@ async def field_edit():
     if request.method == "POST":
         parameter = request.form.get("program_fields")
         if request.form.get("fields_data"):
-            return redirect(url_for("programs.field_edit", wp_id=program_id, parameter=parameter))
+            return redirect(
+                url_for("programs.field_edit", wp_id=program_id, parameter=parameter)
+            )
         if request.form.get("field_update") and form.validate_on_submit():
             load_data = request.form.get("field_edit")
             kwargs = {parameter: load_data}
             try:
                 await edit_work_programs_data(program_id, **kwargs)
-                flash("Данные обновлены", category='success')
+                flash("Данные обновлены", category="success")
             except ApeksWrongParameterException:
                 if parameter == "department_data":
-                    parameter1 = Apeks.MM_WORK_PROGRAMS.get('date_department')
-                    d = load_data.split("\r\n")[0].replace("Дата заседания кафедры:", "").replace(" ", "")
-                    d = datetime.strptime(d, '%d.%m.%Y')
+                    parameter1 = Apeks.MM_WORK_PROGRAMS.get("date_department")
+                    d = (
+                        load_data.split("\r\n")[0]
+                        .replace("Дата заседания кафедры:", "")
+                        .replace(" ", "")
+                    )
+                    d = datetime.strptime(d, "%d.%m.%Y")
                     p1_data = date.isoformat(d)
-                    parameter2 = Apeks.MM_WORK_PROGRAMS.get('document_department')
-                    p2_data = load_data.split("\r\n")[1].replace("Протокол №", "").replace(" ", "")
+                    parameter2 = Apeks.MM_WORK_PROGRAMS.get("document_department")
+                    p2_data = (
+                        load_data.split("\r\n")[1]
+                        .replace("Протокол №", "")
+                        .replace(" ", "")
+                    )
                     kwargs = {parameter1: p1_data, parameter2: p2_data}
                     await edit_work_programs_data(program_id, **kwargs)
-                    flash("Данные обновлены", category='success')
+                    flash("Данные обновлены", category="success")
                 else:
-                    flash(f"Передан неверный параметр: {parameter}", category='danger')
+                    flash(f"Передан неверный параметр: {parameter}", category="danger")
 
     form.program_fields.data = parameter
     db_sections = True if parameter in Apeks.MM_SECTIONS else False
@@ -333,12 +358,12 @@ async def field_edit():
             work_program_data[program_id], parameter
         )
     except ApeksWrongParameterException:
-        form.field_edit.data = f"ApeksWrongParameterException {work_program_data[program_id]}"
-        flash(f"Передан неверный параметр: {parameter}", category='danger')
-    except ApeksParameterNonExistException:
-        await work_program_add_parameter(
-            program_id, parameter
+        form.field_edit.data = (
+            f"ApeksWrongParameterException {work_program_data[program_id]}"
         )
+        flash(f"Передан неверный параметр: {parameter}", category="danger")
+    except ApeksParameterNonExistException:
+        await work_program_add_parameter(program_id, parameter)
         form.field_edit.data = ""
 
     return render_template(
@@ -446,10 +471,12 @@ async def program_data(plan_id):
         programs[wp]["status"] = plan.work_programs_data[wp].get("status")
 
     widget_data = {
-        'generation': plan.plan_education_plans[-1].get('generation'),
-        'status': Apeks.PLAN_STATUS.get(int(plan.plan_education_plans[-1].get('status'))),
-        'disciplines_count': len(plan.plan_curriculum_disciplines),
-        'programs_count': len(plan.work_programs_data)
+        "generation": plan.plan_education_plans[-1].get("generation"),
+        "status": Apeks.PLAN_STATUS.get(
+            int(plan.plan_education_plans[-1].get("status"))
+        ),
+        "disciplines_count": len(plan.plan_curriculum_disciplines),
+        "programs_count": len(plan.work_programs_data),
     }
 
     return render_template(

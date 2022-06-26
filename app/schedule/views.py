@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import date
 
 from flask import render_template, request, redirect, url_for, flash
@@ -12,14 +11,14 @@ from app.common.func.api_get import (
     check_api_staff_lessons_response,
     api_get_staff_lessons,
 )
-from common.func.staff import get_state_staff
-from common.func.organization import get_departments
-from common.func.education_plan import get_plan_disciplines
 from app.common.func.app_core import data_processor
 from app.common.reports.schedule_ical import generate_schedule_ical
 from app.common.reports.schedule_xlsx import generate_schedule_xlsx
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
+from common.func.education_plan import get_plan_disciplines
+from common.func.organization import get_departments
+from common.func.staff import get_state_staff
 from config import ApeksConfig as Apeks
 
 
@@ -84,7 +83,6 @@ async def schedule():
                     f"{staff_name} - нет занятий в указанный период",
                     category="warning"
                 )
-                error = f"{staff_name} - нет занятий в указанный период"
                 return render_template(
                     "schedule/schedule.html",
                     active="schedule",
