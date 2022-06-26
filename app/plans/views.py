@@ -1,6 +1,6 @@
 import os
 
-from flask import render_template, request, redirect, url_for, flash, send_file
+from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
@@ -417,18 +417,17 @@ def matrix_indicator_file():
         report_data, indicator_errors = processor.get_file_report_data()
     if request.method == "POST":
         if request.files["file"]:
-            file = request.files["file"]
-            if file and allowed_file(file.filename):
-                filename = file.filename
-                file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
+            new_file = request.files["file"]
+            if new_file and allowed_file(new_file.filename):
+                filename = new_file.filename
+                new_file.save(os.path.join(FlaskConfig.UPLOAD_FILE_DIR, filename))
                 if request.form.get("file_check"):
                     return redirect(
                         url_for("plans.matrix_indicator_file", filename=filename)
                     )
         if request.form.get("generate_report"):
-            report = generate_indicators_file("Название", report_data)
-            # os.remove(file)
-            # flash("Файл отправлен", category="success")
+            report_filename = filename.rsplit('.', 1)[0]
+            report = generate_indicators_file(report_filename, report_data)
             return redirect(url_for("main.get_file", filename=report))
     return render_template(
         "plans/indicator_file.html",

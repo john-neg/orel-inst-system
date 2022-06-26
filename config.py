@@ -383,6 +383,14 @@ for local_directory in (
     if not os.path.exists(local_directory):
         os.mkdir(local_directory, 0o755)
 
+# Очистка временных директорий
+for temp_directory in (
+    FlaskConfig.EXPORT_FILE_DIR,
+    FlaskConfig.UPLOAD_FILE_DIR,
+):
+    for file in os.listdir(temp_directory):
+        os.remove(os.path.join(temp_directory, file))
+
 
 # Logger Configuration
 logging.basicConfig(

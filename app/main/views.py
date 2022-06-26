@@ -18,14 +18,11 @@ def index():
 def get_file(filename):
     """Отправляет файл и удаляет его из EXPORT_FILE_DIR."""
     file = os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename)
-    return (
-        send_file(
-            file,
-            mimetype="text/plain",
-            download_name=filename,
-            as_attachment=True,
-        ),
-        os.remove(file)
+    return send_file(
+        file,
+        mimetype="text/plain",
+        download_name=filename,
+        as_attachment=True,
     )
 
 
