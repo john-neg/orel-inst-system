@@ -14,13 +14,21 @@ from app.plans.func import (
 )
 from common.classes.PlanMatrixProcessor import (
     MatrixSimpleProcessor,
-    MatrixIndicatorProcessor, MatrixFileProcessor,
+    MatrixIndicatorProcessor,
+    MatrixFileProcessor,
 )
-from common.func.education_plan import get_plan_education_specialties, \
-    get_education_plans, plan_competency_add, discipline_competency_add
-from common.func.work_program import work_programs_competencies_level_del, \
-    work_program_competency_data_add, work_program_competency_level_add, \
-    work_program_competency_level_edit
+from common.func.education_plan import (
+    get_plan_education_specialties,
+    get_education_plans,
+    plan_competency_add,
+    discipline_competency_add,
+)
+from common.func.work_program import (
+    work_programs_competencies_level_del,
+    work_program_competency_data_add,
+    work_program_competency_level_add,
+    work_program_competency_level_edit,
+)
 from common.reports.plans_comp_matrix import generate_plans_comp_matrix
 from common.reports.plans_indicators_file import generate_indicators_file
 from config import FlaskConfig, ApeksConfig as Apeks
@@ -425,7 +433,7 @@ def matrix_indicator_file():
                         url_for("plans.matrix_indicator_file", filename=filename)
                     )
         if request.form.get("generate_report"):
-            report_filename = filename.rsplit('.', 1)[0]
+            report_filename = filename.rsplit(".", 1)[0]
             report = generate_indicators_file(report_filename, report_data)
             return redirect(url_for("main.get_file", filename=report))
     return render_template(

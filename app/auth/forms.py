@@ -7,7 +7,7 @@ from config import FlaskConfig
 
 
 class LoginForm(FlaskForm):
-    """Класс аутентификации"""
+    """Класс для аутентификации."""
 
     class Meta(FlaskForm.Meta):
         locales = ['ru_RU', 'ru']

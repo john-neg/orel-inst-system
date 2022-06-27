@@ -10,10 +10,16 @@ from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
 )
-from common.func.work_program import get_work_programs_data, load_lib_add_field, \
-    load_lib_edit_field
-from common.func.education_plan import get_plan_education_specialties, \
-    get_education_plans, get_plan_curriculum_disciplines
+from common.func.work_program import (
+    get_work_programs_data,
+    load_lib_add_field,
+    load_lib_edit_field,
+)
+from common.func.education_plan import (
+    get_plan_education_specialties,
+    get_education_plans,
+    get_plan_curriculum_disciplines,
+)
 from app.common.func.app_core import allowed_file
 from app.common.reports.library_report import library_report
 from app.library import bp
@@ -364,7 +370,7 @@ class LibraryUpdateView(View):
                         await load_lib_edit_field(
                             wp_id, lib_items[i], file_data[disc][i], check
                         )
-        flash(f"Данные из файла - '{filename}': успешно загружены", category='success')
+        flash(f"Данные из файла - '{filename}': успешно загружены", category="success")
         return redirect(url_for(f"library.{self.lib_type}_upload", plan_id=plan_id))
 
 
