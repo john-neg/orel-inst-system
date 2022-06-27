@@ -298,12 +298,19 @@ async def program_fields(plan_id):
             "programs/fields.html",
             active="programs",
             form=form,
+            url=Apeks.URL,
+            plan_id=plan_id,
             plan_name=plan_name,
             program_field=parameter,
             program_data=programs_info,
         )
     return render_template(
-        "programs/fields.html", active="programs", form=form, plan_name=plan_name
+        "programs/fields.html",
+        active="programs",
+        form=form,
+        url=Apeks.URL,
+        plan_id=plan_id,
+        plan_name=plan_name
     )
 
 
@@ -484,6 +491,7 @@ async def program_data(plan_id):
         active="programs",
         form=form,
         url=Apeks.URL,
+        plan_id=plan_id,
         plan_name=plan.name,
         programs=programs,
         program_non_exist=plan.non_exist,

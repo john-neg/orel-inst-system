@@ -163,6 +163,8 @@ class LibraryUploadView(View):
             title=self.title,
             lib_type_name=self.lib_type_name,
             form=form,
+            url=Apeks.URL,
+            plan_id=plan_id,
             plan_name=plan.name,
         )
 
@@ -278,6 +280,8 @@ class LibraryCheckView(View):
             title=self.title,
             lib_type_name=self.lib_type_name,
             form=form,
+            url=Apeks.URL,
+            plan_id=plan_id,
             plan_name=plan.name,
             no_data=no_data,
             program_non_exist=plan.non_exist,

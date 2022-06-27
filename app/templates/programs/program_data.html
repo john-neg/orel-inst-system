@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
-  <h3 class="text-center text-dark mb-1">
+  <h3 class="text-center text-dark mb-2">
     {% block title %}Информация о рабочих программах учебного плана{% endblock %}
   </h3>
 </div>
 <div class="container">
   <div class="row justify-content-center">
     <div class="col">
-      <h5 class="fw-normal text-center text-primary mt-3">{{ plan_name }}<br></h5>
+      <h5 class="fw-normal text-center text-primary">
+        <a href="{{ url }}/plan/plans/{{ plan_id }}" target="_blank">{{ plan_name }}</a>
+      </h5>
     </div>
   </div>
-  <div class="row justify-content-center mb-3">
+  <div class="row justify-content-center mb-1">
     <div class="col-md-10 col-xl-8">
       <div class="row">
         <div class="col-md-6 mb-4">
@@ -166,10 +168,10 @@
                           </td>
                           <td>
                             {{ programs[wp].get('name') }}
-                                    {% if current_user.role in (config.ROLE_ADMIN, ) %}
-                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
-                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter=name">EDIT</a>
-                                  {% endif %}
+                            {% if current_user.role in (config.ROLE_ADMIN, ) %}
+                              <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                 href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter=name">EDIT</a>
+                            {% endif %}
                           </td>
                           <td>
                             {% for sign in programs[wp].get('signs') %}
@@ -199,55 +201,72 @@
               </div>
             </div>
           {% endif %}
-          {% if program_non_exist %}
-            <div class="card shadow">
-              <div class="card-header py-3" id="non_exist_table_header">
-                <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
-              </div>
-              <div class="card-body">
-                <div class="table-responsive table mt-2" id="non_exist_table" role="grid" aria-describedby="non_exist_table_info">
-                  <table class="table my-0" id="dataTable">
-                    <thead>
-                      <tr>
-                        <th>Дисциплина</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for disc in program_non_exist %}
-                        <tr>
-                          <td>{{ program_non_exist[disc] }}</td>
-                        </tr>
-                      {% endfor %}
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td><strong>Дисциплина</strong></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
-{% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-  <form method="post">
-    {{ form.hidden_tag() }}
+
+<form method="post">
+  {{ form.hidden_tag() }}
+  {% if current_user.role in (config.ROLE_ADMIN, config.ROLE_METOD) %}
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mb-2">
-          {% if program_non_exist and current_user.role in (config.ROLE_ADMIN, ) %}
-            {{ form.create_program(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
-          {% endif %}
           {{ form.program_status_0(class="btn btn-secondary mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
           {{ form.program_status_1(class="btn btn-success link-light mb-3", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
         </div>
       </div>
     </div>
-  </form>
-{% endif %}
+  {% endif %}
+  <div class="container">
+    <div class="row justify-content-center mb-3">
+      <div class="col-md-10 col-xl-8">
+        <div class="row justify-content-center">
+          <div class="col">
+            {% if program_non_exist %}
+              <div class="card shadow">
+                <div class="card-header py-3" id="non_exist_table_header">
+                  <p class="text-center text-danger m-0 fw-bold">В плане отсутствуют рабочие программы:<br></p>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive table mt-2" id="non_exist_table" role="grid" aria-describedby="non_exist_table_info">
+                    <table class="table my-0" id="dataTable">
+                      <thead>
+                        <tr>
+                          <th>Дисциплина</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for disc in program_non_exist %}
+                          <tr>
+                            <td>{{ program_non_exist[disc] }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td><strong>Дисциплина</strong></td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if program_non_exist and current_user.role in (config.ROLE_ADMIN, ) %}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8 mb-2">
+          {{ form.create_program(class="btn btn-warning mb-3", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</form>
 {% endblock %}
