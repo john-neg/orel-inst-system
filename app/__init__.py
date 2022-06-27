@@ -8,8 +8,8 @@ from flask_admin.menu import MenuLink
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-from auth.models import User, init_db
-from common.classes.MyModelView import MyModelView
+from app.auth.models import User, init_db
+from app.common.classes.MyModelView import MyModelView
 from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
 
 db = SQLAlchemy()

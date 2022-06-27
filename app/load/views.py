@@ -10,8 +10,8 @@ from app.common.func.api_get import (
     api_get_db_table,
     get_lessons,
 )
-from common.func.staff import get_state_staff
-from common.func.organization import get_departments
+from app.common.func.staff import get_state_staff
+from app.common.func.organization import get_departments
 from app.common.reports.load_report import generate_load_report
 from app.load import bp
 from app.load.forms import LoadReportForm

@@ -3,7 +3,7 @@ from datetime import date
 from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
-from common.forms import ChooseDepartment
+from app.common.forms import ChooseDepartment
 from config import ApeksConfig as Apeks
 
 

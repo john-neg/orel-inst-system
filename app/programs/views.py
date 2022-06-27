@@ -32,19 +32,19 @@ from app.programs.forms import (
     TitlePagesGenerator,
     ProgramDataSubmit,
 )
-from common.func.education_plan import (
+from app.common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
     get_plan_curriculum_disciplines,
     get_plan_discipline_competencies,
 )
-from common.func.organization import (
+from app.common.func.organization import (
     get_organization_name,
     get_organization_chief_info,
     get_departments,
 )
-from common.func.staff import get_rank_name, get_state_staff
-from common.func.work_program import (
+from app.common.func.staff import get_rank_name, get_state_staff
+from app.common.func.work_program import (
     get_work_programs_data,
     work_program_view_data,
     work_program_field_tb_table,

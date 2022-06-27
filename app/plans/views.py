@@ -12,33 +12,33 @@ from app.plans.func import (
     get_plan_competency_instance,
     get_plan_indicator_instance,
 )
-from common.classes.PlanMatrixProcessor import (
+from app.common.classes.PlanMatrixProcessor import (
     MatrixSimpleProcessor,
     MatrixIndicatorProcessor,
     MatrixFileProcessor,
 )
-from common.func.education_plan import (
+from app.common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
     plan_competency_add,
     discipline_competency_add,
 )
-from common.func.work_program import (
+from app.common.func.work_program import (
     work_programs_competencies_level_del,
     work_program_competency_data_add,
     work_program_competency_level_add,
     work_program_competency_level_edit,
 )
-from common.reports.plans_comp_matrix import generate_plans_comp_matrix
-from common.reports.plans_indicators_file import generate_indicators_file
+from app.common.reports.plans_comp_matrix import generate_plans_comp_matrix
+from app.common.reports.plans_indicators_file import generate_indicators_file
 from config import FlaskConfig, ApeksConfig as Apeks
-from plans.forms import (
+from app.plans.forms import (
     CompLoadForm,
     IndicatorsFileForm,
     MatrixIndicatorForm,
     MatrixSimpleForm,
 )
-from plans.func import plan_competencies_data_cleanup
+from app.plans.func import plan_competencies_data_cleanup
 
 
 class PlanChoosePlanView(View):

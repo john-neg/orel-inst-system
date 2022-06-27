@@ -16,9 +16,9 @@ from app.common.reports.schedule_ical import generate_schedule_ical
 from app.common.reports.schedule_xlsx import generate_schedule_xlsx
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
-from common.func.education_plan import get_plan_disciplines
-from common.func.organization import get_departments
-from common.func.staff import get_state_staff
+from app.common.func.education_plan import get_plan_disciplines
+from app.common.func.organization import get_departments
+from app.common.func.staff import get_state_staff
 from config import ApeksConfig as Apeks
 
 

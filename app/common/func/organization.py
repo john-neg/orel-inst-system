@@ -6,7 +6,7 @@ from collections import OrderedDict
 from cache import AsyncTTL
 from phpserialize import loads
 
-from common.func.api_get import check_api_db_response, api_get_db_table
+from app.common.func.api_get import check_api_db_response, api_get_db_table
 from config import ApeksConfig as Apeks
 
 

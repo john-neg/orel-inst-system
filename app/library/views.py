@@ -10,12 +10,12 @@ from app.common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
 )
-from common.func.work_program import (
+from app.common.func.work_program import (
     get_work_programs_data,
     load_lib_add_field,
     load_lib_edit_field,
 )
-from common.func.education_plan import (
+from app.common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
     get_plan_curriculum_disciplines,
@@ -25,7 +25,7 @@ from app.common.reports.library_report import library_report
 from app.library import bp
 from app.library.func import library_file_processing
 from config import FlaskConfig, ApeksConfig as Apeks
-from library.forms import LibraryForm
+from app.library.forms import LibraryForm
 
 
 class LibraryChoosePlanView(View):

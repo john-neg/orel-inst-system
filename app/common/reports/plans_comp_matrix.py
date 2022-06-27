@@ -5,8 +5,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
-from common.classes.EducationPlan import EducationPlanCompetencies
-from common.reports.ExcelStyles import ExcelStyle
+from app.common.classes.EducationPlan import EducationPlanCompetencies
+from app.common.reports.ExcelStyles import ExcelStyle
 from config import FlaskConfig, ApeksConfig as Apeks
 
 

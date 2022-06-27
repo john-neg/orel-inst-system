@@ -5,7 +5,7 @@ from json import JSONDecodeError
 
 import httpx
 
-from common.exceptions import ApeksApiException
+from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
 
