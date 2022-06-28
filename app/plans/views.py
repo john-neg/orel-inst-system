@@ -4,19 +4,13 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
-from app.common.forms import ChoosePlan
-from app.common.func.app_core import allowed_file
-from app.plans import bp
-from app.plans.func import (
-    comps_file_processing,
-    get_plan_competency_instance,
-    get_plan_indicator_instance,
-)
 from app.common.classes.PlanMatrixProcessor import (
     MatrixSimpleProcessor,
     MatrixIndicatorProcessor,
     MatrixFileProcessor,
 )
+from app.common.forms import ChoosePlan
+from app.common.func.app_core import allowed_file
 from app.common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
@@ -31,14 +25,20 @@ from app.common.func.work_program import (
 )
 from app.common.reports.plans_comp_matrix import generate_plans_comp_matrix
 from app.common.reports.plans_indicators_file import generate_indicators_file
-from config import FlaskConfig, ApeksConfig as Apeks
+from app.plans import bp
 from app.plans.forms import (
     CompLoadForm,
     IndicatorsFileForm,
     MatrixIndicatorForm,
     MatrixSimpleForm,
 )
+from app.plans.func import (
+    comps_file_processing,
+    get_plan_competency_instance,
+    get_plan_indicator_instance,
+)
 from app.plans.func import plan_competencies_data_cleanup
+from config import FlaskConfig, ApeksConfig as Apeks
 
 
 class PlanChoosePlanView(View):

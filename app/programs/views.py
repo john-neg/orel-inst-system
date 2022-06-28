@@ -21,17 +21,6 @@ from app.common.func.api_get import (
 from app.common.func.app_core import (
     data_processor,
 )
-from app.common.reports.program_title_pages import generate_program_title_pages
-from app.programs import bp
-from app.programs.forms import (
-    ProgramDatesUpdate,
-    ProgramFieldsForm,
-    ChoosePlan,
-    DepartmentProgramCheck,
-    ProgramFieldUpdate,
-    TitlePagesGenerator,
-    ProgramDataSubmit,
-)
 from app.common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
@@ -53,6 +42,17 @@ from app.common.func.work_program import (
     work_program_add_parameter,
     work_programs_dates_update,
     edit_work_programs_data,
+)
+from app.common.reports.program_title_pages import generate_program_title_pages
+from app.programs import bp
+from app.programs.forms import (
+    ProgramDatesUpdate,
+    ProgramFieldsForm,
+    ChoosePlan,
+    DepartmentProgramCheck,
+    ProgramFieldUpdate,
+    TitlePagesGenerator,
+    ProgramDataSubmit,
 )
 from config import ApeksConfig as Apeks
 
@@ -310,7 +310,7 @@ async def program_fields(plan_id):
         form=form,
         url=Apeks.URL,
         plan_id=plan_id,
-        plan_name=plan_name
+        plan_name=plan_name,
     )
 
 

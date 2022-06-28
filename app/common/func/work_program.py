@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 
 from app.common.classes.EducationPlan import EducationPlanWorkPrograms
-from app.common.exceptions import ApeksParameterNonExistException, \
-    ApeksWrongParameterException
-
+from app.common.exceptions import (
+    ApeksParameterNonExistException,
+    ApeksWrongParameterException,
+)
 from app.common.func.api_delete import api_delete_from_db_table
 from app.common.func.api_get import check_api_db_response, api_get_db_table
 from app.common.func.api_post import api_add_to_db_table, api_edit_db_table
@@ -189,9 +190,9 @@ async def get_work_programs_data(
                     )
             # Получение данных о завершающих обучение формах контроля для
             # проверки и создания уровней сформированности компетенций
-            curriculum_discipline_id = set([
-                    wp_data[wp].get("curriculum_discipline_id") for wp in wp_data
-                ])
+            curriculum_discipline_id = set(
+                [wp_data[wp].get("curriculum_discipline_id") for wp in wp_data]
+            )
             control_works = await get_plan_control_works(
                 curriculum_discipline_id=[*curriculum_discipline_id],
                 control_type_id=(
@@ -209,10 +210,75 @@ async def get_work_programs_data(
     return wp_data
 
 
+async def edit_work_programs_data(
+    work_program_id: int | str | tuple[int | str] | list[int | str], **kwargs
+):
+    """
+    Редактирование информации в рабочих программах.
+
+    Parameters
+    ----------
+        work_program_id: int | str
+            id рабочей программы
+    """
+    payload = {
+        Apeks.TABLES.get("mm_work_programs"): {
+            "filters": {"id": work_program_id},
+            "fields": {},
+        },
+        Apeks.TABLES.get("mm_sections"): {
+            "filters": {"work_program_id": work_program_id},
+            "fields": {},
+        },
+        Apeks.TABLES.get("mm_competency_levels"): {
+            "filters": {"work_program_id": work_program_id, "level": 1},
+            "fields": {},
+        },
+        Apeks.TABLES.get("mm_work_programs_data"): {},
+    }
+
+    if kwargs:
+        for db_field, db_value in kwargs.items():
+            table_name = work_program_field_tb_table(db_field)
+
+            if table_name == Apeks.TABLES.get("mm_work_programs_data"):
+                field_data = {
+                    "filters": {
+                        "work_program_id": work_program_id,
+                        "field_id": Apeks.MM_WORK_PROGRAMS_DATA.get(db_field),
+                    },
+                    "fields": {"data": db_value},
+                }
+                payload[table_name][db_field] = field_data
+            else:
+                payload[table_name]["fields"][db_field] = db_value
+
+    for table in payload:
+        if table == Apeks.TABLES.get("mm_work_programs_data"):
+            for field in payload[table]:
+                filters = payload[table][field].get("filters")
+                fields = payload[table][field].get("fields")
+                logging.debug(
+                    f"Переданы данные для обновления программ. {table, filters, fields}"
+                )
+                await api_edit_db_table(table, filters, fields)
+
+        else:
+            filters = payload[table].get("filters")
+            fields = payload[table].get("fields")
+            if fields:
+                logging.debug(
+                    f"Переданы данные для обновления программ. {table, filters, fields}"
+                )
+                await api_edit_db_table(table, filters, fields)
+    message = f"Данные успешно обновлены."
+    return message
+
+
 async def load_lib_add_field(
-        work_program_id: int | str,
-        field_id: int | str,
-        table_name: str = Apeks.TABLES.get("mm_work_programs_data")
+    work_program_id: int | str,
+    field_id: int | str,
+    table_name: str = Apeks.TABLES.get("mm_work_programs_data"),
 ) -> dict:
     """
     Добавления пустого поля (field) списка литературы в рабочую программу.
@@ -232,8 +298,9 @@ async def load_lib_add_field(
         field_id=field_id,
         data="",
     )
-    logging.debug(f"В рабочую программу '{work_program_id}' "
-                  f"добавлено поле '{field_id}'.")
+    logging.debug(
+        f"В рабочую программу '{work_program_id}' " f"добавлено поле '{field_id}'."
+    )
     return response
 
 
@@ -281,69 +348,45 @@ async def load_lib_edit_field(
     return response
 
 
-async def work_programs_competencies_del(
-    work_program_id: int | str | tuple[int | str] | list[int | str],
-    table_name: str = Apeks.TABLES.get("mm_work_programs_competencies_data"),
+async def work_program_view_data(
+    plan: EducationPlanWorkPrograms, parameter: str
 ) -> dict:
     """
-    Удаление данных о компетенциях из рабочих программ.
+    Возвращает список параметров рабочих программ плана.
+    Если параметра нет в рабочей программе создает его.
 
     Parameters
     ----------
-        work_program_id: int | str | tuple[int | str] | list[int | str]
-            id рабочей программы
-        table_name: str
-            имя таблицы в БД
+        plan: EducationPlanWorkPrograms
+            экземпляр класса EducationPlanWorkProgram
+        parameter: str
+            параметр поля рабочей программы значение которого нужно вернуть
+
+    Returns
+    -------
+        dict
+            значение параметра для дисциплины
+            {"Название дисциплины плана": {work_program_id: "Значение параметра"}}
     """
-
-    response = await api_delete_from_db_table(
-        table_name,
-        work_program_id=work_program_id,
-    )
-    if response.get("status") == 1:
-        logging.debug(
-            f"Удалены сведения о компетенциях из рабочих программ: {work_program_id}."
-        )
-    else:
-        logging.debug(
-            "Не удалось удалить сведения о компетенциях "
-            f"из рабочих программ: {work_program_id}."
-        )
-    return response
-
-
-async def work_programs_competencies_level_del(
-    level_id: int | str | tuple[int | str] | list[int | str],
-    table_name: str = Apeks.TABLES.get("mm_competency_levels"),
-) -> dict:
-    """
-    Удаление данных об уровнях сформированности компетенций из рабочих программ.
-
-    Parameters
-    ----------
-        level_id: int | str | tuple[int | str] | list[int | str]
-            id уровня сформированности компетенций
-        table_name: str
-            имя таблицы в БД
-    """
-    if level_id:
-        response = await api_delete_from_db_table(
-            table_name,
-            id=level_id,
-        )
-    else:
-        response = {"status": 1, "data": 0}
-    if response.get("status") == 1:
-        logging.debug(
-            f"Удалены уровни (кол-во - {response.get('data')}) формирования "
-            "компетенций из рабочих программ."
-        )
-    else:
-        logging.error(
-            f"Не удалось удалить уровни {level_id} формирования компетенций "
-            "из рабочих программ."
-        )
-    return response
+    programs_info = {}
+    for disc in plan.disc_wp_match:
+        disc_name = plan.discipline_name(disc)
+        programs_info[disc_name] = {}
+        if not plan.disc_wp_match[disc]:
+            programs_info[disc_name]["none"] = "-->Программа отсутствует<--"
+        else:
+            for wp in plan.disc_wp_match[disc]:
+                try:
+                    field_data = work_program_get_parameter_info(
+                        plan.work_programs_data[wp], parameter
+                    )
+                except ApeksParameterNonExistException:
+                    await work_program_add_parameter(wp, parameter)
+                    field_data = ""
+                else:
+                    field_data = "" if not field_data else field_data
+                programs_info[disc_name][wp] = field_data
+    return programs_info
 
 
 async def work_program_competency_data_add(
@@ -438,47 +481,6 @@ async def work_program_competency_level_edit(
     return response
 
 
-async def work_program_view_data(
-    plan: EducationPlanWorkPrograms, parameter: str
-) -> dict:
-    """
-    Возвращает список параметров рабочих программ плана.
-    Если параметра нет в рабочей программе создает его.
-
-    Parameters
-    ----------
-        plan: EducationPlanWorkPrograms
-            экземпляр класса EducationPlanWorkProgram
-        parameter: str
-            параметр поля рабочей программы значение которого нужно вернуть
-
-    Returns
-    -------
-        dict
-            значение параметра для дисциплины
-            {"Название дисциплины плана": {work_program_id: "Значение параметра"}}
-    """
-    programs_info = {}
-    for disc in plan.disc_wp_match:
-        disc_name = plan.discipline_name(disc)
-        programs_info[disc_name] = {}
-        if not plan.disc_wp_match[disc]:
-            programs_info[disc_name]["none"] = "-->Программа отсутствует<--"
-        else:
-            for wp in plan.disc_wp_match[disc]:
-                try:
-                    field_data = work_program_get_parameter_info(
-                        plan.work_programs_data[wp], parameter
-                    )
-                except ApeksParameterNonExistException:
-                    await work_program_add_parameter(wp, parameter)
-                    field_data = ""
-                else:
-                    field_data = "" if not field_data else field_data
-                programs_info[disc_name][wp] = field_data
-    return programs_info
-
-
 def work_program_field_tb_table(parameter: str) -> str:
     """
     Определяет в какой таблице базы данных находится
@@ -570,11 +572,11 @@ def work_program_get_parameter_info(wp_data: dict, parameter: str) -> str:
 
 
 async def create_work_program(
-        curriculum_discipline_id: int | str,
-        name: str,
-        user_id: int | str,
-        status: int | str = 0,
-        table_name: str = Apeks.TABLES.get("mm_work_programs"),
+    curriculum_discipline_id: int | str,
+    name: str,
+    user_id: int | str,
+    status: int | str = 0,
+    table_name: str = Apeks.TABLES.get("mm_work_programs"),
 ) -> dict:
     """
     Создание пустой рабочей программы.
@@ -650,8 +652,10 @@ async def work_program_add_parameter(
         message = f"Передан неверный параметр '{parameter}' для загрузки в программу"
         logging.debug(message)
         raise ApeksWrongParameterException(message)
-    logging.debug(f"В рабочую программу '{work_program_id}' добавлено "
-                  f"поле '{parameter}' со значением '{load_data}'.")
+    logging.debug(
+        f"В рабочую программу '{work_program_id}' добавлено "
+        f"поле '{parameter}' со значением '{load_data}'."
+    )
     return response
 
 
@@ -703,66 +707,66 @@ async def work_programs_dates_update(
     return response
 
 
-async def edit_work_programs_data(
-    work_program_id: int | str | tuple[int | str] | list[int | str], **kwargs
-):
+async def work_programs_competencies_del(
+    work_program_id: int | str | tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("mm_work_programs_competencies_data"),
+) -> dict:
     """
-    Редактирование информации в рабочих программах.
+    Удаление данных о компетенциях из рабочих программ.
 
     Parameters
     ----------
-        work_program_id: int | str
+        work_program_id: int | str | tuple[int | str] | list[int | str]
             id рабочей программы
+        table_name: str
+            имя таблицы в БД
     """
-    payload = {
-        Apeks.TABLES.get("mm_work_programs"): {
-            "filters": {"id": work_program_id},
-            "fields": {},
-        },
-        Apeks.TABLES.get("mm_sections"): {
-            "filters": {"work_program_id": work_program_id},
-            "fields": {},
-        },
-        Apeks.TABLES.get("mm_competency_levels"): {
-            "filters": {"work_program_id": work_program_id, "level": 1},
-            "fields": {},
-        },
-        Apeks.TABLES.get("mm_work_programs_data"): {},
-    }
 
-    if kwargs:
-        for db_field, db_value in kwargs.items():
-            table_name = work_program_field_tb_table(db_field)
+    response = await api_delete_from_db_table(
+        table_name,
+        work_program_id=work_program_id,
+    )
+    if response.get("status") == 1:
+        logging.debug(
+            f"Удалены сведения о компетенциях из рабочих программ: {work_program_id}."
+        )
+    else:
+        logging.debug(
+            "Не удалось удалить сведения о компетенциях "
+            f"из рабочих программ: {work_program_id}."
+        )
+    return response
 
-            if table_name == Apeks.TABLES.get("mm_work_programs_data"):
-                field_data = {
-                    "filters": {
-                        "work_program_id": work_program_id,
-                        "field_id": Apeks.MM_WORK_PROGRAMS_DATA.get(db_field),
-                    },
-                    "fields": {"data": db_value},
-                }
-                payload[table_name][db_field] = field_data
-            else:
-                payload[table_name]["fields"][db_field] = db_value
 
-    for table in payload:
-        if table == Apeks.TABLES.get("mm_work_programs_data"):
-            for field in payload[table]:
-                filters = payload[table][field].get("filters")
-                fields = payload[table][field].get("fields")
-                logging.debug(
-                    f"Переданы данные для обновления программ. {table, filters, fields}"
-                )
-                await api_edit_db_table(table, filters, fields)
+async def work_programs_competencies_level_del(
+    level_id: int | str | tuple[int | str] | list[int | str],
+    table_name: str = Apeks.TABLES.get("mm_competency_levels"),
+) -> dict:
+    """
+    Удаление данных об уровнях сформированности компетенций из рабочих программ.
 
-        else:
-            filters = payload[table].get("filters")
-            fields = payload[table].get("fields")
-            if fields:
-                logging.debug(
-                    f"Переданы данные для обновления программ. {table, filters, fields}"
-                )
-                await api_edit_db_table(table, filters, fields)
-    message = f"Данные успешно обновлены."
-    return message
+    Parameters
+    ----------
+        level_id: int | str | tuple[int | str] | list[int | str]
+            id уровня сформированности компетенций
+        table_name: str
+            имя таблицы в БД
+    """
+    if level_id:
+        response = await api_delete_from_db_table(
+            table_name,
+            id=level_id,
+        )
+    else:
+        response = {"status": 1, "data": 0}
+    if response.get("status") == 1:
+        logging.debug(
+            f"Удалены уровни (кол-во - {response.get('data')}) формирования "
+            "компетенций из рабочих программ."
+        )
+    else:
+        logging.error(
+            f"Не удалось удалить уровни {level_id} формирования компетенций "
+            "из рабочих программ."
+        )
+    return response

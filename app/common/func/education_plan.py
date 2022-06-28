@@ -11,63 +11,6 @@ from app.common.func.app_core import data_processor
 from config import ApeksConfig as Apeks
 
 
-@AsyncTTL(time_to_live=60, maxsize=1024)
-async def get_plan_disciplines(
-    table: str = Apeks.TABLES.get("plan_disciplines"),
-    level: int | str = Apeks.DISC_LEVEL,
-) -> dict:
-    """
-    Получение полного списка дисциплин из справочника Апекс-ВУЗ.
-
-    Parameters
-    ----------
-        table: str
-            таблица БД, содержащая перечень дисциплин.
-        level: int | str
-            уровень дисциплин в учебном плане.
-
-    Returns
-    ----------
-        dict
-            {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
-    """
-    response = await check_api_db_response(await api_get_db_table(table, level=level))
-    disc_dict = {}
-    for disc in response:
-        disc_dict[int(disc["id"])] = {
-            "full": disc.get("name"),
-            "short": disc.get("name_short"),
-        }
-    logging.debug("Информация о дисциплинах успешно передана")
-    return disc_dict
-
-
-async def get_plan_education_specialties() -> dict:
-    """
-    Получение групп специальностей.
-
-    Returns
-    ----------
-        dict
-            {speciality_id: speciality_name}
-    """
-
-    request = data_processor(
-        await check_api_db_response(
-            await api_get_db_table(
-                Apeks.TABLES.get("plan_education_specialties"),
-            )
-        )
-    )
-    specialties = {}
-    for i in request:
-        specialties[i] = request[i].get("name")
-    logging.debug(
-        "Информация о специальностях 'plan_education_specialties' успешно передана"
-    )
-    return specialties
-
-
 async def get_education_plans(
     education_specialty_id: int | str, year: int | str = 0
 ) -> dict:
@@ -126,6 +69,37 @@ async def get_education_plans(
         f"{education_specialty_id} успешно передан"
     )
     return plans
+
+
+@AsyncTTL(time_to_live=60, maxsize=1024)
+async def get_plan_disciplines(
+    table: str = Apeks.TABLES.get("plan_disciplines"),
+    level: int | str = Apeks.DISC_LEVEL,
+) -> dict:
+    """
+    Получение полного списка дисциплин из справочника Апекс-ВУЗ.
+
+    Parameters
+    ----------
+        table: str
+            таблица БД, содержащая перечень дисциплин.
+        level: int | str
+            уровень дисциплин в учебном плане.
+
+    Returns
+    ----------
+        dict
+            {id: {'full': 'название дисциплины', 'short': 'сокращенное название'}}
+    """
+    response = await check_api_db_response(await api_get_db_table(table, level=level))
+    disc_dict = {}
+    for disc in response:
+        disc_dict[int(disc["id"])] = {
+            "full": disc.get("name"),
+            "short": disc.get("name_short"),
+        }
+    logging.debug("Информация о дисциплинах успешно передана")
+    return disc_dict
 
 
 async def get_plan_curriculum_disciplines(
@@ -191,6 +165,32 @@ async def get_plan_curriculum_disciplines(
         f"Передана информация о дисциплинах education_plan_id: {education_plan_id}"
     )
     return disciplines
+
+
+async def get_plan_education_specialties() -> dict:
+    """
+    Получение групп специальностей.
+
+    Returns
+    ----------
+        dict
+            {speciality_id: speciality_name}
+    """
+
+    request = data_processor(
+        await check_api_db_response(
+            await api_get_db_table(
+                Apeks.TABLES.get("plan_education_specialties"),
+            )
+        )
+    )
+    specialties = {}
+    for i in request:
+        specialties[i] = request[i].get("name")
+    logging.debug(
+        "Информация о специальностях 'plan_education_specialties' успешно передана"
+    )
+    return specialties
 
 
 async def get_plan_discipline_competencies(

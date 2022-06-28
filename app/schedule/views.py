@@ -12,13 +12,13 @@ from app.common.func.api_get import (
     api_get_staff_lessons,
 )
 from app.common.func.app_core import data_processor
+from app.common.func.education_plan import get_plan_disciplines
+from app.common.func.organization import get_departments
+from app.common.func.staff import get_state_staff
 from app.common.reports.schedule_ical import generate_schedule_ical
 from app.common.reports.schedule_xlsx import generate_schedule_xlsx
 from app.schedule import bp
 from app.schedule.forms import CalendarForm
-from app.common.func.education_plan import get_plan_disciplines
-from app.common.func.organization import get_departments
-from app.common.func.staff import get_state_staff
 from config import ApeksConfig as Apeks
 
 
@@ -80,8 +80,7 @@ async def schedule():
             )
             if filename == "no data":
                 flash(
-                    f"{staff_name} - нет занятий в указанный период",
-                    category="warning"
+                    f"{staff_name} - нет занятий в указанный период", category="warning"
                 )
                 return render_template(
                     "schedule/schedule.html",
