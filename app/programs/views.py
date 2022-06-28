@@ -1,3 +1,4 @@
+import operator
 from datetime import date, datetime
 
 from flask import render_template, request, redirect, url_for, flash
@@ -73,7 +74,9 @@ class ProgramsChoosePlanView(View):
         if request.method == "POST":
             edu_spec = request.form.get("edu_spec")
             plans = await get_education_plans(edu_spec)
-            form.edu_plan.choices = list(plans.items())
+            form.edu_plan.choices = list(
+                sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
+            )
             if request.form.get("edu_plan") and form.validate_on_submit():
                 edu_plan = request.form.get("edu_plan")
                 return redirect(
@@ -200,7 +203,9 @@ async def dates_update():
     if request.method == "POST":
         edu_spec = request.form.get("edu_spec")
         plans = await get_education_plans(edu_spec)
-        form.edu_plan.choices = list(plans.items())
+        form.edu_plan.choices = list(
+            sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
+        )
         if request.form.get("dates_update") and form.validate_on_submit():
             plan_id = request.form.get("edu_plan")
             plan_disciplines = await get_plan_curriculum_disciplines(plan_id)

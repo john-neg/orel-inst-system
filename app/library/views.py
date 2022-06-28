@@ -1,3 +1,4 @@
+import operator
 import os
 
 from flask import render_template, request, redirect, url_for, flash
@@ -45,7 +46,9 @@ class LibraryChoosePlanView(View):
         if request.method == "POST":
             edu_spec = request.form.get("edu_spec")
             plans = await get_education_plans(edu_spec)
-            form.edu_plan.choices = list(plans.items())
+            form.edu_plan.choices = list(
+                sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
+            )
             if request.form.get("edu_plan") and form.validate_on_submit():
                 edu_plan = request.form.get("edu_plan")
                 return redirect(
