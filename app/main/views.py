@@ -1,6 +1,6 @@
 import os
 
-from flask import render_template, send_file
+from flask import render_template, send_file, send_from_directory
 
 from app.main import bp
 from config import FlaskConfig
@@ -10,6 +10,15 @@ from config import FlaskConfig
 @bp.route("/index")
 def index():
     return render_template("index.html", active="index")
+
+
+@bp.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(FlaskConfig.STATIC_FILE_DIR, 'img/favicons'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon',
+    )
 
 
 @bp.route("/<string:filename>", methods=["GET"])
