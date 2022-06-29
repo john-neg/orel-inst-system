@@ -586,9 +586,8 @@ async def title_pages(plan_id):
         form_data["wp_specialization_type"] = dict(
             form.wp_specialization_type.choices
         ).get(form.wp_specialization_type.data)
-        form_data["wp_approval_month"] = dict(form.wp_approval_month.choices).get(
-            form.wp_approval_month.data
-        )
+        month = int(form_data.get("wp_approval_month"))
+        form_data["wp_approval_month"] = dict(form.wp_approval_month.choices).get(month)
         filename = generate_program_title_pages(
             form_data, plan_name, plan.work_programs_data
         )
