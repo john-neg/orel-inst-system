@@ -9,9 +9,10 @@ openpyxl==3.0.10
 python-docx~=0.8.11
 python-dotenv~=0.20.0
 pytest~=7.1.2
+pytest-asyncio~=0.18.3
 icalendar~=4.0.9
 pytz~=2022.1
-aiogram~=2.20
+aiogram==2.21
 asgiref==3.5.2
 httpx==0.23.0
 async-cache~=1.1.1
