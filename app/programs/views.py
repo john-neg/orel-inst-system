@@ -206,7 +206,12 @@ async def dates_update():
         form.edu_plan.choices = list(
             sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
         )
-        if request.form.get("dates_update") and form.validate_on_submit():
+        if request.form.get("program_dates_update") and form.validate_on_submit():
+            print()
+            print()
+            print('TEST')
+            print()
+            print()
             plan_id = request.form.get("edu_plan")
             plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
             plan = EducationPlanWorkPrograms(

@@ -301,7 +301,7 @@ class LibraryCheckView(View):
 
 
 bp.add_url_rule(
-    "/library_check/<int:plan_id>/<string:name>",
+    "/library_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
         "library_check",
         lib_type="library",
@@ -310,7 +310,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_np_check/<int:plan_id>/<string:name>",
+    "/library_np_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
         "library_np_check",
         lib_type="library_np",
@@ -319,7 +319,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_int_check/<int:plan_id>/<string:name>",
+    "/library_int_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
         "library_int_check",
         lib_type="library_int",
@@ -328,7 +328,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_db_check/<int:plan_id>/<string:name>",
+    "/library_db_check/<int:plan_id>/<string:filename>",
     view_func=LibraryCheckView.as_view(
         "library_db_check",
         lib_type="library_db",
@@ -378,7 +378,7 @@ class LibraryUpdateView(View):
 
 
 bp.add_url_rule(
-    "/library_update/<int:plan_id>/<string:name>",
+    "/library_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
         "library_update",
         lib_type="library",
@@ -386,7 +386,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_np_update/<int:plan_id>/<string:name>",
+    "/library_np_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
         "library_np_update",
         lib_type="library_np",
@@ -394,7 +394,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_int_update/<int:plan_id>/<string:name>",
+    "/library_int_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
         "library_int_update",
         lib_type="library_int",
@@ -402,7 +402,7 @@ bp.add_url_rule(
     ),
 )
 bp.add_url_rule(
-    "/library_db_update/<int:plan_id>/<string:name>",
+    "/library_db_update/<int:plan_id>/<string:filename>",
     view_func=LibraryUpdateView.as_view(
         "library_db_update",
         lib_type="library_db",
