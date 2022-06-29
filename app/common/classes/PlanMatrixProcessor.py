@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import dataclass
 
@@ -104,6 +105,7 @@ class MatrixFileProcessor:
                         report_data[disc].get(ind_type).append(f"- {ind_val} ({ind_code})")
                     else:
                         indicator_errors.add(ind)
+        logging.debug(f"Сформированы данные для отчета индикаторы из файла")
         return report_data, indicator_errors
 
 
