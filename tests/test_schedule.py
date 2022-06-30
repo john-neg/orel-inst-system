@@ -18,14 +18,89 @@ from app import create_app
 
 from app import create_app
 
+# @pytest.mark.asyncio
+# async def test_something_async(httpx_mock: HTTPXMock):
+#     httpx_mock.add_response(json=[{"status": "1", "data": [{'id': '1', 'name': 'test'}])
+#
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get("https://test_url")
+#         assert response.json() == [{"key1": "value1", "key2": "value2"}]
+from common.func.api_get import api_get_staff_lessons
+
 
 @pytest.mark.asyncio
 async def test_something_async(httpx_mock: HTTPXMock):
-    httpx_mock.add_response(json=[{"key1": "value1", "key2": "value2"}])
+    httpx_mock.add_response(json={'status': 1,
+                                  'data': {
+                                   'lessons': [{'id': 62524,
+                                     'schedule_id': 198,
+                                     'discipline_id': 44,
+                                     'class_type_id': None,
+                                     'control_type_id': 2,
+                                     'date': '04.07.2022',
+                                     'lesson_time_id': 5,
+                                     'topic_code': '',
+                                     'topic_name': '',
+                                     'classroom_id': 45,
+                                     'group_id': 16,
+                                     'subgroup_id': None,
+                                     'flow': None,
+                                     'is_empty': 0,
+                                     'self_work': 0,
+                                     'skip_classroom_check': 0,
+                                     'fixed': 1,
+                                     'journal_lesson_id': 46545,
+                                     'discipline': 'Основы профессиональной деятельности',
+                                     'classroom': 'Г/415',
+                                     'remote': 0,
+                                     'class_type_name': 'зач.',
+                                     'staffIds': ['98', '58', '32'],
+                                     'superflowGroupsIds': [],
+                                     'superflowSubgroupsIds': [],
+                                     'staffNames': ['п/п-к Кузнецова И.И.',
+                                      'п/п-к Белевский Р.А.',
+                                      'п-к Семенов Е.Ю.'],
+                                     'lessonTime': '14:50 - 16:20',
+                                     'groupName': '21о2г'}],
+                                      }})
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get("https://test_url")
-        assert response.json() == [{"key1": "value1", "key2": "value2"}]
+    response = await api_get_staff_lessons(staff_id=32, month=7, year=2022)
+    assert response == {'status': 1,
+                                  'data': {
+                                   'lessons': [{'id': 62524,
+                                     'schedule_id': 198,
+                                     'discipline_id': 44,
+                                     'class_type_id': None,
+                                     'control_type_id': 2,
+                                     'date': '04.07.2022',
+                                     'lesson_time_id': 5,
+                                     'topic_code': '',
+                                     'topic_name': '',
+                                     'classroom_id': 45,
+                                     'group_id': 16,
+                                     'subgroup_id': None,
+                                     'flow': None,
+                                     'is_empty': 0,
+                                     'self_work': 0,
+                                     'skip_classroom_check': 0,
+                                     'fixed': 1,
+                                     'journal_lesson_id': 46545,
+                                     'discipline': 'Основы профессиональной деятельности',
+                                     'classroom': 'Г/415',
+                                     'remote': 0,
+                                     'class_type_name': 'зач.',
+                                     'staffIds': ['98', '58', '32'],
+                                     'superflowGroupsIds': [],
+                                     'superflowSubgroupsIds': [],
+                                     'staffNames': ['п/п-к Кузнецова И.И.',
+                                      'п/п-к Белевский Р.А.',
+                                      'п-к Семенов Е.Ю.'],
+                                     'lessonTime': '14:50 - 16:20',
+                                     'groupName': '21о2г'}],
+                                      }}
+
+
+
 
 
 # def test_home_page(client):
