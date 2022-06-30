@@ -39,7 +39,7 @@ sudo useradd -g www-data www-user
 ```
 
 ```sh
-sudo passwd username
+sudo passwd www-user
 ```
 ```sh
 mkdir /var/www
@@ -48,7 +48,7 @@ mkdir /var/www
 usermod -d /var/www www-user
 ```
 ```sh
-chown -R evgeniy:www-data /var/www
+chown -R www-user:www-data /var/www
 ```
 ```sh
 usermod -aG sudo www-user
@@ -144,7 +144,7 @@ User=www-user
 Group=www-data
 WorkingDirectory=/var/www/apeks-vuz-extension
 Environment="PATH=/var/www/apeks-vuz-extension/venv/bin"
-ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 3 --bind unix:apeks.sock -m 007 wsgi:app
+ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 3 --timeout 180 --bind unix:apeks.sock -m 007 wsgi:app
 
 [Install]
 WantedBy=multi-user.target
@@ -208,6 +208,21 @@ server {
         proxy_pass http://unix:/var/www/apeks-vuz-extension/apeks.sock;
     }
 }
+```
+
+```sh
+sudo nano /etc/nginx/proxy_params
+```
+
+Копируем содержимое
+```
+proxy_set_header Host $http_host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_connect_timeout   180;
+proxy_send_timeout      180;
+proxy_read_timeout      180;
 ```
 
 ```sh
