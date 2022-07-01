@@ -1,18 +1,15 @@
-from distutils.core import setup
-
-from setuptools import find_packages
+from setuptools import setup
 
 setup(
-    name="apeks-vuz-extension",
-    version="0.1",
-    packages=find_packages(),
-    package_data={p: ["*"] for p in find_packages()},
-    url="",
-    license="",
-    install_requires=[
-        "flask",
-    ],
-    python_requires=">=3.8.0",
-    author="Evgeny.Semenov",
-    description="Расширения базовых функций Апекс-ВУЗ",
+    name='apeks-vuz-extension',
+    version='1.0b',
+    packages=['apeks-vuz-extension'],
+    package_data={
+        'mypackage': ['requirements.txt'],
+    },
+    url='',
+    license='',
+    author='Evgeny Semenov',
+    author_email='',
+    description=''
 )
