@@ -40,40 +40,51 @@
         {% if program_data %}
           <div class="row">
             <div class="col">
-              {% for plan in program_data %}
-                <div class="card shadow mb-2">
-                  <div class="card-header py-3">
-                    <p class="text-start text-primary m-0 fw-bold">{{ plan }}<br></p>
-                  </div>
-                  <div class="card-body">
-                    {% for disc in program_data[plan] %}
-                      {% for wp in program_data[plan][disc] %}
-                        <div class="table-responsive">
-                          <table class="table">
-                            <thead class="text-danger">
-                              <tr>
-                                <th>
-                                  <span style="white-space: pre-line">{{ disc }}</span>
-                                  {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
-                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
-                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
-                                  {% endif %}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>
-                                  <span class="text-dark" style="white-space: pre-line">{{ program_data[plan][disc][wp] }}</span>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+              {% for plan_id in program_data %}
+                {% for plan_name in program_data[plan_id] %}
+                  <div class="card shadow mb-2">
+                    <div class="card-header py-3">
+                      <p class="text-start text-primary m-0 fw-bold"><a href="{{ url }}/plan/plans/{{ plan_id }}" target="_blank">{{ plan_name }}</a><br></p>
+                    </div>
+                    <div class="card-body">
+                      {% for disc_id in program_data[plan_id][plan_name] %}
+                        {% for disc_name in program_data[plan_id][plan_name][disc_id] %}
+                          {% for wp in program_data[plan_id][plan_name][disc_id][disc_name] %}
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead class="text-danger">
+                                  <tr>
+                                    <th>
+                                      {% if wp != 'none' %}
+                                        <span>
+                                          <a href="{{ url }}/mm/materials/view-wp?id={{ disc_id }}&work_program_id={{ wp }}" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i></a>
+                                        </span>
+                                        <span class="mx-1"></span>
+                                      {% endif %}
+                                      <span style="white-space: pre-line">{{ disc_name }}</span>
+                                      {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
+                                        <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                           href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
+                                      {% endif %}
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      <span class="text-dark" style="white-space: pre-line">{{ program_data[plan_id][plan_name][disc_id][disc_name][wp] }}</span>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          {% endfor %}
+                        {% endfor %}
                       {% endfor %}
-                    {% endfor %}
+                    </div>
                   </div>
-                </div>
+                {% endfor %}
               {% endfor %}
             </div>
           </div>

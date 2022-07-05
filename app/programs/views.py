@@ -160,31 +160,55 @@ async def dept_check():
                 plan_disciplines = await get_plan_curriculum_disciplines(
                     plan_id, department_id=department
                 )
-                plan = EducationPlanWorkPrograms(
-                    education_plan_id=plan_id,
-                    plan_education_plans=await check_api_db_response(
+                if plan_disciplines:
+                    plan = EducationPlanWorkPrograms(
+                        education_plan_id=plan_id,
+                        plan_education_plans=await check_api_db_response(
+                            await api_get_db_table(
+                                Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                            )
+                        ),
+                        plan_curriculum_disciplines=plan_disciplines,
+                        work_programs_data=await get_work_programs_data(
+                            curriculum_discipline_id=[*plan_disciplines],
+                            sections=db_sections,
+                            fields=db_fields,
+                        ),
+                    )
+                    programs_info[plan_id] = {
+                        plan.name: await work_program_view_data(plan, parameter)
+                    }
+                else:
+                    plan_education_plans = await check_api_db_response(
                         await api_get_db_table(
                             Apeks.TABLES.get("plan_education_plans"), id=plan_id
                         )
-                    ),
-                    plan_curriculum_disciplines=plan_disciplines,
-                    work_programs_data=await get_work_programs_data(
-                        curriculum_discipline_id=[*plan_disciplines],
-                        sections=db_sections,
-                        fields=db_fields,
-                    ),
-                )
-                programs_info[plan.name] = await work_program_view_data(plan, parameter)
+                    )
+                    programs_info[plan_id] = {
+                        plan_education_plans[0].get("name"): {
+                            "disc_id": {
+                                "Нет дисциплин": {
+                                    "none": "Информация отсутствует"
+                                }
+                            }
+                        }
+                    }
+
         else:
             programs_info = {
-                "Нет планов": {
-                    "Нет дисциплин": {"Нет программы": "Информация отсутствует"}
+                "plan_id": {
+                    "Нет планов": {
+                        "disc_id": {
+                            "Нет дисциплин": {"none": "Информация отсутствует"}
+                        }
+                    }
                 }
             }
         return render_template(
             "programs/dept_check.html",
             active="programs",
             form=form,
+            url=Apeks.URL,
             edu_spec=edu_spec,
             department=department,
             year=year,
@@ -207,11 +231,6 @@ async def dates_update():
             sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
         )
         if request.form.get("program_dates_update") and form.validate_on_submit():
-            print()
-            print()
-            print('TEST')
-            print()
-            print()
             plan_id = request.form.get("edu_plan")
             plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
             plan = EducationPlanWorkPrograms(
@@ -600,6 +619,7 @@ async def title_pages(plan_id):
     return render_template(
         "programs/title_pages.html",
         active="programs",
+        plan_id=plan_id,
         plan_name=plan_name,
         form=form,
     )

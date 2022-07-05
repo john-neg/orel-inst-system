@@ -33,7 +33,9 @@ def data_processor(table_data: list, dict_key: str = "id") -> dict:
     """
     data = {}
     for d_val in table_data:
-        data[int(d_val.get(dict_key))] = d_val
+        key_val = d_val.get(dict_key)
+        if key_val:
+            data[int(key_val)] = d_val
     logging.debug(f"Обработаны данные. Ключ: {dict_key}")
     return data
 

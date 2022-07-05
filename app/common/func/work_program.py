@@ -366,26 +366,28 @@ async def work_program_view_data(
     -------
         dict
             значение параметра для дисциплины
+            {curriculum_discipline_id: {"Название дисциплины плана": {work_program_id: "Значение параметра"}}}
             {"Название дисциплины плана": {work_program_id: "Значение параметра"}}
     """
     programs_info = {}
     for disc in plan.disc_wp_match:
+        programs_info[disc] = {}
         disc_name = plan.discipline_name(disc)
-        programs_info[disc_name] = {}
+        programs_info[disc][disc_name] = {}
         if not plan.disc_wp_match[disc]:
-            programs_info[disc_name]["none"] = "-->Программа отсутствует<--"
+            programs_info[disc][disc_name]["none"] = "-->Программа отсутствует<--"
         else:
-            for wp in plan.disc_wp_match[disc]:
+            for program in plan.disc_wp_match[disc]:
                 try:
                     field_data = work_program_get_parameter_info(
-                        plan.work_programs_data[wp], parameter
+                        plan.work_programs_data[program], parameter
                     )
                 except ApeksParameterNonExistException:
-                    await work_program_add_parameter(wp, parameter)
+                    await work_program_add_parameter(program, parameter)
                     field_data = ""
                 else:
                     field_data = "" if not field_data else field_data
-                programs_info[disc_name][wp] = field_data
+                programs_info[disc][disc_name][program] = field_data
     return programs_info
 
 

@@ -6,7 +6,7 @@
   </h3>
 </div>
 <div class="col">
-  <h5 class="fw-normal text-center text-primary mt-2 mb-3">
+  <h5 class="fw-bold text-center text-primary mt-2 mb-3">
     <a href="{{ url }}/plan/plans/{{ plan_id }}" target="_blank">{{ plan_name }}</a>
   </h5>
 </div>
@@ -31,30 +31,39 @@
               <div class="col">
                 <div class="card shadow mb-2">
                   <div class="card-body">
-                    {% for disc in program_data %}
-                      {% for wp in program_data[disc] %}
-                        <div class="table-responsive">
-                          <table class="table">
-                            <thead class="text-danger">
-                              <tr>
-                                <th>
-                                  <span style="white-space: pre-line">{{ disc }}</span>
-                                  {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
-                                    <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
-                                       href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
-                                  {% endif %}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>
-                                  <span class="text-dark" style="white-space: pre-line">{{ program_data[disc][wp] }}</span>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                    {% for disc_id in program_data %}
+                      {% for disc_name in program_data[disc_id] %}
+                        {% for wp in program_data[disc_id][disc_name] %}
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead class="text-danger">
+                                <tr>
+                                  <th>
+                                    {% if wp != 'none' %}
+                                      <span>
+                                        <a href="{{ url }}/mm/materials/view-wp?id={{ disc_id }}&work_program_id={{ wp }}" target="_blank">
+                                          <i class="fas fa-external-link-alt"></i></a>
+                                      </span>
+                                      <span class="mx-1"></span>
+                                    {% endif %}
+                                    <span style="white-space: pre-line">{{ disc_name }}</span>
+                                    {% if wp != "none" and current_user.role in (config.ROLE_ADMIN, ) %}
+                                      <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
+                                         href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
+                                    {% endif %}
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    <span class="text-dark" style="white-space: pre-line">{{ program_data[disc_id][disc_name][wp] }}</span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        {% endfor %}
                       {% endfor %}
                     {% endfor %}
                   </div>
