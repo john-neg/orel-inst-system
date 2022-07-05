@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">Установка шаблона для рабочих программ<br></h3>
+</div>
+<form method="post">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row mb-2">
+          <div class="col-md-12">
+            <div class="mb-2">
+              <label id="edu_spec_label-1" class="form-label text-dark" name="edu_spec_label">
+                <span style="color: rgb(33, 37, 41); background-color: rgb(245, 245, 245);">Специальность:</span>
+              </label>
+              <select id="edu_spec-1" class="form-select" name="edu_spec">
+                    <option value="12" selected>This is item 1</option>
+                    <option value="13">This is item 2</option>
+                    <option value="14">This is item 3</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <button id="spec_choose" class="btn btn-secondary border-0" type="submit" name="spec_choose">Выбор</button>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            <label class="form-label text-dark" id="edu_plan" name="">План:</label>
+            <select class="form-select" id="edu_plan" name="edu_plan">
+                <optgroup label="Выберите год:">
+                    <option value="13">This is item 2</option>
+                    <option value="14">This is item 3</option>
+                </optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-md-12">
+            <label class="form-label text-dark" id="edu_spec_label" name="edu_spec_label">
+              <span style="color: rgb(33, 37, 41); background-color: rgb(245, 245, 245);">Шаблон:</span>
+            </label>
+            <select class="form-select" id="edu_spec" name="edu_spec">
+                <option value="12" selected="">This is item 1</option>
+                <option value="13">This is item 2</option>
+                <option value="14">This is item 3</option>
+            </select>
+          </div>
+        </div>
+        <div class="row mt-4 mb-2">
+          <div class="col">
+            <button class="btn btn-success fw-normal link-light" id="dates_update" type="button" style="background: #008751;font-weight: bold;border-style: none;width: 100%;" name="dates_update">Обновить данные</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

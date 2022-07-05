@@ -53,7 +53,7 @@ from app.programs.forms import (
     DepartmentProgramCheck,
     ProgramFieldUpdate,
     TitlePagesGenerator,
-    ProgramDataSubmit,
+    ProgramDataSubmit, BaseTemplateUpdate,
 )
 from config import ApeksConfig as Apeks
 
@@ -281,6 +281,13 @@ async def dates_update():
                 edu_spec=edu_spec,
             )
     return render_template("programs/dates_update.html", active="programs", form=form)
+
+
+@bp.route("/base_template", methods=["GET", "POST"])
+@login_required
+async def base_template():
+    form = BaseTemplateUpdate()
+    return render_template("programs/base_template.html", active="programs", form=form)
 
 
 @bp.route("/program_fields/<int:plan_id>", methods=["GET", "POST"])
