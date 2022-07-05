@@ -1,3 +1,4 @@
+setuptools~=62.6.0
 WTForms~=3.0.1
 Werkzeug==2.1.2
 Flask==2.1.2
@@ -18,4 +19,3 @@ asgiref==3.5.2
 httpx==0.23.0
 async-cache~=1.1.1
 phpserialize~=1.3
-setuptools~=60.2.0
