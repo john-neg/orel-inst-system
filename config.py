@@ -76,6 +76,7 @@ class ApeksConfig(object):
         "state_staff": "state_staff",
         "state_staff_history": "state_staff_history",
         "state_staff_positions": "state_staff_positions",
+        "system_reports": "system_reports",
         "system_settings": "system_settings",
         "system_users": "system_users",
     }
@@ -215,6 +216,11 @@ class ApeksConfig(object):
         "level2": "level2",
         # Уровень 3
         "level3": "level3",
+    }
+
+    SYSTEM_REPORTS = {
+        # Шаблоны рабочих программ
+        "work_program_template": 3030,
     }
 
     # Базовый номер уровня сформированности

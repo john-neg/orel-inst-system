@@ -34,6 +34,7 @@ from app.common.func.organization import (
     get_departments,
 )
 from app.common.func.staff import get_rank_name, get_state_staff
+from app.common.func.system_data import get_system_reports_data
 from app.common.func.work_program import (
     get_work_programs_data,
     work_program_view_data,
@@ -160,14 +161,15 @@ async def dept_check():
                 plan_disciplines = await get_plan_curriculum_disciplines(
                     plan_id, department_id=department
                 )
+                plan_education_plans = await check_api_db_response(
+                    await api_get_db_table(
+                        Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    )
+                )
                 if plan_disciplines:
                     plan = EducationPlanWorkPrograms(
                         education_plan_id=plan_id,
-                        plan_education_plans=await check_api_db_response(
-                            await api_get_db_table(
-                                Apeks.TABLES.get("plan_education_plans"), id=plan_id
-                            )
-                        ),
+                        plan_education_plans=plan_education_plans,
                         plan_curriculum_disciplines=plan_disciplines,
                         work_programs_data=await get_work_programs_data(
                             curriculum_discipline_id=[*plan_disciplines],
@@ -179,11 +181,6 @@ async def dept_check():
                         plan.name: await work_program_view_data(plan, parameter)
                     }
                 else:
-                    plan_education_plans = await check_api_db_response(
-                        await api_get_db_table(
-                            Apeks.TABLES.get("plan_education_plans"), id=plan_id
-                        )
-                    )
                     programs_info[plan_id] = {
                         plan_education_plans[0].get("name"): {
                             "disc_id": {
@@ -287,6 +284,24 @@ async def dates_update():
 @login_required
 async def base_template():
     form = BaseTemplateUpdate()
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
+    if request.method == "POST":
+        edu_spec = request.form.get("edu_spec")
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(
+            sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
+        )
+        reports_data = await get_system_reports_data(
+            report_id=Apeks.SYSTEM_REPORTS.get('work_program_template')
+        )
+        form.template.choices = tuple((template, reports_data[template].get('name')) for template in reports_data)
+        return render_template(
+            "programs/base_template.html",
+            active="programs",
+            form=form,
+            edu_spec=edu_spec,
+        )
     return render_template("programs/base_template.html", active="programs", form=form)
 
 

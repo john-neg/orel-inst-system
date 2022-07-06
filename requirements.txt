@@ -1,4 +1,3 @@
-setuptools~=62.6.0
 WTForms~=3.0.1
 Werkzeug==2.1.2
 Flask==2.1.2

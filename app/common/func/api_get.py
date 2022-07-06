@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 from calendar import monthrange
 from datetime import date
@@ -73,7 +71,7 @@ async def api_get_db_table(
             URL сервера
         token: str
             токен для API
-        **kwargs: int | str | tuple[int | str] | list[int | str]
+        **kwargs:
             'filter_name=value' для дополнительных фильтров запроса
     """
     endpoint = f"{url}/api/call/system-database/get"
