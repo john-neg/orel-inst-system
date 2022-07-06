@@ -4,6 +4,7 @@
     <h3 class="text-center text-dark mb-1">Установка шаблона для рабочих программ<br></h3>
 </div>
 <form method="post">
+  {{ form.hidden_tag() }}
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-10 col-xl-8">
@@ -23,11 +24,11 @@
             {{ form.template.label(class="text-dark") }}
             {{ form.template(class="form-select") }}
           </div>
-          <div class="mt-4 mb-2">
+          <div class="mt-4 mb-3">
             {{ form.base_template_update(class="btn btn-success fw-normal link-light", style="background: #008751;font-weight: bold;border-style: none;width: 100%;", type="submit") }}
           </div>
-          <div class="mt-4 mb-2">
-            {{ form.base_template_remove(class="btn btn-warning fw-normal link-light", style="background: #008751;font-weight: bold;border-style: none;width: 100%;", type="submit") }}
+          <div class="mb-2">
+            {{ form.base_template_remove(class="btn btn-warning fw-normal link-light", style="font-weight: bold;border-style: none;width: 100%;color: rgb(0,0,0);", type="submit") }}
           </div>
         {% endif %}
       </div>

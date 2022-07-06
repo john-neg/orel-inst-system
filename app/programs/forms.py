@@ -115,7 +115,7 @@ class BaseTemplateUpdate(ChoosePlan):
         validators=[DataRequired()]
     )
     base_template_update = SubmitField("Установить шаблон")
-    base_template_remove = SubmitField("Удалить шаблон")
+    base_template_remove = SubmitField("Без шаблона")
 
 
 class ProgramFieldUpdate(ProgramFieldsForm):

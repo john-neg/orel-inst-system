@@ -99,8 +99,17 @@ class ApeksConfig(object):
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3
 
-    # Код типа 'группа дисциплин' в таблице 'plan_disciplines'
-    DISC_TYPE = 16
+    # Код типа дисциплины Концентрированная практика
+    DISC_CONC_PRACT_TYPE = 1
+
+    # Код типа дисциплины Распределенная практика
+    DISC_RASP_PRACT_TYPE = 2
+
+    # Код типа дисциплины ГИА
+    DISC_GIA_TYPE = 4
+
+    # Код типа дисциплины Группа дисциплин
+    DISC_GROUP_TYPE = 16
 
     # ID полей БД АпексВУЗ в соответствующих таблицах
     MM_WORK_PROGRAMS = {
@@ -126,6 +135,8 @@ class ApeksConfig(object):
         "date_approval": "date_approval",
         # Статус утверждения
         "status": "status",
+        # Шаблон для печати по умолчанию
+        "settings": "settings",
     }
     MM_SECTIONS = {
         # Цели дисциплины
