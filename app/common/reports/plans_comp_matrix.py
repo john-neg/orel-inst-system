@@ -57,7 +57,7 @@ def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:
             ws.cell(row, column).alignment = Alignment(
                 horizontal="center", vertical="center"
             )
-            if plan_disc[disc].get("level") != str(Apeks.DISC_LEVEL) or plan_disc[disc].get("type") == str(Apeks.DISC_TYPE):
+            if plan_disc[disc].get("level") != str(Apeks.DISC_LEVEL) or plan_disc[disc].get("type") == str(Apeks.DISC_GROUP_TYPE):
                 ws.cell(row, 1).style = ExcelStyle.BaseBold
                 ws.cell(row, 1).fill = ExcelStyle.GreyFill
                 ws.cell(row, 2).style = ExcelStyle.BaseBold

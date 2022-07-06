@@ -159,7 +159,7 @@ async def get_plan_curriculum_disciplines(
         for disc in [*disciplines]:
             if str(disciplines[disc].get("level")) != str(Apeks.DISC_LEVEL) or str(
                 disciplines[disc].get("type")
-            ) == str(Apeks.DISC_TYPE):
+            ) == str(Apeks.DISC_GROUP_TYPE):
                 del disciplines[disc]
     logging.debug(
         f"Передана информация о дисциплинах education_plan_id: {education_plan_id}"

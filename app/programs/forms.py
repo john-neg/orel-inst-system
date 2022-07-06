@@ -108,6 +108,16 @@ class ProgramDatesUpdate(ChoosePlan):
     program_dates_update = SubmitField("Обновить данные")
 
 
+class BaseTemplateUpdate(ChoosePlan):
+    template = SelectField(
+        "Шаблон:",
+        coerce=str,
+        validators=[DataRequired()]
+    )
+    base_template_update = SubmitField("Установить шаблон")
+    base_template_remove = SubmitField("Без шаблона")
+
+
 class ProgramFieldUpdate(ProgramFieldsForm):
     field_edit = TextAreaField("Данные поля программы")
     field_update = SubmitField("Обновить")

@@ -182,7 +182,7 @@ class MatrixSimpleProcessor(MatrixFileProcessor):
             }
             for val in disciplines
             if val.get("level") == str(Apeks.DISC_LEVEL)
-            and val.get("type") != str(Apeks.DISC_TYPE)
+            and val.get("type") != str(Apeks.DISC_GROUP_TYPE)
         }
         return match_data
 

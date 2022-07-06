@@ -236,11 +236,13 @@ async def edit_work_programs_data(
         },
         Apeks.TABLES.get("mm_work_programs_data"): {},
     }
-
+    if not work_program_id:
+        message = f"В параметрах запроса нет id рабочих программ"
+        logging.info(message)
+        raise ApeksWrongParameterException(message)
     if kwargs:
         for db_field, db_value in kwargs.items():
             table_name = work_program_field_tb_table(db_field)
-
             if table_name == Apeks.TABLES.get("mm_work_programs_data"):
                 field_data = {
                     "filters": {
@@ -366,8 +368,11 @@ async def work_program_view_data(
     -------
         dict
             значение параметра для дисциплины
-            {curriculum_discipline_id: {"Название дисциплины плана": {work_program_id: "Значение параметра"}}}
-            {"Название дисциплины плана": {work_program_id: "Значение параметра"}}
+            {curriculum_discipline_id: {
+                "Название дисциплины плана": {
+                    work_program_id: "Значение параметра"}
+                }
+            }
     """
     programs_info = {}
     for disc in plan.disc_wp_match:

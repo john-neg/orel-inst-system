@@ -34,6 +34,7 @@ from app.common.func.organization import (
     get_departments,
 )
 from app.common.func.staff import get_rank_name, get_state_staff
+from app.common.func.system_data import get_system_reports_data
 from app.common.func.work_program import (
     get_work_programs_data,
     work_program_view_data,
@@ -54,6 +55,7 @@ from app.programs.forms import (
     ProgramFieldUpdate,
     TitlePagesGenerator,
     ProgramDataSubmit,
+    BaseTemplateUpdate,
 )
 from config import ApeksConfig as Apeks
 
@@ -160,14 +162,15 @@ async def dept_check():
                 plan_disciplines = await get_plan_curriculum_disciplines(
                     plan_id, department_id=department
                 )
+                plan_education_plans = await check_api_db_response(
+                    await api_get_db_table(
+                        Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    )
+                )
                 if plan_disciplines:
                     plan = EducationPlanWorkPrograms(
                         education_plan_id=plan_id,
-                        plan_education_plans=await check_api_db_response(
-                            await api_get_db_table(
-                                Apeks.TABLES.get("plan_education_plans"), id=plan_id
-                            )
-                        ),
+                        plan_education_plans=plan_education_plans,
                         plan_curriculum_disciplines=plan_disciplines,
                         work_programs_data=await get_work_programs_data(
                             curriculum_discipline_id=[*plan_disciplines],
@@ -179,17 +182,10 @@ async def dept_check():
                         plan.name: await work_program_view_data(plan, parameter)
                     }
                 else:
-                    plan_education_plans = await check_api_db_response(
-                        await api_get_db_table(
-                            Apeks.TABLES.get("plan_education_plans"), id=plan_id
-                        )
-                    )
                     programs_info[plan_id] = {
                         plan_education_plans[0].get("name"): {
                             "disc_id": {
-                                "Нет дисциплин": {
-                                    "none": "Информация отсутствует"
-                                }
+                                "Нет дисциплин": {"none": "Информация отсутствует"}
                             }
                         }
                     }
@@ -198,9 +194,7 @@ async def dept_check():
             programs_info = {
                 "plan_id": {
                     "Нет планов": {
-                        "disc_id": {
-                            "Нет дисциплин": {"none": "Информация отсутствует"}
-                        }
+                        "disc_id": {"Нет дисциплин": {"none": "Информация отсутствует"}}
                     }
                 }
             }
@@ -281,6 +275,90 @@ async def dates_update():
                 edu_spec=edu_spec,
             )
     return render_template("programs/dates_update.html", active="programs", form=form)
+
+
+@bp.route("/base_template", methods=["GET", "POST"])
+@login_required
+async def base_template():
+    form = BaseTemplateUpdate()
+    specialities = await get_plan_education_specialties()
+    form.edu_spec.choices = list(specialities.items())
+    if request.method == "POST":
+        edu_spec = request.form.get("edu_spec")
+        plans = await get_education_plans(edu_spec)
+        form.edu_plan.choices = list(
+            sorted(plans.items(), key=operator.itemgetter(1), reverse=True)
+        )
+        reports_data = await get_system_reports_data(
+            report_id=Apeks.SYSTEM_REPORTS.get("work_program_template")
+        )
+        form.template.choices = tuple(
+            (template, reports_data[template].get("name")) for template in reports_data
+        )
+        if (
+            form.validate_on_submit()
+            and request.form.get("base_template_update")
+            or request.form.get("base_template_remove")
+        ):
+            wp_list = []
+            plan_id = request.form.get("edu_plan")
+            plan_disciplines = await get_plan_curriculum_disciplines(plan_id)
+            if plan_disciplines:
+                plan = EducationPlanWorkPrograms(
+                    education_plan_id=plan_id,
+                    plan_education_plans=await check_api_db_response(
+                        await api_get_db_table(
+                            Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                        )
+                    ),
+                    plan_curriculum_disciplines=plan_disciplines,
+                    work_programs_data=await get_work_programs_data(
+                        curriculum_discipline_id=[*plan_disciplines]
+                    ),
+                )
+                programs_types_exclude_list = [
+                    Apeks.DISC_CONC_PRACT_TYPE,
+                    Apeks.DISC_RASP_PRACT_TYPE,
+                    Apeks.DISC_GIA_TYPE,
+                    Apeks.DISC_GROUP_TYPE,
+                ]
+                for program in plan.work_programs_data:
+                    disc_id = plan.work_programs_data[program].get(
+                        "curriculum_discipline_id"
+                    )
+                    disc_type = plan.plan_curriculum_disciplines[int(disc_id)].get(
+                        "type"
+                    )
+                    if (
+                        not disc_type
+                        or int(disc_type) not in programs_types_exclude_list
+                    ):
+                        wp_list.append(program)
+                if request.form.get("base_template_update"):
+                    template_id = request.form.get("template")
+                    message = "Шаблон установлен"
+                    category = "success"
+                else:
+                    template_id = ""
+                    message = "Шаблон удален"
+                    category = "warning"
+                try:
+                    await edit_work_programs_data(
+                        work_program_id=wp_list,
+                        settings=f'{{"printSettingsRange":"{template_id}"}}',
+                    )
+                    flash(message, category=category)
+                except ApeksWrongParameterException as exc:
+                    flash(str(exc), category="danger")
+            else:
+                flash("В плане отсутствуют дисциплины", category="danger")
+        return render_template(
+            "programs/base_template.html",
+            active="programs",
+            form=form,
+            edu_spec=edu_spec,
+        )
+    return render_template("programs/base_template.html", active="programs", form=form)
 
 
 @bp.route("/program_fields/<int:plan_id>", methods=["GET", "POST"])
