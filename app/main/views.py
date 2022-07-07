@@ -1,6 +1,7 @@
 import os
 
-from flask import render_template, send_file, send_from_directory
+from flask import render_template, send_file, send_from_directory, flash
+from werkzeug.exceptions import HTTPException
 
 from app.main import bp
 from config import FlaskConfig
@@ -43,3 +44,14 @@ def get_temp_file(filename):
         download_name=filename,
         as_attachment=True,
     )
+
+
+@bp.app_errorhandler(Exception)
+def handle_exception(error):
+    # pass through HTTP errors
+    if isinstance(error, HTTPException):
+        return error
+
+    # now you're handling non-HTTP exceptions only
+    flash(error, category='danger')
+    return render_template("errors/500_generic.html"), 500

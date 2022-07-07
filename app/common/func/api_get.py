@@ -106,9 +106,9 @@ async def check_api_db_response(response: dict) -> list:
             список словарей с содержимым ответа API по ключу 'data'
     """
     if not isinstance(response, dict):
-        message = "Ответ API содержит некорректный тип данных (dict expected)"
+        message = "Нет связи с сервером или получен неверный ответ от API Апекс-ВУЗ"
         logging.error(message)
-        raise TypeError(message)
+        raise ApeksApiException(message)
     if "status" in response:
         if response.get("status") == 0:
             message = f'Неверный статус ответа API: "{response}"'
@@ -118,7 +118,7 @@ async def check_api_db_response(response: dict) -> list:
             if "data" not in response:
                 message = "В ответе API отсутствует ключ 'data'"
                 logging.error(message)
-                raise KeyError(message)
+                raise ApeksApiException(message)
             data = response.get("data")
             if not isinstance(data, list):
                 message = "Ответ API содержит некорректный тип данных (list expected)"
@@ -189,7 +189,7 @@ async def check_api_staff_lessons_response(response: dict) -> list:
             список словарей с содержимым поля 'lessons'
     """
     if not isinstance(response, dict):
-        message = "Ответ API содержит некорректный тип данных (dict expected)"
+        message = "Нет связи с сервером или получен неверный ответ от API Апекс-ВУЗ"
         logging.error(message)
         raise TypeError(message)
     if "data" not in response:

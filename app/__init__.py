@@ -38,6 +38,7 @@ def check_tokens() -> bool:
         return False
 
 
+
 def create_app(config_class=FlaskConfig):
 
     app = Flask(__name__)
