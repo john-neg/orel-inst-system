@@ -12,6 +12,7 @@ from app.auth.models import User, init_db
 from app.common.classes.MyModelView import MyModelView
 from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
 
+
 db = SQLAlchemy()
 login = LoginManager()
 login.login_view = "auth.login"
@@ -38,14 +39,15 @@ def check_tokens() -> bool:
         return False
 
 
-
 def create_app(config_class=FlaskConfig):
 
     app = Flask(__name__)
     app.config.from_object(config_class)
 
     if not check_tokens():
-        raise SystemExit("Программа принудительно остановлена.")
+        raise SystemExit(
+            "Отсутствуют ключи доступа. Программа принудительно остановлена."
+        )
 
     db.init_app(app)
     login.init_app(app)
@@ -79,24 +81,6 @@ def create_app(config_class=FlaskConfig):
     if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
         with app.app_context():
             init_db()
-
-    # Создание директорий если отсутствуют
-    for local_directory in (
-        FlaskConfig.TEMP_FILE_DIR,
-        FlaskConfig.EXPORT_FILE_DIR,
-        FlaskConfig.UPLOAD_FILE_DIR,
-        FlaskConfig.LOG_FILE_DIR,
-    ):
-        if not os.path.exists(local_directory):
-            os.mkdir(local_directory, 0o755)
-
-    # Очистка временных директорий
-    for temp_directory in (
-        FlaskConfig.EXPORT_FILE_DIR,
-        FlaskConfig.UPLOAD_FILE_DIR,
-    ):
-        for file in os.listdir(temp_directory):
-            os.remove(os.path.join(temp_directory, file))
 
     return app
 
