@@ -47,7 +47,7 @@ def register():
         title="Регистрация нового пользователя",
         form=form,
         active="admin",
-        message=message or "",
+        message=message,
     )
 
 

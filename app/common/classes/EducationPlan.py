@@ -216,8 +216,6 @@ class EducationPlanIndicators(EducationPlanCompetencies, EducationPlanWorkProgra
                         self.program_comp_level_delete.append(value.get('id'))
 
 
-
-
 @dataclass(repr=False, eq=False)
 class EducationPlanExtended(EducationPlanWorkPrograms):
     """
