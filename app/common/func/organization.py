@@ -71,7 +71,7 @@ async def get_organization_chief_info(
         return chief_data
 
 
-@AsyncTTL(time_to_live=360, maxsize=1024)
+# @AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_departments(
     table: str = Apeks.TABLES.get("state_departments"),
     parent_id: str | int = Apeks.DEPT_ID,
