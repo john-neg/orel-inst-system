@@ -1,9 +1,10 @@
+import logging
 import operator
 import os
 
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app.common.classes.PlanMatrixProcessor import (
     MatrixSimpleProcessor,
@@ -132,6 +133,7 @@ async def competencies_load(plan_id):
                 relations=True,
                 work_program=True,
             )
+            logging.info(f"{current_user} - {message}")
             flash(message, category="success")
             return redirect(
                 url_for("plans.competencies_load", plan_id=plan_id, filename=filename)
@@ -161,6 +163,7 @@ async def competencies_load(plan_id):
                 left_node += 2
                 right_node += 2
             os.remove(file)
+            logging.info(f"{current_user} произвел загрузку компетенций")
             flash("Данные успешно загружены", category="success")
             return redirect(url_for("plans.competencies_load", plan_id=plan_id))
     return render_template(
@@ -203,6 +206,7 @@ async def matrix_simple_load(plan_id):
                 relations=True,
                 work_program=True,
             )
+            logging.info(f"{current_user} - {message}")
             flash(message, category="success")
             return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
         # Загрузка файла
@@ -229,6 +233,9 @@ async def matrix_simple_load(plan_id):
                             match_data[disc].get("id"), match_data[disc]["comps"][comp]
                         )
             os.remove(file)
+            logging.info(
+                f"{current_user} произвел загрузку связей дисциплин и компетенций"
+            )
             flash("Данные успешно загружены", category="success")
             return redirect(url_for("plans.matrix_simple_load", plan_id=plan_id))
     return render_template(
@@ -294,6 +301,7 @@ async def matrix_indicator_load(plan_id):
                 relations=True,
                 work_program=True,
             )
+            logging.info(f"{current_user} - {message}")
             flash(message, category="success")
             return redirect(url_for("plans.matrix_indicator_load", plan_id=plan_id))
         # Загрузка файла
@@ -325,22 +333,20 @@ async def matrix_indicator_load(plan_id):
                             )
                             if resp.get("data"):
                                 comp_relations_counter += int(resp.get("data"))
-                flash(
-                    "Добавлены связи дисциплин и "
-                    f"компетенций - {comp_relations_counter}",
-                    category="success",
-                )
+                message = (f"Добавлены связи дисциплин и компетенций - "
+                           f"{comp_relations_counter}")
+                logging.info(f"{current_user} - {message}")
+                flash(message, category="success")
             # Загрузка данных в рабочие программы
             if request.form.get("switch_programs"):
                 resp = await work_programs_competencies_level_del(
                     level_id=plan.program_comp_level_delete
                 )
                 level_delete_counter = resp.get("data")
-                flash(
-                    "Удалены лишние уровни формирования "
-                    f"компетенций - {level_delete_counter}",
-                    category="success",
-                )
+                message = ("Удалены лишние уровни формирования "
+                           f"компетенций - {level_delete_counter}")
+                logging.info(f"{current_user} - {message}")
+                flash(message, category="success")
 
                 comp_add_counter = 0
                 # Очищаем ранее загруженные в программу данные
@@ -355,11 +361,10 @@ async def matrix_indicator_load(plan_id):
                     resp = await work_program_competency_data_add(comp_data)
                     if resp.get("data"):
                         comp_add_counter += int(resp.get("data"))
-                flash(
-                    "Добавлена информация об индикаторах компетенций "
-                    f"в рабочие программы - {comp_add_counter}",
-                    category="success",
-                )
+                message = ("Добавлена информация об индикаторах компетенций "
+                           f"в рабочие программы - {comp_add_counter}")
+                logging.info(f"{current_user} - {message}")
+                flash(message, category="success")
 
                 level_add_counter = 0
                 for level_add in program_comp_level_add:
@@ -367,11 +372,10 @@ async def matrix_indicator_load(plan_id):
                     resp = await work_program_competency_level_add(level_add)
                     if resp.get("data"):
                         level_add_counter += int(resp.get("data"))
-                flash(
-                    "Добавлены отсутствовавшие уровни формирования "
-                    f"компетенций - {level_add_counter}",
-                    category="success",
-                )
+                message = ("Добавлены отсутствовавшие уровни формирования "
+                           f"компетенций - {level_add_counter}")
+                logging.info(f"{current_user} - {message}")
+                flash(message, category="success")
 
                 level_edit_counter = 0
                 for wp in program_comp_level_edit:
@@ -380,11 +384,10 @@ async def matrix_indicator_load(plan_id):
                     )
                     if resp.get("data"):
                         level_edit_counter += int(resp.get("data"))
-                flash(
-                    "Отредактированы уровни формирования "
-                    f"компетенций - {level_edit_counter}",
-                    category="success",
-                )
+                message = ("Отредактированы уровни формирования "
+                           f"компетенций - {level_edit_counter}")
+                logging.info(f"{current_user} - {message}")
+                flash(message, category="success")
 
             if not request.form.get("switch_relations") and not request.form.get(
                 "switch_programs"

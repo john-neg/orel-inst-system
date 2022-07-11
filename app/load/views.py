@@ -23,7 +23,7 @@ from config import ApeksConfig as Apeks
 async def load_report():
     form = LoadReportForm()
     departments = await get_departments()
-    form.department.choices = [(i, n.get("full")) for i, n in departments.items()]
+    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     if request.method == "POST" and form.validate_on_submit():
         year = request.form.get("year")
         month = request.form.get("month").split("-")

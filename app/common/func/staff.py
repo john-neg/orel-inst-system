@@ -27,7 +27,7 @@ async def get_rank_name(
     return rank_name
 
 
-@AsyncTTL(time_to_live=60, maxsize=1024)
+@AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
     """
     Получение имен преподавателей.
