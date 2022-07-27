@@ -692,7 +692,6 @@ async def title_pages(plan_id):
             form_data, plan_name, plan.work_programs_data
         )
         return redirect(url_for("main.get_file", filename=filename))
-    flash(form.errors)
     return render_template(
         "programs/title_pages.html",
         active="programs",
