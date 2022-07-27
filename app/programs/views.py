@@ -670,9 +670,7 @@ async def title_pages(plan_id):
     form.wp_approval_day.data = approval_date.day
     form.wp_approval_month.data = approval_date.month
     form.wp_approval_year.data = approval_date.year
-    form.wp_speciality_type.data = "bak" if plan.specialty_code == "02" else "spec"
     form.wp_speciality.data = f"{full_spec_code} {plan.specialty}"
-    form.wp_specialization_type.data = "bak" if plan.specialty_code == "02" else "spec"
     form.wp_specialization.data = plan.specialization
     form.wp_education_form.data = plan.education_form
     form.wp_year.data = date.today().year
@@ -694,6 +692,7 @@ async def title_pages(plan_id):
             form_data, plan_name, plan.work_programs_data
         )
         return redirect(url_for("main.get_file", filename=filename))
+    flash(form.errors)
     return render_template(
         "programs/title_pages.html",
         active="programs",

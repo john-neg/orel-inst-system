@@ -184,8 +184,9 @@ class TitlePagesGenerator(FlaskForm):
         "Тип - специальность / направление подготовки:",
         coerce=str,
         choices=[
-            ("bak", "по направлению подготовки"),
             ("spec", "по специальности"),
+            ("bak", "по направлению подготовки"),
+            ("adj", "по научной специальности"),
         ],
         validators=[DataRequired()],
     )
@@ -197,14 +198,14 @@ class TitlePagesGenerator(FlaskForm):
         "Тип - профиль / специализация:",
         coerce=str,
         choices=[
-            ("bak", "профиль образовательной программы"),
             ("spec", "специализация"),
+            ("bak", "профиль образовательной программы"),
         ],
-        validators=[DataRequired()],
+        validators=[],
     )
     wp_specialization = StringField(
         "Специализация:",
-        validators=[DataRequired()],
+        validators=[],
     )
     wp_foreigners = BooleanField("Иностранные слушатели:")
     wp_education_form = StringField(
