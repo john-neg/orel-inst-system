@@ -102,7 +102,9 @@ class MatrixFileProcessor:
                 else:
                     if ind_separator and ind_separator in Apeks.INDICATOR_CODES:
                         ind_type = Apeks.INDICATOR_CODES.get(ind_separator)
-                        report_data[disc].get(ind_type).append(f"- {ind_val} ({ind_code})")
+                        report_data[disc].get(ind_type).append(
+                            f"- {ind_val} ({ind_code})"
+                        )
                     else:
                         indicator_errors.add(ind)
         logging.debug(f"Сформированы данные для отчета индикаторы из файла")

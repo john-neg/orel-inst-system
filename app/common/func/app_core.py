@@ -15,13 +15,13 @@ def allowed_file(filename: str) -> bool:
     )
 
 
-def data_processor(table_data: list, dict_key: str = "id") -> dict:
+def data_processor(table_data, dict_key: str = "id") -> dict:
     """
     Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
 
     Parameters
     ----------
-        table_data: list
+        table_data
             данные таблицы, содержащей список словарей в формате JSON
         dict_key: str
             название поля значения которого станут ключами словаря

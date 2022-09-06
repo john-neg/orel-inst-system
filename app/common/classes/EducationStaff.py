@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from calendar import monthrange
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
 
@@ -25,10 +26,10 @@ class EducationStaff:
             преобразованные данные из таблицы 'state_staff'
             (словарь с именами  в формате:
             {id: {'full': 'полное имя', 'short': 'сокращенное имя'}}).
-        state_staff_history: list
+        state_staff_history: Iterable
             данные из таблицы 'state_staff_history'
             (история работы в подразделении)
-        state_staff_positions: list
+        state_staff_positions: Iterable
             данные из таблицы 'state_staff_positions'
             (позиции для сортировки по занимаемой должности)
         departments: dict
@@ -49,8 +50,8 @@ class EducationStaff:
     month_start: int | str
     month_end: int | str
     state_staff: dict
-    state_staff_history: list
-    state_staff_positions: list
+    state_staff_history: Iterable
+    state_staff_positions: Iterable
     departments: dict
 
     def __post_init__(self) -> None:

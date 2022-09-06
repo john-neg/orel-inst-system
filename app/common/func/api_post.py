@@ -50,7 +50,6 @@ def api_post_request_handler(func):
                         f"{func.__name__}. Ошибка конвертации "
                         f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                     )
-
     return wrapper
 
 
@@ -63,13 +62,13 @@ async def api_add_to_db_table(
 
     Parameters
     ----------
-
-
+        table_name: str
+            имя_таблицы
         url: str
             URL сервера
         token: str
             токен для API
-        **kwargs: int | str
+        **kwargs
             'field_name=value' название_поля=значение, которые нужно добавить
     """
     endpoint = f"{url}/api/call/system-database/add"
@@ -86,8 +85,8 @@ async def api_add_to_db_table(
 @api_post_request_handler
 async def api_edit_db_table(
     table_name: str,
-    filters: dict[int | str : int | str | tuple[int | str] | list[int | str]],
-    fields: dict[int | str : int | str],
+    filters: dict[int | str: int | str | tuple[int | str] | list[int | str]],
+    fields: dict[int | str: int | str],
     url: str = Apeks.URL,
     token: str = Apeks.TOKEN,
 ):

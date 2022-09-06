@@ -35,8 +35,12 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Имя уже существует')
 
-    username = StringField('Логин', validators=[DataRequired(), Length(min=4, max=20)])
-    password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6, max=20)])
+    username = StringField(
+        'Логин', validators=[DataRequired(), Length(min=4, max=20)]
+    )
+    password = PasswordField(
+        'Пароль', validators=[DataRequired(), Length(min=6, max=20)]
+    )
     password2 = PasswordField(
         'Повторите пароль', validators=[DataRequired(), EqualTo('password')])
     role = SelectField("Права доступа", coerce=int, choices=[

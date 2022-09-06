@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -16,22 +17,22 @@ class LessonsData:
 
     Attributes:
     ----------
-        schedule_lessons: list
+        schedule_lessons: Iterable
             данные из таблицы 'schedule_day_schedule_lessons'
             (сведения об учебных занятиях)
-        schedule_lessons_staff: list
+        schedule_lessons_staff: Iterable
             данные из таблицы 'schedule_day_schedule_lessons_staff'
             (сведения о преподавателях, которые проводили занятия)
-        load_groups: list
+        load_groups: Iterable
             данные из таблицы 'load_groups'
             (названия учебных групп)
-        load_subgroups: list
+        load_subgroups: Iterable
             данные из таблицы 'load_subgroups'
             (названия учебных подгрупп и 'group_id' соответствующих групп)
-        plan_education_plans: list
+        plan_education_plans: Iterable
             данные из таблицы 'plan_education_plans'
             (сведения об учебных планах)
-        plan_education_plans_education_forms: list
+        plan_education_plans_education_forms: Iterable
             данные из таблицы 'plan_education_plans_education_forms'
             (содержит 'education_form_id' для учебных планов)
         staff_history_data: dict
@@ -66,12 +67,12 @@ class LessonsData:
             возвращает список занятий, относящихся к определенной кафедре
     """
 
-    schedule_lessons: list
-    schedule_lessons_staff: list
-    load_groups: list
-    load_subgroups: list
-    plan_education_plans: list
-    plan_education_plans_education_forms: list
+    schedule_lessons: Iterable
+    schedule_lessons_staff: Iterable
+    load_groups: Iterable
+    load_subgroups: Iterable
+    plan_education_plans: Iterable
+    plan_education_plans_education_forms: Iterable
     staff_history_data: dict
 
     def __post_init__(self):
@@ -87,22 +88,22 @@ class LessonsData:
         self.structured_lessons = self.process_lessons()
         logging.debug(
             f"Список занятий 'structured_lessons' обработан. "
-            f"Количество записей - {len(self.structured_lessons)}"
+            f"Количество записей - {sum(1 for _ in self.structured_lessons)}"
         )
         self.control_lessons = self.get_control_lessons()
         logging.debug(
             "Список занятий 'control_lessons' обработан. "
-            f"Количество записей - {len(self.control_lessons)}"
+            f"Количество записей - {sum(1 for _ in self.control_lessons)}"
         )
 
     @staticmethod
-    def lessons_staff_processor(lessons_staff: list) -> dict:
+    def lessons_staff_processor(lessons_staff: Iterable) -> dict:
         """
         Обрабатывает данные таблицы 'lessons_staff'.
 
         Parameters
         ----------
-            lessons_staff: list
+            lessons_staff: Iterable
                 данные таблицы 'lessons_staff' в формате JSON
 
         Returns

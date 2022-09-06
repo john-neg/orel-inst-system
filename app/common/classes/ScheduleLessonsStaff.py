@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -19,7 +20,7 @@ class ScheduleLessonsStaff:
             месяц (число от 1 до 12).
         year : int | str
             учебный год (число 20хх).
-        lessons_data : dict
+        lessons_data : Iterable
             ответ GET запроса API "/api/call/schedule-schedule/staff"
             в формате JSON.
         disciplines : dict
@@ -46,7 +47,7 @@ class ScheduleLessonsStaff:
     staff_id: int | str
     month: int | str
     year: int | str
-    lessons_data: list
+    lessons_data: Iterable
     disciplines: dict
     load_subgroups_data: dict
 

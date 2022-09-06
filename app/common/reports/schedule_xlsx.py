@@ -57,7 +57,7 @@ def generate_schedule_xlsx(schedule: ScheduleLessonsStaff, staff_name: str) -> s
             column += 1
 
         row = 3
-        for l_index in range(len(schedule.lessons_data)):
+        for l_index in range(sum(1 for _ in schedule.lessons_data)):
             ws.cell(row, 1).value = schedule.time_start(l_index).strftime(
                 "%d.%m.%Y %H:%M"
             )

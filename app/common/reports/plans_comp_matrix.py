@@ -16,7 +16,7 @@ def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:
     # Сортировка из Апекс-ВУЗ (по 'left_node')
     plan_disc = {}
     for disc_id, disc in plan.plan_curriculum_disciplines.items():
-        if disc.get("level") in ('1', '2', '3'):
+        if disc.get("level") in ("1", "2", "3"):
             plan_disc[int(disc.get("left_node"))] = {
                 "id": disc_id,
                 "code": disc.get("code"),
@@ -28,7 +28,7 @@ def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:
     for comp in plan.plan_competencies.values():
         plan_comp[int(comp.get("left_node"))] = {
             "id": int(comp.get("id")),
-            "code": comp.get("code")
+            "code": comp.get("code"),
         }
 
     wb = Workbook()
@@ -57,7 +57,9 @@ def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:
             ws.cell(row, column).alignment = Alignment(
                 horizontal="center", vertical="center"
             )
-            if plan_disc[disc].get("level") != str(Apeks.DISC_LEVEL) or plan_disc[disc].get("type") == str(Apeks.DISC_GROUP_TYPE):
+            if plan_disc[disc].get("level") != str(Apeks.DISC_LEVEL) or plan_disc[
+                disc
+            ].get("type") == str(Apeks.DISC_GROUP_TYPE):
                 ws.cell(row, 1).style = ExcelStyle.BaseBold
                 ws.cell(row, 1).fill = ExcelStyle.GreyFill
                 ws.cell(row, 2).style = ExcelStyle.BaseBold

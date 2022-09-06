@@ -585,7 +585,9 @@ async def program_data(plan_id):
         programs[wp]["status"] = plan.work_programs_data[wp].get("status")
 
     widget_data = {
-        "generation": plan.plan_education_plans[-1].get("generation"),
+        "generation": Apeks.PLAN_GENERATIONS.get(
+            plan.plan_education_plans[-1].get("generation")
+        ),
         "status": Apeks.PLAN_STATUS.get(
             int(plan.plan_education_plans[-1].get("status"))
         ),

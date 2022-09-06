@@ -24,7 +24,9 @@ def generate_load_report(load: LoadReportProcessor) -> str:
             название файла
     """
 
-    wb = load_workbook(os.path.join(FlaskConfig.TEMPLATE_FILE_DIR, "load_report_temp.xlsx"))
+    wb = load_workbook(
+        os.path.join(FlaskConfig.TEMPLATE_FILE_DIR, "load_report_temp.xlsx")
+    )
     ws = wb.active
     ws.title = (
         f"{load.year}-{load.file_period} "

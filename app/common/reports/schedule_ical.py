@@ -47,7 +47,7 @@ def generate_schedule_ical(
     cal_timezone.add_component(tz_standard)
     cal.add_component(cal_timezone)
 
-    for l_index in range(len(schedule.lessons_data)):
+    for l_index in range(sum(1 for _ in schedule.lessons_data)):
         event = Event()
         event.add("dtstart", schedule.time_start(l_index).astimezone(pytz.utc))
         event.add("dtend", schedule.time_end(l_index).astimezone(pytz.utc))
@@ -64,7 +64,8 @@ def generate_schedule_ical(
         event.add(
             "uid",
             f'apeks-id-{schedule.lessons_data[l_index].get("id")}'
-            f'journal-lesson-id-{schedule.lessons_data[l_index].get("journal_lesson_id")}',
+            f"journal-lesson-id-"
+            f'{schedule.lessons_data[l_index].get("journal_lesson_id")}',
         )
         group_id = schedule.lessons_data[l_index].get("group_id")
         subgroup_id = schedule.lessons_data[l_index].get("subgroup_id")

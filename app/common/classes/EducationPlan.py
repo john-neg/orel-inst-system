@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from config import ApeksConfig as Apeks
@@ -14,7 +15,7 @@ class EducationPlan:
     ----------
         education_plan_id: int | str
             id учебного плана
-        plan_education_plans: list
+        plan_education_plans: Iterable
             данные из таблицы 'plan_education_plans' (filter - id:plan_id)
             (информация об учебном плане)
         plan_curriculum_disciplines: dict
@@ -29,7 +30,7 @@ class EducationPlan:
     """
 
     education_plan_id: int | str
-    plan_education_plans: list
+    plan_education_plans: Iterable
     plan_curriculum_disciplines: dict
 
     def __post_init__(self) -> None:
@@ -66,7 +67,7 @@ class EducationPlanWorkPrograms(EducationPlan):
     ----------
         education_plan_id: int | str
             id учебного плана
-        plan_education_plans: list
+        plan_education_plans: Iterable
             данные из таблицы 'plan_education_plans' (filter - id:plan_id)
             (информация об учебном плане)
         plan_curriculum_disciplines: dict
@@ -194,8 +195,10 @@ class EducationPlanIndicators(EducationPlanCompetencies, EducationPlanWorkProgra
     Сведения об учебном плане, содержащихся в нем дисциплинах, компетенциях
     рабочих программах.
 
-    Атрибут 'work_programs_data' - вывод функции 'get_work_programs_data'
-    c параметром 'competencies = True'
+    Attributes:
+    ----------
+        'work_programs_data': dict
+            вывод функции 'get_work_programs_data' c параметром 'competencies = True'
     """
 
     def __post_init__(self):
@@ -223,28 +226,28 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
 
     Attributes:
     ----------
-        plan_education_levels: list
+        plan_education_levels: Iterable
             данные из таблицы 'plan_education_levels'
             (информация об уровнях образования)
-        plan_education_specialties: list
+        plan_education_specialties: Iterable
             данные из таблицы 'plan_education_specialties'
             (информация о специальностях)
-        plan_education_groups: list
+        plan_education_groups: Iterable
             данные из таблицы 'plan_education_groups'
             (информация о группах специальностей)
-        plan_education_specializations: list
+        plan_education_specializations: Iterable
             данные из таблицы 'plan_education_specializations'
             (информация о специализациях)
-        plan_education_plans_education_forms: list
+        plan_education_plans_education_forms: Iterable
             данные из таблицы 'plan_education_plans_education_forms'
             (информация о формах обучения для планов)
-        plan_education_forms: list
+        plan_education_forms: Iterable
             данные из таблицы 'plan_education_forms'
             (информация о видах форм обучения)
-        plan_qualifications: list
+        plan_qualifications: Iterable
             данные из таблицы 'plan_qualifications'
             (информация о квалификации)
-        plan_education_specializations_narrow: list
+        plan_education_specializations_narrow: Iterable
             данные из таблицы 'plan_education_specializations_narrow'
             (информация об узких специализациях)
 
@@ -255,14 +258,14 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
             обрабатывает данные таблиц выделяя нужные значения полей
     """
 
-    plan_education_levels: list
-    plan_education_specialties: list
-    plan_education_groups: list
-    plan_education_specializations: list
-    plan_education_plans_education_forms: list
-    plan_education_forms: list
-    plan_qualifications: list
-    plan_education_specializations_narrow: list
+    plan_education_levels: Iterable
+    plan_education_specialties: Iterable
+    plan_education_groups: Iterable
+    plan_education_specializations: Iterable
+    plan_education_plans_education_forms: Iterable
+    plan_education_forms: Iterable
+    plan_qualifications: Iterable
+    plan_education_specializations_narrow: Iterable
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -312,7 +315,7 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
 
     @staticmethod
     def get_field_data(
-        plan_table_data: list,
+        plan_table_data: Iterable,
         source_field_id: int | str,
         target_field_name: str,
         source_field_name: str = "id",
