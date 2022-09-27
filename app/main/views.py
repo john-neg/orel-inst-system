@@ -24,7 +24,7 @@ def favicon():
 
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
-    """Отправляет файл и удаляет его из EXPORT_FILE_DIR."""
+    """Отправляет файл из папки export."""
     file = os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename)
     return send_file(
         file,
@@ -36,7 +36,7 @@ def get_file(filename):
 
 @bp.route("/templates/<string:filename>", methods=["GET"])
 def get_temp_file(filename):
-    """Отправляет файл шаблона."""
+    """Отправляет файл шаблона из папки templates."""
     file = os.path.join(FlaskConfig.TEMPLATE_FILE_DIR, filename)
     return send_file(
         file,

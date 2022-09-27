@@ -149,7 +149,7 @@ class EducationPlanCompetencies(EducationPlan):
     и компетенциях.
     Для правильной работы отчетов сведения из таблицы "plan_curriculum_disciplines"
     необходимо передавать с помощью функции "get_plan_curriculum_disciplines"
-    с параметром disc_filter=False
+    с параметром disc_filter=False.
 
     Attributes:
     ----------

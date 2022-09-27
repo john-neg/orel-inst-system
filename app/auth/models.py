@@ -7,6 +7,8 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
+    """Модель для пользователя."""
+
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -42,25 +44,3 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-
-def init_db():
-    db.create_all()
-
-    u = User(username='admin', role=FlaskConfig.ROLE_ADMIN)
-    u.set_password('admin')
-    db.session.add(u)
-
-    u = User(username='user', role=FlaskConfig.ROLE_USER)
-    u.set_password('user')
-    db.session.add(u)
-
-    u = User(username='metod', role=FlaskConfig.ROLE_METOD)
-    u.set_password('metod')
-    db.session.add(u)
-
-    u = User(username='bibl', role=FlaskConfig.ROLE_BIBL)
-    u.set_password('bibl')
-    db.session.add(u)
-
-    db.session.commit()

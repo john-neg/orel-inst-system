@@ -9,8 +9,7 @@ from datetime import datetime
 @dataclass
 class ScheduleLessonsStaff:
     """
-    Класс для работы со списком занятий преподавателя за
-    определенный период.
+    Класс для работы со списком занятий преподавателя за определенный период.
 
     Attributes:
     -----------
@@ -77,7 +76,7 @@ class ScheduleLessonsStaff:
 
     def time_start(self, l_index: int) -> datetime:
         """
-        Выводит время начала занятия
+        Выводит время начала занятия.
 
         Parameters
         ----------
@@ -94,7 +93,7 @@ class ScheduleLessonsStaff:
 
     def time_end(self, l_index: int) -> datetime:
         """
-        Выводит время окончания занятия
+        Выводит время окончания занятия.
 
         Parameters
         ----------

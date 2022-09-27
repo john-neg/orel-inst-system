@@ -2,12 +2,12 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, ValidationError, EqualTo, Length
 
-from app.auth.models import User
 from config import FlaskConfig
+from .models import User
 
 
 class LoginForm(FlaskForm):
-    """Класс для аутентификации."""
+    """Класс аутентификации пользователей."""
 
     class Meta(FlaskForm.Meta):
         locales = ['ru_RU', 'ru']
@@ -22,7 +22,7 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
-    """Класс регистрации"""
+    """Класс регистрации пользователей."""
 
     class Meta(FlaskForm.Meta):
         locales = ['ru_RU', 'ru']

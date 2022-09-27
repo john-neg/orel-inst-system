@@ -40,7 +40,7 @@ class ApeksConfig(object):
     URL = os.getenv("APEKS_URL")
     TOKEN = os.getenv("APEKS_TOKEN")
 
-    # ID типа подразделения "кафедра" в БД
+    # ID типа подразделения "кафедра" в БД Апекс-ВУЗ
     DEPT_ID = 4
 
     # Таблицы базы данных, используемые в приложении
