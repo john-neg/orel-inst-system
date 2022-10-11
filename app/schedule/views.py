@@ -32,8 +32,8 @@ async def schedule():
         state_staff = await get_state_staff()
         staff = EducationStaff(
             year=date.today().year,
-            month_start=date.today().month - 6,
-            month_end=date.today().month + 3,
+            month_start=date.today().month - 6 if date.today().month - 6 >= 1 else 1,
+            month_end=date.today().month + 3 if date.today().month + 3 <= 12 else 12,
             state_staff=state_staff,
             state_staff_history=await check_api_db_response(
                 await api_get_db_table(
