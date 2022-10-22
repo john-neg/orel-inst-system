@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 
 from flask import render_template, request, url_for
 from werkzeug.utils import redirect
@@ -20,9 +21,14 @@ from config import ApeksConfig as Apeks
 
 @bp.route("/load", methods=["GET", "POST"])
 async def load_report():
-    form = LoadReportForm()
     departments = await get_departments()
+    year = date.today().year
+    month = date.today().month
+    form = LoadReportForm()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
+    form.year.choices = [year - 1, year, year + 1]
+    form.year.data = year
+    form.month.data = f'{month}-{month}'
     if request.method == "POST" and form.validate_on_submit():
         year = request.form.get("year")
         month = request.form.get("month").split("-")

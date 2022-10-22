@@ -24,16 +24,21 @@ from config import ApeksConfig as Apeks
 
 @bp.route("/schedule", methods=["GET", "POST"])
 async def schedule():
-    form = CalendarForm()
     departments = await get_departments()
+    year = date.today().year
+    month = date.today().month
+    form = CalendarForm()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
+    form.year.choices = [year - 1, year, year + 1]
+    form.year.data = year
+    form.month.data = month
     if request.method == "POST":
         department = request.form.get("department")
         state_staff = await get_state_staff()
         staff = EducationStaff(
             year=date.today().year,
-            month_start=date.today().month - 6 if date.today().month - 6 >= 1 else 1,
-            month_end=date.today().month + 3 if date.today().month + 3 <= 12 else 12,
+            month_start=month - 6 if month - 6 >= 1 else 1,
+            month_end=month + 3 if month + 3 <= 12 else 12,
             state_staff=state_staff,
             state_staff_history=await check_api_db_response(
                 await api_get_db_table(

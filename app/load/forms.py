@@ -10,12 +10,6 @@ class LoadReportForm(FlaskForm):
     year = SelectField(
         "Год",
         coerce=int,
-        choices=[
-            date.today().year - 1,
-            date.today().year,
-            date.today().year + 1,
-        ],
-        default=date.today().year,
         validators=[DataRequired()],
     )
     month = SelectField(
@@ -37,7 +31,6 @@ class LoadReportForm(FlaskForm):
             ('12-12', "Декабрь"),
             ('9-12', "(Сентябрь-Декабрь) полугодие"),
         ],
-        default=f'{date.today().month}-{date.today().month}',
         validators=[DataRequired()],
     )
     load_report = SubmitField('Cформировать')
