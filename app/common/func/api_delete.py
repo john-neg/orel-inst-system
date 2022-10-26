@@ -5,8 +5,8 @@ from json import JSONDecodeError
 
 import httpx
 
-from app.common.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
+from ..exceptions import ApeksApiException
 
 
 def api_delete_request_handler(func):

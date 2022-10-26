@@ -1,13 +1,11 @@
 from flask import render_template, redirect, url_for
 from flask_login import logout_user, login_user, current_user, login_required
-from flask_sqlalchemy import SQLAlchemy
 
-from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm
-from app.auth.models import User
 from config import FlaskConfig
-
-db = SQLAlchemy()
+from . import bp
+from .forms import LoginForm, RegistrationForm
+from ..db.database import db
+from ..db.models import User
 
 
 @bp.route("/login", methods=["GET", "POST"])

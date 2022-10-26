@@ -45,6 +45,7 @@ class EducationStaff:
             данные в каком подразделении и когда работал сотрудник.
             если работает в настоящий момент 'end_date' = None.
     """
+    # TODO добавить year_start/end, сделать чтобы месяц +/- 6 корректно работали
 
     year: int | str
     month_start: int | str
@@ -101,7 +102,7 @@ class EducationStaff:
         staff_list = []
         for staff in self.state_staff_history:
             if staff.get("staff_id") and staff.get("department_id") == str(
-                department_id
+                    department_id
             ):
                 staff_id = int(staff.get("staff_id"))
                 staff_pos = staff.get("position_id")
@@ -121,14 +122,14 @@ class EducationStaff:
 
                     if staff.get("end_date"):
                         if date.fromisoformat(staff.get("end_date")) > date(
-                            self.year, self.month_start, 1
+                                self.year, self.month_start, 1
                         ):
                             staff_list.append(staff_info)
                     else:
                         if date.fromisoformat(staff.get("start_date")) <= date(
-                            self.year,
-                            self.month_end,
-                            monthrange(self.year, self.month_end)[1],
+                                self.year,
+                                self.month_end,
+                                monthrange(self.year, self.month_end)[1],
                         ):
                             staff_list.append(staff_info)
         dept_staff = {}

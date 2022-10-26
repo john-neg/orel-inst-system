@@ -6,15 +6,20 @@ from flask.logging import create_logger
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
 
-from app.auth.models import User
-from app.auth.func import init_db
-from app.common.classes.MyModelView import MyModelView
 from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
+from .auth import bp as login_bp
+from .common.classes.MyModelView import MyModelView
+from .db.database import db
+from .db.func import init_db
+from .db.models import User
+from .library import bp as library_bp
+from .load import bp as load_bp
+from .main import bp as main_bp
+from .plans import bp as plans_bp
+from .programs import bp as programs_bp
+from .schedule import bp as schedule_bp
 
-
-db = SQLAlchemy()
 login = LoginManager()
 login.login_view = "auth.login"
 admin = Admin()
@@ -37,44 +42,35 @@ def check_tokens() -> bool:
         logging.critical(
             "Отсутствуют необходимые переменные окружения: " f'{", ".join(missing_env)}'
         )
-        return False
+        raise SystemExit(
+            "Отсутствуют ключи доступа. Программа принудительно остановлена."
+        )
+
+
+def register_extensions(application):
+    db.init_app(application)
+    login.init_app(application)
+    admin.init_app(application)
+    create_logger(application)
+
+
+def register_blueprints(application):
+    application.register_blueprint(login_bp)
+    application.register_blueprint(main_bp)
+    application.register_blueprint(schedule_bp)
+    application.register_blueprint(load_bp)
+    application.register_blueprint(plans_bp, url_prefix="/plans")
+    application.register_blueprint(programs_bp, url_prefix="/programs")
+    application.register_blueprint(library_bp)
 
 
 def create_app(config_class=FlaskConfig):
 
     app = Flask(__name__)
     app.config.from_object(config_class)
-
-    if not check_tokens():
-        raise SystemExit(
-            "Отсутствуют ключи доступа. Программа принудительно остановлена."
-        )
-
-    db.init_app(app)
-    login.init_app(app)
-    admin.init_app(app)
-    create_logger(app)
-
-    from app.auth import bp as login_bp
-    app.register_blueprint(login_bp)
-
-    from app.main import bp as main_bp
-    app.register_blueprint(main_bp)
-
-    from app.schedule import bp as schedule_bp
-    app.register_blueprint(schedule_bp)
-
-    from app.load import bp as load_bp
-    app.register_blueprint(load_bp)
-
-    from app.plans import bp as plans_bp
-    app.register_blueprint(plans_bp, url_prefix="/plans")
-
-    from app.programs import bp as programs_bp
-    app.register_blueprint(programs_bp, url_prefix="/programs")
-
-    from app.library import bp as library_bp
-    app.register_blueprint(library_bp)
+    check_tokens()
+    register_extensions(app)
+    register_blueprints(app)
 
     admin.add_link(MenuLink(name="Вернуться на основной сайт", category="", url="/"))
     admin.add_view(MyModelView(User, db.session))

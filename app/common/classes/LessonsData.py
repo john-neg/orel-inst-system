@@ -6,8 +6,8 @@ from copy import copy
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from app.common.func.app_core import data_processor
 from config import ApeksConfig as Apeks
+from ..func.app_core import data_processor
 
 
 @dataclass

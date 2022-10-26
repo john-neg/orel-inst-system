@@ -3,8 +3,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from app.common.classes.LessonsData import LessonsData
 from config import ApeksConfig as Apeks
+from ..classes.LessonsData import LessonsData
 
 
 @dataclass

@@ -1,13 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import FlaskConfig
-
-db = SQLAlchemy()
+from .database import db
 
 
 class User(db.Model):
-    """Модель для пользователя."""
+    """Модель пользователя."""
 
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)

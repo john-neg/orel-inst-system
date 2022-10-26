@@ -1,6 +1,6 @@
-from app import User
-from app.auth.models import db
 from config import FlaskConfig
+from .database import db
+from .models import User
 
 
 def init_db():

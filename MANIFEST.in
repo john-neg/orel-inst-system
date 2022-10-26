@@ -1,3 +1,0 @@
-recursive-include apeks-vuz-extension *.py
-include README
-include requirements.txt
