@@ -6,7 +6,9 @@ from werkzeug.utils import redirect
 from config import FlaskConfig
 
 
-class MyModelView(ModelView):
+class AdminModelView(ModelView):
+    """Класс определяет доступ к таблицам БД (только для администратора)."""
+
     def is_accessible(self):
         return (
             current_user.is_authenticated
