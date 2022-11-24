@@ -13,16 +13,16 @@ class ScheduleLessonsStaff:
 
     Attributes:
     -----------
-        staff_id : int | str
+        staff_id: int | str
             id преподавателя.
-        month : int | str
+        month: int | str
             месяц (число от 1 до 12).
-        year : int | str
+        year: int | str
             учебный год (число 20хх).
-        lessons_data : Iterable
+        lessons_data: Iterable
             ответ GET запроса API "/api/call/schedule-schedule/staff"
             в формате JSON.
-        disciplines : dict
+        disciplines: dict
             список дисциплин в формате {id: {'full': 'название
             дисциплины', 'short': 'сокращенное название'}}.
         load_subgroups_data: dict
@@ -37,10 +37,6 @@ class ScheduleLessonsStaff:
             выводит время начала занятия.
         time_end(l_index: int) -> datetime
             выводит время окончания занятия.
-        export_ical(staff_name: str, timezone: tzinfo) -> str
-            формирует файл для экспорта занятий преподавателя в формате iCal.
-        export_xlsx(staff_name: str) -> str
-            формирует файл для экспорта занятий преподавателя в формате xlsx.
     """
 
     staff_id: int | str

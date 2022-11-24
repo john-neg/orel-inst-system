@@ -221,6 +221,8 @@ async def get_lessons(
     year: int,
     month_start: int,
     month_end: int,
+    day_start: int = 1,
+    day_end: int = None,
     table_name: str = Apeks.TABLES.get("schedule_day_schedule_lessons"),
     url: str = Apeks.URL,
     token: str = Apeks.TOKEN,
@@ -236,6 +238,10 @@ async def get_lessons(
             начальный месяц (число 1-12).
         month_end: int
             конечный месяц (число 1-12).
+        day_start: int
+            начальная дата (число 1-31).
+        day_end: int
+            конечная дата (число 1-31).
         table_name: str
             имя_таблицы
         url: str
@@ -243,18 +249,18 @@ async def get_lessons(
         token: str
             токен для API
     """
-    first_day = 1
-    last_day = monthrange(year, month_end)[1]
+    if not day_end:
+        day_end = monthrange(year, month_end)[1]
     endpoint = f"{url}/api/call/system-database/get"
     params = {
         "token": token,
         "table": table_name,
-        "filter": f"date between '{date(year, month_start, first_day).isoformat()}' "
-        f"and '{date(year, month_end, last_day).isoformat()}'",
+        "filter": f"date between '{date(year, month_start, day_start).isoformat()}' "
+        f"and '{date(year, month_end, day_end).isoformat()}'",
     }
     logging.debug(
         "Переданы параметры для запроса 'get_lessons': "
-        f"date between '{date(year, month_start, first_day).isoformat()}' "
-        f"and '{date(year, month_end, last_day).isoformat()}'"
+        f"date between '{date(year, month_start, day_start).isoformat()}' "
+        f"and '{date(year, month_end, day_end).isoformat()}'"
     )
     return endpoint, params
