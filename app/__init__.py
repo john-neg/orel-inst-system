@@ -19,6 +19,7 @@ from .main import bp as main_bp
 from .plans import bp as plans_bp
 from .programs import bp as programs_bp
 from .schedule import bp as schedule_bp
+from .tools import bp as tools_bp
 
 login = LoginManager()
 login.login_view = "auth.login"
@@ -63,6 +64,7 @@ def register_blueprints(app):
     app.register_blueprint(plans_bp, url_prefix="/plans")
     app.register_blueprint(programs_bp, url_prefix="/programs")
     app.register_blueprint(library_bp)
+    app.register_blueprint(tools_bp, url_prefix="/tools")
 
 
 def create_app(config_class=FlaskConfig):

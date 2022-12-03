@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Модуль Rewriter{% endblock %}
+  </h3>
+</div>
+<form method="post">
+  {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <h4 class="fw-lighter text-center text-primary mt-2 mb-2">program API status - *<br></h4>
+
+          <div class="row">
+            <div class="col">
+              <div class="card shadow mb-2">
+                <div class="card-header py-3">
+                  {{ form.rewriter_text.label(class="text-center text-primary m-0 fw-bold") }}
+                </div>
+                <div class="card-body">
+                  {{ form.rewriter_text(class="form-control", rows="8", value=field_data) }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              {{ form.do_rewrite(class="btn btn-info link-light", type="submit", style="width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
+          </div>
+          {% if text %}
+            <div class="table-responsive">
+              <table class="table">
+                {% for score_method in text %}
+                  <thead class="text-danger">
+                    <tr>
+                      <th>
+                        <span style="white-space: pre-line">Метод {{ score_method }}</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <span class="text-dark">{{ text.get(score_method) }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                {% endfor %}
+              </table>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+</form>
+{% endblock %}
