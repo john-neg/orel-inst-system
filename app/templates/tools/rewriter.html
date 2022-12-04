@@ -1,17 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid">
-  <h3 class="text-center text-dark mb-1">
-    {% block title %}Модуль Rewriter{% endblock %}
-  </h3>
-</div>
-<form method="post">
-  {{ form.hidden_tag() }}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Модуль Rewriter{% endblock %}
+    </h3>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
-          <h4 class="fw-lighter text-center text-primary mt-2 mb-2">program API status - *<br></h4>
-
+          <h4 class="fw-lighter text-center text-primary mt-2 mb-2">
+            доступность сервиса по API -
+              {% if status == 200 %}
+                <i class="far fa-check-circle text-success"></i>
+              {% else %}
+                <i class="far fa-times-circle text-danger"></i>
+              {% endif %}
+            <br>
+          </h4>
           <div class="row">
             <div class="col">
               <div class="card shadow mb-2">
@@ -31,21 +38,19 @@
           </div>
           {% if text %}
             <div class="table-responsive">
-              <table class="table">
+              <table class="table my-0" id="dataTable">
                 {% for score_method in text %}
-                  <thead class="text-danger">
+                  <thead>
                     <tr>
-                      <th>
-                        <span style="white-space: pre-line">Метод {{ score_method }}</span>
-                      </th>
+                      <th>Метод оценки качества - {{ score_method }}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>
-                        <span class="text-dark">{{ text.get(score_method) }}</span>
-                      </td>
-                    </tr>
+                    {% for paragraph in text.get(score_method) %}
+                      <tr>
+                        <td>{{ paragraph }}</td>
+                      </tr>
+                    {% endfor %}
                   </tbody>
                 {% endfor %}
               </table>
@@ -54,5 +59,5 @@
         </div>
       </div>
     </div>
-</form>
+  </form>
 {% endblock %}
