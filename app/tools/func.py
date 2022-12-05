@@ -23,7 +23,6 @@ async def rewriter(
     :param top_p: параметр top_p текста для генерации. дефолтное значение 0.90
     :param repetition_penalty: штраф за повторные реплики. дефолтное значение 1.5
     :param num_return_sequences: кол-во примеров, из которых выбирается лучший рерайт. дефолтное значение 5
-    :param range_mode: выбор режима ранжирования кандидатов ("all", "bertscore", "classifier").
     :param get_code: возвращает статус ответа API если True. По умолчанию False.
     :return: str
     """

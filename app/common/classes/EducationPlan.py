@@ -15,7 +15,7 @@ class EducationPlan:
     ----------
         education_plan_id: int | str
             id учебного плана
-        plan_education_plans: Iterable
+        plan_education_plans: list
             данные из таблицы 'plan_education_plans' (filter - id:plan_id)
             (информация об учебном плане)
         plan_curriculum_disciplines: dict
@@ -30,7 +30,7 @@ class EducationPlan:
     """
 
     education_plan_id: int | str
-    plan_education_plans: Iterable
+    plan_education_plans: list
     plan_curriculum_disciplines: dict
 
     def __post_init__(self) -> None:
@@ -67,7 +67,7 @@ class EducationPlanWorkPrograms(EducationPlan):
     ----------
         education_plan_id: int | str
             id учебного плана
-        plan_education_plans: Iterable
+        plan_education_plans: list
             данные из таблицы 'plan_education_plans' (filter - id:plan_id)
             (информация об учебном плане)
         plan_curriculum_disciplines: dict
@@ -226,28 +226,28 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
 
     Attributes:
     ----------
-        plan_education_levels: Iterable
+        plan_education_levels: list
             данные из таблицы 'plan_education_levels'
             (информация об уровнях образования)
-        plan_education_specialties: Iterable
+        plan_education_specialties: list
             данные из таблицы 'plan_education_specialties'
             (информация о специальностях)
-        plan_education_groups: Iterable
+        plan_education_groups: list
             данные из таблицы 'plan_education_groups'
             (информация о группах специальностей)
-        plan_education_specializations: Iterable
+        plan_education_specializations: list
             данные из таблицы 'plan_education_specializations'
             (информация о специализациях)
-        plan_education_plans_education_forms: Iterable
+        plan_education_plans_education_forms: list
             данные из таблицы 'plan_education_plans_education_forms'
             (информация о формах обучения для планов)
-        plan_education_forms: Iterable
+        plan_education_forms: list
             данные из таблицы 'plan_education_forms'
             (информация о видах форм обучения)
-        plan_qualifications: Iterable
+        plan_qualifications: list
             данные из таблицы 'plan_qualifications'
             (информация о квалификации)
-        plan_education_specializations_narrow: Iterable
+        plan_education_specializations_narrow: list
             данные из таблицы 'plan_education_specializations_narrow'
             (информация об узких специализациях)
 
@@ -258,14 +258,14 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
             обрабатывает данные таблиц выделяя нужные значения полей
     """
 
-    plan_education_levels: Iterable
-    plan_education_specialties: Iterable
-    plan_education_groups: Iterable
-    plan_education_specializations: Iterable
-    plan_education_plans_education_forms: Iterable
-    plan_education_forms: Iterable
-    plan_qualifications: Iterable
-    plan_education_specializations_narrow: Iterable
+    plan_education_levels: list
+    plan_education_specialties: list
+    plan_education_groups: list
+    plan_education_specializations: list
+    plan_education_plans_education_forms: list
+    plan_education_forms: list
+    plan_qualifications: list
+    plan_education_specializations_narrow: list
 
     def __post_init__(self) -> None:
         super().__post_init__()

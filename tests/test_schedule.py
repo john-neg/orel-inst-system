@@ -25,7 +25,7 @@ from app import create_app
 #     async with httpx.AsyncClient() as client:
 #         response = await client.get("https://test_url")
 #         assert response.json() == [{"key1": "value1", "key2": "value2"}]
-from common.func.api_get import api_get_staff_lessons
+from app.common.func.api_get import api_get_staff_lessons
 
 
 @pytest.mark.asyncio

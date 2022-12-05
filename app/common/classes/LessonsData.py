@@ -17,22 +17,22 @@ class LessonsData:
 
     Attributes:
     ----------
-        schedule_lessons: Iterable
+        schedule_lessons: list
             данные из таблицы 'schedule_day_schedule_lessons'
             (сведения об учебных занятиях)
-        schedule_lessons_staff: Iterable
+        schedule_lessons_staff: list
             данные из таблицы 'schedule_day_schedule_lessons_staff'
             (сведения о преподавателях, которые проводили занятия)
-        load_groups: Iterable
+        load_groups: list
             данные из таблицы 'load_groups'
             (названия учебных групп)
-        load_subgroups: Iterable
+        load_subgroups: list
             данные из таблицы 'load_subgroups'
             (названия учебных подгрупп и 'group_id' соответствующих групп)
-        plan_education_plans: Iterable
+        plan_education_plans: list
             данные из таблицы 'plan_education_plans'
             (сведения об учебных планах)
-        plan_education_plans_education_forms: Iterable
+        plan_education_plans_education_forms: list
             данные из таблицы 'plan_education_plans_education_forms'
             (содержит 'education_form_id' для учебных планов)
         staff_history_data: dict
@@ -67,12 +67,12 @@ class LessonsData:
             возвращает список занятий, относящихся к определенной кафедре
     """
 
-    schedule_lessons: Iterable
-    schedule_lessons_staff: Iterable
-    load_groups: Iterable
-    load_subgroups: Iterable
-    plan_education_plans: Iterable
-    plan_education_plans_education_forms: Iterable
+    schedule_lessons: list
+    schedule_lessons_staff: list
+    load_groups: list
+    load_subgroups: list
+    plan_education_plans: list
+    plan_education_plans_education_forms: list
     staff_history_data: dict
 
     def __post_init__(self):
