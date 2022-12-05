@@ -3,8 +3,8 @@ import os
 from flask import render_template, send_file, send_from_directory, flash
 from werkzeug.exceptions import HTTPException
 
-from app.main import bp
 from config import FlaskConfig
+from . import bp
 
 
 @bp.route("/")

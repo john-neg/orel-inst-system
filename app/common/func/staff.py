@@ -4,7 +4,7 @@ import logging
 
 from cache import AsyncTTL
 
-from app.common.func.api_get import check_api_db_response, api_get_db_table
+from .api_get import check_api_db_response, api_get_db_table
 from config import ApeksConfig as Apeks
 
 

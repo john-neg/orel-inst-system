@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import logging
 
-from app.common.classes.EducationPlan import EducationPlanWorkPrograms
-from app.common.exceptions import (
+from config import ApeksConfig as Apeks
+from .api_delete import api_delete_from_db_table
+from .api_get import check_api_db_response, api_get_db_table
+from .api_post import api_add_to_db_table, api_edit_db_table
+from .app_core import data_processor
+from .education_plan import get_plan_control_works
+from ..classes.EducationPlan import EducationPlanWorkPrograms
+from ..exceptions import (
     ApeksParameterNonExistException,
     ApeksWrongParameterException,
 )
-from app.common.func.api_delete import api_delete_from_db_table
-from app.common.func.api_get import check_api_db_response, api_get_db_table
-from app.common.func.api_post import api_add_to_db_table, api_edit_db_table
-from app.common.func.app_core import data_processor
-from app.common.func.education_plan import get_plan_control_works
-from config import ApeksConfig as Apeks
 
 
 async def get_work_programs_data(

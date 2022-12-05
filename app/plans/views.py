@@ -6,41 +6,41 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required, current_user
 
-from app.common.classes.PlanMatrixProcessor import (
-    MatrixSimpleProcessor,
-    MatrixIndicatorProcessor,
-    MatrixFileProcessor,
-)
-from app.common.forms import ChoosePlan
-from app.common.func.app_core import allowed_file
-from app.common.func.education_plan import (
-    get_plan_education_specialties,
-    get_education_plans,
-    plan_competency_add,
-    discipline_competency_add,
-)
-from app.common.func.work_program import (
-    work_programs_competencies_level_del,
-    work_program_competency_data_add,
-    work_program_competency_level_add,
-    work_program_competency_level_edit,
-)
-from app.common.reports.plans_comp_matrix import generate_plans_comp_matrix
-from app.common.reports.plans_indicators_file import generate_indicators_file
-from app.plans import bp
-from app.plans.forms import (
+from config import FlaskConfig, ApeksConfig as Apeks
+from . import bp
+from .forms import (
     CompLoadForm,
     IndicatorsFileForm,
     MatrixIndicatorForm,
     MatrixSimpleForm,
 )
-from app.plans.func import (
+from .func import (
     comps_file_processing,
     get_plan_competency_instance,
     get_plan_indicator_instance,
 )
-from app.plans.func import plan_competencies_data_cleanup
-from config import FlaskConfig, ApeksConfig as Apeks
+from .func import plan_competencies_data_cleanup
+from ..common.classes.PlanMatrixProcessor import (
+    MatrixSimpleProcessor,
+    MatrixIndicatorProcessor,
+    MatrixFileProcessor,
+)
+from ..common.forms import ChoosePlan
+from ..common.func.app_core import allowed_file
+from ..common.func.education_plan import (
+    get_plan_education_specialties,
+    get_education_plans,
+    plan_competency_add,
+    discipline_competency_add,
+)
+from ..common.func.work_program import (
+    work_programs_competencies_level_del,
+    work_program_competency_data_add,
+    work_program_competency_level_add,
+    work_program_competency_level_edit,
+)
+from ..common.reports.plans_comp_matrix import generate_plans_comp_matrix
+from ..common.reports.plans_indicators_file import generate_indicators_file
 
 
 class PlanChoosePlanView(View):

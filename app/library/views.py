@@ -5,28 +5,28 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
-from app.common.classes.EducationPlan import EducationPlan, EducationPlanWorkPrograms
-from app.common.forms import ChoosePlan
-from app.common.func.api_get import (
+from config import FlaskConfig, ApeksConfig as Apeks
+from . import bp
+from .forms import LibraryForm
+from .func import library_file_processing
+from ..common.classes.EducationPlan import EducationPlan, EducationPlanWorkPrograms
+from ..common.forms import ChoosePlan
+from ..common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
 )
-from app.common.func.app_core import allowed_file
-from app.common.func.education_plan import (
+from ..common.func.app_core import allowed_file
+from ..common.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
     get_plan_curriculum_disciplines,
 )
-from app.common.func.work_program import (
+from ..common.func.work_program import (
     get_work_programs_data,
     load_lib_add_field,
     load_lib_edit_field,
 )
-from app.common.reports.library_report import library_report
-from app.library import bp
-from app.library.forms import LibraryForm
-from app.library.func import library_file_processing
-from config import FlaskConfig, ApeksConfig as Apeks
+from ..common.reports.library_report import library_report
 
 
 class LibraryChoosePlanView(View):

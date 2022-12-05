@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from openpyxl import load_workbook
 
-from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
+from ..common.func.app_core import xlsx_iter_rows, xlsx_normalize
 
 
 def library_file_processing(file: str) -> dict:

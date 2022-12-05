@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from phpserialize import loads
 
-from app.common.func.api_get import api_get_db_table, check_api_db_response
-from app.common.func.app_core import data_processor
+from .api_get import api_get_db_table, check_api_db_response
+from .app_core import data_processor
 from config import ApeksConfig as Apeks
 
 

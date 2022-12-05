@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 
 from config import ApeksConfig as Apeks
-from ..classes.LessonsData import LessonsData
+from .LessonsData import LessonsData
 
 
 @dataclass

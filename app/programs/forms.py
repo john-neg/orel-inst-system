@@ -11,8 +11,8 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length, NumberRange
 
-from app.common.forms import ChoosePlan
 from config import ApeksConfig as Apeks
+from ..common.forms import ChoosePlan
 
 
 class ProgramFieldsForm(FlaskForm):

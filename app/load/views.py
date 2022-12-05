@@ -4,19 +4,19 @@ from datetime import date
 from flask import render_template, request, url_for
 from werkzeug.utils import redirect
 
-from app.common.classes.EducationStaff import EducationStaff
-from app.common.classes.LoadReportProcessor import LoadReportProcessor
-from app.common.func.api_get import (
+from config import ApeksConfig as Apeks
+from . import bp
+from .forms import LoadReportForm
+from ..common.classes.EducationStaff import EducationStaff
+from ..common.classes.LoadReportProcessor import LoadReportProcessor
+from ..common.func.api_get import (
     check_api_db_response,
     api_get_db_table,
     get_lessons,
 )
-from app.common.func.organization import get_departments
-from app.common.func.staff import get_state_staff
-from app.common.reports.load_report import generate_load_report
-from app.load import bp
-from app.load.forms import LoadReportForm
-from config import ApeksConfig as Apeks
+from ..common.func.organization import get_departments
+from ..common.func.staff import get_state_staff
+from ..common.reports.load_report import generate_load_report
 
 
 @bp.route("/load", methods=["GET", "POST"])

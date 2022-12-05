@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -42,7 +41,7 @@ class ScheduleLessonsStaff:
     staff_id: int | str
     month: int | str
     year: int | str
-    lessons_data: Iterable
+    lessons_data: list | tuple
     disciplines: dict
     load_subgroups_data: dict
 
