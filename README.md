@@ -42,16 +42,16 @@ sudo useradd -g www-data www-user
 sudo passwd www-user
 ```
 ```sh
-mkdir /var/www
+sudo mkdir /var/www
 ```
 ```sh
-usermod -d /var/www www-user
+sudo usermod -d /var/www www-user
 ```
 ```sh
-chown -R www-user:www-data /var/www
+sudo chown -R www-user:www-data /var/www
 ```
 ```sh
-usermod -aG sudo www-user
+sudo usermod -aG sudo www-user
 ```
 ```sh
 sudo chsh -s /bin/bash www-user
@@ -98,6 +98,10 @@ cd apeks-vuz-extension
 ```
 
 ```sh
+sudo apt install python3.10-venv
+```
+
+```sh
 python3 -m venv venv
 ```
 
@@ -125,6 +129,19 @@ pip install gunicorn
 
 ```sh
 deactivate
+```
+
+### Создаем файл с ключами доступа
+
+```sh
+nano .env
+```
+Копируем содержимое
+```
+SECRET_KEY='your secret key here'
+APEKS_URL = 'https://your_url_here.ru'
+APEKS_TOKEN = 'apeks_api_key'
+TELEGRAM_TOKEN = 'telegram_bot_key'
 ```
 
 ### Настройка системы
@@ -229,10 +246,18 @@ proxy_read_timeout      180;
 sudo ln -s /etc/nginx/sites-available/apeks /etc/nginx/sites-enabled
 ```
 
+Удаляем default из /etc/nginx/sites-enabled
+
+```sh
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+Проверяем конфигурацию
 ```sh
 sudo nginx -t
 ```
 
+Перезапускаем сервер
 ```sh
 sudo systemctl restart nginx
 ```
