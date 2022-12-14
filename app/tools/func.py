@@ -1,3 +1,6 @@
+import logging
+from json import JSONDecodeError
+
 import httpx
 
 REWRITER_ENDPOINT = "https://api.aicloud.sbercloud.ru/public/v2/rewriter/predict"
@@ -46,8 +49,20 @@ async def rewriter(
     if get_code:
         return httpx.post(endpoint, headers=headers, json=data, timeout=20).status_code
 
-    r = httpx.post(endpoint, headers=headers, json=data, timeout=60)
-    return r.json().get("prediction_best")
+    r = httpx.post(endpoint, headers=headers, json=data, timeout=120)
+    try:
+        resp_json = r.json()
+        logging.debug(
+            f"Выполнен запрос к API Rewriter - 'temperature': {temperature}, "
+            f"'top_k': {top_k}, 'top_p': {top_p}, "
+            f"'repetition_penalty': {repetition_penalty}, "
+            f"'num_return_sequences': {num_return_sequences}"
+        )
+        return resp_json
+    except JSONDecodeError as error:
+        logging.error(
+            f"Ошибка конвертации ответа API Rewriter в JSON: '{error}'"
+        )
 
 
 async def combine_dict(*args: dict) -> dict:
