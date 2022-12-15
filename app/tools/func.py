@@ -1,7 +1,9 @@
 import logging
+from http import HTTPStatus
 from json import JSONDecodeError
 
 import httpx
+from httpx import ReadTimeout
 
 REWRITER_ENDPOINT = "https://api.aicloud.sbercloud.ru/public/v2/rewriter/predict"
 
@@ -47,7 +49,13 @@ async def rewriter(
     headers = {"Content-Type": "application/json"}
 
     if get_code:
-        return httpx.post(endpoint, headers=headers, json=data, timeout=20).status_code
+        try:
+            status = httpx.post(
+                endpoint, headers=headers, json=data, timeout=10
+            ).status_code
+        except ReadTimeout:
+            status = HTTPStatus.GATEWAY_TIMEOUT
+        return status
 
     r = httpx.post(endpoint, headers=headers, json=data, timeout=120)
     try:
