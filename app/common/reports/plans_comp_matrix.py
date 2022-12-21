@@ -6,8 +6,8 @@ from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
 from app.common.classes.EducationPlan import EducationPlanCompetencies
-from app.common.reports.ExcelStyles import ExcelStyle
 from config import FlaskConfig, ApeksConfig as Apeks
+from .ExcelStyles import ExcelStyle
 
 
 def generate_plans_comp_matrix(plan: EducationPlanCompetencies) -> str:

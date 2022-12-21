@@ -8,7 +8,7 @@ from app.common.classes.EducationPlan import (
     EducationPlanCompetencies,
     EducationPlanIndicators,
 )
-from ..func.app_core import xlsx_iter_rows, xlsx_normalize
+from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
 from app.plans.func import get_competency_code
 from config import ApeksConfig as Apeks
 

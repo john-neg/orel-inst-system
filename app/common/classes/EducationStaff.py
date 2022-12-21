@@ -4,6 +4,7 @@ import logging
 from calendar import monthrange
 from dataclasses import dataclass
 from datetime import date
+from typing import Iterable
 
 from config import ApeksConfig as Apeks
 
@@ -50,8 +51,8 @@ class EducationStaff:
     month_start: int | str
     month_end: int | str
     state_staff: dict
-    state_staff_history: list
-    state_staff_positions: list
+    state_staff_history: Iterable
+    state_staff_positions: Iterable
     departments: dict
 
     def __post_init__(self) -> None:

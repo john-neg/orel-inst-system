@@ -6,8 +6,8 @@ from collections import OrderedDict
 from cache import AsyncTTL
 from phpserialize import loads
 
-from .api_get import check_api_db_response, api_get_db_table
 from config import ApeksConfig as Apeks
+from .api_get import check_api_db_response, api_get_db_table
 
 
 @AsyncTTL(time_to_live=3600, maxsize=1024)

@@ -13,7 +13,7 @@ async def field_edit():
     top_p = request.form.get("top_p")
     repetition_penalty = request.form.get("repetition_penalty")
     num_return_sequences = request.form.get("num_return_sequences")
-    text, text_all = {}, []
+    text, text_all, error = {}, [], ''
     status = await rewriter("", get_code=True)
 
     if request.method == "POST":
@@ -28,11 +28,24 @@ async def field_edit():
                         repetition_penalty=float(repetition_penalty),
                         num_return_sequences=int(num_return_sequences),
                     )
-                text = await combine_dict(
-                    text,
-                    response.get('prediction_best')
-                )
-                text_all.append(response.get('predictions_all'))
+                if response.get('prediction_best'):
+                    text = await combine_dict(
+                        text,
+                        response.get('prediction_best')
+                    )
+                    text_all.append(response.get('predictions_all'))
+                elif response.get('origin'):
+                    del response['origin']
+                    text = await combine_dict(
+                        text,
+                        response
+                    )
+                else:
+                    error = {'ERROR': 'Произошла ошибка на удаленном сервере'}
+                    text = await combine_dict(
+                        text,
+                        error
+                    )
 
     return render_template(
         "tools/rewriter.html",

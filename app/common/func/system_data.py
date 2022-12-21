@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from phpserialize import loads
 
+from config import ApeksConfig as Apeks
 from .api_get import api_get_db_table, check_api_db_response
 from .app_core import data_processor
-from config import ApeksConfig as Apeks
 
 
 async def get_system_reports_data(

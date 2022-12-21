@@ -5,8 +5,8 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font
 
 from app.common.classes import LoadReportProcessor
-from app.common.reports.ExcelStyles import ExcelStyle
 from config import FlaskConfig
+from .ExcelStyles import ExcelStyle
 
 
 def generate_load_report(load: LoadReportProcessor) -> str:

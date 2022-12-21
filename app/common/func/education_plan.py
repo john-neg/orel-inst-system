@@ -4,11 +4,11 @@ import logging
 
 from cache import AsyncTTL
 
+from config import ApeksConfig as Apeks
 from .api_delete import api_delete_from_db_table
 from .api_get import check_api_db_response, api_get_db_table
 from .api_post import api_add_to_db_table
 from .app_core import data_processor
-from config import ApeksConfig as Apeks
 
 
 async def get_education_plans(

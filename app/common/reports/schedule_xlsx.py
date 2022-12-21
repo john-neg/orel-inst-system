@@ -7,8 +7,8 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
 from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from app.common.reports.ExcelStyles import ExcelStyle
 from config import FlaskConfig, ApeksConfig as Apeks
+from .ExcelStyles import ExcelStyle
 
 
 def generate_schedule_xlsx(schedule: ScheduleLessonsStaff, staff_name: str) -> str:

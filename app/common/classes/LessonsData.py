@@ -67,12 +67,12 @@ class LessonsData:
             возвращает список занятий, относящихся к определенной кафедре
     """
 
-    schedule_lessons: list
-    schedule_lessons_staff: list
-    load_groups: list
-    load_subgroups: list
-    plan_education_plans: list
-    plan_education_plans_education_forms: list
+    schedule_lessons: Iterable
+    schedule_lessons_staff: Iterable
+    load_groups: Iterable
+    load_subgroups: Iterable
+    plan_education_plans: Iterable
+    plan_education_plans_education_forms: Iterable
     staff_history_data: dict
 
     def __post_init__(self):

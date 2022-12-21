@@ -3,15 +3,13 @@ import os
 
 from flask import Flask
 from flask.logging import create_logger
-from flask_admin import Admin
 from flask_admin.menu import MenuLink
-from flask_login import LoginManager
 
 from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
 from .auth import bp as login_bp
 from .db.AdminModelView import AdminModelView
-from .db.database import db, migrate
-from .db.func import init_db
+from .common.extensions import login, admin
+from .db.database import db_session, init_db
 from .db.models import User
 from .library import bp as library_bp
 from .load import bp as load_bp
@@ -20,10 +18,6 @@ from .plans import bp as plans_bp
 from .programs import bp as programs_bp
 from .schedule import bp as schedule_bp
 from .tools import bp as tools_bp
-
-login = LoginManager()
-login.login_view = "auth.login"
-admin = Admin()
 
 
 def check_tokens() -> bool:
@@ -49,8 +43,6 @@ def check_tokens() -> bool:
 
 
 def register_extensions(app):
-    db.init_app(app)
-    migrate.init_app(app, db)
     login.init_app(app)
     admin.init_app(app)
     create_logger(app)
@@ -68,23 +60,25 @@ def register_blueprints(app):
 
 
 def create_app(config_class=FlaskConfig):
-
     app = Flask(__name__)
     app.config.from_object(config_class)
     check_tokens()
     register_extensions(app)
-    register_blueprints(app)
 
-    admin.add_link(MenuLink(name="Вернуться на основной сайт", category="", url="/"))
-    admin.add_view(AdminModelView(User, db.session))
+    with app.app_context():
+        register_blueprints(app)
+        login.login_view = "auth.login"
 
-    if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
-        with app.app_context():
+        if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
             init_db()
 
+        admin.add_link(
+            MenuLink(name="Вернуться на основной сайт", category="", url="/")
+        )
+        admin.add_view(AdminModelView(User, db_session))
+
+        @app.teardown_appcontext
+        def shutdown_session(exception=None):
+            db_session.remove()
+
     return app
-
-
-@login.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))

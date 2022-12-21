@@ -1,17 +1,26 @@
+from typing import Any
+
+from sqlalchemy import Column, Integer, String
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from app.db.database import Base
 from config import FlaskConfig
-from .database import db
 
 
-class User(db.Model):
+class User(Base):
     """Модель пользователя."""
 
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
-    role = db.Column(db.Integer(), default=FlaskConfig.ROLE_METOD)
+    id = Column(Integer, primary_key=True)
+    username = Column(String(64), index=True, unique=True)
+    password_hash = Column(String(128))
+    role = Column(Integer(), default=FlaskConfig.ROLE_METOD)
+
+    def __init__(self, username=None, role=None, *args: Any,
+                 **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.username = username
+        self.role = role
 
     def __repr__(self):
         return "{}".format(self.username)

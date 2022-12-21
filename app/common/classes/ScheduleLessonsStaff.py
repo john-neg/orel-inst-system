@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Iterable
 
 
 @dataclass
@@ -18,7 +19,7 @@ class ScheduleLessonsStaff:
             месяц (число от 1 до 12).
         year: int | str
             учебный год (число 20хх).
-        lessons_data: Iterable
+        lessons_data: list | tuple
             ответ GET запроса API "/api/call/schedule-schedule/staff"
             в формате JSON.
         disciplines: dict
@@ -41,7 +42,7 @@ class ScheduleLessonsStaff:
     staff_id: int | str
     month: int | str
     year: int | str
-    lessons_data: list | tuple
+    lessons_data: Iterable
     disciplines: dict
     load_subgroups_data: dict
 

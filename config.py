@@ -6,8 +6,8 @@ from logging.handlers import RotatingFileHandler
 import pytz
 from dotenv import load_dotenv
 
-load_dotenv()
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(BASEDIR, '.env'))
 
 
 class FlaskConfig(object):

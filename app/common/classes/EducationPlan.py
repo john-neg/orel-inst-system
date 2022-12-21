@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
+from typing import Iterable
 from dataclasses import dataclass
 
 from config import ApeksConfig as Apeks
@@ -30,7 +30,7 @@ class EducationPlan:
     """
 
     education_plan_id: int | str
-    plan_education_plans: list
+    plan_education_plans: Iterable
     plan_curriculum_disciplines: dict
 
     def __post_init__(self) -> None:
@@ -258,14 +258,14 @@ class EducationPlanExtended(EducationPlanWorkPrograms):
             обрабатывает данные таблиц выделяя нужные значения полей
     """
 
-    plan_education_levels: list
-    plan_education_specialties: list
-    plan_education_groups: list
-    plan_education_specializations: list
-    plan_education_plans_education_forms: list
-    plan_education_forms: list
-    plan_qualifications: list
-    plan_education_specializations_narrow: list
+    plan_education_levels: Iterable
+    plan_education_specialties: Iterable
+    plan_education_groups: Iterable
+    plan_education_specializations: Iterable
+    plan_education_plans_education_forms: Iterable
+    plan_education_forms: Iterable
+    plan_qualifications: Iterable
+    plan_education_specializations_narrow: Iterable
 
     def __post_init__(self) -> None:
         super().__post_init__()

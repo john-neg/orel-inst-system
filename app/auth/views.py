@@ -1,11 +1,17 @@
 from flask import render_template, redirect, url_for
 from flask_login import logout_user, login_user, current_user, login_required
 
+from app.common.extensions import login
+from app.db.models import User
 from config import FlaskConfig
 from . import bp
 from .forms import LoginForm, RegistrationForm
-from ..db.database import db
-from ..db.models import User
+from app.db.database import db_session
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -26,6 +32,7 @@ def login():
 
 
 @bp.route("/register", methods=["GET", "POST"])
+@login_required
 def register():
     if current_user.is_authenticated and current_user.role != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
@@ -34,8 +41,8 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, role=form.role.data)
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+        db_session.add(user)
+        db_session.commit()
         message = (
             f"Зарегистрирован пользователь {form.username.data} "
             f"({dict(form.role.choices).get(form.role.data)})"
