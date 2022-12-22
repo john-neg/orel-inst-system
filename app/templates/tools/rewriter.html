@@ -12,11 +12,11 @@
         <div class="col-md-10 col-xl-8">
           <h4 class="fw-lighter text-center text-primary mt-2 mb-2">
             доступность сервиса по API -
-              {% if status == 200 %}
-                <i class="far fa-check-circle text-success"></i>
-              {% else %}
-                <i class="far fa-times-circle text-danger"></i>
-              {% endif %}
+            {% if status == 200 %}
+              <i class="far fa-check-circle text-success"></i>
+            {% else %}
+              <i class="far fa-times-circle text-danger"></i>
+            {% endif %}
             <br>
           </h4>
           <div class="row mb-3">
@@ -62,10 +62,10 @@
               </a>
               <div class="collapse" id="collapse-1">
                 <div>
-                {% for paragraph in text_all %}
-                <p style="white-space: pre-line; text-align: justify; padding-left: 7px;">{{ "\n".join(paragraph) }}</p>
-                <p></p>
-                {% endfor %}
+                  {% for paragraph in text_all %}
+                  <p style="white-space: pre-line; text-align: justify; padding-left: 7px;">{{ "\n".join(paragraph) }}</p>
+                  <p></p>
+                  {% endfor %}
                 </div>
               </div>
             </div>
@@ -89,9 +89,6 @@
                 {% endfor %}
               </table>
             </div>
-          {% endif %}
-          {% if error %}
-            {{ error }}
           {% endif %}
         </div>
       </div>

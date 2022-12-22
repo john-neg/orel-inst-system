@@ -13,7 +13,7 @@ async def field_edit():
     top_p = request.form.get("top_p")
     repetition_penalty = request.form.get("repetition_penalty")
     num_return_sequences = request.form.get("num_return_sequences")
-    text, text_all, error = {}, [], ''
+    text, text_all = {}, []
     status = await rewriter("", get_code=True)
 
     if request.method == "POST":
