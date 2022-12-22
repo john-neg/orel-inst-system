@@ -1,11 +1,13 @@
 import logging
 import os
+import sys
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask.logging import create_logger
 from flask_admin.menu import MenuLink
 
-from config import FlaskConfig, ApeksConfig as Apeks, BASEDIR
+from config import FlaskConfig, ApeksConfig, LoggerConfig, BASEDIR
 from .auth import bp as login_bp
 from .db.AdminModelView import AdminModelView
 from .common.extensions import login, admin
@@ -24,8 +26,8 @@ def check_tokens() -> bool:
     """Проверяем переменные окружения."""
     required_env = {
         "SECRET_KEY": FlaskConfig.SECRET_KEY,
-        "APEKS_URL": Apeks.URL,
-        "APEKS_TOKEN": Apeks.TOKEN,
+        "APEKS_URL": ApeksConfig.URL,
+        "APEKS_TOKEN": ApeksConfig.TOKEN,
     }
     missing_env = []
     for key in required_env:
@@ -60,6 +62,40 @@ def register_blueprints(app):
 
 
 def create_app(config_class=FlaskConfig):
+    """Flask - Application factory."""
+
+    # Создание директорий если отсутствуют
+    for local_directory in (
+            FlaskConfig.TEMP_FILE_DIR,
+            FlaskConfig.EXPORT_FILE_DIR,
+            FlaskConfig.UPLOAD_FILE_DIR,
+            FlaskConfig.LOG_FILE_DIR,
+    ):
+        if not os.path.exists(local_directory):
+            os.mkdir(local_directory, 0o755)
+
+    # Очистка временных директорий
+    for temp_directory in (
+            FlaskConfig.EXPORT_FILE_DIR,
+            FlaskConfig.UPLOAD_FILE_DIR,
+    ):
+        for file in os.listdir(temp_directory):
+            os.remove(os.path.join(temp_directory, file))
+
+    # Logger Configuration
+    logging.basicConfig(
+        level=LoggerConfig.LEVEL,
+        format=LoggerConfig.FORMAT,
+        handlers=[
+            logging.StreamHandler(stream=sys.stdout),
+            RotatingFileHandler(
+                LoggerConfig.LOG_FILE,
+                maxBytes=LoggerConfig.MAX_BYTES,
+                backupCount=LoggerConfig.BACKUP_COUNT
+            ),
+        ],
+    )
+
     app = Flask(__name__)
     app.config.from_object(config_class)
     check_tokens()

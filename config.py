@@ -1,7 +1,5 @@
 import logging
 import os
-import sys
-from logging.handlers import RotatingFileHandler
 
 import pytz
 from dotenv import load_dotenv
@@ -31,6 +29,16 @@ class FlaskConfig(object):
     ROLE_USER: int = 2
     ROLE_METOD: int = 3
     ROLE_BIBL: int = 4
+
+
+class LoggerConfig(object):
+    """Logger Configuration."""
+
+    LEVEL = logging.DEBUG
+    FORMAT = "%(asctime)s - [%(levelname)s] - %(funcName)s - %(message)s"
+    LOG_FILE = os.path.join(FlaskConfig.LOG_FILE_DIR, "system.log")
+    MAX_BYTES = 5242880
+    BACKUP_COUNT = 10
 
 
 class ApeksConfig(object):
@@ -400,35 +408,3 @@ class ApeksConfig(object):
         ".в .": ".в.",
         "None": "",
     }
-
-# Создание директорий если отсутствуют
-for local_directory in (
-    FlaskConfig.TEMP_FILE_DIR,
-    FlaskConfig.EXPORT_FILE_DIR,
-    FlaskConfig.UPLOAD_FILE_DIR,
-    FlaskConfig.LOG_FILE_DIR,
-):
-    if not os.path.exists(local_directory):
-        os.mkdir(local_directory, 0o755)
-
-# Очистка временных директорий
-for temp_directory in (
-    FlaskConfig.EXPORT_FILE_DIR,
-    FlaskConfig.UPLOAD_FILE_DIR,
-):
-    for file in os.listdir(temp_directory):
-        os.remove(os.path.join(temp_directory, file))
-
-# Logger Configuration
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - [%(levelname)s] - %(funcName)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(stream=sys.stdout),
-        RotatingFileHandler(
-            os.path.join(FlaskConfig.LOG_FILE_DIR, "system.log"),
-            maxBytes=5242880,
-            backupCount=10
-        ),
-    ],
-)
