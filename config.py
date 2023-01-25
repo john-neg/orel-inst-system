@@ -14,7 +14,7 @@ class FlaskConfig(object):
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL"
-    ) or "sqlite:///" + os.path.join(BASEDIR, "app.db")
+    ) or f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMP_FILE_DIR = os.path.join(BASEDIR, "temp/")
     EXPORT_FILE_DIR = os.path.join(BASEDIR, "temp/export/")

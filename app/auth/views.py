@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager
 from app.db.database import session
-from app.db.models import User, UserRoles
+from app.db.models import User
 from config import FlaskConfig
 from . import bp
 

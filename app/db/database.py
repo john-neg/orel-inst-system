@@ -8,4 +8,5 @@ engine = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, future=True)
 session = scoped_session(
     sessionmaker(autocommit=False, autoflush=False, bind=engine)
 )
+# session = Session()
 Base = declarative_base()

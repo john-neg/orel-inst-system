@@ -127,6 +127,16 @@ pip install -r requirements.txt
 pip install gunicorn
 ```
 
+#### Database
+
+```sh
+alembic upgrade head
+```
+
+```sh
+python /tools/fill_db_base_users_data.py
+```
+
 ```sh
 deactivate
 ```

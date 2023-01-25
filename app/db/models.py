@@ -32,6 +32,7 @@ class User(Base, UserMixin):
         new_user.set_password(password)
         session.add(new_user)
         session.commit()
+        session.close()
         return new_user
 
     def edit_user(self, username, password, role_id):
@@ -40,12 +41,14 @@ class User(Base, UserMixin):
             self.set_password(password)
         self.role_id = role_id
         session.commit()
+        session.close()
 
     @staticmethod
     def delete_user(user_id):
         user = session.get(User, user_id)
         session.delete(user)
         session.commit()
+        session.close()
 
 
 class UserRoles(Base):
@@ -62,13 +65,15 @@ class UserRoles(Base):
 
     @staticmethod
     def available_roles():
-        return session.scalars(select(UserRoles)).all()
+        request_data = session.scalars(select(UserRoles)).all()
+        session.close()
+        return request_data
 
     @staticmethod
     def get_by_slug(slug):
-        return session.execute(
-            select(UserRoles).filter_by(slug=slug)
-        ).scalar_one()
+        request_data = session.execute(select(UserRoles).filter_by(slug=slug)).scalar_one()
+        session.close()
+        return request_data
 
 
 class AnonymousUser(AnonymousUserMixin):

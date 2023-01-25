@@ -2,44 +2,40 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
   <div class="container-fluid">
-    <h3 class="text-dark mb-1" style="text-align: center;">
-      {{ title }}
-    </h3>
+    <h3 class="text-dark mb-1" style="text-align: center;">{{ title }}</h3>
   </div>
   <section class="clean-block" style="padding-bottom: 0;">
     <div class="container">
-      <div class="table-responsive">
-        <table class="table table-sm text-center">
-          <thead>
-            <tr>
-              <th>id</th>
-              <th>Имя</th>
-              <th>Права доступа</th>
-              <th>Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-          {% for user in users %}
-            <tr>
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.role.name }}</td>
-              <td>
-                <div class="btn-group btn-group-sm" role="group">
-                  <a class="btn btn-secondary" role="button" href="/edit/{{ user.id }}">Редактировать</a>
-                  <a class="btn btn-danger" role="button" href="/delete/{{ user.id }}">Удалить</a>
-                </div>
-              </td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <a class="btn btn-primary btn-sm" role="button" href="/register">Добавить пользователя</a>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="table-responsive text-center">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>Имя</th>
+                  <th>Права доступа</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for user in users %}
+                <tr>
+                  <td>{{ user.id }}</td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.role.name }}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a class="btn btn-secondary" role="button" href="/edit/{{ user.id }}">Редактировать</a>
+                      <a class="btn btn-danger" role="button" href="/delete/{{ user.id }}">Удалить</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
           </div>
+        <a class="btn btn-primary btn-sm" role="button" href="/register">Добавить пользователя</a>
         </div>
       </div>
     </div>
