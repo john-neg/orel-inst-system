@@ -6,15 +6,17 @@ from sqlalchemy.future import select
 
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager
-from app.db.database import session
+from app.db.database import db
 from app.db.models import User
 from config import FlaskConfig
 from . import bp
+from ..common.func.app_core import get_paginated_data
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return session.get(User, user_id)
+    with db.session() as session:
+        return session.get(User, user_id)
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -23,9 +25,10 @@ def login():
         return redirect(url_for("main.index"))
     form = UserLoginForm()
     if form.validate_on_submit():
-        user = session.scalars(
-            select(User).filter_by(username=form.username.data).limit(1)
-        ).first()
+        with db.session() as session:
+            user = session.scalars(
+                select(User).filter_by(username=form.username.data).limit(1)
+            ).first()
         if user is None or not user.check_password(form.password.data):
             error = "Неверный логин или пароль"
             return render_template(
@@ -42,10 +45,9 @@ def login():
 def users():
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    users = session.scalars(select(User)).all()
-    # paginated_data = get_paginated_data(User.query)
+    paginated_data = get_paginated_data(User.query)
     return render_template(
-        "auth/users.html", title="Пользователи",  users=users
+        "auth/users.html", title="Пользователи", paginated_data=paginated_data
     )
 
 
@@ -80,7 +82,7 @@ def register():
 def edit(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    user = session.get(User, int(user_id))
+    user = db.session.get(User, int(user_id))
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")
@@ -119,7 +121,8 @@ def delete(user_id):
         return redirect(url_for("main.index"))
 
     form = UserDeleteForm()
-    user = session.get(User, user_id)
+    with db.session() as session:
+        user = session.get(User, user_id)
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")

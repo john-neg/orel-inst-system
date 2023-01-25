@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import logging
 
+from flask import request
 from openpyxl import Workbook
 
 from config import FlaskConfig
@@ -13,6 +14,16 @@ def allowed_file(filename: str) -> bool:
     return (
         "." in filename and filename.rsplit(".", 1)[1] in FlaskConfig.ALLOWED_EXTENSIONS
     )
+
+
+def get_paginated_data(query):
+    """Возвращает query paginate data."""
+
+    page = request.args.get("page", 1, type=int)
+    paginated_data = query.paginate(
+        page=page, per_page=FlaskConfig.ITEMS_PER_PAGE, error_out=False
+    )
+    return paginated_data
 
 
 def data_processor(table_data, dict_key: str = "id") -> dict:

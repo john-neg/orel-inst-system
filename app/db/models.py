@@ -1,21 +1,19 @@
 from flask_login import AnonymousUserMixin, UserMixin
-from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.future import select
-from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.db.database import Base, session
+from app.db.database import db
 
 
-class User(Base, UserMixin):
+class User(db.Model, UserMixin):
     """Модель пользователя."""
 
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
-    username = Column(String(64), index=True, unique=True)
-    password_hash = Column(String(128))
-    role_id = Column(Integer, ForeignKey("users_roles.id"), nullable=False)
-    role = relationship("UserRoles", back_populates="user")
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True)
+    password_hash = db.Column(db.String(128))
+    role_id = db.Column(db.Integer, db.ForeignKey("users_roles.id"), nullable=False)
+    role = db.relationship("UserRoles", back_populates="user", lazy='subquery')
 
     def __repr__(self):
         return self.username
@@ -30,9 +28,8 @@ class User(Base, UserMixin):
     def add_user(username, password, role_id):
         new_user = User(username=username, role_id=role_id)
         new_user.set_password(password)
-        session.add(new_user)
-        session.commit()
-        session.close()
+        db.session.add(new_user)
+        db.session.commit()
         return new_user
 
     def edit_user(self, username, password, role_id):
@@ -40,40 +37,37 @@ class User(Base, UserMixin):
         if password:
             self.set_password(password)
         self.role_id = role_id
-        session.commit()
-        session.close()
+        db.session.commit()
 
     @staticmethod
     def delete_user(user_id):
-        user = session.get(User, user_id)
-        session.delete(user)
-        session.commit()
-        session.close()
+        user = db.session.get(User, user_id)
+        db.session.delete(user)
+        db.session.commit()
 
 
-class UserRoles(Base):
+
+class UserRoles(db.Model):
     """Модель ролей пользователей."""
 
     __tablename__ = "users_roles"
-    id = Column(Integer, primary_key=True)
-    slug = Column(String(10), nullable=False, unique=True)
-    name = Column(String(64), nullable=False, unique=True)
-    user = relationship("User", back_populates="role")
+    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(10), nullable=False, unique=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    user = db.relationship("User", back_populates="role")
 
     def __repr__(self):
         return self.name
 
     @staticmethod
     def available_roles():
-        request_data = session.scalars(select(UserRoles)).all()
-        session.close()
-        return request_data
+        return db.session.scalars(select(UserRoles)).all()
 
     @staticmethod
     def get_by_slug(slug):
-        request_data = session.execute(select(UserRoles).filter_by(slug=slug)).scalar_one()
-        session.close()
-        return request_data
+        return db.session.execute(
+            select(UserRoles).filter_by(slug=slug)
+        ).scalar_one()
 
 
 class AnonymousUser(AnonymousUserMixin):

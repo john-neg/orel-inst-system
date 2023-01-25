@@ -9,7 +9,7 @@ from flask.logging import create_logger
 from config import FlaskConfig, ApeksConfig, LoggerConfig
 from app.auth import bp as login_bp
 from app.common.extensions import login_manager
-from app.db.database import session
+from app.db.database import db
 from app.library import bp as library_bp
 from app.load import bp as load_bp
 from app.main import bp as main_bp
@@ -43,7 +43,6 @@ def check_tokens() -> bool:
 
 def register_extensions(app):
     login_manager.init_app(app)
-    # admin.init_app(app)
     create_logger(app)
 
 
@@ -100,12 +99,8 @@ def create_app(config_class=FlaskConfig):
 
     with app.app_context():
         register_blueprints(app)
-
+        db.init_app(app)
         # if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
         #     init_db()
-
-        @app.teardown_appcontext
-        def shutdown_session(exception=None):
-            session.remove()
 
     return app

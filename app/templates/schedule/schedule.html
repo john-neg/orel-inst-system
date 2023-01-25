@@ -1,50 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container-fluid">
-  <h3 class="text-center text-dark mb-1">
-    {% block title %}Расписание{% endblock %}
-  </h3>
-</div>
-<form method="post">
-  {{ form.hidden_tag() }}
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-10 col-xl-8">
-        <div class="mb-2">
-          {{ form.department.label(class="text-dark") }}
-          {{ form.department(class="form-select") }}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Расписание{% endblock %}
+    </h3>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="mb-2">
+            {{ form.department.label(class="text-dark") }}
+            {{ form.department(class="form-select") }}
+          </div>
+          <div class="mb-3">
+            {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }}
+          </div>
+          {% if department %}
+          <div class="row mb-4">
+            <div class="col-md-3">
+              {{ form.year.label(class="text-dark") }}
+              {{ form.year(class="form-select") }}
+            </div>
+            <div class="col-md-3">
+              {{ form.month.label(class="text-dark") }}
+              {{ form.month(class="form-select") }}
+            </div>
+            <div class="col-md-6">
+              {{ form.staff.label(class="text-dark") }}
+              {{ form.staff(class="form-select") }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6 text-center">
+              {{ form.ical_exp(class="btn btn-danger", style="width: 100%;border-style: none;") }}
+              <small class="form-text">(для загрузки в календарь)</small>
+            </div>
+            <div class="col-md-6 text-center">
+              {{ form.xlsx_exp(class="btn btn-primary", style="background: #008751;width: 100%;border-style: none;") }}
+              <small class="form-text">(список для работы и печати)</small>
+            </div>
+          </div>
+          {% endif %}
         </div>
-        <div class="mb-3">
-          {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }}
-        </div>
-        {% if department %}
-        <div class="row mb-4">
-          <div class="col-md-3">
-            {{ form.year.label(class="text-dark") }}
-            {{ form.year(class="form-select") }}
-          </div>
-          <div class="col-md-3">
-            {{ form.month.label(class="text-dark") }}
-            {{ form.month(class="form-select") }}
-          </div>
-          <div class="col-md-6">
-            {{ form.staff.label(class="text-dark") }}
-            {{ form.staff(class="form-select") }}
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col-md-6 text-center">
-            {{ form.ical_exp(class="btn btn-danger", style="width: 100%;border-style: none;") }}
-            <small class="form-text">(для загрузки в календарь)</small>
-          </div>
-          <div class="col-md-6 text-center">
-            {{ form.xlsx_exp(class="btn btn-primary", style="background: #008751;width: 100%;border-style: none;") }}
-            <small class="form-text">(список для работы и печати)</small>
-          </div>
-        </div>
-        {% endif %}
       </div>
     </div>
-  </div>
-</form>
+  </form>
 {% endblock %}

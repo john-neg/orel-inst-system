@@ -19,7 +19,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for user in users %}
+              {% for user in paginated_data.items %}
                 <tr>
                   <td>{{ user.id }}</td>
                   <td>{{ user.username }}</td>
@@ -35,7 +35,20 @@
               </tbody>
             </table>
           </div>
-        <a class="btn btn-primary btn-sm" role="button" href="/register">Добавить пользователя</a>
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <a class="btn btn-primary btn-sm" role="button" href="/register">Добавить пользователя</a>
+              </div>
+              <div class="col">
+                {% if paginated_data.pages > 1 %}
+                  {% block pagination %}
+                    {% include "common/pagination.html" %}
+                  {% endblock %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

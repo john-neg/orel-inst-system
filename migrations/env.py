@@ -1,8 +1,9 @@
 from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy.future import create_engine
 
-from app.db.database import Base, engine
+from app.db.database import db
 from config import FlaskConfig
 
 config = context.config
@@ -11,7 +12,7 @@ config.set_main_option("sqlalchemy.url", FlaskConfig.SQLALCHEMY_DATABASE_URI)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = db.metadata
 
 
 def run_migrations_offline() -> None:
@@ -44,7 +45,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine
+    connectable = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, future=True)
 
     with connectable.connect() as connection:
         context.configure(

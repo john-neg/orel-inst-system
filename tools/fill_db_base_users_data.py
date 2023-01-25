@@ -12,10 +12,10 @@ session = Session()
 
 tables = {
     UserRoles: {
-        FlaskConfig.ROLE_ADMIN: 'Администратор',
+        FlaskConfig.ROLE_USER: 'Пользователь',
         FlaskConfig.ROLE_METOD: 'Методист',
         FlaskConfig.ROLE_BIBL: 'Библиотека',
-        FlaskConfig.ROLE_USER: 'Пользователь',
+        FlaskConfig.ROLE_ADMIN: 'Администратор',
     }
 }
 
@@ -26,8 +26,8 @@ for table in tables:
 
 for record in tables[UserRoles]:
     new_user = User(username=record)
-    new_user.role = session.execute(
-        select(UserRoles).where(UserRoles.slug == record)
+    new_user.role_id = session.execute(
+        select(UserRoles.id).where(UserRoles.slug == record)
     ).scalar_one()
     new_user.set_password(record)
     session.add(new_user)

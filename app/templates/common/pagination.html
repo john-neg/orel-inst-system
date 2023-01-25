@@ -1,0 +1,70 @@
+<nav>
+  <ul class="pagination pagination-sm justify-content-end">
+    {# Get request arguments without "page" attribute #}
+    {% if request.args %}
+      {% set arguments = request.args.to_dict() %}
+      {% if arguments.get('page') %}
+        {% set _ = arguments.pop('page') %}
+      {% endif %}
+    {% else %}
+      {% set arguments = dict() %}
+    {% endif %}
+    {# Previous link #}
+    {% if paginated_data.has_prev %}
+      <li class="page-item">
+        <a class="page-link" aria-label="Previous"
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.prev_num, **arguments) }}">
+          <span aria-hidden="true">Назад</span>
+        </a>
+      </li>
+    {% endif %}
+    {# First element #}
+    <li class="page-item {% if paginated_data.page == 1 %}active{% endif %}">
+      <a class="page-link"
+         href="{{ url_for(request.url_rule.endpoint, page=1, **arguments) }}">1</a>
+    </li>
+    {% if paginated_data.pages > 2 %}
+      {# Blank element #}
+      {% if paginated_data.page - config.AVAILABLE_PAGES > 2 %}
+        <li class="page-item ">
+          <a class="page-link" href="#">...</a>
+        </li>
+      {% endif %}
+      {# Center elements #}
+      {% set pagination_start = paginated_data.page - config.AVAILABLE_PAGES
+         if paginated_data.page - config.AVAILABLE_PAGES > 2 else 2 %}
+      {% set pagination_end = paginated_data.page + config.AVAILABLE_PAGES
+         if paginated_data.page + config.AVAILABLE_PAGES < paginated_data.pages else paginated_data.pages - 1 %}
+      {% for page in range(pagination_start, pagination_end + 1) %}
+        <li class="page-item {% if paginated_data.page == page %}active{% endif %}">
+          <a class="page-link"
+             href="{{ url_for(request.url_rule.endpoint, page=page, **arguments) }}">{{ page }}</a>
+        </li>
+      {% endfor %}
+      {# Blank element #}
+      {% if paginated_data.pages - paginated_data.page > config.AVAILABLE_PAGES + 1 %}
+        <li class="page-item ">
+          <a class="page-link" href="#">...</a>
+        </li>
+      {% endif %}
+    {% endif %}
+    {# Last element #}
+    {% if paginated_data.pages > 1 %}
+      <li class="page-item {% if paginated_data.page == paginated_data.pages %}active{% endif %}">
+        <a class="page-link"
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.pages, **arguments) }}">
+           {{ paginated_data.pages }}
+        </a>
+      </li>
+    {% endif %}
+    {# Next link #}
+    {% if paginated_data.has_next %}
+      <li class="page-item">
+        <a class="page-link" aria-label="Next"
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.next_num, **arguments) }}">
+           <span aria-hidden="true">Вперед</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
