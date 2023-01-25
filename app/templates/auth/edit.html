@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-dark mb-1" style="text-align: center;">
+      {{ title }}
+    </h3>
+  </div>
+  <section class="clean-block clean-form" style="background: var(--bs-light);">
+    <div class="container">
+      <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.username(class="form-control") }}
+          {% for error in form.username.errors %}
+            <span style="color: var(--bs-danger);">{{ error }}</span>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.password(class="form-control", placeholder=form.password.label.text) }}
+          {% for error in form.password.errors %}
+            <span style="color: var(--bs-danger);">{{ error }}</span>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.password2(class="form-control", placeholder=form.password2.label.text) }}
+          {% for error in form.password2.errors %}
+            <span style="color: var(--bs-danger);">{{ error }}</span>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          <label>{{ form.role.label }}</label>
+          {{ form.role(class="form-select") }}
+          {% for error in form.role.errors %}
+            <span style="color: var(--bs-danger);">{{ error }}</span>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <div class="col">
+            {{ form.submit(class="btn btn-primary") }}
+          </div>
+          <div class="col text-end">
+            <a class="btn btn-secondary" role="button" href="/users">Пользователи</a>
+          </div>
+        </div>
+        {% if form.form_errors %}
+          <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+        {% endif %}
+      </form>
+    </div>
+  </section>
+{% endblock %}

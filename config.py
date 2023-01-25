@@ -25,11 +25,10 @@ class FlaskConfig(object):
     ALLOWED_EXTENSIONS = {"xlsx", "csv"}
 
     # Группы пользователей
-    ROLE_ADMIN: int = 1
-    ROLE_USER: int = 2
-    ROLE_METOD: int = 3
-    ROLE_BIBL: int = 4
-
+    ROLE_ADMIN: str = "admin"
+    ROLE_METOD: str = "metod"
+    ROLE_BIBL: str = "bibl"
+    ROLE_USER: str = "user"
 
 class LoggerConfig(object):
     """Logger Configuration."""

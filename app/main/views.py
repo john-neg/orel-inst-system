@@ -10,7 +10,7 @@ from . import bp
 @bp.route("/")
 @bp.route("/index")
 def index():
-    return render_template("index.html", active="index")
+    return render_template("index.html", active="index", title="Главная")
 
 
 @bp.route('/favicon.ico')

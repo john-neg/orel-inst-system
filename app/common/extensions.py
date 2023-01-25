@@ -1,5 +1,6 @@
-from flask_admin import Admin
 from flask_login import LoginManager
 
-login = LoginManager()
-admin = Admin()
+from app.db.models import AnonymousUser
+
+login_manager = LoginManager()
+login_manager.anonymous_user = AnonymousUser

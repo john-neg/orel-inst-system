@@ -5,21 +5,18 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask.logging import create_logger
-from flask_admin.menu import MenuLink
 
-from config import FlaskConfig, ApeksConfig, LoggerConfig, BASEDIR
-from .auth import bp as login_bp
-from .db.AdminModelView import AdminModelView
-from .common.extensions import login, admin
-from .db.database import db_session, init_db
-from .db.models import User
-from .library import bp as library_bp
-from .load import bp as load_bp
-from .main import bp as main_bp
-from .plans import bp as plans_bp
-from .programs import bp as programs_bp
-from .schedule import bp as schedule_bp
-from .tools import bp as tools_bp
+from config import FlaskConfig, ApeksConfig, LoggerConfig
+from app.auth import bp as login_bp
+from app.common.extensions import login_manager
+from app.db.database import session
+from app.library import bp as library_bp
+from app.load import bp as load_bp
+from app.main import bp as main_bp
+from app.plans import bp as plans_bp
+from app.programs import bp as programs_bp
+from app.schedule import bp as schedule_bp
+from app.tools import bp as tools_bp
 
 
 def check_tokens() -> bool:
@@ -45,8 +42,8 @@ def check_tokens() -> bool:
 
 
 def register_extensions(app):
-    login.init_app(app)
-    admin.init_app(app)
+    login_manager.init_app(app)
+    # admin.init_app(app)
     create_logger(app)
 
 
@@ -103,18 +100,12 @@ def create_app(config_class=FlaskConfig):
 
     with app.app_context():
         register_blueprints(app)
-        login.login_view = "auth.login"
 
-        if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
-            init_db()
-
-        admin.add_link(
-            MenuLink(name="Вернуться на основной сайт", category="", url="/")
-        )
-        admin.add_view(AdminModelView(User, db_session))
+        # if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
+        #     init_db()
 
         @app.teardown_appcontext
         def shutdown_session(exception=None):
-            db_session.remove()
+            session.remove()
 
     return app
