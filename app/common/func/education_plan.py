@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import logging
 
-from cache import AsyncTTL
-
 from config import ApeksConfig as Apeks
 from .api_delete import api_delete_from_db_table
 from .api_get import check_api_db_response, api_get_db_table
@@ -71,7 +69,6 @@ async def get_education_plans(
     return plans
 
 
-@AsyncTTL(time_to_live=60, maxsize=1024)
 async def get_plan_disciplines(
     table: str = Apeks.TABLES.get("plan_disciplines"),
     level: int | str = Apeks.DISC_LEVEL,

@@ -3,14 +3,12 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 
-from cache import AsyncTTL
 from phpserialize import loads
 
 from config import ApeksConfig as Apeks
 from .api_get import check_api_db_response, api_get_db_table
 
 
-@AsyncTTL(time_to_live=3600, maxsize=1024)
 async def get_organization_name(
     table: str = Apeks.TABLES.get("system_settings"),
 ) -> str:
@@ -34,7 +32,6 @@ async def get_organization_name(
     return response[0].get("value")
 
 
-@AsyncTTL(time_to_live=3600, maxsize=1024)
 async def get_organization_chief_info(
     table: str = Apeks.TABLES.get("system_settings"),
 ) -> dict:
@@ -71,7 +68,6 @@ async def get_organization_chief_info(
         return chief_data
 
 
-@AsyncTTL(time_to_live=3600, maxsize=1024)
 async def get_departments(
     table: str = Apeks.TABLES.get("state_departments"),
     parent_id: str | int = Apeks.DEPT_ID,

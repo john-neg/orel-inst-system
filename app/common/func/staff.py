@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import logging
 
-from cache import AsyncTTL
-
 from config import ApeksConfig as Apeks
 from .api_get import check_api_db_response, api_get_db_table
 
 
-@AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_rank_name(
     rank_id: int | str, table: str = Apeks.TABLES.get("state_special_ranks")
 ) -> list:
@@ -27,7 +24,6 @@ async def get_rank_name(
     return rank_name
 
 
-@AsyncTTL(time_to_live=360, maxsize=1024)
 async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
     """
     Получение имен преподавателей.
