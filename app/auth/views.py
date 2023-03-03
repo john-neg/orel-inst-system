@@ -2,7 +2,7 @@ import logging
 
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import logout_user, login_user, current_user, login_required
-from sqlalchemy.future import select
+from sqlalchemy import select
 
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager

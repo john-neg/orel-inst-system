@@ -76,7 +76,10 @@ def create_app(config_class=FlaskConfig):
             FlaskConfig.UPLOAD_FILE_DIR,
     ):
         for file in os.listdir(temp_directory):
-            os.remove(os.path.join(temp_directory, file))
+            try:
+                os.remove(os.path.join(temp_directory, file))
+            except FileNotFoundError:
+                pass
 
     # Logger Configuration
     logging.basicConfig(
