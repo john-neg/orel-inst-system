@@ -339,9 +339,10 @@ class LessonsData:
         ):
             s_type = "zo_mid"
         # адъюнктура
-        elif lesson.get("education_level_id") == str(
-            Apeks.EDUCATION_LEVEL_ID.get("adj")
-        ):
+        elif lesson.get("education_level_id") in [
+            str(Apeks.EDUCATION_LEVEL_ID.get("adj")),
+            str(Apeks.EDUCATION_LEVEL_ID.get("adj-fgt")),
+        ]:
             s_type = "adj"
         # дополнительное проф образование
         elif lesson.get("education_form_id") == str(Apeks.EDUCATION_FORM_ID.get("dpo")):
