@@ -25,12 +25,11 @@ def favicon():
 @bp.route("/<string:filename>", methods=["GET"])
 def get_file(filename):
     """Отправляет файл из папки export."""
-    file = os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename)
-    return send_file(
-        file,
-        mimetype="text/plain",
-        download_name=filename,
+    return send_from_directory(
+        FlaskConfig.EXPORT_FILE_DIR,
+        filename,
         as_attachment=True,
+        download_name=filename.replace(',', ''),
     )
 
 

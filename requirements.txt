@@ -1,4 +1,4 @@
-alembic==1.9.4
+alembic==1.10.2
 async-cache==1.1.1
 aiogram==2.25.1
 asgiref==3.6.0
@@ -8,7 +8,7 @@ Flask-WTF==1.1.1
 openpyxl==3.1.1
 python-docx~=0.8.11
 python-dotenv==1.0.0
-pytest==7.2.1
+pytest==7.2.2
 pytest-asyncio==0.20.3
 pytest-httpx==0.21.3
 icalendar==5.0.4
