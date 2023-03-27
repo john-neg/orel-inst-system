@@ -1,9 +1,7 @@
 from __future__ import annotations
 
+import json
 import logging
-from collections import OrderedDict
-
-from phpserialize import loads
 
 from config import ApeksConfig as Apeks
 from .api_get import check_api_db_response, api_get_db_table
@@ -55,12 +53,10 @@ async def get_organization_chief_info(
     response = await check_api_db_response(
         await api_get_db_table(table, setting="system.head.chief")
     )
-    value = response[0].get("value")
+    value = list(response)[0].get("value")
 
     if value:
-        chief_data = dict(
-            loads(value.encode(), decode_strings=True, array_hook=OrderedDict)
-        )
+        chief_data = json.loads(value)
         name = chief_data.get("name").split()
         if len(name) >= 3:
             chief_data["name_short"] = f"{name[1][0]}.{name[2][0]}. {name[0]}"
