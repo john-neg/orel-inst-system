@@ -8,10 +8,11 @@ class PaymentBase(db.Model):
 
     __tablename__ = "payment_base"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     values: Mapped[list["PaymentBaseValues"]] = db.relationship(
         "PaymentBaseValues",
         back_populates="base",
+        cascade="all, delete-orphan",
     )
     payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
@@ -22,7 +23,7 @@ class PaymentBaseValues(db.Model):
 
     __tablename__ = "payment_base_values"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[int] = db.Column(db.Integer)
     base_id: Mapped[int] = db.Column(
         db.Integer,
@@ -36,21 +37,12 @@ class PaymentBaseValues(db.Model):
     )
 
 
-class PaymentDutyCoefficients(db.Model):
-    """Модель увеличивающих зарплату коэффициентов за выслугу лет."""
-
-    __tablename__ = "payment_duty_coefficients"
-    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
-    value: Mapped[float] = db.Column(db.Float)
-
-
-class PaymentDutyCoefficientPension(db.Model):
+class PaymentPensionDutyCoefficient(db.Model):
     """Модель понижающих пенсию коэффициентов за выслугу лет."""
 
-    __tablename__ = "payment_duty_coefficient_pension"
+    __tablename__ = "payment_pension_duty_coefficient"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[float] = db.Column(db.Float)
 
 
@@ -59,10 +51,11 @@ class PaymentAddons(db.Model):
 
     __tablename__ = "payment_addons"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     values: Mapped[list["PaymentAddonsValues"]] = db.relationship(
         "PaymentAddonsValues",
-        back_populates="type",
+        back_populates="addon",
+        cascade="all, delete-orphan",
     )
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_addon",
@@ -76,7 +69,7 @@ class PaymentAddonsValues(db.Model):
 
     __tablename__ = "payment_addons_values"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[float] = db.Column(db.Float)
     addon_id: Mapped[int] = db.Column(
         db.Integer,
@@ -94,6 +87,9 @@ class PaymentMatchBaseAddon(db.Model):
     """Модель соотношения доп. выплат и окладов от которых они рассчитываются."""
 
     __tablename__ = "payment_match_base_addon"
+    __table_args__ = (
+        db.UniqueConstraint('base_id', 'addon_id'),
+    )
     base_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_base.id"),
@@ -111,19 +107,23 @@ class PaymentSingleAddon(db.Model):
 
     __tablename__ = "payment_single_addon"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[float] = db.Column(db.Float)
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_single",
     )
     payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
+    default_state: Mapped[bool] = db.Column(db.Boolean)
 
 
 class PaymentMatchBaseSingle(db.Model):
     """Модель соотношения доп. выплат и окладов."""
 
     __tablename__ = "payment_match_base_single"
+    __table_args__ = (
+        db.UniqueConstraint('base_id', 'single_addon_id'),
+    )
     base_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_base.id"),
@@ -141,7 +141,7 @@ class PaymentIncrease(db.Model):
 
     __tablename__ = "payment_increase"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[float] = db.Column(db.Float)
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_increase",
@@ -154,6 +154,9 @@ class PaymentMatchBaseIncrease(db.Model):
     """Модель соотношения доп. выплат и окладов."""
 
     __tablename__ = "payment_match_base_increase"
+    __table_args__ = (
+        db.UniqueConstraint('base_id', 'payment_increase_id'),
+    )
     base_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_base.id"),
@@ -171,7 +174,7 @@ class PaymentGlobalCoefficient(db.Model):
 
     __tablename__ = "payment_global_coefficient"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True)
     value: Mapped[float] = db.Column(db.Float)
     payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)

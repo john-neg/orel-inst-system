@@ -1,0 +1,18 @@
+{
+  "honored_policeman": {
+    "name": "Знак \"Почетный сотрудник МВД\"",
+    "value": 0.5,
+    "payment_name": "Доплата за звание \"Почетный сотрудник МВД\"",
+    "description": "",
+    "apply_to": ["Занимаемая должность"],
+    "default_state": false
+  },
+  "montly_premium": {
+    "name": "Ежемесячная премия 25%",
+    "value": 0.25,
+    "payment_name": "Ежемесячная премия 25%",
+    "description": "",
+    "apply_to": ["Занимаемая должность", "Специальное звание"],
+    "default_state": true
+  }
+}

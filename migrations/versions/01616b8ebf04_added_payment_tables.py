@@ -1,8 +1,8 @@
 """Added payment tables
 
-Revision ID: 930f32d4d68f
+Revision ID: 01616b8ebf04
 Revises: 38eb3318fd81
-Create Date: 2023-05-05 16:44:30.283126
+Create Date: 2023-05-05 21:45:06.899128
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '930f32d4d68f'
+revision = '01616b8ebf04'
 down_revision = '38eb3318fd81'
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_addons_name'), 'payment_addons', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_addons_name'), 'payment_addons', ['name'], unique=False)
     op.create_table('payment_base',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -33,21 +33,7 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_base_name'), 'payment_base', ['name'], unique=True)
-    op.create_table('payment_duty_coefficient_pension',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('value', sa.Float(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_payment_duty_coefficient_pension_name'), 'payment_duty_coefficient_pension', ['name'], unique=True)
-    op.create_table('payment_duty_coefficients',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=128), nullable=True),
-    sa.Column('value', sa.Float(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_payment_duty_coefficients_name'), 'payment_duty_coefficients', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_base_name'), 'payment_base', ['name'], unique=False)
     op.create_table('payment_global_coefficient',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -58,7 +44,7 @@ def upgrade() -> None:
     sa.Column('pension', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_global_coefficient_name'), 'payment_global_coefficient', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_global_coefficient_name'), 'payment_global_coefficient', ['name'], unique=False)
     op.create_table('payment_increase',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -67,16 +53,24 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_increase_name'), 'payment_increase', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_increase_name'), 'payment_increase', ['name'], unique=False)
+    op.create_table('payment_pension_duty_coefficient',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=128), nullable=True),
+    sa.Column('value', sa.Float(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_payment_pension_duty_coefficient_name'), 'payment_pension_duty_coefficient', ['name'], unique=False)
     op.create_table('payment_single_addon',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
     sa.Column('payment_name', sa.String(length=128), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
+    sa.Column('default_state', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_single_addon_name'), 'payment_single_addon', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_single_addon_name'), 'payment_single_addon', ['name'], unique=False)
     op.create_table('payment_addons_values',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -85,7 +79,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['addon_id'], ['payment_addons.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_addons_values_name'), 'payment_addons_values', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_addons_values_name'), 'payment_addons_values', ['name'], unique=False)
     op.create_table('payment_base_values',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
@@ -94,27 +88,30 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['base_id'], ['payment_base.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_payment_base_values_name'), 'payment_base_values', ['name'], unique=True)
+    op.create_index(op.f('ix_payment_base_values_name'), 'payment_base_values', ['name'], unique=False)
     op.create_table('payment_match_base_addon',
     sa.Column('base_id', sa.Integer(), nullable=False),
     sa.Column('addon_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['addon_id'], ['payment_addons.id'], ),
     sa.ForeignKeyConstraint(['base_id'], ['payment_base.id'], ),
-    sa.PrimaryKeyConstraint('base_id', 'addon_id')
+    sa.PrimaryKeyConstraint('base_id', 'addon_id'),
+    sa.UniqueConstraint('base_id', 'addon_id')
     )
     op.create_table('payment_match_base_increase',
     sa.Column('base_id', sa.Integer(), nullable=False),
     sa.Column('payment_increase_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['base_id'], ['payment_base.id'], ),
     sa.ForeignKeyConstraint(['payment_increase_id'], ['payment_increase.id'], ),
-    sa.PrimaryKeyConstraint('base_id', 'payment_increase_id')
+    sa.PrimaryKeyConstraint('base_id', 'payment_increase_id'),
+    sa.UniqueConstraint('base_id', 'payment_increase_id')
     )
     op.create_table('payment_match_base_single',
     sa.Column('base_id', sa.Integer(), nullable=False),
     sa.Column('single_addon_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['base_id'], ['payment_base.id'], ),
     sa.ForeignKeyConstraint(['single_addon_id'], ['payment_single_addon.id'], ),
-    sa.PrimaryKeyConstraint('base_id', 'single_addon_id')
+    sa.PrimaryKeyConstraint('base_id', 'single_addon_id'),
+    sa.UniqueConstraint('base_id', 'single_addon_id')
     )
     # ### end Alembic commands ###
 
@@ -130,14 +127,12 @@ def downgrade() -> None:
     op.drop_table('payment_addons_values')
     op.drop_index(op.f('ix_payment_single_addon_name'), table_name='payment_single_addon')
     op.drop_table('payment_single_addon')
+    op.drop_index(op.f('ix_payment_pension_duty_coefficient_name'), table_name='payment_pension_duty_coefficient')
+    op.drop_table('payment_pension_duty_coefficient')
     op.drop_index(op.f('ix_payment_increase_name'), table_name='payment_increase')
     op.drop_table('payment_increase')
     op.drop_index(op.f('ix_payment_global_coefficient_name'), table_name='payment_global_coefficient')
     op.drop_table('payment_global_coefficient')
-    op.drop_index(op.f('ix_payment_duty_coefficients_name'), table_name='payment_duty_coefficients')
-    op.drop_table('payment_duty_coefficients')
-    op.drop_index(op.f('ix_payment_duty_coefficient_pension_name'), table_name='payment_duty_coefficient_pension')
-    op.drop_table('payment_duty_coefficient_pension')
     op.drop_index(op.f('ix_payment_base_name'), table_name='payment_base')
     op.drop_table('payment_base')
     op.drop_index(op.f('ix_payment_addons_name'), table_name='payment_addons')

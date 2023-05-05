@@ -1,36 +1,118 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
-from app.db.payment_models import PaymentBase
-from config import FlaskConfig
+from app.common.func.app_core import read_json_file
+from app.db.payment_models import (
+    PaymentBase,
+    PaymentBaseValues,
+    PaymentAddons,
+    PaymentAddonsValues,
+    PaymentMatchBaseAddon,
+    PaymentSingleAddon,
+    PaymentMatchBaseSingle,
+)
+from config import FlaskConfig, BASEDIR
+
 
 engine = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+FILE_DIR = os.path.join(BASEDIR, "tools", "data_payment")
 
 
+base_data = read_json_file(os.path.join(FILE_DIR, "base_data.json"))
+for data in base_data:
+    session.add(
+        PaymentBase(
+            name=base_data[data].get("name"),
+            payment_name=base_data[data].get("payment_name"),
+            description=base_data[data].get("description"),
+        )
+    )
+    session.flush()
+    base_id = session.execute(
+        select(PaymentBase.id).where(
+            PaymentBase.name == base_data[data].get("name")
+        )
+    ).scalar_one()
+    for name, value in base_data[data].get("data").items():
+        session.add(
+            PaymentBaseValues(
+                name=name,
+                value=value,
+                base_id=base_id,
+            )
+        )
+    session.commit()
 
-# tables = {
-#     UserRoles: {
-#         FlaskConfig.ROLE_USER: 'Пользователь',
-#         FlaskConfig.ROLE_METOD: 'Методист',
-#         FlaskConfig.ROLE_BIBL: 'Библиотека',
-#         FlaskConfig.ROLE_ADMIN: 'Администратор',
-#     }
-# }
-#
-# for table in tables:
-#     for slug, name in tables[table].items():
-#         session.add(table(slug=slug, name=name))
-#         session.commit()
-#
-# for record in tables[UserRoles]:
-#     new_user = User(username=record)
-#     new_user.role_id = session.execute(
-#         select(UserRoles.id).where(UserRoles.slug == record)
-#     ).scalar_one()
-#     new_user.set_password(record)
-#     session.add(new_user)
-#     session.commit()
+
+addons_data = read_json_file(os.path.join(FILE_DIR, "addons_data.json"))
+for data in addons_data:
+    session.add(
+        PaymentAddons(
+            name=addons_data[data].get("name"),
+            payment_name=addons_data[data].get("payment_name"),
+            description=addons_data[data].get("description"),
+        )
+    )
+    session.flush()
+    addon_id = session.execute(
+        select(PaymentAddons.id).where(
+            PaymentAddons.name == addons_data[data].get("name")
+        )
+    ).scalar_one()
+    for name, value in addons_data[data].get("data").items():
+        session.add(
+            PaymentAddonsValues(
+                name=name,
+                value=value,
+                addon_id=addon_id,
+            )
+        )
+    for base_name in addons_data[data].get("apply_to"):
+        base_id = session.execute(
+            select(PaymentBase.id).where(PaymentBase.name == base_name)
+        ).scalar_one()
+        session.add(
+            PaymentMatchBaseAddon(
+                base_id=base_id,
+                addon_id=addon_id,
+            )
+        )
+    session.commit()
+
+
+single_addons_data = read_json_file(
+    os.path.join(FILE_DIR, "single_addons_data.json")
+)
+for data in single_addons_data:
+    session.add(
+        PaymentSingleAddon(
+            name=single_addons_data[data].get("name"),
+            payment_name=single_addons_data[data].get("payment_name"),
+            value=single_addons_data[data].get("value"),
+            description=single_addons_data[data].get("description"),
+            default_state=single_addons_data[data].get("default_state"),
+        )
+    )
+    session.flush()
+    single_addon_id = session.execute(
+        select(PaymentSingleAddon.id).where(
+            PaymentSingleAddon.name == single_addons_data[data].get("name")
+        )
+    ).scalar_one()
+    for base_name in single_addons_data[data].get("apply_to"):
+        base_id = session.execute(
+            select(PaymentBase.id).where(PaymentBase.name == base_name)
+        ).scalar_one()
+        session.add(
+            PaymentMatchBaseSingle(
+                base_id=base_id,
+                single_addon_id=single_addon_id,
+            )
+        )
+    session.commit()

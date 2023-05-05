@@ -9,9 +9,9 @@ from app.tools.payment import payment_bp as bp
 from app.tools.payment.forms import PaymentForm
 from config import BASEDIR
 
-PAYMENT_FILE_DIR = os.path.join(BASEDIR, "app", "tools", "payment", )
-rates_data = read_json_file(os.path.join(PAYMENT_FILE_DIR,
-                                         "../../../tools/data/rates_data.json"))
+# PAYMENT_FILE_DIR = os.path.join(BASEDIR, "app", "tools", "payment", )
+# rates_data = read_json_file(os.path.join(PAYMENT_FILE_DIR,
+#                                          "../../../tools/data/rates_data.json"))
 
 
 @bp.route("/payment", methods=["GET", "POST"])
