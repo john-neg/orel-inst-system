@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
-from app.db.models import UserRoles, User
+from app.db.auth_models import UserRoles, User
 from config import FlaskConfig
 
 engine = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, echo=True)

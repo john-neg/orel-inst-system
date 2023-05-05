@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import json
 import logging
 
 from flask import request
@@ -89,3 +90,9 @@ def xlsx_normalize(worksheet: Workbook.active, replace: dict) -> Workbook.active
                 worksheet.cell(row, col).value = cell_data.replace(key, val)
     print(datetime.datetime.now())
     return worksheet
+
+
+def read_json_file(file_path: str) -> dict:
+    """Читает файл формата json."""
+    with open(file_path, encoding='utf-8') as file:
+        return json.loads(file.read())

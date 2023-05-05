@@ -129,6 +129,11 @@ pip install gunicorn
 
 #### Database
 
+Создание автомиграций базы данных
+```sh
+python alembic revision --autogenerate -m "Added some tables"
+```
+
 ```sh
 alembic upgrade head
 ```

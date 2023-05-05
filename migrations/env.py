@@ -5,6 +5,8 @@ from sqlalchemy.future import create_engine
 
 from app.db.database import db
 from config import FlaskConfig
+import app.db.payment_models
+
 
 config = context.config
 config.set_main_option("sqlalchemy.url", FlaskConfig.SQLALCHEMY_DATABASE_URI)

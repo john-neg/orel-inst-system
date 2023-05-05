@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, ValidationError, EqualTo, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
 
-from app.db.models import User, UserRoles
+from app.db.auth_models import User, UserRoles
 
 
 class UserLoginForm(FlaskForm):

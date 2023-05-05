@@ -1,12 +1,12 @@
 from flask import render_template, request
 
-from . import bp
+from app.tools.rewriter import rewriter_bp as bp
 from .forms import RewriterForm
 from .func import rewriter, combine_dict
 
 
 @bp.route("/rewriter", methods=["GET", "POST"])
-async def field_edit():
+async def rewriter_tool():
     form = RewriterForm()
     temperature = request.form.get("temperature")
     top_k = request.form.get("top_k")
