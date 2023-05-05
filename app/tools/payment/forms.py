@@ -14,7 +14,8 @@ PAYMENT_FILE_DIR = os.path.join(BASEDIR, "app", "tools", "payment", )
 
 
 class PaymentForm(FlaskForm):
-    rates_data = read_json_file(os.path.join(PAYMENT_FILE_DIR, "rates_data.json"))
+    rates_data = read_json_file(os.path.join(PAYMENT_FILE_DIR,
+                                             "../../../tools/data/rates_data.json"))
     base_position = SelectField(
         label=rates_data.get('base_position').get('label'),
         coerce=int,

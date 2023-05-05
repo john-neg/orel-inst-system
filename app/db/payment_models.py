@@ -13,6 +13,7 @@ class PaymentBase(db.Model):
         "PaymentBaseValues",
         back_populates="base",
     )
+    payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
 
 
@@ -66,6 +67,7 @@ class PaymentAddons(db.Model):
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_addon",
     )
+    payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
 
 
@@ -114,6 +116,7 @@ class PaymentSingleAddon(db.Model):
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_single",
     )
+    payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
 
 
@@ -138,10 +141,12 @@ class PaymentIncrease(db.Model):
 
     __tablename__ = "payment_increase"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
     value: Mapped[float] = db.Column(db.Float)
     base: Mapped[list[PaymentBase]] = db.relationship(
         secondary="payment_match_base_increase",
     )
+    payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
 
 
@@ -168,6 +173,7 @@ class PaymentGlobalCoefficient(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128), index=True, unique=True)
     value: Mapped[float] = db.Column(db.Float)
+    payment_name: Mapped[str] = db.Column(db.String(128))
     description: Mapped[str] = db.Column(db.String)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
