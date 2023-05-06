@@ -10,21 +10,29 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
-          <div class="row">
-            <div class="col mb-1">
-              {{ form.position.label(class="text-dark") }}
-              {{ form.position(class="form-select") }}
-            </div>
-          </div>
+          {% for item in form %}
+{#            {% if item.label.startswith('base_') %}#}
+              <div class="row">
+                <div class="col mb-1">
+                  {{ item.label(class="text-dark") }}
+                  {{ item(class="form-select") }}
+                </div>
+              </div>
+{#            {% endif %}#}
+          {% endfor %}
+{#              {{ form.position.label(class="text-dark") }}#}
+{#              {{ form.position(class="form-select") }}#}
+
+
           <div class="row mb-2">
-            <div class="col">
-              {{ form.years_of_duty.label(class="text-dark") }}
-              {{ form.years_of_duty(class="form-control", type="number") }}
-            </div>
-            <div class="col">
-              {{ form.police_rank.label(class="text-dark") }}
-              {{ form.police_rank(class="form-select") }}
-            </div>
+{#            <div class="col">#}
+{#              {{ form.years_of_duty.label(class="text-dark") }}#}
+{#              {{ form.years_of_duty(class="form-control", type="number") }}#}
+{#            </div>#}
+{#            <div class="col">#}
+{#              {{ form.police_rank.label(class="text-dark") }}#}
+{#              {{ form.police_rank(class="form-select") }}#}
+{#            </div>#}
             <div class="col">
               <label class="form-label text-dark">Классность</label>
               <select class="form-select form-select-sm">

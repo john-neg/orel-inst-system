@@ -94,5 +94,16 @@ def xlsx_normalize(worksheet: Workbook.active, replace: dict) -> Workbook.active
 
 def read_json_file(file_path: str) -> dict:
     """Читает файл формата json."""
-    with open(file_path, encoding='utf-8') as file:
+    with open(file_path, encoding="utf-8") as file:
         return json.loads(file.read())
+
+
+def transliterate(text):
+    """Транслитерация текста."""
+    cyrillic = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+    latin = (
+        "a|b|v|g|d|e|e|zh|z|i|i|k|l|m|n|o|p|r|s|t|u|f|kh|tc|ch|sh|shch||"
+        "y||e|iu|ia|A|B|V|G|D|E|E|Zh|Z|I|I|K|L|M|N|O|P|R|S|T|U|F|Kh|Tc|"
+        "Ch|Sh|Shch||Y||E|Iu|Ia".split("|")
+    )
+    return text.translate({ord(k): v for k, v in zip(cyrillic, latin)})

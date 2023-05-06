@@ -13,6 +13,10 @@ from app.db.payment_models import (
     PaymentMatchBaseAddon,
     PaymentSingleAddon,
     PaymentMatchBaseSingle,
+    PaymentIncrease,
+    PaymentMatchBaseIncrease,
+    PaymentPensionDutyCoefficient,
+    PaymentGlobalCoefficient,
 )
 from config import FlaskConfig, BASEDIR
 
@@ -23,7 +27,7 @@ session = Session()
 
 FILE_DIR = os.path.join(BASEDIR, "tools", "data_payment")
 
-
+# Заполняем данные об окладах
 base_data = read_json_file(os.path.join(FILE_DIR, "base_data.json"))
 for data in base_data:
     session.add(
@@ -35,9 +39,7 @@ for data in base_data:
     )
     session.flush()
     base_id = session.execute(
-        select(PaymentBase.id).where(
-            PaymentBase.name == base_data[data].get("name")
-        )
+        select(PaymentBase.id).where(PaymentBase.name == base_data[data].get("name"))
     ).scalar_one()
     for name, value in base_data[data].get("data").items():
         session.add(
@@ -50,6 +52,7 @@ for data in base_data:
     session.commit()
 
 
+# Заполняем данные о надбавках
 addons_data = read_json_file(os.path.join(FILE_DIR, "addons_data.json"))
 for data in addons_data:
     session.add(
@@ -86,9 +89,8 @@ for data in addons_data:
     session.commit()
 
 
-single_addons_data = read_json_file(
-    os.path.join(FILE_DIR, "single_addons_data.json")
-)
+# Заполняем данные о фиксированных надбавках
+single_addons_data = read_json_file(os.path.join(FILE_DIR, "single_addons_data.json"))
 for data in single_addons_data:
     session.add(
         PaymentSingleAddon(
@@ -115,4 +117,63 @@ for data in single_addons_data:
                 single_addon_id=single_addon_id,
             )
         )
+    session.commit()
+
+
+# Заполняем данные об индексациях
+increase_data = read_json_file(os.path.join(FILE_DIR, "increase_data.json"))
+for data in increase_data:
+    session.add(
+        PaymentIncrease(
+            name=increase_data[data].get("name"),
+            value=increase_data[data].get("value"),
+            description=increase_data[data].get("description"),
+        )
+    )
+    session.flush()
+    payment_increase_id = session.execute(
+        select(PaymentIncrease.id).where(
+            PaymentIncrease.name == increase_data[data].get("name")
+        )
+    ).scalar_one()
+    for base_name in increase_data[data].get("apply_to"):
+        base_id = session.execute(
+            select(PaymentBase.id).where(PaymentBase.name == base_name)
+        ).scalar_one()
+        session.add(
+            PaymentMatchBaseIncrease(
+                base_id=base_id,
+                payment_increase_id=payment_increase_id,
+            )
+        )
+    session.commit()
+
+
+# Заполняем данные о коэффициенте выслуги для расчета пенсии
+pension_duty_data = read_json_file(os.path.join(FILE_DIR, "pension_duty_data.json"))
+for data in pension_duty_data:
+    session.add(
+        PaymentPensionDutyCoefficient(
+            name=pension_duty_data[data].get("name"),
+            value=pension_duty_data[data].get("value"),
+        )
+    )
+    session.commit()
+
+
+# Заполняем данные о глобальных коэффициентах, изменяющих общую выплату
+global_coefficient_data = read_json_file(
+    os.path.join(FILE_DIR, "global_coefficient_data.json")
+)
+for data in global_coefficient_data:
+    session.add(
+        PaymentGlobalCoefficient(
+            name=global_coefficient_data[data].get("name"),
+            value=global_coefficient_data[data].get("value"),
+            payment_name=global_coefficient_data[data].get("payment_name"),
+            description=global_coefficient_data[data].get("description"),
+            salary=global_coefficient_data[data].get("salary"),
+            pension=global_coefficient_data[data].get("pension"),
+        )
+    )
     session.commit()

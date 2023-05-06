@@ -3,23 +3,29 @@ import os
 
 from flask import render_template, request
 
+from app import db
 from app.common.func.app_core import read_json_file
+from app.db.payment_models import PaymentBase
 #
 from app.tools.payment import payment_bp as bp
-from app.tools.payment.forms import PaymentForm
+from app.tools.payment.forms import create_payment_form
 from config import BASEDIR
 
-# PAYMENT_FILE_DIR = os.path.join(BASEDIR, "app", "tools", "payment", )
-# rates_data = read_json_file(os.path.join(PAYMENT_FILE_DIR,
-#                                          "../../../tools/data/rates_data.json"))
 
 
 @bp.route("/payment", methods=["GET", "POST"])
 async def payment():
-    form = PaymentForm()
-    position = request.form.get("base_position")
-    years_of_duty =  request.form.get("years_of_duty")
-    police_rank = request.form.get("police_rank")
+    form = create_payment_form(
+        base_items=PaymentBase.get_all(),
+    )
+    # base_items = PaymentBase.get_all()
+
+    # for item in base_items:
+    #
+    # form.base_position.label =
+    # position = request.form.get("base_position")
+    # years_of_duty = request.form.get("years_of_duty")
+    # police_rank = request.form.get("police_rank")
 
 
     #     temperature = request.form.get("temperature")

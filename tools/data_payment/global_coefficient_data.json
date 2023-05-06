@@ -1,0 +1,18 @@
+{
+  "montly5": {
+    "name": "Ежемесячная надбавка 5%",
+    "value": 1.05,
+    "payment_name": "Ежемесячная надбавка 5%",
+    "description": "",
+    "salary": true,
+    "pension": false
+  },
+  "pension_cut": {
+    "name": "Понижающий коэффициент",
+    "value": 0.8547,
+    "payment_name": "Понижающий коэффициент 85.47%",
+    "description": "",
+    "salary": false,
+    "pension": true
+  }
+}
