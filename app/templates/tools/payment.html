@@ -7,162 +7,161 @@
   </div>
   <form method="post">
     {{ form.hidden_tag() }}
-    <div class="container">
+    <div class="container mb-2">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
           {% for item in form %}
-{#            {% if item.label.startswith('base_') %}#}
-              <div class="row">
-                <div class="col mb-1">
+            {% if item.label.field_id.startswith('rate_') %}
+              <div class="row mb-1">
+                <div class="col">
                   {{ item.label(class="text-dark") }}
                   {{ item(class="form-select") }}
+                  {% for error in item.errors %}
+                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                  {% endfor %}
                 </div>
               </div>
-{#            {% endif %}#}
+            {% endif %}
           {% endfor %}
-{#              {{ form.position.label(class="text-dark") }}#}
-{#              {{ form.position(class="form-select") }}#}
-
-
           <div class="row mb-2">
-{#            <div class="col">#}
-{#              {{ form.years_of_duty.label(class="text-dark") }}#}
-{#              {{ form.years_of_duty(class="form-control", type="number") }}#}
-{#            </div>#}
-{#            <div class="col">#}
-{#              {{ form.police_rank.label(class="text-dark") }}#}
-{#              {{ form.police_rank(class="form-select") }}#}
-{#            </div>#}
-            <div class="col">
-              <label class="form-label text-dark">Классность</label>
-              <select class="form-select form-select-sm">
-                <optgroup label="Выберите год:">
-                  <option value="13">This is item 2</option>
-                  <option value="14">This is item 3</option>
-                </optgroup>
-              </select>
+            {% for item in form %}
+              {% if item.label.field_id.startswith('addon_') %}
+                <div class="col-sm-12 col-md-6">
+                  {{ item.label(class="text-dark") }}
+                  {{ item(class="form-select") }}
+                  {% for error in item.errors %}
+                    <span style="color: var(--bs-danger);">{{ error }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+
+            <div class="col-sm-12 col-md-6">
+              {{ form.pension_duty_years.label(class="text-dark") }}
+              {{ form.pension_duty_years(class="form-control") }}
+              {% for error in form.pension_duty_years.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
             </div>
+
           </div>
-          <div class="row mb-2">
-            <div class="col">
-              <label class="form-label text-dark">Допуск к гос. тайне</label>
-              <select class="form-select form-select-sm" name="">
-                <option value="12" selected="">This is item 1</option>
-                <option value="13">This is item 2</option>
-                <option value="14">This is item 3</option>
-              </select>
-            </div>
-            <div class="col">
-              <label class="form-label text-dark">Ученая степень</label>
-              <select class="form-select form-select-sm">
-                <optgroup label="Выберите год:">
-                  <option value="13">This is item 2</option>
-                  <option value="14">This is item 3</option>
-                </optgroup>
-              </select>
-            </div>
-              <div class="col">
-                <label class="form-label text-dark">Ученое звание</label>
-                <select class="form-select form-select-sm" name="">
-                  <option value="12" selected="">This is item 1</option>
-                  <option value="13">This is item 2</option>
-                  <option value="14">This is item 3</option>
-                </select>
+          {% for item in form %}
+            {% if item.label.field_id.startswith('single_') %}
+              <div class="form-check form-switch">
+                {{ item(class="form-check-input", type="checkbox", checked=item.default, id=item.label.field_id) }}
+                {{ item.label(class="form-check-label", for=item.label.field_id) }}
+                {% for error in item.errors %}
+                  <span style="color: var(--bs-danger);">{{ error }}</span>
+                {% endfor %}
               </div>
-          </div>
-        </div>
-        <div class="col-md-10 col-xl-8 mt-3 mb-3">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="flexSwitchRelations" name="switch_relations">
-            <label class="form-check-label" for="flexSwitchRelations">Знак "Почетный сотрудник МВД"</label>
-          </div>
-          <button class="btn btn-success link-light mt-2" id="get_payment" type="submit" style="background: #008751;width: 100%;font-weight: bold;border-style: none;" name="mtrx_ind_load">Рассчитать</button>
+            {% endif %}
+          {% endfor %}
+          {{ form.calculate(class="btn btn-success link-light mt-2", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
         </div>
       </div>
     </div>
   </form>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-10 col-xl-8">
-        <div class="card shadow mb-2">
-          <div class="card-header py-3">
-            <p class="text-start text-danger m-0 fw-bold">Расчет зарплаты</p>
+  {% if payment_data %}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              <p class="text-start text-danger m-0 fw-bold">Расчет зарплаты</p>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th class="text-dark">Вид</th>
+                      <th class="text-dark">Сумма (руб.)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for slug, data in payment_data.get("salary_data").items() %}
+                      <tr>
+                        <td>
+                          <div>
+                            <a class="btn" data-bs-toggle="collapse" aria-expanded="false" aria-controls={{ slug }} href="#{{ slug }}" role="button" style="padding: 0px 0px;">
+                              {{ data.get("name") }}
+                            </a>
+                            <div class="collapse" id={{ slug }}>
+                              <p style="margin: 2px;">{{ data.get("description") }}
+                                {% if data.get("increase") %}
+                                  <br><br>C учетом:<br>
+                                  {% for item in data.get("increase") %}
+                                    {{ item }}<br>
+                                  {% endfor %}
+                                {% endif %}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{ data.get("value") }}</td>
+                      </tr>
+                    {% endfor %}
+                    <tr>
+                      <td style="font-weight: bold;">Итого</td>
+                      <td style="font-weight: bold;">{{ payment_data.get("salary_total") }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm table-bordered">
-                <thead>
-                  <tr>
-                    <th class="text-dark">Вид</th>
-                    <th class="text-dark">Сумма</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Оплата по окладу</td>
-                    <td>45000</td>
-                  </tr>
-                  <tr>
-                    <td>Оплата по званию</td>
-                    <td>2</td>
-                  </tr>
-                  <tr>
-                    <td>Сумма</td>
-                    <td>6</td>
-                  </tr>
-                  <tr>
-                    <td>Налог (13%)</td>
-                    <td>6</td>
-                  </tr>
-                  <tr>
-                    <td style="font-weight: bold;">Итого</td>
-                    <td style="font-weight: bold;">6</td>
-                  </tr>
-                </tbody>
-              </table>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              <p class="text-start text-danger m-0 fw-bold">Расчет пенсии</p>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th class="text-dark">Вид</th>
+                      <th class="text-dark">Сумма (руб.)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for slug, data in payment_data.get("pension_data").items() %}
+                      <tr>
+                        <td>
+                          <div>
+                            <a class="btn" data-bs-toggle="collapse" aria-expanded="false" aria-controls={{ slug }} href="#{{ slug }}" role="button" style="padding: 0px 0px;">
+                              {{ data.get("name") }}
+                            </a>
+                            <div class="collapse" id={{ slug }}>
+                              <p style="margin: 2px;">
+                                {{ data.get("description") }}
+                                {% if data.get("increase") %}
+                                  <br><br>C учетом:<br>
+                                  {% for item in data.get("increase") %}
+                                    {{ item }}<br>
+                                  {% endfor %}
+                                {% endif %}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{ data.get("value") }}</td>
+                      </tr>
+                    {% endfor %}
+                    <tr>
+                      <td style="font-weight: bold;">Итого</td>
+                      <td style="font-weight: bold;">{{ payment_data.get("pension_total") }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="row justify-content-center">
-      <div class="col-md-10 col-xl-8">
-        <div class="card shadow mb-2">
-          <div class="card-header py-3">
-            <p class="text-start text-danger m-0 fw-bold">Расчет пенсии</p>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-sm table-bordered">
-                <thead>
-                  <tr>
-                    <th class="text-dark">Вид</th>
-                    <th class="text-dark">Сумма</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Оклад денежного содержания</td>
-                    <td>45000</td>
-                  </tr>
-                  <tr>
-                    <td>Понижающий коэффициент (0,8547)</td>
-                    <td>2</td>
-                  </tr>
-                  <tr>
-                    <td>% за стаж службы (0,59)</td>
-                    <td>6</td>
-                  </tr>
-                  <tr>
-                    <td style="font-weight: bold;">Итого</td>
-                    <td style="font-weight: bold;">6</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% endif %}
 {% endblock %}

@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import json
 import logging
+import re
 
 from flask import request
 from openpyxl import Workbook
@@ -100,6 +101,7 @@ def read_json_file(file_path: str) -> dict:
 
 def transliterate(text):
     """Транслитерация текста."""
+
     cyrillic = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
     latin = (
         "a|b|v|g|d|e|e|zh|z|i|i|k|l|m|n|o|p|r|s|t|u|f|kh|tc|ch|sh|shch||"
@@ -107,3 +109,18 @@ def transliterate(text):
         "Ch|Sh|Shch||Y||E|Iu|Ia".split("|")
     )
     return text.translate({ord(k): v for k, v in zip(cyrillic, latin)})
+
+
+def make_slug(text, prefix=None):
+    """Делает Slug из текста."""
+
+    def process(data):
+        return re.sub(
+            "[^a-z_A-Z]+",
+            "",
+            transliterate(data).replace(" ", "_").rstrip().lower(),
+        )[:32]
+
+    return process(f"{prefix}{text}") if prefix else process(text)
+
+

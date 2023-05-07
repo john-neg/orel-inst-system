@@ -4,17 +4,17 @@ from sqlalchemy import create_engine
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
-from app.common.func.app_core import read_json_file
+from app.common.func.app_core import read_json_file, make_slug
 from app.db.payment_models import (
-    PaymentBase,
-    PaymentBaseValues,
+    PaymentRate,
+    PaymentRateValues,
     PaymentAddons,
     PaymentAddonsValues,
-    PaymentMatchBaseAddon,
+    PaymentMatchRateAddon,
     PaymentSingleAddon,
-    PaymentMatchBaseSingle,
+    PaymentMatchRateSingle,
     PaymentIncrease,
-    PaymentMatchBaseIncrease,
+    PaymentMatchRateIncrease,
     PaymentPensionDutyCoefficient,
     PaymentGlobalCoefficient,
 )
@@ -28,25 +28,28 @@ session = Session()
 FILE_DIR = os.path.join(BASEDIR, "tools", "data_payment")
 
 # Заполняем данные об окладах
-base_data = read_json_file(os.path.join(FILE_DIR, "base_data.json"))
-for data in base_data:
+rate_data = read_json_file(os.path.join(FILE_DIR, "rate_data.json"))
+for data in rate_data:
     session.add(
-        PaymentBase(
-            name=base_data[data].get("name"),
-            payment_name=base_data[data].get("payment_name"),
-            description=base_data[data].get("description"),
+        PaymentRate(
+            slug=make_slug(rate_data[data].get("name"), prefix="rate_"),
+            name=rate_data[data].get("name"),
+            payment_name=rate_data[data].get("payment_name"),
+            description=rate_data[data].get("description"),
+            salary=rate_data[data].get("salary"),
+            pension=rate_data[data].get("pension"),
         )
     )
     session.flush()
-    base_id = session.execute(
-        select(PaymentBase.id).where(PaymentBase.name == base_data[data].get("name"))
+    rate_id = session.execute(
+        select(PaymentRate.id).where(PaymentRate.name == rate_data[data].get("name"))
     ).scalar_one()
-    for name, value in base_data[data].get("data").items():
+    for name, value in rate_data[data].get("data").items():
         session.add(
-            PaymentBaseValues(
+            PaymentRateValues(
                 name=name,
                 value=value,
-                base_id=base_id,
+                rate_id=rate_id,
             )
         )
     session.commit()
@@ -57,9 +60,12 @@ addons_data = read_json_file(os.path.join(FILE_DIR, "addons_data.json"))
 for data in addons_data:
     session.add(
         PaymentAddons(
+            slug=make_slug(addons_data[data].get("name"), prefix="addon_"),
             name=addons_data[data].get("name"),
             payment_name=addons_data[data].get("payment_name"),
             description=addons_data[data].get("description"),
+            salary=addons_data[data].get("salary"),
+            pension=addons_data[data].get("pension"),
         )
     )
     session.flush()
@@ -76,13 +82,13 @@ for data in addons_data:
                 addon_id=addon_id,
             )
         )
-    for base_name in addons_data[data].get("apply_to"):
-        base_id = session.execute(
-            select(PaymentBase.id).where(PaymentBase.name == base_name)
+    for rate_name in addons_data[data].get("apply_to"):
+        rate_id = session.execute(
+            select(PaymentRate.id).where(PaymentRate.name == rate_name)
         ).scalar_one()
         session.add(
-            PaymentMatchBaseAddon(
-                base_id=base_id,
+            PaymentMatchRateAddon(
+                rate_id=rate_id,
                 addon_id=addon_id,
             )
         )
@@ -94,10 +100,13 @@ single_addons_data = read_json_file(os.path.join(FILE_DIR, "single_addons_data.j
 for data in single_addons_data:
     session.add(
         PaymentSingleAddon(
+            slug=make_slug(single_addons_data[data].get("name"), prefix="single_"),
             name=single_addons_data[data].get("name"),
             payment_name=single_addons_data[data].get("payment_name"),
             value=single_addons_data[data].get("value"),
             description=single_addons_data[data].get("description"),
+            salary=single_addons_data[data].get("salary"),
+            pension=single_addons_data[data].get("pension"),
             default_state=single_addons_data[data].get("default_state"),
         )
     )
@@ -107,13 +116,13 @@ for data in single_addons_data:
             PaymentSingleAddon.name == single_addons_data[data].get("name")
         )
     ).scalar_one()
-    for base_name in single_addons_data[data].get("apply_to"):
-        base_id = session.execute(
-            select(PaymentBase.id).where(PaymentBase.name == base_name)
+    for rate_name in single_addons_data[data].get("apply_to"):
+        rate_id = session.execute(
+            select(PaymentRate.id).where(PaymentRate.name == rate_name)
         ).scalar_one()
         session.add(
-            PaymentMatchBaseSingle(
-                base_id=base_id,
+            PaymentMatchRateSingle(
+                rate_id=rate_id,
                 single_addon_id=single_addon_id,
             )
         )
@@ -136,13 +145,13 @@ for data in increase_data:
             PaymentIncrease.name == increase_data[data].get("name")
         )
     ).scalar_one()
-    for base_name in increase_data[data].get("apply_to"):
-        base_id = session.execute(
-            select(PaymentBase.id).where(PaymentBase.name == base_name)
+    for rate_name in increase_data[data].get("apply_to"):
+        rate_id = session.execute(
+            select(PaymentRate.id).where(PaymentRate.name == rate_name)
         ).scalar_one()
         session.add(
-            PaymentMatchBaseIncrease(
-                base_id=base_id,
+            PaymentMatchRateIncrease(
+                rate_id=rate_id,
                 payment_increase_id=payment_increase_id,
             )
         )
@@ -168,6 +177,7 @@ global_coefficient_data = read_json_file(
 for data in global_coefficient_data:
     session.add(
         PaymentGlobalCoefficient(
+            slug=make_slug(global_coefficient_data[data].get("name"), prefix="coeff_"),
             name=global_coefficient_data[data].get("name"),
             value=global_coefficient_data[data].get("value"),
             payment_name=global_coefficient_data[data].get("payment_name"),

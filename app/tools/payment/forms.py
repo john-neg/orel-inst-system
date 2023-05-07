@@ -1,53 +1,76 @@
 import os
-from dataclasses import dataclass
 
 from flask_wtf import FlaskForm
-from wtforms import (
-    SubmitField,
-    TextAreaField, FloatField, IntegerField, SelectField,
-)
-from wtforms.validators import DataRequired, NumberRange
+from wtforms import SubmitField, SelectField
+from wtforms.validators import DataRequired
 
 from app import db
-from app.common.func.app_core import read_json_file, transliterate
+from app.db.payment_models import PaymentPensionDutyCoefficient
 from config import BASEDIR
 
-FILE_DIR = os.path.join(BASEDIR, "app", "tools", "data_payment", )
+FILE_DIR = os.path.join(BASEDIR, "app", "tools", "data_payment")
+DEFAULT_OPTIONS = [(0, "нет")]
 
 
-def create_payment_form(base_items, **kwargs):
+def create_payment_form(
+    rate_items: list[db.Model],
+    addon_items: list[db.Model],
+    single_items: list[db.Model],
+    **kwargs,
+):
     class PaymentForm(FlaskForm):
-        pass
+        """Класс формы для расчета денежного содержания."""
 
-    # base_items: list[db.Model]
+        calculate = SubmitField("Рассчитать")
 
-    for base_item in base_items:
-        label = f"base_{transliterate(base_item.name)}"
+    # Добавляем оклады
+    for item in rate_items:
+        label = item.slug
         field = SelectField(
-            label=base_item.name,
+            label=item.name,
             coerce=int,
-            choices=list(reversed(
-                [(val, key) for key, val in base_item.get_current_values().items()])),
-            validators=[DataRequired()]
+            choices=list(
+                reversed([(val, key) for key, val in item.get_current_values().items()])
+            ),
+            validators=[DataRequired()],
         )
         setattr(PaymentForm, label, field)
 
+    # Добавляем надбавки с множественными значениями
+    for item in addon_items:
+        label = item.slug
+        choices = [(0, "нет")]
+        choices.extend([(val, key) for key, val in item.get_values().items()])
+        field = SelectField(
+            label=item.name,
+            coerce=float,
+            choices=choices,
+            validators=[DataRequired()],
+        )
+        setattr(PaymentForm, label, field)
+
+    # Добавляем надбавки с единичным значением
+    for item in single_items:
+        label = item.slug
+        field = SubmitField(
+            label=item.name,
+            default=item.default_state,
+        )
+        setattr(PaymentForm, label, field)
+
+    # Добавляем поле для расчета пенсии в зависимости от выслуги лет
+    label = "pension_duty_years"
+    field = SelectField(
+        label="Выслуга (полных) лет для расчета пенсии",
+        coerce=float,
+        choices=list(
+            [
+                (coeff.value, coeff.name)
+                for coeff in PaymentPensionDutyCoefficient.get_all()
+            ]
+        ),
+        validators=[DataRequired()],
+    )
+    setattr(PaymentForm, label, field)
+
     return PaymentForm(**kwargs)
-    # # base_data = read_json_file(os.path.join(FILE_DIR, "base_data.json"))
-    #
-    # base_position = SelectField(
-    #     # label=rates_data.get('base_position').get('label'),
-    #     coerce=int,
-    #     # choices=list(reversed([(val, key) for key, val in rates_data.get('base_position').get('data').items()])),
-    #     validators=[DataRequired()]
-    # )
-    # # years_of_duty = IntegerField(
-    # #     label=rates_data.get('years_of_duty').get('label'),
-    # #     validators=[DataRequired(), NumberRange(min=0, max=60, message="Введите число от 0 до 60")]
-    # # )
-    # police_rank = SelectField(
-    #     # label=rates_data.get('police_rank').get('label'),
-    #     coerce=int,
-    #     # choices=list(reversed([(val, key) for key, val in rates_data.get('police_rank').get('data').items()])),
-    #     validators=[DataRequired()]
-    # )

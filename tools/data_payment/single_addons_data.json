@@ -5,14 +5,18 @@
     "payment_name": "Доплата за звание \"Почетный сотрудник МВД\"",
     "description": "",
     "apply_to": ["Занимаемая должность"],
+    "salary": true,
+    "pension": false,
     "default_state": false
   },
   "montly_premium": {
-    "name": "Ежемесячная премия 25%",
+    "name": "Ежемесячная премия 1/4 оклада",
     "value": 0.25,
-    "payment_name": "Ежемесячная премия 25%",
+    "payment_name": "Ежемесячная премия 1/4 оклада",
     "description": "",
     "apply_to": ["Занимаемая должность", "Специальное звание"],
+    "salary": true,
+    "pension": false,
     "default_state": true
   }
 }
