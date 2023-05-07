@@ -12,7 +12,7 @@ from app.tools.payment.forms import create_payment_form
 
 
 @bp.route("/payment", methods=["GET", "POST"])
-async def payment():
+async def payment_tool():
     rate_items = PaymentRate.get_all()
     addon_items = PaymentAddons.get_all()
     single_items = PaymentSingleAddon.get_all()
@@ -93,6 +93,8 @@ async def payment():
 
         for item in single_items:
             if request.form.get(item.slug):
+                # Сохраняем выбранное значение
+                form[item.slug].object_data = True
                 if item.salary:
                     value = sum(
                         [
@@ -127,6 +129,8 @@ async def payment():
                         "description": item.description,
                     }
                     payment_data["pension_total"] += value
+            else:
+                form[item.slug].object_data = False
 
         duty_coeff = float(request.form.get("pension_duty_years"))
         value = round(payment_data["pension_total"] * (duty_coeff - 1))

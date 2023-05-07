@@ -48,7 +48,8 @@
           {% for item in form %}
             {% if item.label.field_id.startswith('single_') %}
               <div class="form-check form-switch">
-                {{ item(class="form-check-input", type="checkbox", checked=item.default, id=item.label.field_id) }}
+                {{ item(class="form-check-input", type="checkbox",
+                   checked=item.object_data, id=item.label.field_id) }}
                 {{ item.label(class="form-check-label", for=item.label.field_id) }}
                 {% for error in item.errors %}
                   <span style="color: var(--bs-danger);">{{ error }}</span>
@@ -56,7 +57,8 @@
               </div>
             {% endif %}
           {% endfor %}
-          {{ form.calculate(class="btn btn-success link-light mt-2", type="submit", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          {{ form.calculate(class="btn btn-success link-light mt-2", type="submit",
+          style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
         </div>
       </div>
     </div>
@@ -74,8 +76,8 @@
                 <table class="table table-sm table-bordered">
                   <thead>
                     <tr>
-                      <th class="text-dark">Вид</th>
-                      <th class="text-dark">Сумма (руб.)</th>
+                      <th class="text-dark">Название</th>
+                      <th class="text-dark text-center">Сумма (руб.)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -83,10 +85,13 @@
                       <tr>
                         <td>
                           <div>
-                            <a class="btn" data-bs-toggle="collapse" aria-expanded="false" aria-controls={{ slug }} href="#{{ slug }}" role="button" style="padding: 0px 0px;">
+                            <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
+                               aria-controls="salary_{{ slug }}" href="#salary_{{ slug }}"
+                               role="button" style="padding: 0px 0px;"
+                            >
                               {{ data.get("name") }}
                             </a>
-                            <div class="collapse" id={{ slug }}>
+                            <div class="collapse" id="salary_{{ slug }}">
                               <p style="margin: 2px;">{{ data.get("description") }}
                                 {% if data.get("increase") %}
                                   <br><br>C учетом:<br>
@@ -98,12 +103,14 @@
                             </div>
                           </div>
                         </td>
-                        <td>{{ data.get("value") }}</td>
+                        <td class="text-center" >{{ data.get("value") }}</td>
                       </tr>
                     {% endfor %}
                     <tr>
                       <td style="font-weight: bold;">Итого</td>
-                      <td style="font-weight: bold;">{{ payment_data.get("salary_total") }}</td>
+                      <td class="text-center" style="font-weight: bold;">
+                        {{ payment_data.get("salary_total") }}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -123,8 +130,8 @@
                 <table class="table table-sm table-bordered">
                   <thead>
                     <tr>
-                      <th class="text-dark">Вид</th>
-                      <th class="text-dark">Сумма (руб.)</th>
+                      <th class="text-dark">Название</th>
+                      <th class="text-dark text-center">Сумма (руб.)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -132,10 +139,13 @@
                       <tr>
                         <td>
                           <div>
-                            <a class="btn" data-bs-toggle="collapse" aria-expanded="false" aria-controls={{ slug }} href="#{{ slug }}" role="button" style="padding: 0px 0px;">
+                            <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
+                               aria-controls="pension_{{ slug }}" href="#pension_{{ slug }}"
+                               role="button" style="padding: 0px 0px;"
+                            >
                               {{ data.get("name") }}
                             </a>
-                            <div class="collapse" id={{ slug }}>
+                            <div class="collapse" id="pension_{{ slug }}">
                               <p style="margin: 2px;">
                                 {{ data.get("description") }}
                                 {% if data.get("increase") %}
@@ -148,12 +158,14 @@
                             </div>
                           </div>
                         </td>
-                        <td>{{ data.get("value") }}</td>
+                        <td class="text-center" >{{ data.get("value") }}</td>
                       </tr>
                     {% endfor %}
                     <tr>
                       <td style="font-weight: bold;">Итого</td>
-                      <td style="font-weight: bold;">{{ payment_data.get("pension_total") }}</td>
+                      <td class="text-center" style="font-weight: bold;">
+                        {{ payment_data.get("pension_total") }}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
