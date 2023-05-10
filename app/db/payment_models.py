@@ -43,7 +43,7 @@ class PaymentRate(db.Model, PaymentBase):
         """Возвращает значения с учетом индексации."""
         return {
             value.name: reduce(
-                lambda x, y: round(x * y + 0.1), self.get_increase_values(), value.value
+                lambda x, y: round(x * y + 0.5), self.get_increase_values(), value.value
             )
             for value in self.values
         }
@@ -75,6 +75,13 @@ class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
+    description: Mapped[str] = db.Column(db.String)
+
+    @classmethod
+    def get_description(cls, name) -> dict:
+        """Возвращает описание по имени."""
+
+        return db.session.execute(select(cls).where(cls.name == name)).scalar_one_or_none()
 
 
 class PaymentAddons(db.Model, PaymentBase):

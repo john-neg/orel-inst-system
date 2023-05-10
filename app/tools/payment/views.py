@@ -5,6 +5,7 @@ from app.db.payment_models import (
     PaymentAddons,
     PaymentSingleAddon,
     PaymentGlobalCoefficient,
+    PaymentPensionDutyCoefficient,
 )
 
 from app.tools.payment import payment_bp as bp
@@ -59,8 +60,8 @@ async def payment_tool():
                     [
                         round(
                             payment_data["salary_data"].get(rate.slug).get("value")
-                            * addon_coeff
-                            + 0.1
+                            * addon_coeff,
+                            ndigits=2,
                         )
                         for rate in item.rate
                     ]
@@ -77,8 +78,8 @@ async def payment_tool():
                     [
                         round(
                             payment_data["pension_data"].get(rate.slug).get("value")
-                            * addon_coeff
-                            + 0.1
+                            * addon_coeff,
+                            ndigits=2,
                         )
                         for rate in item.rate
                     ]
@@ -100,8 +101,8 @@ async def payment_tool():
                         [
                             round(
                                 payment_data["salary_data"].get(rate.slug).get("value")
-                                * item.value
-                                + 0.1
+                                * item.value,
+                                ndigits=2,
                             )
                             for rate in item.rate
                         ]
@@ -117,8 +118,8 @@ async def payment_tool():
                         [
                             round(
                                 payment_data["pension_data"].get(rate.slug).get("value")
-                                * item.value
-                                + 0.1
+                                * item.value,
+                                ndigits=2,
                             )
                             for rate in item.rate
                         ]
@@ -133,16 +134,26 @@ async def payment_tool():
                 form[item.slug].object_data = False
 
         duty_coeff = float(request.form.get("pension_duty_years"))
-        value = round(payment_data["pension_total"] * (duty_coeff - 1))
+        value = round(payment_data["pension_total"] * (duty_coeff - 1), ndigits=2)
+        name = form.pension_duty_years.name
         payment_data["pension_data"]["pension_duty_years"] = {
             "name": f"{form.pension_duty_years.label.text} ({int(duty_coeff * 100)}%)",
             "value": value,
+            "description": PaymentPensionDutyCoefficient.get_description(name),
         }
         payment_data["pension_total"] += value
 
         for item in PaymentGlobalCoefficient.get_all():
             if item.salary:
-                value = round(payment_data["salary_total"] * (float(item.value) - 1))
+                if item.slug == "coeff_ndfl":
+                    value = round(
+                        payment_data["salary_total"] * (float(item.value) - 1)
+                    )
+                else:
+                    value = round(
+                        payment_data["salary_total"] * (float(item.value) - 1),
+                        ndigits=2,
+                    )
                 payment_data["salary_data"][item.slug] = {
                     "name": f"{item.payment_name}",
                     "value": value,
@@ -150,13 +161,21 @@ async def payment_tool():
                 }
                 payment_data["salary_total"] += value
             if item.pension:
-                value = round(payment_data["pension_total"] * (float(item.value) - 1))
+                value = round(
+                    payment_data["pension_total"] * (float(item.value) - 1),
+                    ndigits=2,
+                )
                 payment_data["pension_data"][item.slug] = {
                     "name": f"{item.payment_name}",
                     "value": value,
                     "description": item.description,
                 }
                 payment_data["pension_total"] += value
+
+        # Округляем итоговые значения
+        payment_data["salary_total"] = round(payment_data["salary_total"], ndigits=2)
+        payment_data["pension_total"] = round(payment_data["pension_total"], ndigits=2)
+
         return render_template(
             "tools/payment.html", active="tools", form=form, payment_data=payment_data
         )

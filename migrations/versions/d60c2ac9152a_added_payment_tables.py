@@ -52,6 +52,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
+    sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('payment_rate',

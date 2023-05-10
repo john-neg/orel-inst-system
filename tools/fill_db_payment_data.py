@@ -165,6 +165,7 @@ for data in pension_duty_data:
         PaymentPensionDutyCoefficient(
             name=pension_duty_data[data].get("name"),
             value=pension_duty_data[data].get("value"),
+            description=pension_duty_data[data].get("description"),
         )
     )
     session.commit()
