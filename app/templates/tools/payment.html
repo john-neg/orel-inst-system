@@ -2,7 +2,7 @@
 {% block content %}
   <div class="container-fluid">
     <h3 class="text-center text-dark mb-1">
-      {% block title %}Расчет денежного содержания{% endblock %}
+      {% block title %}Расчет денежного содержания (аттестованные){% endblock %}
     </h3>
   </div>
   <form method="post">
@@ -89,20 +89,28 @@
                         <td>
                           <div>
                             <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
-                               aria-controls="salary_{{ slug }}" href="#salary_{{ slug }}"
-                               role="button" style="padding: 0px 0px;"
-                            >
+                              aria-controls="salary_{{ slug }}" href="#salary_{{ slug }}"
+                              role="button" style="padding: 0px 0px;">
                               {{ data.get("name") }}
                             </a>
                             <div class="collapse" id="salary_{{ slug }}">
-                              <p style="margin: 2px;">{{ data.get("description") }}
-                                {% if data.get("increase") %}
-                                  <br><br>C учетом:<br>
+                              {% if data.get("value_name") %}
+                                <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
+                              {% endif %}
+                              {% if data.get("document") %}
+                                <p style="margin: 2px;"><br>{{ data.get("document") }}</p>
+                              {% endif %}
+                              {% if data.get("description") %}
+                                <p style="margin: 2px;"><br>{{ data.get("description") }}</p>
+                              {% endif %}
+                              {% if data.get("increase") %}
+                                <p style="margin: 2px;">
+                                  <br>C учетом:<br>
                                   {% for item in data.get("increase") %}
                                     {{ item }}<br>
                                   {% endfor %}
-                                {% endif %}
-                              </p>
+                                </p>
+                              {% endif %}
                             </div>
                           </div>
                         </td>
@@ -149,15 +157,23 @@
                               {{ data.get("name") }}
                             </a>
                             <div class="collapse" id="pension_{{ slug }}">
-                              <p style="margin: 2px;">
-                                {{ data.get("description") }}
-                                {% if data.get("increase") %}
-                                  <br><br>C учетом:<br>
+                              {% if data.get("value_name") %}
+                                <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
+                              {% endif %}
+                              {% if data.get("document") %}
+                                <p style="margin: 2px;"><br>{{ data.get("document") }}</p>
+                              {% endif %}
+                              {% if data.get("description") %}
+                                <p style="margin: 2px;"><br>{{ data.get("description") }}</p>
+                              {% endif %}
+                              {% if data.get("increase") %}
+                                <p style="margin: 2px;">
+                                  <br>C учетом:<br>
                                   {% for item in data.get("increase") %}
                                     {{ item }}<br>
                                   {% endfor %}
-                                {% endif %}
-                              </p>
+                                </p>
+                              {% endif %}
                             </div>
                           </div>
                         </td>

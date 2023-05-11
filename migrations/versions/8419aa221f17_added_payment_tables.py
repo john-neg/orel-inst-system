@@ -1,8 +1,8 @@
-"""Add payment tables
+"""Added payment tables
 
-Revision ID: a031f8dce2fc
+Revision ID: 8419aa221f17
 Revises: 38eb3318fd81
-Create Date: 2023-05-11 15:28:56.790350
+Create Date: 2023-05-12 00:52:58.219985
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a031f8dce2fc'
+revision = '8419aa221f17'
 down_revision = '38eb3318fd81'
 branch_labels = None
 depends_on = None
@@ -30,7 +30,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_payment_addons_slug'), 'payment_addons', ['slug'], unique=True)
     op.create_table('payment_documents',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('name', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('payment_rate',
@@ -47,7 +47,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
     sa.Column('document_id', sa.Integer(), nullable=True),
     sa.Column('addon_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['addon_id'], ['payment_addons.id'], ),
@@ -60,7 +60,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
     sa.Column('payment_name', sa.String(length=128), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
     sa.Column('salary', sa.Boolean(), nullable=True),
     sa.Column('pension', sa.Boolean(), nullable=True),
     sa.Column('document_id', sa.Integer(), nullable=True),
@@ -96,7 +96,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Integer(), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
     sa.Column('rate_id', sa.Integer(), nullable=False),
     sa.Column('document_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['document_id'], ['payment_documents.id'], ondelete='SET NULL'),
@@ -109,7 +109,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=128), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
     sa.Column('payment_name', sa.String(length=128), nullable=True),
-    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
     sa.Column('salary', sa.Boolean(), nullable=True),
     sa.Column('pension', sa.Boolean(), nullable=True),
     sa.Column('default_state', sa.Boolean(), nullable=True),

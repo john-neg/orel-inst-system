@@ -2,79 +2,66 @@
   "20": {
     "name": "20 лет",
     "value": 0.50,
-    "description": "",
     "document_id": 1
   },
   "21": {
     "name": "21 год",
     "value": 0.53,
-    "description": "",
     "document_id": 1
   },
   "22": {
     "name": "22 года",
     "value": 0.56,
-    "description": "",
     "document_id": 1
   },
   "23": {
     "name": "23 года",
     "value": 0.59,
-    "description": "",
     "document_id": 1
   },
   "24": {
     "name": "24 года",
     "value": 0.62,
-    "description": "",
     "document_id": 1
   },
   "25": {
     "name": "25 лет",
     "value": 0.65,
-    "description": "",
     "document_id": 1
   },
   "26": {
     "name": "26 лет",
     "value": 0.68,
-    "description": "",
     "document_id": 1
   },
   "27": {
     "name": "27 лет",
     "value": 0.71,
-    "description": "",
     "document_id": 1
   },
   "28": {
     "name": "28 лет",
     "value": 0.74,
-    "description": "",
     "document_id": 1
   },
   "29": {
     "name": "29 лет",
     "value": 0.77,
-    "description": "",
     "document_id": 1
   },
   "30": {
     "name": "30 лет",
     "value": 0.80,
-    "description": "",
     "document_id": 1
   },
   "31": {
     "name": "31 год",
     "value": 0.83,
-    "description": "",
     "document_id": 1
   },
   "32": {
     "name": "32 года и более",
     "value": 0.85,
-    "description": "",
     "document_id": 1
   }
 }

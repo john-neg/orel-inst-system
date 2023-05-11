@@ -17,7 +17,7 @@ class PaymentDocuments(db.Model, PaymentBase):
 
     __tablename__ = "payment_documents"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String)
+    name: Mapped[str] = db.Column(db.Text)
 
 
 class PaymentRate(db.Model, PaymentBase):
@@ -46,21 +46,23 @@ class PaymentRate(db.Model, PaymentBase):
         """Возвращает коэффициенты индексации для объекта."""
         return [increase.value for increase in self.increase]
 
-    def get_current_items(self) -> dict:
-        """Возвращает названия значений."""
-
-        return {item.id: item.name for item in self.values}
-
     def get_current_values(self) -> dict:
-        """Возвращает значения с учетом индексации."""
+        """Возвращает id и названия окладов по возрастанию."""
+
         return {
-            item.id: reduce(
-                lambda x, y: round(x * y + 0.5),
-                self.get_increase_values(),
-                item.value,
-            )
-            for item in self.values
+            item.id: item.name
+            for item in sorted(self.values, key=lambda item: int(item.value))
         }
+
+    def get_value_data(self, value_id):
+        for item in self.values:
+            if item.id == value_id:
+                item.value = reduce(
+                    lambda x, y: round(x * y + 0.5),
+                    self.get_increase_values(),
+                    item.value,
+                )
+                return item
 
 
 class PaymentRateValues(db.Model):
@@ -70,7 +72,7 @@ class PaymentRateValues(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[int] = db.Column(db.Integer)
-    description: Mapped[str] = db.Column(db.String)
+    description: Mapped[str] = db.Column(db.Text)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_rate.id"),
@@ -89,6 +91,9 @@ class PaymentRateValues(db.Model):
         PaymentDocuments,
         lazy="subquery",
     )
+
+    def __repr__(self):
+        return self.name
 
 
 class PaymentAddons(db.Model, PaymentBase):
@@ -114,9 +119,17 @@ class PaymentAddons(db.Model, PaymentBase):
         return self.slug
 
     def get_values(self) -> dict:
-        """Возвращает значения опций."""
+        """Возвращает значения опций по возрастанию."""
 
-        return {option.name: option.value for option in self.values}
+        return {
+            item.id: item.name
+            for item in sorted(self.values, key=lambda item: float(item.value))
+        }
+
+    def get_value_data(self, value_id):
+        for item in self.values:
+            if item.id == value_id:
+                return item
 
 
 class PaymentAddonsValues(db.Model):
@@ -126,7 +139,7 @@ class PaymentAddonsValues(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
-    description: Mapped[str] = db.Column(db.String)
+    description: Mapped[str] = db.Column(db.Text)
     document_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
@@ -145,6 +158,9 @@ class PaymentAddonsValues(db.Model):
         back_populates="values",
         lazy="subquery",
     )
+
+    def __repr__(self):
+        return self.name
 
 
 class PaymentMatchRateAddon(db.Model):
@@ -173,7 +189,7 @@ class PaymentSingleAddon(db.Model, PaymentBase):
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
     payment_name: Mapped[str] = db.Column(db.String(128))
-    description: Mapped[str] = db.Column(db.String)
+    description: Mapped[str] = db.Column(db.Text)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
     default_state: Mapped[bool] = db.Column(db.Boolean)
@@ -263,12 +279,15 @@ class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
         lazy="subquery",
     )
 
+    def __repr__(self) -> str:
+        return self.name
+
     @classmethod
-    def get_description(cls, name) -> dict:
+    def get_item(cls, id_):
         """Возвращает описание по имени."""
 
         return db.session.execute(
-            select(cls).where(cls.name == name)
+            select(cls).where(cls.id == id_)
         ).scalar_one_or_none()
 
 
@@ -281,7 +300,7 @@ class PaymentGlobalCoefficient(db.Model, PaymentBase):
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
     payment_name: Mapped[str] = db.Column(db.String(128))
-    description: Mapped[str] = db.Column(db.String)
+    description: Mapped[str] = db.Column(db.Text)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
     document_id: Mapped[int] = db.Column(

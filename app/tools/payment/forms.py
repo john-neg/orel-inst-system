@@ -29,9 +29,7 @@ def create_payment_form(
         field = SelectField(
             label=item.name,
             coerce=int,
-            choices=list(
-                reversed([(key, val) for key, val in item.get_current_items().items()])
-            ),
+            choices=[(key, val) for key, val in item.get_current_values().items()],
             validators=[DataRequired()],
         )
         setattr(PaymentForm, label, field)
@@ -40,12 +38,11 @@ def create_payment_form(
     for item in addon_items:
         label = item.slug
         choices = [(0, "нет")]
-        choices.extend([(val, key) for key, val in item.get_values().items()])
+        choices.extend([(key, val) for key, val in item.get_values().items()])
         field = SelectField(
             label=item.name,
-            coerce=float,
+            coerce=int,
             choices=choices,
-            validators=[DataRequired()],
         )
         setattr(PaymentForm, label, field)
 
@@ -62,13 +59,14 @@ def create_payment_form(
     label = "pension_duty_years"
     field = SelectField(
         label="Выслуга (полных) лет для расчета пенсии",
-        coerce=float,
-        choices=list(
-            [
-                (coeff.value, coeff.name)
-                for coeff in PaymentPensionDutyCoefficient.get_all()
-            ]
-        ),
+        coerce=int,
+        choices=[
+            (duty.id, duty.name)
+            for duty in sorted(
+                PaymentPensionDutyCoefficient.get_all(),
+                key=lambda duty: int(duty.value),
+            )
+        ],
         validators=[DataRequired()],
     )
     setattr(PaymentForm, label, field)
