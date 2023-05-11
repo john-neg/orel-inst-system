@@ -5,11 +5,11 @@ from app.db.payment_models import (
     PaymentAddons,
     PaymentSingleAddon,
     PaymentGlobalCoefficient,
-    PaymentPensionDutyCoefficient,
+    PaymentPensionDutyCoefficient, PaymentDocuments,
 )
 
-from app.tools.payment import payment_bp as bp
-from app.tools.payment.forms import create_payment_form
+from . import payment_bp as bp
+from .forms import create_payment_form
 
 
 @bp.route("/payment", methods=["GET", "POST"])
@@ -17,6 +17,7 @@ async def payment_tool():
     rate_items = PaymentRate.get_all()
     addon_items = PaymentAddons.get_all()
     single_items = PaymentSingleAddon.get_all()
+    document_items = PaymentDocuments.get_all()
 
     form = create_payment_form(
         rate_items=rate_items,
@@ -46,7 +47,7 @@ async def payment_tool():
             if item.pension:
                 payment_data["pension_data"][item.slug] = {
                     "name": item.payment_name,
-                    "value": int(request.form.get(item.slug)),
+                    "value": value,
                     "description": item.description,
                 }
                 if item.increase:
@@ -135,6 +136,13 @@ async def payment_tool():
 
         duty_coeff = float(request.form.get("pension_duty_years"))
         value = round(payment_data["pension_total"] * (duty_coeff - 1), ndigits=2)
+
+        print()
+        print()
+        print(request.form)
+        print()
+        print()
+
         name = form.pension_duty_years.name
         payment_data["pension_data"]["pension_duty_years"] = {
             "name": f"{form.pension_duty_years.label.text} ({int(duty_coeff * 100)}%)",

@@ -1,11 +1,11 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy.future import create_engine
+from sqlalchemy import create_engine
 
+import app.db.payment_models
 from app.db.database import db
 from config import FlaskConfig
-import app.db.payment_models
 
 
 config = context.config
@@ -47,7 +47,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, future=True)
+    connectable = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI)
 
     with connectable.connect() as connection:
         context.configure(

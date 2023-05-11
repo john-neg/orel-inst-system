@@ -1,5 +1,5 @@
 from flask_login import AnonymousUserMixin, UserMixin
-from sqlalchemy.future import select
+from sqlalchemy import select
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.db.database import db

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 from calendar import monthrange
 from datetime import date

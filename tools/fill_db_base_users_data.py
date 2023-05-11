@@ -1,6 +1,10 @@
+import sys
+
 from sqlalchemy import create_engine
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
+
+sys.path.append('.')
 
 from app.db.auth_models import UserRoles, User
 from config import FlaskConfig

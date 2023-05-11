@@ -30,7 +30,7 @@ def create_payment_form(
             label=item.name,
             coerce=int,
             choices=list(
-                reversed([(val, key) for key, val in item.get_current_values().items()])
+                reversed([(key, val) for key, val in item.get_current_items().items()])
             ),
             validators=[DataRequired()],
         )

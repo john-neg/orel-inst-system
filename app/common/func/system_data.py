@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from phpserialize import loads
 
 from config import ApeksConfig as Apeks

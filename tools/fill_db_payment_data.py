@@ -1,8 +1,11 @@
 import os
+import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
+
+sys.path.append('.')
 
 from app.common.func.app_core import read_json_file, make_slug
 from app.db.payment_models import (
@@ -16,7 +19,7 @@ from app.db.payment_models import (
     PaymentIncrease,
     PaymentMatchRateIncrease,
     PaymentPensionDutyCoefficient,
-    PaymentGlobalCoefficient,
+    PaymentGlobalCoefficient, PaymentDocuments,
 )
 from config import FlaskConfig, BASEDIR
 
@@ -27,31 +30,46 @@ session = Session()
 
 FILE_DIR = os.path.join(BASEDIR, "tools", "data_payment")
 
+
+
+# Заполняем данные о нормативных документах
+documents_data = read_json_file(os.path.join(FILE_DIR, "documents_data.json"))
+for data in documents_data:
+    session.add(
+        PaymentDocuments(
+            name=documents_data[data].get("name"),
+        )
+    )
+session.commit()
+
+
 # Заполняем данные об окладах
 rate_data = read_json_file(os.path.join(FILE_DIR, "rate_data.json"))
-for data in rate_data:
+for rate in rate_data:
     session.add(
         PaymentRate(
-            slug=make_slug(rate_data[data].get("name"), prefix="rate_"),
-            name=rate_data[data].get("name"),
-            payment_name=rate_data[data].get("payment_name"),
-            description=rate_data[data].get("description"),
-            salary=rate_data[data].get("salary"),
-            pension=rate_data[data].get("pension"),
+            slug=make_slug(rate_data[rate].get("name"), prefix="rate_"),
+            name=rate_data[rate].get("name"),
+            payment_name=rate_data[rate].get("payment_name"),
+            salary=rate_data[rate].get("salary"),
+            pension=rate_data[rate].get("pension"),
         )
     )
     session.flush()
     rate_id = session.execute(
-        select(PaymentRate.id).where(PaymentRate.name == rate_data[data].get("name"))
+        select(PaymentRate.id).where(PaymentRate.name == rate_data[rate].get("name"))
     ).scalar_one()
-    for name, value in rate_data[data].get("data").items():
-        session.add(
-            PaymentRateValues(
-                name=name,
-                value=value,
-                rate_id=rate_id,
+    for record in rate_data[rate].get("data"):
+        for name, value in rate_data[rate]["data"][record].get("values").items():
+            session.add(
+                PaymentRateValues(
+                    name=name,
+                    value=value,
+                    rate_id=rate_id,
+                    description=rate_data[rate]["data"][record].get("description"),
+                    document_id=rate_data[rate]["data"][record].get('document_id'),
+                )
             )
-        )
     session.commit()
 
 
@@ -63,7 +81,6 @@ for data in addons_data:
             slug=make_slug(addons_data[data].get("name"), prefix="addon_"),
             name=addons_data[data].get("name"),
             payment_name=addons_data[data].get("payment_name"),
-            description=addons_data[data].get("description"),
             salary=addons_data[data].get("salary"),
             pension=addons_data[data].get("pension"),
         )
@@ -79,7 +96,9 @@ for data in addons_data:
             PaymentAddonsValues(
                 name=name,
                 value=value,
+                description=addons_data[data].get("description"),
                 addon_id=addon_id,
+                document_id=addons_data[data].get("document_id"),
             )
         )
     for rate_name in addons_data[data].get("apply_to"):
@@ -105,6 +124,7 @@ for data in single_addons_data:
             payment_name=single_addons_data[data].get("payment_name"),
             value=single_addons_data[data].get("value"),
             description=single_addons_data[data].get("description"),
+            document_id=single_addons_data[data].get("document_id"),
             salary=single_addons_data[data].get("salary"),
             pension=single_addons_data[data].get("pension"),
             default_state=single_addons_data[data].get("default_state"),
@@ -136,7 +156,7 @@ for data in increase_data:
         PaymentIncrease(
             name=increase_data[data].get("name"),
             value=increase_data[data].get("value"),
-            description=increase_data[data].get("description"),
+            document_id=increase_data[data].get("document_id"),
         )
     )
     session.flush()
@@ -165,7 +185,7 @@ for data in pension_duty_data:
         PaymentPensionDutyCoefficient(
             name=pension_duty_data[data].get("name"),
             value=pension_duty_data[data].get("value"),
-            description=pension_duty_data[data].get("description"),
+            document_id=pension_duty_data[data].get("document_id"),
         )
     )
     session.commit()
@@ -183,6 +203,7 @@ for data in global_coefficient_data:
             value=global_coefficient_data[data].get("value"),
             payment_name=global_coefficient_data[data].get("payment_name"),
             description=global_coefficient_data[data].get("description"),
+            document_id=global_coefficient_data[data].get("document_id"),
             salary=global_coefficient_data[data].get("salary"),
             pension=global_coefficient_data[data].get("pension"),
         )

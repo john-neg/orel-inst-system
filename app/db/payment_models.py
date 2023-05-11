@@ -12,6 +12,14 @@ class PaymentBase:
         return db.session.execute(select(cls)).scalars().all()
 
 
+class PaymentDocuments(db.Model, PaymentBase):
+    """Модель для нормативных документов."""
+
+    __tablename__ = "payment_documents"
+    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    name: Mapped[str] = db.Column(db.String)
+
+
 class PaymentRate(db.Model, PaymentBase):
     """Модель базовых окладов."""
 
@@ -20,7 +28,6 @@ class PaymentRate(db.Model, PaymentBase):
     slug: Mapped[str] = db.Column(db.String(64), index=True, unique=True)
     name: Mapped[str] = db.Column(db.String(128))
     payment_name: Mapped[str] = db.Column(db.String(128))
-    description: Mapped[str] = db.Column(db.String)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
     values: Mapped[list["PaymentRateValues"]] = db.relationship(
@@ -39,13 +46,20 @@ class PaymentRate(db.Model, PaymentBase):
         """Возвращает коэффициенты индексации для объекта."""
         return [increase.value for increase in self.increase]
 
+    def get_current_items(self) -> dict:
+        """Возвращает названия значений."""
+
+        return {item.id: item.name for item in self.values}
+
     def get_current_values(self) -> dict:
         """Возвращает значения с учетом индексации."""
         return {
-            value.name: reduce(
-                lambda x, y: round(x * y + 0.5), self.get_increase_values(), value.value
+            item.id: reduce(
+                lambda x, y: round(x * y + 0.5),
+                self.get_increase_values(),
+                item.value,
             )
-            for value in self.values
+            for item in self.values
         }
 
 
@@ -56,6 +70,7 @@ class PaymentRateValues(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[int] = db.Column(db.Integer)
+    description: Mapped[str] = db.Column(db.String)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_rate.id"),
@@ -66,22 +81,14 @@ class PaymentRateValues(db.Model):
         back_populates="values",
         lazy="subquery",
     )
-
-
-class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
-    """Модель понижающих пенсию коэффициентов за выслугу лет."""
-
-    __tablename__ = "payment_pension_duty_coefficient"
-    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-    name: Mapped[str] = db.Column(db.String(128))
-    value: Mapped[float] = db.Column(db.Float)
-    description: Mapped[str] = db.Column(db.String)
-
-    @classmethod
-    def get_description(cls, name) -> dict:
-        """Возвращает описание по имени."""
-
-        return db.session.execute(select(cls).where(cls.name == name)).scalar_one_or_none()
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )
 
 
 class PaymentAddons(db.Model, PaymentBase):
@@ -92,7 +99,6 @@ class PaymentAddons(db.Model, PaymentBase):
     slug: Mapped[str] = db.Column(db.String(64), index=True, unique=True)
     name: Mapped[str] = db.Column(db.String(128))
     payment_name: Mapped[str] = db.Column(db.String(128))
-    description: Mapped[str] = db.Column(db.String)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
     values: Mapped[list["PaymentAddonsValues"]] = db.relationship(
@@ -120,6 +126,15 @@ class PaymentAddonsValues(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
+    description: Mapped[str] = db.Column(db.String)
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )
     addon_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_addons.id"),
@@ -162,6 +177,14 @@ class PaymentSingleAddon(db.Model, PaymentBase):
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
     default_state: Mapped[bool] = db.Column(db.Boolean)
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )
     rate: Mapped[list[PaymentRate]] = db.relationship(
         secondary="payment_match_rate_single",
     )
@@ -194,7 +217,14 @@ class PaymentIncrease(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[float] = db.Column(db.Float)
-    description: Mapped[str] = db.Column(db.String)
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )
 
     def __repr__(self):
         return self.name
@@ -217,6 +247,31 @@ class PaymentMatchRateIncrease(db.Model):
     )
 
 
+class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
+    """Модель понижающих пенсию коэффициентов за выслугу лет."""
+
+    __tablename__ = "payment_pension_duty_coefficient"
+    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    name: Mapped[str] = db.Column(db.String(128))
+    value: Mapped[float] = db.Column(db.Float)
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )
+
+    @classmethod
+    def get_description(cls, name) -> dict:
+        """Возвращает описание по имени."""
+
+        return db.session.execute(
+            select(cls).where(cls.name == name)
+        ).scalar_one_or_none()
+
+
 class PaymentGlobalCoefficient(db.Model, PaymentBase):
     """Модель глобальных коэффициентов, влияющих на общую сумму выплаты."""
 
@@ -229,3 +284,11 @@ class PaymentGlobalCoefficient(db.Model, PaymentBase):
     description: Mapped[str] = db.Column(db.String)
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
+    document_id: Mapped[int] = db.Column(
+        db.Integer,
+        db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
+    )
+    document: Mapped[PaymentRate] = db.relationship(
+        PaymentDocuments,
+        lazy="subquery",
+    )

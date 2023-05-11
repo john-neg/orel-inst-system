@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from openpyxl import load_workbook
 
 from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
