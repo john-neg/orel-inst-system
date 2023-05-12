@@ -72,7 +72,7 @@
         <div class="col-md-10 col-xl-8">
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              <p class="text-start text-danger m-0 fw-bold">Расчет зарплаты</p>
+              <p class="text-center text-danger m-0 fw-bold">Расчет зарплаты</p>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -80,7 +80,7 @@
                   <thead>
                     <tr>
                       <th class="text-dark">Название</th>
-                      <th class="text-dark text-center">Сумма (руб.)</th>
+                      <th class="text-dark text-center">Сумма<br />(руб.)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -98,16 +98,16 @@
                                 <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
                               {% endif %}
                               {% if data.get("document") %}
-                                <p style="margin: 2px;"><br>{{ data.get("document") }}</p>
+                                <p style="margin: 2px;"><br />{{ data.get("document") }}</p>
                               {% endif %}
                               {% if data.get("description") %}
-                                <p style="margin: 2px;"><br>{{ data.get("description") }}</p>
+                                <p style="margin: 2px;"><br />{{ data.get("description") }}</p>
                               {% endif %}
                               {% if data.get("increase") %}
                                 <p style="margin: 2px;">
-                                  <br>C учетом:<br>
+                                  <br />C учетом:<br />
                                   {% for item in data.get("increase") %}
-                                    {{ item }}<br>
+                                    {{ item }}<br />
                                   {% endfor %}
                                 </p>
                               {% endif %}
@@ -134,7 +134,7 @@
         <div class="col-md-10 col-xl-8">
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              <p class="text-start text-danger m-0 fw-bold">Расчет пенсии</p>
+              <p class="text-center text-danger m-0 fw-bold">Расчет пенсии</p>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -142,7 +142,7 @@
                   <thead>
                     <tr>
                       <th class="text-dark">Название</th>
-                      <th class="text-dark text-center">Сумма (руб.)</th>
+                      <th class="text-dark text-center">Сумма<br />(руб.)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -168,9 +168,9 @@
                               {% endif %}
                               {% if data.get("increase") %}
                                 <p style="margin: 2px;">
-                                  <br>C учетом:<br>
+                                  <br />C учетом:<br />
                                   {% for item in data.get("increase") %}
-                                    {{ item }}<br>
+                                    {{ item }}<br />
                                   {% endfor %}
                                 </p>
                               {% endif %}
