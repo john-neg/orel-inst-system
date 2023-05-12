@@ -114,13 +114,13 @@
                             </div>
                           </div>
                         </td>
-                        <td class="text-center" >{{ data.get("value") }}</td>
+                        <td class="text-center" >{{ '%0.2f' % data.get("value")|float }}</td>
                       </tr>
                     {% endfor %}
                     <tr>
                       <td style="font-weight: bold;">Итого</td>
                       <td class="text-center" style="font-weight: bold;">
-                        {{ payment_data.get("salary_total") }}
+                        {{ '%0.2f' % payment_data.get("salary_total")|float }}
                       </td>
                     </tr>
                   </tbody>
@@ -177,13 +177,13 @@
                             </div>
                           </div>
                         </td>
-                        <td class="text-center" >{{ data.get("value") }}</td>
+                        <td class="text-center" >{{ '%0.2f' % data.get("value")|float }}</td>
                       </tr>
                     {% endfor %}
                     <tr>
                       <td style="font-weight: bold;">Итого</td>
                       <td class="text-center" style="font-weight: bold;">
-                        {{ payment_data.get("pension_total") }}
+                        {{ '%0.2f' % payment_data.get("pension_total")|float }}
                       </td>
                     </tr>
                   </tbody>
