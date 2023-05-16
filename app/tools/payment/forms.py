@@ -1,7 +1,7 @@
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, SelectField
+from wtforms import SubmitField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired
 
 from app import db
@@ -72,3 +72,21 @@ def create_payment_form(
     setattr(PaymentForm, label, field)
 
     return PaymentForm(**kwargs)
+
+
+class DocumentsAddForm(FlaskForm):
+
+    name = TextAreaField("Название документа", validators=[DataRequired()])
+    submit = SubmitField("Добавить документ")
+
+
+class DocumentsEditForm(FlaskForm):
+
+    name = TextAreaField("Название документа", validators=[DataRequired()])
+    submit = SubmitField("Сохранить изменения")
+
+
+class DeleteForm(FlaskForm):
+    """Форма удаления данных."""
+
+    submit = SubmitField("Удалить")

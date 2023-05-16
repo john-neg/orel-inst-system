@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <form method="post">
+  {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <form>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Поле</th>
+                    <th>Данные</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for key, val in document.__dict__.items() if key != '_sa_instance_state' %}
+                    <tr>
+                      <td>{{ key }}</td>
+                      <td>{{ val }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-6">
+                {{ form.submit(class="btn btn-danger d-block w-100", id="data_delete") }}
+              </div>
+              <div class="col-6">
+                <a class="btn btn-secondary d-block w-100" role="button" href="{{ url_for('.documents_get') }}">Отмена</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

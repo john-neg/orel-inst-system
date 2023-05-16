@@ -1,15 +1,16 @@
-from flask import render_template, request
+from flask import render_template, request, flash, redirect, url_for
 
 from app.db.payment_models import (
     PaymentRate,
     PaymentAddons,
     PaymentSingleAddon,
     PaymentGlobalCoefficient,
-    PaymentPensionDutyCoefficient,
+    PaymentPensionDutyCoefficient, PaymentDocuments,
 )
 
 from . import payment_bp as bp
-from .forms import create_payment_form
+from .forms import create_payment_form, DocumentsEditForm, DeleteForm, DocumentsAddForm
+from ...common.func.app_core import get_paginated_data
 
 
 @bp.route("/payment", methods=["GET", "POST"])
@@ -111,7 +112,7 @@ async def payment_tool():
 
         # Информация о пенсионном коэффициенте
         item_value_id = int(request.form.get("pension_duty_years"))
-        value_data = PaymentPensionDutyCoefficient.get_item(item_value_id)
+        value_data = PaymentPensionDutyCoefficient.get(item_value_id)
         value = round(payment_data["pension_total"] * (value_data.value - 1), ndigits=2)
         payment_data["pension_data"]["pension_duty_years"] = {
             "name": f"{form.pension_duty_years.label.text} ({value_data.value:.0%})",
@@ -153,3 +154,71 @@ async def payment_tool():
             "tools/payment.html", active="tools", form=form, payment_data=payment_data
         )
     return render_template("tools/payment.html", active="tools", form=form)
+
+
+@bp.route("/payment/data", methods=["GET"])
+async def payment_data():
+    return render_template(
+        "tools/payment_data_edit.html",
+        title="Редактировать информацию"
+    )
+
+
+@bp.route("/payment/documents", methods=["GET"])
+async def documents_get():
+    paginated_data = get_paginated_data(PaymentDocuments.query)
+    return render_template(
+        "tools/payment_documents.html",
+        title="Нормативные документы",
+        paginated_data=paginated_data,
+    )
+
+
+@bp.route("/payment/documents/add", methods=["GET", "POST"])
+async def documents_add():
+    form = DocumentsAddForm()
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentDocuments.create(name=request.form.get('name'))
+        flash("Документ успешно добавлен", category="success")
+        return redirect(url_for("tools.payment.documents_get"))
+    return render_template(
+        "tools/payment_documents_edit.html",
+        title=f"Добавить документ",
+        form=form,
+    )
+
+
+@bp.route("/payment/documents/edit/<int:document_id>", methods=["GET", "POST"])
+async def documents_edit(document_id):
+    document = PaymentDocuments.get(document_id)
+    form = DocumentsEditForm(obj=document)
+
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentDocuments.update(
+            document_id,
+            name=request.form.get('name'),
+        )
+        flash("Данные обновлены", category="success")
+        return redirect(url_for("tools.payment.documents_get"))
+
+    return render_template(
+        "tools/payment_documents_edit.html",
+        title=f"Изменить документ #{document_id}",
+        form=form,
+    )
+
+
+@bp.route("/payment/documents/delete/<int:document_id>", methods=["GET", "POST"])
+async def documents_delete(document_id):
+    document = PaymentDocuments.get(document_id)
+    form = DeleteForm()
+    if request.method == "POST" and form.validate_on_submit():
+        message = PaymentDocuments.delete(document_id)
+        flash(message, category="success")
+        return redirect(url_for("tools.payment.documents_get"))
+    return render_template(
+        "tools/payment_data_delete.html",
+        title=f"Удалить документ #{document_id}",
+        form=form,
+        document=document,
+    )

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <form method="post">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          {{ form.hidden_tag() }}
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id="document_name_label") }}
+            </div>
+            <div class="card-body">
+              {{ form.name(class="form-control", id="document_name", rows="6") }}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              {{ form.submit(class="btn btn-info link-light", id="document_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}
