@@ -9,7 +9,7 @@
   {{ form.hidden_tag() }}
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
+        <div class="col-md-10">
           <form>
             <div class="table-responsive">
               <table class="table">
@@ -20,7 +20,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for key, val in document.__dict__.items() if key != '_sa_instance_state' %}
+                  {% for key, val in data.__dict__.items() if key != '_sa_instance_state' %}
                     <tr>
                       <td>{{ key }}</td>
                       <td>{{ val }}</td>
@@ -34,7 +34,7 @@
                 {{ form.submit(class="btn btn-danger d-block w-100", id="data_delete") }}
               </div>
               <div class="col-6">
-                <a class="btn btn-secondary d-block w-100" role="button" href="{{ url_for('.documents_get') }}">Отмена</a>
+                <a class="btn btn-secondary d-block w-100" role="button" href="{{ back_link }}">Отмена</a>
               </div>
             </div>
           </form>

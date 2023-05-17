@@ -19,7 +19,7 @@ class PaymentBase:
 
     @classmethod
     def get_all(cls) -> list[db.Model]:
-        return db.session.execute(select(cls)).scalars().all()
+        return db.session.scalars(select(cls)).all()
 
     @classmethod
     def create(cls, **kwargs) -> db.Model:
@@ -50,6 +50,12 @@ class PaymentDocuments(db.Model, PaymentBase):
     __tablename__ = "payment_documents"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.Text)
+    increase: Mapped["PaymentIncrease"] = db.relationship(
+        "PaymentIncrease",
+        back_populates="document",
+        cascade="save-update",
+        lazy="subquery",
+    )
 
     def __repr__(self):
         return self.name
@@ -71,7 +77,9 @@ class PaymentRate(db.Model, PaymentBase):
         cascade="all, delete-orphan",
     )
     increase: Mapped[list["PaymentIncrease"]] = db.relationship(
+        "PaymentIncrease",
         secondary="payment_match_rate_increase",
+        back_populates="rates",
     )
 
     def __repr__(self):
@@ -122,7 +130,7 @@ class PaymentRateValues(db.Model):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         lazy="subquery",
     )
@@ -179,7 +187,7 @@ class PaymentAddonsValues(db.Model):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         lazy="subquery",
     )
@@ -232,7 +240,7 @@ class PaymentSingleAddon(db.Model, PaymentBase):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         lazy="subquery",
     )
@@ -261,7 +269,7 @@ class PaymentMatchRateSingle(db.Model):
     )
 
 
-class PaymentIncrease(db.Model):
+class PaymentIncrease(db.Model, PaymentBase):
     """Модель с данными об индексации окладов."""
 
     __tablename__ = "payment_increase"
@@ -272,9 +280,17 @@ class PaymentIncrease(db.Model):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
+        back_populates="increase",
+        # passive_deletes=True,
         lazy="subquery",
+    )
+    rates: Mapped[list[PaymentRate]] = db.relationship(
+        PaymentRate,
+        secondary="payment_match_rate_increase",
+        back_populates="increase",
+        lazy='subquery'
     )
 
     def __repr__(self):
@@ -309,7 +325,7 @@ class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         lazy="subquery",
     )
@@ -334,7 +350,7 @@ class PaymentGlobalCoefficient(db.Model, PaymentBase):
         db.Integer,
         db.ForeignKey("payment_documents.id", ondelete="SET NULL"),
     )
-    document: Mapped[PaymentRate] = db.relationship(
+    document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         lazy="subquery",
     )

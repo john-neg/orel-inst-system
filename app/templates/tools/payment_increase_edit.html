@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              <p class="text-center text-primary m-0 fw-bold" id="increase_label">Сведения об индексации</p>
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id="increase_name_label") }}
+              {{ form.name(class="form-control", id="increase_name") }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.value.label(class="text-center text-primary m-0 fw-bold", id="increase_value_label") }}
+              {{ form.value(class="form-control", id="increase_value") }}
+              {% for error in form.value.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.document_id.label(class="text-center text-primary m-0 fw-bold", id="increase_document_label") }}
+              {{ form.document_id(class="form-select", id="increase_document") }}
+              {% for error in form.document_id.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {% for item in form %}
+                {% if item.label.field_id.startswith('rate_') %}
+                  <div class="form-check form-switch">
+                    {{ item(class="form-check-input", type="checkbox", checked=item.data, id=item.label.field_id) }}
+                    {{ item.label(class="form-check-label", for=item.label.field_id) }}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              {{ form.submit(class="btn btn-info link-light", id="increase_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
+          </div>
+          {% if form.form_errors %}
+            <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

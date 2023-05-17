@@ -1,11 +1,12 @@
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, SelectField, StringField, TextAreaField
-from wtforms.validators import DataRequired
+from wtforms import SubmitField, SelectField, StringField, TextAreaField, FloatField
+from wtforms.validators import DataRequired, NumberRange
+from wtforms_sqlalchemy.fields import QuerySelectField
 
 from app import db
-from app.db.payment_models import PaymentPensionDutyCoefficient
+from app.db.payment_models import PaymentPensionDutyCoefficient, PaymentDocuments
 from config import BASEDIR
 
 FILE_DIR = os.path.join(BASEDIR, "app", "tools", "data_payment")
@@ -74,16 +75,47 @@ def create_payment_form(
     return PaymentForm(**kwargs)
 
 
-class DocumentsAddForm(FlaskForm):
+class DocumentsForm(FlaskForm):
+    """Класс формы для нормативных документов."""
 
     name = TextAreaField("Название документа", validators=[DataRequired()])
-    submit = SubmitField("Добавить документ")
+    submit = SubmitField("Сохранить")
 
 
-class DocumentsEditForm(FlaskForm):
+def create_increase_form(
+    rate_items: list[db.Model],
+    document_items: list[db.Model],
+    **kwargs,
+):
+    class IncreaseForm(FlaskForm):
+        """Класс формы для сведений об индексациях."""
 
-    name = TextAreaField("Название документа", validators=[DataRequired()])
-    submit = SubmitField("Сохранить изменения")
+        name = StringField("Название", validators=[DataRequired()])
+        value = FloatField(
+            "Значение",
+            validators=[
+                DataRequired(
+                    message=(
+                        "Введите число (Например: ",
+                        "для индексации на +5% число - 1.05",
+                    )
+                )
+            ],
+        )
+        document_id = SelectField(
+            "Документ",
+            validators=[DataRequired()],
+            choices=[(item.id, item.name) for item in document_items],
+        )
+        submit = SubmitField("Сохранить")
+
+    # Добавляем переключатели для окладов
+    for item in rate_items:
+        label = item.slug
+        field = SubmitField(label=item.payment_name)
+        setattr(IncreaseForm, label, field)
+
+    return IncreaseForm(**kwargs)
 
 
 class DeleteForm(FlaskForm):

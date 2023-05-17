@@ -5,10 +5,10 @@
       {% block title %}{{ title }}{% endblock %}
     </h3>
   </div>
-  <form method="post">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <form method="post">
           {{ form.hidden_tag() }}
           <div class="card shadow mb-2">
             <div class="card-header py-3">
@@ -23,8 +23,8 @@
               {{ form.submit(class="btn btn-info link-light", id="document_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
-  </form>
+  </div>
 {% endblock %}
