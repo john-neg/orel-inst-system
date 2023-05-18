@@ -1,7 +1,8 @@
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, SelectField, StringField, TextAreaField, FloatField
+from wtforms import SubmitField, SelectField, StringField, TextAreaField, FloatField, \
+    BooleanField
 from wtforms.validators import DataRequired
 
 from app import db
@@ -115,6 +116,18 @@ def create_increase_form(
         setattr(IncreaseForm, label, field)
 
     return IncreaseForm(**kwargs)
+
+
+class RatesForm(FlaskForm):
+    """Класс формы для базовых окладов."""
+
+    name = StringField("Название", validators=[DataRequired()])
+    payment_name = StringField("Название выплаты", validators=[DataRequired()])
+    salary = BooleanField("Зарплата")
+    pension = BooleanField("Пенсия")
+    submit = SubmitField("Сохранить")
+
+
 
 
 class DeleteForm(FlaskForm):

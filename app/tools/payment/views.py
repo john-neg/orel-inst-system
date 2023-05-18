@@ -4,6 +4,8 @@ from flask import render_template, request, flash, redirect, url_for
 from flask.views import View
 from flask_login import login_required, current_user
 
+from app import db
+from app.common.func.app_core import get_paginated_data
 from app.db.payment_models import (
     PaymentRate,
     PaymentAddons,
@@ -14,11 +16,9 @@ from app.db.payment_models import (
     PaymentIncrease,
 )
 from config import FlaskConfig
-
 from . import payment_bp as bp
-from .forms import create_payment_form, DeleteForm, DocumentsForm, create_increase_form
-from ... import db
-from ...common.func.app_core import get_paginated_data
+from .forms import create_payment_form, DeleteForm, DocumentsForm, create_increase_form, \
+    RatesForm
 
 
 @bp.route("/payment", methods=["GET", "POST"])
@@ -174,15 +174,56 @@ async def payment_data():
     )
 
 
-@login_required
-@bp.route("/payment/documents", methods=["GET"])
-async def documents_get():
-    paginated_data = get_paginated_data(PaymentDocuments.query)
-    return render_template(
-        "tools/payment_documents.html",
+@dataclass
+class PaymentGetView(View):
+    """View класс для просмотра списка записей."""
+
+    template_name: str
+    title: str
+    payment_class: db.Model
+    methods = ["GET", "POST"]
+
+    @login_required
+    async def dispatch_request(self):
+        paginated_data = get_paginated_data(self.payment_class.query)
+        return render_template(
+            self.template_name,
+            title=self.title,
+            paginated_data=paginated_data,
+        )
+
+
+bp.add_url_rule(
+    "/payment/documents",
+    view_func=PaymentGetView.as_view(
+        "documents_get",
         title="Нормативные документы",
-        paginated_data=paginated_data,
-    )
+        template_name="tools/payment_documents.html",
+        payment_class=PaymentDocuments,
+    ),
+)
+
+
+bp.add_url_rule(
+    "/payment/increase",
+    view_func=PaymentGetView.as_view(
+        "increase_get",
+        title="Индексация",
+        template_name="tools/payment_increase.html",
+        payment_class=PaymentIncrease,
+    ),
+)
+
+
+bp.add_url_rule(
+    "/payment/rates",
+    view_func=PaymentGetView.as_view(
+        "rates_get",
+        title="Базовые оклады",
+        template_name="tools/payment_rates.html",
+        payment_class=PaymentRate,
+    ),
+)
 
 
 @login_required
@@ -222,17 +263,6 @@ async def documents_edit(document_id):
         "tools/payment_documents_edit.html",
         title=f"Изменить документ #{document_id}",
         form=form,
-    )
-
-
-@login_required
-@bp.route("/payment/increase", methods=["GET"])
-async def increase_get():
-    paginated_data = get_paginated_data(PaymentIncrease.query)
-    return render_template(
-        "tools/payment_increase.html",
-        title="Индексация",
-        paginated_data=paginated_data,
     )
 
 
@@ -299,6 +329,67 @@ async def increase_edit(increase_id):
     )
 
 
+# @login_required
+# @bp.route("/payment/rates/add", methods=["GET", "POST"])
+# async def rates_add():
+#     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+#         return redirect(url_for(".payment_tool"))
+#     rate_items = PaymentRate.get_all()
+#     # form = create_increase_form(
+#     #     rate_items=rate_items,
+#     #     document_items=document_items,
+#     # )
+#     if request.method == "POST" and form.validate_on_submit():
+#         # rates = [rate for rate in rate_items if request.form.get(rate.slug)]
+#         # PaymentIncrease.create(
+#         #     name=request.form.get("name"),
+#         #     value=request.form.get("value"),
+#         #     document_id=request.form.get("document_id"),
+#         #     rates=rates,
+#         # )
+#         flash("Документ успешно добавлен", category="success")
+#         return redirect(url_for(".rates_get"))
+#     return render_template(
+#         "tools/payment_rates_edit.html",
+#         title=f"Добавить индексацию",
+#         form=form,
+#     )
+
+    # slug = make_slug(rate_data[rate].get("name"), prefix="rate_")
+
+
+@login_required
+@bp.route("/payment/rates/edit/<int:rate_id>", methods=["GET", "POST"])
+async def rates_edit(rate_id):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    rate = PaymentRate.get(rate_id)
+    # rate_items = PaymentRate.get_all()
+    # document_items = PaymentDocuments.get_all()
+    form = RatesForm(obj=rate)
+
+    # for rate in increase.rates:
+    #     if rate in rate_items:
+    #         form.__getattribute__(rate.slug).data = True
+    # if request.method == "POST" and form.validate_on_submit():
+    #     rates = [rate for rate in rate_items if request.form.get(rate.slug)]
+    #     PaymentRate.update(
+    #         rate_id,
+    #         name=request.form.get("name"),
+    #         value=request.form.get("value"),
+    #         document_id=request.form.get("document_id"),
+    #         rates=rates,
+    #     )
+    #     flash("Данные обновлены", category="success")
+    #     return redirect(url_for(".rates_get"))
+    return render_template(
+        "tools/payment_rates_edit.html",
+        title=f"Изменить оклад #{rate_id}",
+        form=form,
+        rate=rate,
+    )
+
+
 @dataclass
 class PaymentDeleteView(View):
     """View класс для удаления записей."""
@@ -320,7 +411,7 @@ class PaymentDeleteView(View):
             flash(message, category="success")
             return redirect(url_for(f".{self.payment_slug}_get"))
         return render_template(
-            "tools/payment_data_delete.html",
+            self.template_name,
             title=f"{self.title} #{id_}",
             form=form,
             data=data,
@@ -335,7 +426,18 @@ bp.add_url_rule(
         title="Удалить документ",
         template_name="tools/payment_data_delete.html",
         payment_slug="documents",
-        payment_class=PaymentIncrease,
+        payment_class=PaymentDocuments,
+    ),
+)
+
+bp.add_url_rule(
+    "/payment/rates/delete/<int:id_>",
+    view_func=PaymentDeleteView.as_view(
+        "rates_delete",
+        title="Удалить оклад",
+        template_name="tools/payment_data_delete.html",
+        payment_slug="rates",
+        payment_class=PaymentRate,
     ),
 )
 

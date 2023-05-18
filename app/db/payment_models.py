@@ -283,7 +283,6 @@ class PaymentIncrease(db.Model, PaymentBase):
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         back_populates="increase",
-        # passive_deletes=True,
         lazy="subquery",
     )
     rates: Mapped[list[PaymentRate]] = db.relationship(
