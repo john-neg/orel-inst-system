@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-2">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="table-responsive text-center">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th class="text-start">Название</th>
+                <th class="text-start">Значение</th>
+                <th class="text-start">Описание</th>
+                <th class="text-start">Документ</th>
+                <th class="text-start">Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for value in paginated_data.items %}
+                <tr>
+                  <td>{{ value.id }}</td>
+                  <td class="text-start">{{ value.name }}</td>
+                  <td class="text-start">{{ value.value }}</td>
+                  <td class="text-start">{{ value.description|safe|truncate(50) }}</td>
+                  <td class="text-start">{{ value.document|safe|truncate(30) }}</td>
+                  <td>
+                    <div class="btn-group" role="group">
+{#                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.increase_edit', id_=increase.id) }}">Редактировать</a>#}
+{#                      <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.increase_delete', id_=increase.id) }}">Удалить</a>#}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+{#        <div class="col">#}
+{#          {% if paginated_data.pages > 1 %}#}
+{#            {% block pagination %}#}
+{#              {% include "common/pagination.html" %}#}
+{#            {% endblock %}#}
+{#          {% endif %}#}
+{#        </div>#}
+        <div class="row mb-3">
+          <div class="col-12 col-lg-6">
+{#            <a class="btn btn-primary d-block w-100" role="button" href="{{ url_for('.increase_add') }}">Добавить</a>#}
+          </div>
+          <div class="col-12 col-lg-6 text-end">
+            <a class="btn btn-secondary d-block w-100" role="button" href="{{ url_for('.rates_get') }}">Назад</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -41,8 +41,7 @@
           </div>
           <div class="row">
             <div class="col mb-2">
-{#              <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.rates_delete', id_=rate.id) }}">Удалить</a>#}
-              <button id="rates_values_update" class="btn btn-warning" type="button" style="width: 100%;font-weight: bold;border-style: none;" name="document_update">Значения</button>
+              <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
             </div>
           </div>
           <div class="row">

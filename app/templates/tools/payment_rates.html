@@ -28,9 +28,8 @@
                   <td class="text-start">{% if rate.salary %}- зарплата<br />{% endif %}{% if rate.pension %}- пенсия{% endif %}</td>
                   <td>
                     <div class="btn-group" role="group">
-                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.rates_edit', rate_id=rate.id) }}">Редактировать</a>
-{#                      <a class="btn btn-warning btn-sm" role="button" href="{{ url_for('.rates_values_edit', document_id=rate.id) }}">Значения</a>#}
-                      <button class="btn btn-warning btn-sm" type="button">Значения</button>
+                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.rates_edit', id_=rate.id) }}">Редактировать</a>
+                      <a class="btn btn-warning btn-sm" role="button" href="{{ url_for('.rates_values', id_=rate.id) }}">Значения</a>
                       <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.rates_delete', id_=rate.id) }}">Удалить</a>
                     </div>
                   </td>
@@ -41,7 +40,7 @@
         </div>
         <div class="row mb-3">
           <div class="col-12 col-lg-6">
-            <a class="btn btn-primary d-block w-100" role="button" href="{{ url_for('.documents_add') }}">Добавить документ</a>
+            <a class="btn btn-primary d-block w-100" role="button" href="{{ url_for('.rates_add') }}">Добавить</a>
           </div>
           <div class="col-12 col-lg-6 text-end">
             <a class="btn btn-secondary d-block w-100" role="button" href="{{ url_for('.payment_data') }}">Назад</a>

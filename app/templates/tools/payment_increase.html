@@ -30,7 +30,7 @@
                   <td class="text-start">{% for rate in increase.rates %}- {{ rate.name|lower }}<br>{% endfor %}</td>
                   <td>
                     <div class="btn-group" role="group">
-                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.increase_edit', increase_id=increase.id) }}">Редактировать</a>
+                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.increase_edit', id_=increase.id) }}">Редактировать</a>
                       <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.increase_delete', id_=increase.id) }}">Удалить</a>
                     </div>
                   </td>

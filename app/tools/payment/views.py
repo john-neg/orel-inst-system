@@ -5,7 +5,7 @@ from flask.views import View
 from flask_login import login_required, current_user
 
 from app import db
-from app.common.func.app_core import get_paginated_data
+from app.common.func.app_core import get_paginated_data, make_slug
 from app.db.payment_models import (
     PaymentRate,
     PaymentAddons,
@@ -13,12 +13,17 @@ from app.db.payment_models import (
     PaymentGlobalCoefficient,
     PaymentPensionDutyCoefficient,
     PaymentDocuments,
-    PaymentIncrease,
+    PaymentIncrease, PaymentRateValues,
 )
 from config import FlaskConfig
 from . import payment_bp as bp
-from .forms import create_payment_form, DeleteForm, DocumentsForm, create_increase_form, \
-    RatesForm
+from .forms import (
+    create_payment_form,
+    DeleteForm,
+    DocumentsForm,
+    create_increase_form,
+    RatesForm,
+)
 
 
 @bp.route("/payment", methods=["GET", "POST"])
@@ -203,7 +208,6 @@ bp.add_url_rule(
     ),
 )
 
-
 bp.add_url_rule(
     "/payment/increase",
     view_func=PaymentGetView.as_view(
@@ -214,7 +218,6 @@ bp.add_url_rule(
     ),
 )
 
-
 bp.add_url_rule(
     "/payment/rates",
     view_func=PaymentGetView.as_view(
@@ -224,6 +227,8 @@ bp.add_url_rule(
         payment_class=PaymentRate,
     ),
 )
+
+
 
 
 @login_required
@@ -244,16 +249,15 @@ async def documents_add():
 
 
 @login_required
-@bp.route("/payment/documents/edit/<int:document_id>", methods=["GET", "POST"])
-async def documents_edit(document_id):
+@bp.route("/payment/documents/<int:id_>", methods=["GET", "POST"])
+async def documents_edit(id_):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for(".payment_tool"))
-    document = PaymentDocuments.get(document_id)
+    document = PaymentDocuments.get(id_)
     form = DocumentsForm(obj=document)
-
     if request.method == "POST" and form.validate_on_submit():
         PaymentDocuments.update(
-            document_id,
+            id_,
             name=request.form.get("name"),
         )
         flash("Данные обновлены", category="success")
@@ -261,8 +265,87 @@ async def documents_edit(document_id):
 
     return render_template(
         "tools/payment_documents_edit.html",
-        title=f"Изменить документ #{document_id}",
+        title=f"Изменить документ #{id_}",
         form=form,
+    )
+
+
+@login_required
+@bp.route("/payment/rates/add", methods=["GET", "POST"])
+async def rates_add():
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    form = RatesForm()
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentRate.create(
+            name=request.form.get("name"),
+            slug=make_slug(request.form.get("name"), prefix="rate_"),
+            payment_name=request.form.get("payment_name"),
+            salary=True if request.form.get("salary") else False,
+            pension=True if request.form.get("pension") else False,
+        )
+        flash("Оклад успешно добавлен", category="success")
+        return redirect(url_for(".rates_get"))
+    return render_template(
+        "tools/payment_rates_edit.html",
+        title=f"Добавить оклад",
+        form=form,
+    )
+
+
+@login_required
+@bp.route("/payment/rates/<int:id_>", methods=["GET", "POST"])
+async def rates_edit(id_):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    rate = PaymentRate.get(id_)
+    form = RatesForm(obj=rate)
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentRate.update(
+            id_,
+            name=request.form.get("name"),
+            slug=make_slug(request.form.get("name"), prefix="rate_"),
+            payment_name=request.form.get("payment_name"),
+            salary=True if request.form.get("salary") else False,
+            pension=True if request.form.get("pension") else False,
+        )
+        flash("Данные обновлены", category="success")
+        return redirect(url_for(".rates_get"))
+    return render_template(
+        "tools/payment_rates_edit.html",
+        title=f"Изменить оклад #{id_}",
+        form=form,
+        rate=rate,
+    )
+
+
+@login_required
+@bp.route("/payment/rates/<int:id_>/values", methods=["GET", "POST"])
+async def rates_values(id_):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    rate = PaymentRate.get(id_)
+    request.args["id_"] = id_
+    paginated_data = get_paginated_data(PaymentRateValues.query)
+    # data = PaymentRateValues.query
+    # values = PaymentRate.get(id_)
+    # form = RatesForm(obj=rate)
+    # if request.method == "POST" and form.validate_on_submit():
+    #     PaymentRate.update(
+    #         id_,
+    #         name=request.form.get("name"),
+    #         slug=make_slug(request.form.get("name"), prefix="rate_"),
+    #         payment_name=request.form.get("payment_name"),
+    #         salary=True if request.form.get("salary") else False,
+    #         pension=True if request.form.get("pension") else False,
+    #     )
+    #     flash("Данные обновлены", category="success")
+    #     return redirect(url_for(".rates_get"))
+    return render_template(
+        "tools/payment_rates_values.html",
+        title=f'Значения оклада "{rate.name}"',
+        paginated_data=paginated_data,
+        rate=rate,
     )
 
 
@@ -278,14 +361,13 @@ async def increase_add():
         document_items=document_items,
     )
     if request.method == "POST" and form.validate_on_submit():
-        rates = [rate for rate in rate_items if request.form.get(rate.slug)]
         PaymentIncrease.create(
             name=request.form.get("name"),
             value=request.form.get("value"),
             document_id=request.form.get("document_id"),
-            rates=rates,
+            rates=[rate for rate in rate_items if request.form.get(rate.slug)],
         )
-        flash("Документ успешно добавлен", category="success")
+        flash("Индексация успешно добавлена", category="success")
         return redirect(url_for(".increase_get"))
     return render_template(
         "tools/payment_increase_edit.html",
@@ -295,11 +377,11 @@ async def increase_add():
 
 
 @login_required
-@bp.route("/payment/increase/edit/<int:increase_id>", methods=["GET", "POST"])
-async def increase_edit(increase_id):
+@bp.route("/payment/increase/<int:id_>", methods=["GET", "POST"])
+async def increase_edit(id_):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for(".payment_tool"))
-    increase = PaymentIncrease.get(increase_id)
+    increase = PaymentIncrease.get(id_)
     rate_items = PaymentRate.get_all()
     document_items = PaymentDocuments.get_all()
     form = create_increase_form(
@@ -311,82 +393,20 @@ async def increase_edit(increase_id):
         if rate in rate_items:
             form.__getattribute__(rate.slug).data = True
     if request.method == "POST" and form.validate_on_submit():
-        rates = [rate for rate in rate_items if request.form.get(rate.slug)]
         PaymentIncrease.update(
-            increase_id,
+            id_,
             name=request.form.get("name"),
             value=request.form.get("value"),
             document_id=request.form.get("document_id"),
-            rates=rates,
+            rates=[rate for rate in rate_items if request.form.get(rate.slug)],
         )
         flash("Данные обновлены", category="success")
         return redirect(url_for(".increase_get"))
     return render_template(
         "tools/payment_increase_edit.html",
-        title=f"Изменить индексацию #{increase_id}",
+        title=f"Изменить индексацию #{id_}",
         form=form,
         increase=increase,
-    )
-
-
-# @login_required
-# @bp.route("/payment/rates/add", methods=["GET", "POST"])
-# async def rates_add():
-#     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-#         return redirect(url_for(".payment_tool"))
-#     rate_items = PaymentRate.get_all()
-#     # form = create_increase_form(
-#     #     rate_items=rate_items,
-#     #     document_items=document_items,
-#     # )
-#     if request.method == "POST" and form.validate_on_submit():
-#         # rates = [rate for rate in rate_items if request.form.get(rate.slug)]
-#         # PaymentIncrease.create(
-#         #     name=request.form.get("name"),
-#         #     value=request.form.get("value"),
-#         #     document_id=request.form.get("document_id"),
-#         #     rates=rates,
-#         # )
-#         flash("Документ успешно добавлен", category="success")
-#         return redirect(url_for(".rates_get"))
-#     return render_template(
-#         "tools/payment_rates_edit.html",
-#         title=f"Добавить индексацию",
-#         form=form,
-#     )
-
-    # slug = make_slug(rate_data[rate].get("name"), prefix="rate_")
-
-
-@login_required
-@bp.route("/payment/rates/edit/<int:rate_id>", methods=["GET", "POST"])
-async def rates_edit(rate_id):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
-    rate = PaymentRate.get(rate_id)
-    # rate_items = PaymentRate.get_all()
-    # document_items = PaymentDocuments.get_all()
-    form = RatesForm(obj=rate)
-
-    # for rate in increase.rates:
-    #     if rate in rate_items:
-    #         form.__getattribute__(rate.slug).data = True
-    # if request.method == "POST" and form.validate_on_submit():
-    #     rates = [rate for rate in rate_items if request.form.get(rate.slug)]
-    #     PaymentRate.update(
-    #         rate_id,
-    #         name=request.form.get("name"),
-    #         value=request.form.get("value"),
-    #         document_id=request.form.get("document_id"),
-    #         rates=rates,
-    #     )
-    #     flash("Данные обновлены", category="success")
-    #     return redirect(url_for(".rates_get"))
-    return render_template(
-        "tools/payment_rates_edit.html",
-        title=f"Изменить оклад #{rate_id}",
-        form=form,
-        rate=rate,
     )
 
 

@@ -24,7 +24,7 @@
                   <td class="text-start">{{ document.name }}</td>
                   <td>
                     <div class="btn-group" role="group">
-                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.documents_edit', document_id=document.id) }}">Редактировать</a>
+                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.documents_edit', id_=document.id) }}">Редактировать</a>
                       <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.documents_delete', id_=document.id) }}">Удалить</a>
                     </div>
                   </td>
