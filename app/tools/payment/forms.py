@@ -2,11 +2,9 @@ import os
 
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, SelectField, StringField, TextAreaField, FloatField
-from wtforms.validators import DataRequired, NumberRange
-from wtforms_sqlalchemy.fields import QuerySelectField
+from wtforms.validators import DataRequired
 
 from app import db
-from app.db.payment_models import PaymentPensionDutyCoefficient, PaymentDocuments
 from config import BASEDIR
 
 FILE_DIR = os.path.join(BASEDIR, "app", "tools", "data_payment")
@@ -17,6 +15,7 @@ def create_payment_form(
     rate_items: list[db.Model],
     addon_items: list[db.Model],
     single_items: list[db.Model],
+    duty_coeff_items: list[db.Model],
     **kwargs,
 ):
     class PaymentForm(FlaskForm):
@@ -64,7 +63,7 @@ def create_payment_form(
         choices=[
             (duty.id, duty.name)
             for duty in sorted(
-                PaymentPensionDutyCoefficient.get_all(),
+                duty_coeff_items,
                 key=lambda duty: int(duty.value),
             )
         ],

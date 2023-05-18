@@ -34,6 +34,7 @@ class FlaskConfig(object):
     ITEMS_PER_PAGE = 12
     AVAILABLE_PAGES = 3
 
+
 class LoggerConfig(object):
     """Logger Configuration."""
 

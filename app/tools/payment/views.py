@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
 from flask import render_template, request, flash, redirect, url_for
+from flask.views import View
 from flask_login import login_required, current_user
 
 from app.db.payment_models import (
@@ -6,12 +9,15 @@ from app.db.payment_models import (
     PaymentAddons,
     PaymentSingleAddon,
     PaymentGlobalCoefficient,
-    PaymentPensionDutyCoefficient, PaymentDocuments, PaymentIncrease,
+    PaymentPensionDutyCoefficient,
+    PaymentDocuments,
+    PaymentIncrease,
 )
 from config import FlaskConfig
 
 from . import payment_bp as bp
 from .forms import create_payment_form, DeleteForm, DocumentsForm, create_increase_form
+from ... import db
 from ...common.func.app_core import get_paginated_data
 
 
@@ -20,12 +26,14 @@ async def payment_tool():
     rate_items: list = PaymentRate.get_all()
     addon_items: list = PaymentAddons.get_all()
     single_items: list = PaymentSingleAddon.get_all()
+    duty_coeff_items: list = PaymentPensionDutyCoefficient.get_all()
     payment_types: list[str] = ["salary", "pension"]
 
     form = create_payment_form(
         rate_items=rate_items,
         addon_items=addon_items,
         single_items=single_items,
+        duty_coeff_items=duty_coeff_items,
     )
 
     if request.method == "POST" and form.validate_on_submit():
@@ -162,8 +170,7 @@ async def payment_tool():
 @bp.route("/payment/data", methods=["GET"])
 async def payment_data():
     return render_template(
-        "tools/payment_data_edit.html",
-        title="Редактировать информацию"
+        "tools/payment_data_edit.html", title="Редактировать информацию"
     )
 
 
@@ -185,7 +192,7 @@ async def documents_add():
         return redirect(url_for(".payment_tool"))
     form = DocumentsForm()
     if request.method == "POST" and form.validate_on_submit():
-        PaymentDocuments.create(name=request.form.get('name'))
+        PaymentDocuments.create(name=request.form.get("name"))
         flash("Документ успешно добавлен", category="success")
         return redirect(url_for(".documents_get"))
     return render_template(
@@ -206,7 +213,7 @@ async def documents_edit(document_id):
     if request.method == "POST" and form.validate_on_submit():
         PaymentDocuments.update(
             document_id,
-            name=request.form.get('name'),
+            name=request.form.get("name"),
         )
         flash("Данные обновлены", category="success")
         return redirect(url_for(".documents_get"))
@@ -215,26 +222,6 @@ async def documents_edit(document_id):
         "tools/payment_documents_edit.html",
         title=f"Изменить документ #{document_id}",
         form=form,
-    )
-
-
-@login_required
-@bp.route("/payment/documents/delete/<int:document_id>", methods=["GET", "POST"])
-async def documents_delete(document_id):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
-    document = PaymentDocuments.get(document_id)
-    form = DeleteForm()
-    if request.method == "POST" and form.validate_on_submit():
-        message = PaymentDocuments.delete(document_id)
-        flash(message, category="success")
-        return redirect(url_for(".documents_get"))
-    return render_template(
-        "tools/payment_data_delete.html",
-        title=f"Удалить документ #{document_id}",
-        form=form,
-        data=document,
-        back_link=url_for('.documents_get')
     )
 
 
@@ -263,9 +250,9 @@ async def increase_add():
     if request.method == "POST" and form.validate_on_submit():
         rates = [rate for rate in rate_items if request.form.get(rate.slug)]
         PaymentIncrease.create(
-            name=request.form.get('name'),
-            value=request.form.get('value'),
-            document_id=request.form.get('document_id'),
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            document_id=request.form.get("document_id"),
             rates=rates,
         )
         flash("Документ успешно добавлен", category="success")
@@ -297,9 +284,9 @@ async def increase_edit(increase_id):
         rates = [rate for rate in rate_items if request.form.get(rate.slug)]
         PaymentIncrease.update(
             increase_id,
-            name=request.form.get('name'),
-            value=request.form.get('value'),
-            document_id=request.form.get('document_id'),
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            document_id=request.form.get("document_id"),
             rates=rates,
         )
         flash("Данные обновлены", category="success")
@@ -308,25 +295,57 @@ async def increase_edit(increase_id):
         "tools/payment_increase_edit.html",
         title=f"Изменить индексацию #{increase_id}",
         form=form,
-        increase=increase
+        increase=increase,
     )
 
 
-@login_required
-@bp.route("/payment/increase/delete/<int:increase_id>", methods=["GET", "POST"])
-async def increase_delete(increase_id):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
-    increase = PaymentIncrease.get(increase_id)
-    form = DeleteForm()
-    if request.method == "POST" and form.validate_on_submit():
-        message = PaymentIncrease.delete(increase_id)
-        flash(message, category="success")
-        return redirect(url_for(".increase_get"))
-    return render_template(
-        "tools/payment_data_delete.html",
-        title=f"Удалить документ #{increase_id}",
-        form=form,
-        data=increase,
-        back_link=url_for('.increase_get')
-    )
+@dataclass
+class PaymentDeleteView(View):
+    """View класс для удаления записей."""
+
+    template_name: str
+    title: str
+    payment_slug: str
+    payment_class: db.Model
+    methods = ["GET", "POST"]
+
+    @login_required
+    async def dispatch_request(self, id_):
+        if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+            return redirect(url_for(".payment_tool"))
+        data = self.payment_class.get(id_)
+        form = DeleteForm()
+        if request.method == "POST" and form.validate_on_submit():
+            message = self.payment_class.delete(id_)
+            flash(message, category="success")
+            return redirect(url_for(f".{self.payment_slug}_get"))
+        return render_template(
+            "tools/payment_data_delete.html",
+            title=f"{self.title} #{id_}",
+            form=form,
+            data=data,
+            back_link=url_for(f".{self.payment_slug}_get"),
+        )
+
+
+bp.add_url_rule(
+    "/payment/documents/delete/<int:id_>",
+    view_func=PaymentDeleteView.as_view(
+        "documents_delete",
+        title="Удалить документ",
+        template_name="tools/payment_data_delete.html",
+        payment_slug="documents",
+        payment_class=PaymentIncrease,
+    ),
+)
+
+bp.add_url_rule(
+    "/payment/increase/delete/<int:id_>",
+    view_func=PaymentDeleteView.as_view(
+        "increase_delete",
+        title="Удалить индексацию",
+        template_name="tools/payment_data_delete.html",
+        payment_slug="increase",
+        payment_class=PaymentIncrease,
+    ),
+)

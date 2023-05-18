@@ -12,7 +12,7 @@
           {{ form.hidden_tag() }}
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id="document_name_label") }}
+              <p class="text-center text-primary m-0 fw-bold" id="increase_label">{{form.name.label.text}}</p>
             </div>
             <div class="card-body">
               {{ form.name(class="form-control", id="document_name", rows="6") }}
@@ -20,7 +20,7 @@
           </div>
           <div class="row">
             <div class="col mb-3">
-              {{ form.submit(class="btn btn-info link-light", id="document_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
+              {{ form.submit(class="btn btn-primary link-light", id="document_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
             </div>
           </div>
         </form>

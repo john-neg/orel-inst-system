@@ -112,6 +112,7 @@
                                   <br />C учетом:<br />
                                   {% for item in data.get("increase") %}
                                     {{ item }}<br />
+                                    {{ item.document }}<br />
                                   {% endfor %}
                                 </p>
                               {% endif %}
@@ -175,6 +176,7 @@
                                   <br />C учетом:<br />
                                   {% for item in data.get("increase") %}
                                     {{ item }}<br />
+                                    ({{ item.document }})<br />
                                   {% endfor %}
                                 </p>
                               {% endif %}
