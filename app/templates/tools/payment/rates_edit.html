@@ -39,11 +39,13 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col mb-2">
-              <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values_get', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
+          {% if rate %}
+            <div class="row">
+              <div class="col mb-2">
+                <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values_get', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
+              </div>
             </div>
-          </div>
+          {% endif %}
           <div class="row">
             <div class="col mb-2">
               {{ form.submit(class="btn btn-primary link-light", id="increase_edit", style="width: 100%;font-weight: bold;border-style: none;") }}

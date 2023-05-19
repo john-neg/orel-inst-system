@@ -1,0 +1,28 @@
+{% extends 'tools/payment/base_list.html' %}
+{% block table %}
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Название</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for document in paginated_data.items %}
+      <tr>
+        <td>{{ document.id }}</td>
+        <td class="text-start">{{ document.name }}</td>
+        <td>
+          <div class="btn-group" role="group">
+            <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.documents_edit', id_=document.id) }}">Редактировать</a>
+            <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.documents_delete', del_id=document.id) }}">Удалить</a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+{% endblock %}
+{% block footer_buttons %}
+  <a class="btn btn-primary" role="button" href="{{ url_for('.documents_add') }}">Добавить документ</a>
+  <a class="btn btn-secondary" role="button" href="{{ url_for('.payment_data') }}">Назад</a>
+{% endblock %}

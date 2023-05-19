@@ -22,7 +22,7 @@ from .forms import (
     DeleteForm,
     DocumentsForm,
     create_increase_form,
-    RatesForm, create_rate_values_form,
+    RatesForm, create_rate_values_form, create_pension_duty_form,
 )
 
 
@@ -31,14 +31,14 @@ async def payment_tool():
     rate_items: list = PaymentRate.get_all()
     addon_items: list = PaymentAddons.get_all()
     single_items: list = PaymentSingleAddon.get_all()
-    duty_coeff_items: list = PaymentPensionDutyCoefficient.get_all()
+    pension_duty_items: list = PaymentPensionDutyCoefficient.get_all()
     payment_types: list[str] = ["salary", "pension"]
 
     form = create_payment_form(
         rate_items=rate_items,
         addon_items=addon_items,
         single_items=single_items,
-        duty_coeff_items=duty_coeff_items,
+        pension_duty_items=pension_duty_items,
     )
 
     if request.method == "POST" and form.validate_on_submit():
@@ -166,16 +166,16 @@ async def payment_tool():
         payment_data["pension_total"] = round(payment_data["pension_total"], ndigits=2)
 
         return render_template(
-            "tools/payment.html", active="tools", form=form, payment_data=payment_data
+            "tools/payment/payment.html", active="tools", form=form, payment_data=payment_data
         )
-    return render_template("tools/payment.html", active="tools", form=form)
+    return render_template("tools/payment/payment.html", active="tools", form=form)
 
 
 @login_required
 @bp.route("/payment/data", methods=["GET"])
 async def payment_data():
     return render_template(
-        "tools/payment_data_edit.html", title="Редактировать информацию"
+        "tools/payment/data_edit.html", title="Редактировать информацию"
     )
 
 
@@ -203,18 +203,8 @@ bp.add_url_rule(
     view_func=PaymentGetView.as_view(
         "documents_get",
         title="Нормативные документы",
-        template_name="tools/payment_documents.html",
+        template_name="tools/payment/documents.html",
         payment_class=PaymentDocuments,
-    ),
-)
-
-bp.add_url_rule(
-    "/payment/increase",
-    view_func=PaymentGetView.as_view(
-        "increase_get",
-        title="Индексация",
-        template_name="tools/payment_increase.html",
-        payment_class=PaymentIncrease,
     ),
 )
 
@@ -223,12 +213,30 @@ bp.add_url_rule(
     view_func=PaymentGetView.as_view(
         "rates_get",
         title="Базовые оклады",
-        template_name="tools/payment_rates.html",
+        template_name="tools/payment/rates.html",
         payment_class=PaymentRate,
     ),
 )
 
+bp.add_url_rule(
+    "/payment/increase",
+    view_func=PaymentGetView.as_view(
+        "increase_get",
+        title="Индексация",
+        template_name="tools/payment/increase.html",
+        payment_class=PaymentIncrease,
+    ),
+)
 
+bp.add_url_rule(
+    "/payment/pension_duty",
+    view_func=PaymentGetView.as_view(
+        "pension_duty_get",
+        title="Пенсионный коэффициент",
+        template_name="tools/payment/pension_duty.html",
+        payment_class=PaymentPensionDutyCoefficient,
+    ),
+)
 
 
 @login_required
@@ -242,7 +250,7 @@ async def documents_add():
         flash("Документ успешно добавлен", category="success")
         return redirect(url_for(".documents_get"))
     return render_template(
-        "tools/payment_documents_edit.html",
+        "tools/payment/documents_edit.html",
         title=f"Добавить документ",
         form=form,
     )
@@ -264,7 +272,7 @@ async def documents_edit(id_):
         return redirect(url_for(".documents_get"))
 
     return render_template(
-        "tools/payment_documents_edit.html",
+        "tools/payment/documents_edit.html",
         title=f"Изменить документ #{id_}",
         form=form,
     )
@@ -287,7 +295,7 @@ async def rates_add():
         flash("Оклад успешно добавлен", category="success")
         return redirect(url_for(".rates_get"))
     return render_template(
-        "tools/payment_rates_edit.html",
+        "tools/payment/rates_edit.html",
         title=f"Добавить оклад",
         form=form,
     )
@@ -312,7 +320,7 @@ async def rates_edit(id_):
         flash("Данные обновлены", category="success")
         return redirect(url_for(".rates_get"))
     return render_template(
-        "tools/payment_rates_edit.html",
+        "tools/payment/rates_edit.html",
         title=f"Изменить оклад #{id_}",
         form=form,
         rate=rate,
@@ -329,7 +337,7 @@ async def rates_values_get(id_):
         PaymentRateValues.query.filter_by(rate_id=id_)
     )
     return render_template(
-        "tools/payment_rates_values.html",
+        "tools/payment/rates_values.html",
         title=f'Значения оклада "{rate.name}"',
         paginated_data=paginated_data,
         rate=rate,
@@ -347,6 +355,7 @@ async def rates_values_add(id_):
     form = create_rate_values_form(
         rate_items=rate_items,
         document_items=document_items,
+        rate_id=id_
     )
     if request.method == "POST" and form.validate_on_submit():
         PaymentRateValues.create(
@@ -357,9 +366,9 @@ async def rates_values_add(id_):
             document_id=request.form.get("document_id"),
         )
         flash("Данные обновлены", category="success")
-        return redirect(url_for(".rates_values", id_=request.form.get("rate_id")))
+        return redirect(url_for(".rates_values_get", id_=request.form.get("rate_id")))
     return render_template(
-        "tools/payment_rates_values_edit.html",
+        "tools/payment/rates_values_edit.html",
         title=f"Добавить значение оклада",
         form=form,
     )
@@ -388,9 +397,9 @@ async def rates_values_edit(id_, value_id):
             document_id=request.form.get("document_id"),
         )
         flash("Данные обновлены", category="success")
-        return redirect(url_for(".rates_values", id_=request.form.get("rate_id")))
+        return redirect(url_for(".rates_values_get", id_=request.form.get("rate_id")))
     return render_template(
-        "tools/payment_rates_values_edit.html",
+        "tools/payment/rates_values_edit.html",
         title=f"Изменить значение оклада #{id_}",
         form=form,
         value=value,
@@ -418,7 +427,7 @@ async def increase_add():
         flash("Индексация успешно добавлена", category="success")
         return redirect(url_for(".increase_get"))
     return render_template(
-        "tools/payment_increase_edit.html",
+        "tools/payment/increase_edit.html",
         title=f"Добавить индексацию",
         form=form,
     )
@@ -451,10 +460,62 @@ async def increase_edit(id_):
         flash("Данные обновлены", category="success")
         return redirect(url_for(".increase_get"))
     return render_template(
-        "tools/payment_increase_edit.html",
+        "tools/payment/increase_edit.html",
         title=f"Изменить индексацию #{id_}",
         form=form,
         increase=increase,
+    )
+
+
+@login_required
+@bp.route("/payment/pension_duty/add", methods=["GET", "POST"])
+async def pension_duty_add():
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    document_items = PaymentDocuments.get_all()
+    form = create_pension_duty_form(
+        document_items=document_items,
+    )
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentPensionDutyCoefficient.create(
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            document_id=request.form.get("document_id"),
+        )
+        flash("Данные сохранены", category="success")
+        return redirect(url_for(".pension_duty_get"))
+    return render_template(
+        "tools/payment/pension_duty_edit.html",
+        title=f"Добавить пенсионный коэффициент",
+        form=form,
+    )
+
+
+@login_required
+@bp.route("/payment/pension_duty/<int:id_>", methods=["GET", "POST"])
+async def pension_duty_edit(id_):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    pension_duty = PaymentPensionDutyCoefficient.get(id_)
+    document_items = PaymentDocuments.get_all()
+    form = create_pension_duty_form(
+        obj=pension_duty,
+        document_items=document_items,
+    )
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentPensionDutyCoefficient.update(
+            id_,
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            document_id=request.form.get("document_id"),
+        )
+        flash("Данные обновлены", category="success")
+        return redirect(url_for(".pension_duty_get"))
+    return render_template(
+        "tools/payment/pension_duty_edit.html",
+        title=f"Изменить пенсионный коэффициент #{id_}",
+        form=form,
+        pension_duty=pension_duty,
     )
 
 
@@ -469,18 +530,18 @@ class PaymentDeleteView(View):
     methods = ["GET", "POST"]
 
     @login_required
-    async def dispatch_request(self, id_, **kwargs):
+    async def dispatch_request(self, del_id, **kwargs):
         if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
             return redirect(url_for(".payment_tool"))
-        data = self.payment_class.get(id_)
+        data = self.payment_class.get(del_id)
         form = DeleteForm()
         if request.method == "POST" and form.validate_on_submit():
-            message = self.payment_class.delete(id_)
+            message = self.payment_class.delete(del_id)
             flash(message, category="success")
             return redirect(url_for(f".{self.payment_slug}_get", **kwargs))
         return render_template(
             self.template_name,
-            title=f"{self.title} #{id_}",
+            title=f"{self.title} #{del_id}",
             form=form,
             data=data,
             back_link=url_for(f".{self.payment_slug}_get", **kwargs),
@@ -488,45 +549,56 @@ class PaymentDeleteView(View):
 
 
 bp.add_url_rule(
-    "/payment/documents/delete/<int:id_>",
+    "/payment/documents/delete/<int:del_id>",
     view_func=PaymentDeleteView.as_view(
         "documents_delete",
         title="Удалить документ",
-        template_name="tools/payment_data_delete.html",
+        template_name="tools/payment/data_delete.html",
         payment_slug="documents",
         payment_class=PaymentDocuments,
     ),
 )
 
 bp.add_url_rule(
-    "/payment/rates/delete/<int:id_>",
+    "/payment/rates/delete/<int:del_id>",
     view_func=PaymentDeleteView.as_view(
         "rates_delete",
         title="Удалить оклад",
-        template_name="tools/payment_data_delete.html",
+        template_name="tools/payment/data_delete.html",
         payment_slug="rates",
         payment_class=PaymentRate,
     ),
 )
 
 bp.add_url_rule(
-    "/payment/increase/delete/<int:id_>",
+    "/payment/increase/delete/<int:del_id>",
     view_func=PaymentDeleteView.as_view(
         "increase_delete",
         title="Удалить индексацию",
-        template_name="tools/payment_data_delete.html",
+        template_name="tools/payment/data_delete.html",
         payment_slug="increase",
         payment_class=PaymentIncrease,
     ),
 )
 
 bp.add_url_rule(
-    "/payment/rates_values/delete/<int:id_>",
+    "/payment/rates/<int:id_>/values/delete/<int:del_id>",
     view_func=PaymentDeleteView.as_view(
         "rates_values_delete",
         title="Удалить значение оклада",
-        template_name="tools/payment_data_delete.html",
+        template_name="tools/payment/data_delete.html",
         payment_slug="rates_values",
         payment_class=PaymentRateValues
+    ),
+)
+
+bp.add_url_rule(
+    "/payment/pension_duty/delete/<int:del_id>",
+    view_func=PaymentDeleteView.as_view(
+        "pension_duty_delete",
+        title="Удалить пенсионный коэффициент",
+        template_name="tools/payment/data_delete.html",
+        payment_slug="pension_duty",
+        payment_class=PaymentPensionDutyCoefficient,
     ),
 )

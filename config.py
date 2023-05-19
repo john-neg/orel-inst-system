@@ -31,7 +31,7 @@ class FlaskConfig(object):
     ROLE_USER: str = "user"
 
     # Pagination
-    ITEMS_PER_PAGE = 12
+    ITEMS_PER_PAGE = 10
     AVAILABLE_PAGES = 3
 
 

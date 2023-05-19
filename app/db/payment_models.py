@@ -189,7 +189,7 @@ class PaymentAddonsValues(db.Model):
     )
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
-        lazy="subquery",
+        lazy="joined",
     )
     addon_id: Mapped[int] = db.Column(
         db.Integer,
@@ -242,7 +242,7 @@ class PaymentSingleAddon(db.Model, PaymentBase):
     )
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
-        lazy="subquery",
+        lazy="joined",
     )
     rate: Mapped[list[PaymentRate]] = db.relationship(
         secondary="payment_match_rate_single",
@@ -283,7 +283,7 @@ class PaymentIncrease(db.Model, PaymentBase):
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
         back_populates="increase",
-        lazy="subquery",
+        lazy="joined",
     )
     rates: Mapped[list[PaymentRate]] = db.relationship(
         PaymentRate,
@@ -326,7 +326,7 @@ class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
     )
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
-        lazy="subquery",
+        lazy="joined",
     )
 
     def __repr__(self) -> str:
@@ -351,5 +351,5 @@ class PaymentGlobalCoefficient(db.Model, PaymentBase):
     )
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
-        lazy="subquery",
+        lazy="joined",
     )

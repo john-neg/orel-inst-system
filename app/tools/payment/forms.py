@@ -16,11 +16,11 @@ def create_payment_form(
     rate_items: list[db.Model],
     addon_items: list[db.Model],
     single_items: list[db.Model],
-    duty_coeff_items: list[db.Model],
+    pension_duty_items: list[db.Model],
     **kwargs,
 ):
     class PaymentForm(FlaskForm):
-        """Класс формы для расчета денежного содержания."""
+        """Класс формы расчета денежного содержания."""
 
         calculate = SubmitField("Рассчитать")
 
@@ -64,19 +64,18 @@ def create_payment_form(
         choices=[
             (duty.id, duty.name)
             for duty in sorted(
-                duty_coeff_items,
+                pension_duty_items,
                 key=lambda duty: int(duty.value),
             )
         ],
         validators=[DataRequired()],
     )
     setattr(PaymentForm, label, field)
-
     return PaymentForm(**kwargs)
 
 
 class DocumentsForm(FlaskForm):
-    """Класс формы для нормативных документов."""
+    """Класс формы нормативных документов."""
 
     name = TextAreaField("Название документа", validators=[DataRequired()])
     submit = SubmitField("Сохранить")
@@ -88,7 +87,7 @@ def create_increase_form(
     **kwargs,
 ):
     class IncreaseForm(FlaskForm):
-        """Класс формы для сведений об индексациях."""
+        """Класс формы сведений об индексациях."""
 
         name = StringField("Название", validators=[DataRequired()])
         value = FloatField(
@@ -108,18 +107,16 @@ def create_increase_form(
             choices=[(item.id, item.name) for item in document_items],
         )
         submit = SubmitField("Сохранить")
-
     # Добавляем переключатели для окладов
     for item in rate_items:
         label = item.slug
         field = SubmitField(label=item.payment_name)
         setattr(IncreaseForm, label, field)
-
     return IncreaseForm(**kwargs)
 
 
 class RatesForm(FlaskForm):
-    """Класс формы для базовых окладов."""
+    """Класс формы базовых окладов."""
 
     name = StringField("Название", validators=[DataRequired()])
     payment_name = StringField("Название выплаты", validators=[DataRequired()])
@@ -134,7 +131,7 @@ def create_rate_values_form(
     **kwargs,
 ):
     class RatesValuesForm(FlaskForm):
-        """Класс формы для значений базовых окладов."""
+        """Класс формы значений базовых окладов."""
 
         name = StringField("Название", validators=[DataRequired()])
         value = IntegerField(
@@ -155,11 +152,38 @@ def create_rate_values_form(
             choices=[(item.id, item.name) for item in document_items],
         )
         submit = SubmitField("Сохранить")
-
     return RatesValuesForm(**kwargs)
 
 
+def create_pension_duty_form(
+    document_items: list[db.Model],
+    **kwargs,
+):
+    class PensionDutyForm(FlaskForm):
+        """Класс формы пенсионных коэффициентов."""
+
+        name = StringField("Название", validators=[DataRequired()])
+        value = FloatField(
+            "Значение",
+            validators=[
+                DataRequired(
+                    message=(
+                        "Введите число (Например: ",
+                        "для коэффициента на 50% число - 0.5",
+                    )
+                )
+            ],
+        )
+        document_id = SelectField(
+            "Документ",
+            validators=[DataRequired()],
+            choices=[(item.id, item.name) for item in document_items],
+        )
+        submit = SubmitField("Сохранить")
+    return PensionDutyForm(**kwargs)
+
+
 class DeleteForm(FlaskForm):
-    """Форма удаления данных."""
+    """Класс формы удаления данных."""
 
     submit = SubmitField("Удалить")
