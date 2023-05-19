@@ -21,7 +21,7 @@ def get_paginated_data(query):
 
     page = request.args.get("page", 1, type=int)
     paginated_data = query.paginate(
-        page=page, per_page=FlaskConfig.ITEMS_PER_PAGE, error_out=False
+        page=page, per_page=FlaskConfig.ITEMS_PER_PAGE, error_out=True
     )
     return paginated_data
 

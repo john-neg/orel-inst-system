@@ -30,8 +30,8 @@
                   <td class="text-start">{{ value.document|safe|truncate(30) }}</td>
                   <td>
                     <div class="btn-group" role="group">
-{#                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.increase_edit', id_=increase.id) }}">Редактировать</a>#}
-{#                      <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.increase_delete', id_=increase.id) }}">Удалить</a>#}
+                      <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.rates_values_edit', id_=value.rate_id, value_id=value.id) }}">Редактировать</a>
+                      <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.rates_values_delete', id_=value.id) }}">Удалить</a>
                     </div>
                   </td>
                 </tr>
@@ -39,21 +39,23 @@
             </tbody>
           </table>
         </div>
-{#        <div class="col">#}
-{#          {% if paginated_data.pages > 1 %}#}
-{#            {% block pagination %}#}
-{#              {% include "common/pagination.html" %}#}
-{#            {% endblock %}#}
-{#          {% endif %}#}
-{#        </div>#}
-        <div class="row mb-3">
-          <div class="col-12 col-lg-6">
-{#            <a class="btn btn-primary d-block w-100" role="button" href="{{ url_for('.increase_add') }}">Добавить</a>#}
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <div class="btn-group" role="group">
+                  <a class="btn btn-primary" role="button" href="{{ url_for('.rates_values_add', id_=rate_id) }}">Добавить</a>
+                  <a class="btn btn-secondary" role="button" href="{{ url_for('.rates_get') }}">Назад</a>
+                </div>
+              </div>
+              <div class="col">
+                {% if paginated_data.pages > 1 %}
+                  {% block pagination %}
+                    {% include "common/pagination.html" %}
+                  {% endblock %}
+                {% endif %}
+              </div>
+            </div>
           </div>
-          <div class="col-12 col-lg-6 text-end">
-            <a class="btn btn-secondary d-block w-100" role="button" href="{{ url_for('.rates_get') }}">Назад</a>
-          </div>
-        </div>
       </div>
     </div>
   </div>

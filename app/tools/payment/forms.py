@@ -2,8 +2,8 @@ import os
 
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, SelectField, StringField, TextAreaField, FloatField, \
-    BooleanField
-from wtforms.validators import DataRequired
+    BooleanField, IntegerField
+from wtforms.validators import DataRequired, NumberRange
 
 from app import db
 from config import BASEDIR
@@ -128,6 +128,35 @@ class RatesForm(FlaskForm):
     submit = SubmitField("Сохранить")
 
 
+def create_rate_values_form(
+    rate_items: list[db.Model],
+    document_items: list[db.Model],
+    **kwargs,
+):
+    class RatesValuesForm(FlaskForm):
+        """Класс формы для значений базовых окладов."""
+
+        name = StringField("Название", validators=[DataRequired()])
+        value = IntegerField(
+            "Значение",
+            validators=[
+                NumberRange(min=1, message="Введите целое положительное число")
+            ],
+        )
+        description = TextAreaField("Описание (пункт документа)")
+        rate_id = SelectField(
+            "Базовый оклад",
+            validators=[DataRequired()],
+            choices=[(item.id, item.name) for item in rate_items],
+        )
+        document_id = SelectField(
+            "Нормативный документ",
+            validators=[DataRequired()],
+            choices=[(item.id, item.name) for item in document_items],
+        )
+        submit = SubmitField("Сохранить")
+
+    return RatesValuesForm(**kwargs)
 
 
 class DeleteForm(FlaskForm):

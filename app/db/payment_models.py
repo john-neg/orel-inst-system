@@ -108,7 +108,7 @@ class PaymentRate(db.Model, PaymentBase):
                 return item
 
 
-class PaymentRateValues(db.Model):
+class PaymentRateValues(db.Model, PaymentBase):
     """Модель значений базовых окладов."""
 
     __tablename__ = "payment_rate_values"
@@ -132,7 +132,7 @@ class PaymentRateValues(db.Model):
     )
     document: Mapped[PaymentDocuments] = db.relationship(
         PaymentDocuments,
-        lazy="subquery",
+        lazy="joined",
     )
 
     def __repr__(self):

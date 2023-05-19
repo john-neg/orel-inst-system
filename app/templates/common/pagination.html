@@ -13,7 +13,7 @@
     {% if paginated_data.has_prev %}
       <li class="page-item">
         <a class="page-link" aria-label="Previous"
-           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.prev_num, **arguments) }}">
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.prev_num, **dict(arguments, **request.view_args)) }}">
           <span aria-hidden="true">Назад</span>
         </a>
       </li>
@@ -21,7 +21,7 @@
     {# First element #}
     <li class="page-item {% if paginated_data.page == 1 %}active{% endif %}">
       <a class="page-link"
-         href="{{ url_for(request.url_rule.endpoint, page=1, **arguments) }}">1</a>
+         href="{{ url_for(request.url_rule.endpoint, page=1, **dict(arguments, **request.view_args)) }}">1</a>
     </li>
     {% if paginated_data.pages > 2 %}
       {# Blank element #}
@@ -38,7 +38,7 @@
       {% for page in range(pagination_start, pagination_end + 1) %}
         <li class="page-item {% if paginated_data.page == page %}active{% endif %}">
           <a class="page-link"
-             href="{{ url_for(request.url_rule.endpoint, page=page, **arguments) }}">{{ page }}</a>
+             href="{{ url_for(request.url_rule.endpoint, page=page, **dict(arguments, **request.view_args)) }}">{{ page }}</a>
         </li>
       {% endfor %}
       {# Blank element #}
@@ -52,7 +52,7 @@
     {% if paginated_data.pages > 1 %}
       <li class="page-item {% if paginated_data.page == paginated_data.pages %}active{% endif %}">
         <a class="page-link"
-           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.pages, **arguments) }}">
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.pages, **dict(arguments, **request.view_args)) }}">
            {{ paginated_data.pages }}
         </a>
       </li>
@@ -61,7 +61,7 @@
     {% if paginated_data.has_next %}
       <li class="page-item">
         <a class="page-link" aria-label="Next"
-           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.next_num, **arguments) }}">
+           href="{{ url_for(request.url_rule.endpoint, page=paginated_data.next_num, **dict(arguments, **request.view_args)) }}">
            <span aria-hidden="true">Вперед</span>
         </a>
       </li>

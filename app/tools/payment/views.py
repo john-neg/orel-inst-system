@@ -22,7 +22,7 @@ from .forms import (
     DeleteForm,
     DocumentsForm,
     create_increase_form,
-    RatesForm,
+    RatesForm, create_rate_values_form,
 )
 
 
@@ -321,31 +321,79 @@ async def rates_edit(id_):
 
 @login_required
 @bp.route("/payment/rates/<int:id_>/values", methods=["GET", "POST"])
-async def rates_values(id_):
+async def rates_values_get(id_):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for(".payment_tool"))
     rate = PaymentRate.get(id_)
-    request.args["id_"] = id_
-    paginated_data = get_paginated_data(PaymentRateValues.query)
-    # data = PaymentRateValues.query
-    # values = PaymentRate.get(id_)
-    # form = RatesForm(obj=rate)
-    # if request.method == "POST" and form.validate_on_submit():
-    #     PaymentRate.update(
-    #         id_,
-    #         name=request.form.get("name"),
-    #         slug=make_slug(request.form.get("name"), prefix="rate_"),
-    #         payment_name=request.form.get("payment_name"),
-    #         salary=True if request.form.get("salary") else False,
-    #         pension=True if request.form.get("pension") else False,
-    #     )
-    #     flash("Данные обновлены", category="success")
-    #     return redirect(url_for(".rates_get"))
+    paginated_data = get_paginated_data(
+        PaymentRateValues.query.filter_by(rate_id=id_)
+    )
     return render_template(
         "tools/payment_rates_values.html",
         title=f'Значения оклада "{rate.name}"',
         paginated_data=paginated_data,
         rate=rate,
+        rate_id=id_,
+    )
+
+
+@login_required
+@bp.route("/payment/rates/<int:id_>/values/add", methods=["GET", "POST"])
+async def rates_values_add(id_):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    rate_items = PaymentRate.get_all()
+    document_items = PaymentDocuments.get_all()
+    form = create_rate_values_form(
+        rate_items=rate_items,
+        document_items=document_items,
+    )
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentRateValues.create(
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            description=request.form.get("description"),
+            rate_id=request.form.get("rate_id"),
+            document_id=request.form.get("document_id"),
+        )
+        flash("Данные обновлены", category="success")
+        return redirect(url_for(".rates_values", id_=request.form.get("rate_id")))
+    return render_template(
+        "tools/payment_rates_values_edit.html",
+        title=f"Добавить значение оклада",
+        form=form,
+    )
+
+
+@login_required
+@bp.route("/payment/rates/<int:id_>/values/<int:value_id>", methods=["GET", "POST"])
+async def rates_values_edit(id_, value_id):
+    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
+        return redirect(url_for(".payment_tool"))
+    value = PaymentRateValues.get(value_id)
+    rate_items = PaymentRate.get_all()
+    document_items = PaymentDocuments.get_all()
+    form = create_rate_values_form(
+        obj=value,
+        rate_items=rate_items,
+        document_items=document_items,
+    )
+    if request.method == "POST" and form.validate_on_submit():
+        PaymentRateValues.update(
+            value_id,
+            name=request.form.get("name"),
+            value=request.form.get("value"),
+            description=request.form.get("description"),
+            rate_id=request.form.get("rate_id"),
+            document_id=request.form.get("document_id"),
+        )
+        flash("Данные обновлены", category="success")
+        return redirect(url_for(".rates_values", id_=request.form.get("rate_id")))
+    return render_template(
+        "tools/payment_rates_values_edit.html",
+        title=f"Изменить значение оклада #{id_}",
+        form=form,
+        value=value,
     )
 
 
@@ -421,7 +469,7 @@ class PaymentDeleteView(View):
     methods = ["GET", "POST"]
 
     @login_required
-    async def dispatch_request(self, id_):
+    async def dispatch_request(self, id_, **kwargs):
         if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
             return redirect(url_for(".payment_tool"))
         data = self.payment_class.get(id_)
@@ -429,13 +477,13 @@ class PaymentDeleteView(View):
         if request.method == "POST" and form.validate_on_submit():
             message = self.payment_class.delete(id_)
             flash(message, category="success")
-            return redirect(url_for(f".{self.payment_slug}_get"))
+            return redirect(url_for(f".{self.payment_slug}_get", **kwargs))
         return render_template(
             self.template_name,
             title=f"{self.title} #{id_}",
             form=form,
             data=data,
-            back_link=url_for(f".{self.payment_slug}_get"),
+            back_link=url_for(f".{self.payment_slug}_get", **kwargs),
         )
 
 
@@ -469,5 +517,16 @@ bp.add_url_rule(
         template_name="tools/payment_data_delete.html",
         payment_slug="increase",
         payment_class=PaymentIncrease,
+    ),
+)
+
+bp.add_url_rule(
+    "/payment/rates_values/delete/<int:id_>",
+    view_func=PaymentDeleteView.as_view(
+        "rates_values_delete",
+        title="Удалить значение оклада",
+        template_name="tools/payment_data_delete.html",
+        payment_slug="rates_values",
+        payment_class=PaymentRateValues
     ),
 )
