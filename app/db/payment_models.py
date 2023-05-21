@@ -61,24 +61,34 @@ class PaymentDocuments(db.Model, PaymentBase):
         return self.name
 
 
-class PaymentRate(db.Model, PaymentBase):
+class PaymentRates(db.Model, PaymentBase):
     """Модель базовых окладов."""
 
-    __tablename__ = "payment_rate"
+    __tablename__ = "payment_rates"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     slug: Mapped[str] = db.Column(db.String(64), index=True, unique=True)
     name: Mapped[str] = db.Column(db.String(128))
     payment_name: Mapped[str] = db.Column(db.String(128))
     salary: Mapped[bool] = db.Column(db.Boolean)
     pension: Mapped[bool] = db.Column(db.Boolean)
-    values: Mapped[list["PaymentRateValues"]] = db.relationship(
-        "PaymentRateValues",
+    values: Mapped[list["PaymentRatesValues"]] = db.relationship(
+        "PaymentRatesValues",
         back_populates="rate",
         cascade="all, delete-orphan",
     )
     increase: Mapped[list["PaymentIncrease"]] = db.relationship(
         "PaymentIncrease",
         secondary="payment_match_rate_increase",
+        back_populates="rates",
+    )
+    addons: Mapped[list["PaymentAddons"]] = db.relationship(
+        "PaymentAddons",
+        secondary="payment_match_rate_addon",
+        back_populates="rates",
+    )
+    single_addons: Mapped[list["PaymentSingleAddons"]] = db.relationship(
+        "PaymentSingleAddons",
+        secondary="payment_match_rate_single",
         back_populates="rates",
     )
 
@@ -108,21 +118,21 @@ class PaymentRate(db.Model, PaymentBase):
                 return item
 
 
-class PaymentRateValues(db.Model, PaymentBase):
+class PaymentRatesValues(db.Model, PaymentBase):
     """Модель значений базовых окладов."""
 
-    __tablename__ = "payment_rate_values"
+    __tablename__ = "payment_rates_values"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(128))
     value: Mapped[int] = db.Column(db.Integer)
     description: Mapped[str] = db.Column(db.Text)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
-        db.ForeignKey("payment_rate.id"),
+        db.ForeignKey("payment_rates.id"),
         nullable=False,
     )
-    rate: Mapped[PaymentRate] = db.relationship(
-        "PaymentRate",
+    rate: Mapped[PaymentRates] = db.relationship(
+        PaymentRates,
         back_populates="values",
         lazy="subquery",
     )
@@ -154,8 +164,10 @@ class PaymentAddons(db.Model, PaymentBase):
         back_populates="addon",
         cascade="all, delete-orphan",
     )
-    rate: Mapped[list[PaymentRate]] = db.relationship(
+    rates: Mapped[list[PaymentRates]] = db.relationship(
+        PaymentRates,
         secondary="payment_match_rate_addon",
+        back_populates="addons",
     )
 
     def __repr__(self):
@@ -175,7 +187,7 @@ class PaymentAddons(db.Model, PaymentBase):
                 return item
 
 
-class PaymentAddonsValues(db.Model):
+class PaymentAddonsValues(db.Model, PaymentBase):
     """Модель значений дополнительных выплат к зарплате."""
 
     __tablename__ = "payment_addons_values"
@@ -199,7 +211,6 @@ class PaymentAddonsValues(db.Model):
     addon: Mapped[PaymentAddons] = db.relationship(
         "PaymentAddons",
         back_populates="values",
-        lazy="subquery",
     )
 
     def __repr__(self):
@@ -213,7 +224,7 @@ class PaymentMatchRateAddon(db.Model):
     __table_args__ = (db.UniqueConstraint("rate_id", "addon_id"),)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
-        db.ForeignKey("payment_rate.id"),
+        db.ForeignKey("payment_rates.id"),
         primary_key=True,
     )
     addon_id: Mapped[int] = db.Column(
@@ -223,10 +234,10 @@ class PaymentMatchRateAddon(db.Model):
     )
 
 
-class PaymentSingleAddon(db.Model, PaymentBase):
+class PaymentSingleAddons(db.Model, PaymentBase):
     """Модель коэффициентов единичных надбавок к зарплате."""
 
-    __tablename__ = "payment_single_addon"
+    __tablename__ = "payment_single_addons"
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     slug: Mapped[str] = db.Column(db.String(64), index=True, unique=True)
     name: Mapped[str] = db.Column(db.String(128))
@@ -244,8 +255,10 @@ class PaymentSingleAddon(db.Model, PaymentBase):
         PaymentDocuments,
         lazy="joined",
     )
-    rate: Mapped[list[PaymentRate]] = db.relationship(
+    rates: Mapped[list[PaymentRates]] = db.relationship(
+        PaymentRates,
         secondary="payment_match_rate_single",
+        back_populates="single_addons"
     )
 
     def __repr__(self):
@@ -259,12 +272,12 @@ class PaymentMatchRateSingle(db.Model):
     __table_args__ = (db.UniqueConstraint("rate_id", "single_addon_id"),)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
-        db.ForeignKey("payment_rate.id"),
+        db.ForeignKey("payment_rates.id"),
         primary_key=True,
     )
     single_addon_id: Mapped[int] = db.Column(
         db.Integer,
-        db.ForeignKey("payment_single_addon.id"),
+        db.ForeignKey("payment_single_addons.id"),
         primary_key=True,
     )
 
@@ -285,11 +298,10 @@ class PaymentIncrease(db.Model, PaymentBase):
         back_populates="increase",
         lazy="joined",
     )
-    rates: Mapped[list[PaymentRate]] = db.relationship(
-        PaymentRate,
+    rates: Mapped[list[PaymentRates]] = db.relationship(
+        PaymentRates,
         secondary="payment_match_rate_increase",
         back_populates="increase",
-        lazy='subquery'
     )
 
     def __repr__(self):
@@ -300,13 +312,13 @@ class PaymentMatchRateIncrease(db.Model):
     """Модель соотношения доп. выплат и окладов."""
 
     __tablename__ = "payment_match_rate_increase"
-    __table_args__ = (db.UniqueConstraint("rate_id", "payment_increase_id"),)
+    __table_args__ = (db.UniqueConstraint("rate_id", "increase_id"),)
     rate_id: Mapped[int] = db.Column(
         db.Integer,
-        db.ForeignKey("payment_rate.id"),
+        db.ForeignKey("payment_rates.id"),
         primary_key=True,
     )
-    payment_increase_id: Mapped[int] = db.Column(
+    increase_id: Mapped[int] = db.Column(
         db.Integer,
         db.ForeignKey("payment_increase.id"),
         primary_key=True,
@@ -353,3 +365,6 @@ class PaymentGlobalCoefficient(db.Model, PaymentBase):
         PaymentDocuments,
         lazy="joined",
     )
+
+    def __repr__(self) -> str:
+        return self.name

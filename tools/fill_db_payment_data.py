@@ -9,12 +9,12 @@ sys.path.append('.')
 
 from app.common.func.app_core import read_json_file, make_slug
 from app.db.payment_models import (
-    PaymentRate,
-    PaymentRateValues,
+    PaymentRates,
+    PaymentRatesValues,
     PaymentAddons,
     PaymentAddonsValues,
     PaymentMatchRateAddon,
-    PaymentSingleAddon,
+    PaymentSingleAddons,
     PaymentMatchRateSingle,
     PaymentIncrease,
     PaymentMatchRateIncrease,
@@ -47,7 +47,7 @@ session.commit()
 rate_data = read_json_file(os.path.join(FILE_DIR, "rate_data.json"))
 for rate in rate_data:
     session.add(
-        PaymentRate(
+        PaymentRates(
             slug=make_slug(rate_data[rate].get("name"), prefix="rate_"),
             name=rate_data[rate].get("name"),
             payment_name=rate_data[rate].get("payment_name"),
@@ -57,12 +57,12 @@ for rate in rate_data:
     )
     session.flush()
     rate_id = session.execute(
-        select(PaymentRate.id).where(PaymentRate.name == rate_data[rate].get("name"))
+        select(PaymentRates.id).where(PaymentRates.name == rate_data[rate].get("name"))
     ).scalar_one()
     for record in rate_data[rate].get("data"):
         for name, value in rate_data[rate]["data"][record].get("values").items():
             session.add(
-                PaymentRateValues(
+                PaymentRatesValues(
                     name=name,
                     value=value,
                     rate_id=rate_id,
@@ -103,7 +103,7 @@ for data in addons_data:
         )
     for rate_name in addons_data[data].get("apply_to"):
         rate_id = session.execute(
-            select(PaymentRate.id).where(PaymentRate.name == rate_name)
+            select(PaymentRates.id).where(PaymentRates.name == rate_name)
         ).scalar_one()
         session.add(
             PaymentMatchRateAddon(
@@ -118,7 +118,7 @@ for data in addons_data:
 single_addons_data = read_json_file(os.path.join(FILE_DIR, "single_addons_data.json"))
 for data in single_addons_data:
     session.add(
-        PaymentSingleAddon(
+        PaymentSingleAddons(
             slug=make_slug(single_addons_data[data].get("name"), prefix="single_"),
             name=single_addons_data[data].get("name"),
             payment_name=single_addons_data[data].get("payment_name"),
@@ -132,13 +132,13 @@ for data in single_addons_data:
     )
     session.flush()
     single_addon_id = session.execute(
-        select(PaymentSingleAddon.id).where(
-            PaymentSingleAddon.name == single_addons_data[data].get("name")
+        select(PaymentSingleAddons.id).where(
+            PaymentSingleAddons.name == single_addons_data[data].get("name")
         )
     ).scalar_one()
     for rate_name in single_addons_data[data].get("apply_to"):
         rate_id = session.execute(
-            select(PaymentRate.id).where(PaymentRate.name == rate_name)
+            select(PaymentRates.id).where(PaymentRates.name == rate_name)
         ).scalar_one()
         session.add(
             PaymentMatchRateSingle(
@@ -160,19 +160,19 @@ for data in increase_data:
         )
     )
     session.flush()
-    payment_increase_id = session.execute(
+    increase_id = session.execute(
         select(PaymentIncrease.id).where(
             PaymentIncrease.name == increase_data[data].get("name")
         )
     ).scalar_one()
     for rate_name in increase_data[data].get("apply_to"):
         rate_id = session.execute(
-            select(PaymentRate.id).where(PaymentRate.name == rate_name)
+            select(PaymentRates.id).where(PaymentRates.name == rate_name)
         ).scalar_one()
         session.add(
             PaymentMatchRateIncrease(
                 rate_id=rate_id,
-                payment_increase_id=payment_increase_id,
+                increase_id=increase_id,
             )
         )
     session.commit()

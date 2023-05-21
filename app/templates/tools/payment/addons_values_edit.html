@@ -12,7 +12,7 @@
           {{ form.hidden_tag() }}
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              <p class="text-center text-primary m-0 fw-bold" id="increase_label">Сведения об индексации</p>
+              <p class="text-center text-primary m-0 fw-bold" id="increase_label">Значение надбавки с множественным выбором</p>
             </div>
             <div class="card-body" style="padding-top: 8px;">
               {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
@@ -29,6 +29,13 @@
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
+              {{ form.addon_id.label(class="text-center text-primary m-0 fw-bold", id=form.addon_id.label.field_id+"_label") }}
+              {{ form.addon_id(class="form-select", id=form.addon_id.label.field_id) }}
+              {% for error in form.document_id.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
               {{ form.document_id.label(class="text-center text-primary m-0 fw-bold", id=form.document_id.label.field_id+"_label") }}
               {{ form.document_id(class="form-select", id=form.document_id.label.field_id) }}
               {% for error in form.document_id.errors %}
@@ -36,14 +43,10 @@
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              Применяется к:
-              {% for item in form %}
-                {% if item.label.field_id.startswith('rate_') %}
-                  <div class="form-check form-switch">
-                    {{ item(class="form-check-input", type="checkbox", checked=item.data, id=item.label.field_id) }}
-                    {{ item.label(class="form-check-label", for=item.label.field_id) }}
-                  </div>
-                {% endif %}
+              {{ form.description.label(class="text-center text-primary m-0 fw-bold", id=form.description.label.field_id+"_label") }}
+              {{ form.description(class="form-control", id=form.description.label.field_id, rows="4") }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
           </div>

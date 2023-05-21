@@ -16,7 +16,7 @@
         <td>{{ increase.id }}</td>
         <td class="text-start">{{ increase.name }}</td>
         <td class="text-start">{{ increase.value }}</td>
-        <td class="text-start">{{ increase.document|safe|truncate(30) }}</td>
+        <td class="text-start">{{ increase.document|safe|truncate(50) }}</td>
         <td class="text-start">{% for rate in increase.rates %}- {{ rate.name|lower }}<br>{% endfor %}</td>
         <td>
           <div class="btn-group" role="group">

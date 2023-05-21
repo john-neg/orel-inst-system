@@ -1,82 +1,54 @@
-from unittest.mock import AsyncMock
-
-import httpx
-from httpx import AsyncClient
-from app import create_app
+import asyncio
+from typing import TypeVar, Callable
 
 import pytest
+from flask import Response
+from flask.testing import FlaskClient
+from werkzeug.test import TestResponse
+
+from app import create_app
 
 
+T = TypeVar("T")
 
 
-# @pytest.fixture
-# def assert_all_responses_were_requested() -> bool:
-#     return False
-
-# @pytest.fixture()
-# def app():
-#     app = create_app()
-#     app.config.update({
-#         "TESTING": True,
-#     })
-#
-#     # other setup can go here
-#
-#     yield app
-#
-#     # clean up / reset resources here
-#
-#
-# @pytest.fixture()
-# def client(app):
-#     return app.test_client()
-#
-#
-# @pytest.fixture()
-# def runner(app):
-#     return app.test_cli_runner()
+async def call(f: Callable[[], T]) -> T:
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(executor=None, func=f)
 
 
-# class MockResponse:
-#     @staticmethod
-#     def json():
-#         return {
-#             "status": 1,
-#             "data": [
-#                 {"id": "1", "name": "first name", "level": "1"},
-#                 {"id": "2", "name": "second name", "level": "2"},
-#             ],
-#         }
-#
-#
-# @pytest.fixture
-# async def async_app_client():
-#     async with AsyncClient(app=app, base_url='http://test') as client:
-#         yield client
-#
-# # @pytest.fixture(autouse=True)
-# # def disable_network_calls(monkeypatch):
-# #     def stunted_get():
-# #         raise RuntimeError("Network access not allowed during testing!")
-# #     monkeypatch.setattr(requests, "get", lambda *args, **kwargs: stunted_get())
-#
-#
-# @pytest.fixture(autouse=True)
-# def no_requests(monkeypatch):
-#     """Remove requests.sessions.Session.request for all tests."""
-#     monkeypatch.delattr("requests.sessions.Session.request")
-#
-#
-# @pytest.fixture
-# def mock_response(monkeypatch):
-#     """Requests.get() mocked to return MockResponse.json()."""
-#
-#     def mock_get(*args, **kwargs):
-#         return MockResponse()
-#
-#     monkeypatch.setattr(requests, "get", mock_get)
-#
-#
-# @pytest.fixture
-# def api_response_json():
-#     return MockResponse.json()
+class AsyncTestClient(FlaskClient):
+    """A facade for the flask test client."""
+
+    async def get(self, *args, **kwargs) -> TestResponse:
+        parent = super()
+        return await call(lambda: parent.get(*args, **kwargs))
+
+    async def post(self, *args, **kwargs) -> TestResponse:
+        parent = super()
+        return await call(lambda: parent.post(*args, **kwargs))
+
+    async def delete(self, *args, **kwargs) -> TestResponse:
+        parent = super()
+        return await call(lambda: parent.delete(*args, **kwargs))
+
+    async def put(self, *args, **kwargs) -> TestResponse:
+        parent = super()
+        return await call(lambda: parent.put(*args, **kwargs))
+
+
+@pytest.fixture()
+def app():
+    app = create_app()
+    app.config.update({"TESTING": True})
+    return app
+
+
+@pytest.fixture()
+def client(app) -> FlaskClient:
+    return app.test_client()
+
+
+@pytest.fixture()
+def async_client(app) -> AsyncTestClient:
+    return AsyncTestClient(app, Response, True)

@@ -12,12 +12,19 @@
           {{ form.hidden_tag() }}
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              <p class="text-center text-primary m-0 fw-bold" id="rates_label">Сведения об окладе</p>
+              <p class="text-center text-primary m-0 fw-bold" id="global_coefficient_label">Сведения о глобальном коэффициенте</p>
             </div>
             <div class="card-body" style="padding-top: 8px;">
               {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
               {{ form.name(class="form-control", id=form.name.label.field_id) }}
               {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.value.label(class="text-center text-primary m-0 fw-bold", id=form.value.label.field_id+"_label") }}
+              {{ form.value(class="form-control", id=form.value.label.field_id) }}
+              {% for error in form.value.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
@@ -29,6 +36,7 @@
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
+              Использовать для расчета:
               <div class="form-check form-switch">
                 {{ form.salary(class="form-check-input", type="checkbox", checked=form.salary.data, id=form.salary.label.field_id) }}
                 {{ form.salary.label(class="form-check-label", for=form.salary.label.field_id) }}
@@ -38,14 +46,21 @@
                 {{ form.pension.label(class="form-check-label", for=form.pension.label.field_id) }}
               </div>
             </div>
-          </div>
-          {% if rate %}
-            <div class="row">
-              <div class="col mb-2">
-                <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values_get', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
-              </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.document_id.label(class="text-center text-primary m-0 fw-bold", id=form.document_id.label.field_id+"_label") }}
+              {{ form.document_id(class="form-select", id=form.document_id.label.field_id) }}
+              {% for error in form.document_id.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
             </div>
-          {% endif %}
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.description.label(class="text-center text-primary m-0 fw-bold", id=form.description.label.field_id+"_label") }}
+              {{ form.description(class="form-control", id=form.description.label.field_id, rows="4") }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+          </div>
           <div class="row">
             <div class="col mb-2">
               {{ form.submit(class="btn btn-primary link-light", id=form.submit.label.field_id, style="width: 100%;font-weight: bold;border-style: none;") }}

@@ -13,49 +13,20 @@
     {{ form.hidden_tag() }}
     <div class="container mb-2">
       <div class="row justify-content-center">
-        <div class="col-md-9">
-          {% for item in form %}
-            {% if item.label.field_id.startswith('rate_') %}
-              <div class="row mb-1">
-                <div class="col">
-                  {{ item.label(class="text-dark") }}
-                  {{ item(class="form-select") }}
-                  {% for error in item.errors %}
-                    <span style="color: var(--bs-danger);">{{ error }}</span>
-                  {% endfor %}
-                </div>
+        <div class="col-md-8">
+          {% if not rate_items %}
+            <div class="row mb-1">
+              <div class="col text-center">
+                Необходимо добавить хотя бы один базовый оклад и его значение
               </div>
-            {% endif %}
-          {% endfor %}
-          <div class="row mb-2">
-            {% for item in form %}
-              {% if item.label.field_id.startswith('addon_') %}
-                <div class="col-sm-12 col-md-6">
-                  {{ item.label(class="text-dark") }}
-                  {{ item(class="form-select") }}
-                  {% for error in item.errors %}
-                    <span style="color: var(--bs-danger);">{{ error }}</span>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            {% endfor %}
-
-            <div class="col-sm-12 col-md-6">
-              {{ form.pension_duty_years.label(class="text-dark") }}
-              {{ form.pension_duty_years(class="form-control") }}
-              {% for error in form.pension_duty_years.errors %}
-                <span style="color: var(--bs-danger);">{{ error }}</span>
-              {% endfor %}
             </div>
-          </div>
-          <div class="row">
+          {% else %}
             {% for item in form %}
-              {% if item.label.field_id.startswith('single_') %}
-                <div class="col-sm-12 col-md-6">
-                  <div class="form-check form-switch">
-                    {{ item(class="form-check-input", type="checkbox",
-                       checked=item.object_data, id=item.label.field_id) }}
-                    {{ item.label(class="form-check-label", for=item.label.field_id) }}
+              {% if item.label.field_id.startswith('rate_') %}
+                <div class="row mb-1">
+                  <div class="col">
+                    {{ item.label(class="text-dark") }}
+                    {{ item(class="form-select") }}
                     {% for error in item.errors %}
                       <span style="color: var(--bs-danger);">{{ error }}</span>
                     {% endfor %}
@@ -63,142 +34,120 @@
                 </div>
               {% endif %}
             {% endfor %}
-          </div>
-          {{ form.calculate(class="btn btn-success link-light mt-2", type="submit",
-          style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+            <div class="row mb-2">
+              {% for item in form %}
+                {% if item.label.field_id.startswith('addon_') %}
+                  <div class="col-sm-12 col-md-6">
+                    {{ item.label(class="text-dark") }}
+                    {{ item(class="form-select") }}
+                    {% for error in item.errors %}
+                      <span style="color: var(--bs-danger);">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+              {% for item in form %}
+                {% if item.label.field_id == 'pension_duty_years' %}
+                  <div class="col-sm-12 col-md-6">
+                    {{ form.pension_duty_years.label(class="text-dark") }}
+                    {{ form.pension_duty_years(class="form-control") }}
+                    {% for error in form.pension_duty_years.errors %}
+                      <span style="color: var(--bs-danger);">{{ error }}</span>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div class="row">
+              {% for item in form %}
+                {% if item.label.field_id.startswith('single_') %}
+                  <div class="col-sm-12 col-md-6">
+                    <div class="form-check form-switch">
+                      {{ item(class="form-check-input", type="checkbox",
+                         checked=item.object_data, id=item.label.field_id) }}
+                      {{ item.label(class="form-check-label", for=item.label.field_id) }}
+                      {% for error in item.errors %}
+                        <span style="color: var(--bs-danger);">{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {{ form.calculate(class="btn btn-success link-light mt-2", type="submit",
+            style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          {% endif %}
         </div>
       </div>
     </div>
   </form>
   {% if payment_data %}
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-10">
-          <div class="card shadow mb-2">
-            <div class="card-header py-3">
-              <p class="text-center text-danger m-0 fw-bold">Расчет зарплаты</p>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                  <thead>
-                    <tr>
-                      <th class="text-dark">Название</th>
-                      <th class="text-dark text-center">Сумма<br />(руб.)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for slug, data in payment_data.get("salary_data").items() %}
+      {% for payment_type, payment_name in payment_types.items() %}
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="card shadow mb-2">
+              <div class="card-header py-3">
+                <p class="text-center text-danger m-0 fw-bold">{{ payment_name }}</p>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered">
+                    <thead>
                       <tr>
-                        <td>
-                          <div>
-                            <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
-                              aria-controls="salary_{{ slug }}" href="#salary_{{ slug }}"
-                              role="button" style="padding: 0px 0px;">
-                              {{ data.get("name") }}
-                            </a>
-                            <div class="collapse" id="salary_{{ slug }}">
-                              {% if data.get("value_name") %}
-                                <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
-                              {% endif %}
-                              {% if data.get("document") %}
-                                <p style="margin: 2px;"><br />{{ data.get("document") }}</p>
-                              {% endif %}
-                              {% if data.get("description") %}
-                                <p style="margin: 2px;"><br />{{ data.get("description") }}</p>
-                              {% endif %}
-                              {% if data.get("increase") %}
-                                <p style="margin: 2px;">
-                                  <br />C учетом:<br />
-                                  {% for item in data.get("increase") %}
-                                    {{ item }}<br />
-                                    {{ item.document }}<br />
-                                  {% endfor %}
-                                </p>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </td>
-                        <td class="text-center" >{{ '%0.2f' % data.get("value")|float }}</td>
+                        <th class="text-dark">Название</th>
+                        <th class="text-dark text-center">Сумма<br />(руб.)</th>
                       </tr>
-                    {% endfor %}
-                    <tr>
-                      <td style="font-weight: bold;">Итого</td>
-                      <td class="text-center" style="font-weight: bold;">
-                        {{ '%0.2f' % payment_data.get("salary_total")|float }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {% for slug, data in payment_data.get(payment_type + "_data").items() %}
+                        <tr>
+                          <td>
+                            <div>
+                              <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
+                                aria-controls="{{ payment_type }}_{{ slug }}" href="#{{ payment_type }}_{{ slug }}"
+                                role="button" style="padding: 0px 0px;">
+                                {{ data.get("name") }}
+                              </a>
+                              <div class="collapse" id="{{ payment_type }}_{{ slug }}">
+                                {% if data.get("value_name") %}
+                                  <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
+                                {% endif %}
+                                {% if data.get("document") %}
+                                  <p style="margin: 2px;"><br />{{ data.get("document") }}</p>
+                                {% endif %}
+                                {% if data.get("description") %}
+                                  <p style="margin: 2px;"><br />{{ data.get("description") }}</p>
+                                {% endif %}
+                                {% if data.get("increase") %}
+                                  <p style="margin: 2px;">
+                                    <br />C учетом:<br />
+                                    {% for item in data.get("increase") %}
+                                      {{ item }}<br />
+                                      {{ item.document }}<br />
+                                    {% endfor %}
+                                  </p>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </td>
+                          <td class="text-center" >{{ '%0.2f' % data.get("value")|float }}</td>
+                        </tr>
+                      {% endfor %}
+                      <tr>
+                        <td style="font-weight: bold;">Итого</td>
+                        <td class="text-center" style="font-weight: bold;">
+                          {{ '%0.2f' % payment_data.get(payment_type + "_total")|float }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col-md-10">
-          <div class="card shadow mb-2">
-            <div class="card-header py-3">
-              <p class="text-center text-danger m-0 fw-bold">Расчет пенсии</p>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                  <thead>
-                    <tr>
-                      <th class="text-dark">Название</th>
-                      <th class="text-dark text-center">Сумма<br />(руб.)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for slug, data in payment_data.get("pension_data").items() %}
-                      <tr>
-                        <td>
-                          <div>
-                            <a class="btn text-start" data-bs-toggle="collapse" aria-expanded="false"
-                               aria-controls="pension_{{ slug }}" href="#pension_{{ slug }}"
-                               role="button" style="padding: 0px 0px;"
-                            >
-                              {{ data.get("name") }}
-                            </a>
-                            <div class="collapse" id="pension_{{ slug }}">
-                              {% if data.get("value_name") %}
-                                <p style="margin: 2px;"><b>"{{ data.get("value_name")|lower }}"</b></p>
-                              {% endif %}
-                              {% if data.get("document") %}
-                                <p style="margin: 2px;"><br>{{ data.get("document") }}</p>
-                              {% endif %}
-                              {% if data.get("description") %}
-                                <p style="margin: 2px;"><br>{{ data.get("description") }}</p>
-                              {% endif %}
-                              {% if data.get("increase") %}
-                                <p style="margin: 2px;">
-                                  <br />C учетом:<br />
-                                  {% for item in data.get("increase") %}
-                                    {{ item }}<br />
-                                    ({{ item.document }})<br />
-                                  {% endfor %}
-                                </p>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </td>
-                        <td class="text-center" >{{ '%0.2f' % data.get("value")|float }}</td>
-                      </tr>
-                    {% endfor %}
-                    <tr>
-                      <td style="font-weight: bold;">Итого</td>
-                      <td class="text-center" style="font-weight: bold;">
-                        {{ '%0.2f' % payment_data.get("pension_total")|float }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   {% endif %}
 {% endblock %}

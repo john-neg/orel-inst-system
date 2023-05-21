@@ -15,7 +15,7 @@
         <td>{{ pension_duty.id }}</td>
         <td class="text-start">{{ pension_duty.name }}</td>
         <td class="text-start">{{ pension_duty.value }}</td>
-        <td class="text-start">{{ pension_duty.document|safe|truncate(50) }}</td>
+        <td class="text-start">{{ pension_duty.document|safe|truncate(80) }}</td>
         <td>
           <div class="btn-group" role="group">
             <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.pension_duty_edit', id_=pension_duty.id) }}">Редактировать</a>
