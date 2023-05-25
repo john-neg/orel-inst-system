@@ -15,27 +15,28 @@
               <p class="text-center text-primary m-0 fw-bold" id="increase_label">Сведения об индексации</p>
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id="increase_name_label") }}
-              {{ form.name(class="form-control", id="increase_name") }}
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
+              {{ form.name(class="form-control", id=form.name.label.field_id) }}
               {% for error in form.name.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              {{ form.value.label(class="text-center text-primary m-0 fw-bold", id="increase_value_label") }}
-              {{ form.value(class="form-control", id="increase_value") }}
+              {{ form.value.label(class="text-center text-primary m-0 fw-bold", id=form.value.label.field_id+"_label") }}
+              {{ form.value(class="form-control", id=form.value.label.field_id) }}
               {% for error in form.value.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              {{ form.document_id.label(class="text-center text-primary m-0 fw-bold", id="increase_document_label") }}
-              {{ form.document_id(class="form-select", id="increase_document") }}
+              {{ form.document_id.label(class="text-center text-primary m-0 fw-bold", id=form.document_id.label.field_id+"_label") }}
+              {{ form.document_id(class="form-select", id=form.document_id.label.field_id) }}
               {% for error in form.document_id.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
+              Применяется к:
               {% for item in form %}
                 {% if item.label.field_id.startswith('rate_') %}
                   <div class="form-check form-switch">
@@ -48,7 +49,7 @@
           </div>
           <div class="row">
             <div class="col mb-3">
-              {{ form.submit(class="btn btn-primary link-light", id="increase_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
+              {{ form.submit(class="btn btn-primary link-light", id=form.submit.label.field_id, style="width: 100%;font-weight: bold;border-style: none;") }}
             </div>
           </div>
           {% if form.form_errors %}

@@ -1,0 +1,38 @@
+{% extends 'tools/payment/base_list.html' %}
+{% block table %}
+  <thead>
+    <tr>
+      <th>id</th>
+      <th class="text-start">Название</th>
+      <th class="text-start">Значение</th>
+      <th class="text-start">Название выплаты</th>
+      <th class="text-start">Описание</th>
+      <th class="text-start">Документ</th>
+      <th class="text-start">Используется для расчета</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for coeff in paginated_data.items %}
+      <tr>
+        <td>{{ coeff.id }}</td>
+        <td class="text-start">{{ coeff.name }}</td>
+        <td class="text-start">{{ coeff.value }}</td>
+        <td class="text-start">{{ coeff.payment_name }}</td>
+        <td class="text-start">{{ coeff.description|safe|truncate(40) }}</td>
+        <td class="text-start">{{ coeff.document|safe|truncate(40) }}</td>
+        <td class="text-start">{% if coeff.salary %}- зарплата<br />{% endif %}{% if coeff.pension %}- пенсия{% endif %}</td>
+        <td>
+          <div class="btn-group" role="group">
+            <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.global_coefficient_edit', id_=coeff.id) }}">Редактировать</a>
+            <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.global_coefficient_delete', del_id=coeff.id) }}">Удалить</a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+{% endblock %}
+{% block footer_buttons %}
+  <a class="btn btn-primary" role="button" href="{{ url_for('.global_coefficient_add') }}">Добавить</a>
+  <a class="btn btn-secondary" role="button" href="{{ url_for('.payment_data') }}">Назад</a>
+{% endblock %}

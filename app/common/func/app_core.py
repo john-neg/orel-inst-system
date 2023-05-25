@@ -114,7 +114,7 @@ def make_slug(text, prefix=None):
 
     def process(data):
         return re.sub(
-            "[^a-z_A-Z]+",
+            "[^a-z_A-Z0-9]+",
             "",
             transliterate(data).replace(" ", "_").rstrip().lower(),
         )[:32]

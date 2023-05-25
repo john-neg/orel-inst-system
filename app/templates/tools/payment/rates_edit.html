@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              <p class="text-center text-primary m-0 fw-bold" id="rates_label">Сведения об окладе</p>
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
+              {{ form.name(class="form-control", id=form.name.label.field_id) }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.payment_name.label(class="text-center text-primary m-0 fw-bold", id=form.payment_name.label.field_id+"_label") }}
+              {{ form.payment_name(class="form-control", id=form.payment_name.label.field_id) }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              <div class="form-check form-switch">
+                {{ form.salary(class="form-check-input", type="checkbox", checked=form.salary.data, id=form.salary.label.field_id) }}
+                {{ form.salary.label(class="form-check-label", for=form.salary.label.field_id) }}
+              </div>
+              <div class="form-check form-switch">
+                {{ form.pension(class="form-check-input", type="checkbox", checked=form.pension.data, id=form.pension.label.field_id) }}
+                {{ form.pension.label(class="form-check-label", for=form.pension.label.field_id) }}
+              </div>
+            </div>
+          </div>
+          {% if rate %}
+            <div class="row">
+              <div class="col mb-2">
+                <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values_get', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
+              </div>
+            </div>
+          {% endif %}
+          <div class="row">
+            <div class="col mb-2">
+              {{ form.submit(class="btn btn-primary link-light", id=form.submit.label.field_id, style="width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
+          </div>
+          {% if form.form_errors %}
+            <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

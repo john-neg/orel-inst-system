@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-2">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-auto">
+        <div class="table-responsive text-center">
+          <table class="table table-sm">
+            {% block table %}
+            {% endblock %}
+          </table>
+        </div>
+          <div class="container">
+            <div class="row">
+              <div class="col">
+                <div class="btn-group" role="group">
+                  {% block footer_buttons %}
+                  {% endblock %}
+                </div>
+              </div>
+              <div class="col">
+                {% if paginated_data.pages > 1 %}
+                  {% block pagination %}
+                    {% include "common/pagination.html" %}
+                  {% endblock %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

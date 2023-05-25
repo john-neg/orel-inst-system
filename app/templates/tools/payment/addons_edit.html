@@ -12,23 +12,35 @@
           {{ form.hidden_tag() }}
           <div class="card shadow mb-2">
             <div class="card-header py-3">
-              <p class="text-center text-primary m-0 fw-bold" id="rates_label">Сведения об окладе</p>
+              <p class="text-center text-primary m-0 fw-bold" id="addons_label">Сведения об надбавке</p>
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id="rate_name_label") }}
-              {{ form.name(class="form-control", id="rate_name") }}
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
+              {{ form.name(class="form-control", id=form.name.label.field_id) }}
               {% for error in form.name.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
-              {{ form.payment_name.label(class="text-center text-primary m-0 fw-bold", id="rate_name_label") }}
-              {{ form.payment_name(class="form-control", id="rate_name") }}
+              {{ form.payment_name.label(class="text-center text-primary m-0 fw-bold", id=form.payment_name.label.field_id+"_label") }}
+              {{ form.payment_name(class="form-control", id=form.payment_name.label.field_id) }}
               {% for error in form.name.errors %}
                 <span style="color: var(--bs-danger);">{{ error }}</span>
               {% endfor %}
             </div>
             <div class="card-body" style="padding-top: 8px;">
+              Применяется к:
+              {% for item in form %}
+                {% if item.label.field_id.startswith('rate_') %}
+                  <div class="form-check form-switch">
+                    {{ item(class="form-check-input", type="checkbox", checked=item.data, id=item.label.field_id) }}
+                    {{ item.label(class="form-check-label", for=item.label.field_id) }}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              Использовать для расчета:
               <div class="form-check form-switch">
                 {{ form.salary(class="form-check-input", type="checkbox", checked=form.salary.data, id=form.salary.label.field_id) }}
                 {{ form.salary.label(class="form-check-label", for=form.salary.label.field_id) }}
@@ -39,14 +51,16 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col mb-2">
-              <a class="btn btn-warning" role="button" href="{{ url_for('.rates_values_get', id_=rate.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
+          {% if addon %}
+            <div class="row">
+              <div class="col mb-2">
+                <a class="btn btn-warning" role="button" href="{{ url_for('.addons_values_get', id_=addon.id) }}" style="width: 100%;font-weight: bold;border-style: none;">Значения</a>
+              </div>
             </div>
-          </div>
+          {% endif %}
           <div class="row">
             <div class="col mb-2">
-              {{ form.submit(class="btn btn-primary link-light", id="increase_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
+              {{ form.submit(class="btn btn-primary link-light", id="addons_edit", style="width: 100%;font-weight: bold;border-style: none;") }}
             </div>
           </div>
           {% if form.form_errors %}
