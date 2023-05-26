@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import render_template, send_file, send_from_directory, flash
@@ -52,5 +53,6 @@ def handle_exception(error):
         return error
 
     # now you're handling non-HTTP exceptions only
-    flash(error, category='danger')
+    flash(f"{type(error).__name__} - {error}", category='danger')
+    logging.info(f"{type(error).__name__} - {error}")
     return render_template("errors/500_generic.html"), 500

@@ -2,15 +2,17 @@ import logging
 
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import logout_user, login_user, current_user, login_required
+from ldap3.core.exceptions import LDAPSocketOpenError
 from sqlalchemy import select
 
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager
 from app.db.database import db
-from app.db.auth_models import User
+from app.db.auth_models import User, UserRoles
 from config import FlaskConfig
 from . import bp
 from ..common.func.app_core import get_paginated_data
+from ..common.func.ldap_data import get_user_data
 
 
 @login_manager.user_loader
@@ -25,10 +27,25 @@ def login():
         return redirect(url_for("main.index"))
     form = UserLoginForm()
     if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
         with db.session() as session:
             user = session.scalars(
-                select(User).filter_by(username=form.username.data).limit(1)
+                select(User).filter_by(username=username).limit(1)
             ).first()
+        try:
+            name, ldap_groups = get_user_data(username, password)
+            if not user and ldap_groups:
+                user = User.add_user(
+                    username=username,
+                    password=password,
+                    role_id=UserRoles.get_by_slug(FlaskConfig.ROLE_USER).id
+                )
+        except LDAPSocketOpenError:
+            message = "Нет связи с сервером авторизации"
+            flash(message, category='warning')
+            logging.info(message)
+
         if user is None or not user.check_password(form.password.data):
             error = "Неверный логин или пароль"
             return render_template(

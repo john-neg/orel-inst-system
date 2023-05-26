@@ -34,6 +34,14 @@ class FlaskConfig(object):
     ITEMS_PER_PAGE = 10
     AVAILABLE_PAGES = 3
 
+    # LDAP Config
+    AD_LOGIN = os.getenv("AD_LOGIN")
+    AD_PASSWORD = os.getenv("AD_PASSWORD")
+    AD_DOMAIN = os.getenv("AD_DOMAIN")
+    AD_USER = f"{AD_LOGIN}@{AD_DOMAIN}"
+    AD_SERVER = os.getenv("AD_SERVER")
+    AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
+
 
 class LoggerConfig(object):
     """Logger Configuration."""
