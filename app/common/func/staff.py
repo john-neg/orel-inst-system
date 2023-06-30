@@ -14,7 +14,9 @@ async def get_rank_name(
     :param table: название таблицы 'state_special_ranks'
     :return: list [name, name_short]
     """
-    response = await check_api_db_response(await api_get_db_table(table, id=rank_id))
+    response = list(
+        await check_api_db_response(await api_get_db_table(table, id=rank_id))
+    )
     name = response[0].get("name")
     name_short = response[0].get("name_short")
     rank_name = [name, name_short]
@@ -22,7 +24,9 @@ async def get_rank_name(
     return rank_name
 
 
-async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
+async def get_state_staff(
+    table: str = Apeks.TABLES.get("state_staff"), **kwargs
+) -> dict:
     """
     Получение имен преподавателей.
 
@@ -39,7 +43,7 @@ async def get_state_staff(table: str = Apeks.TABLES.get("state_staff")) -> dict:
                   'user_id': user_id}}
     """
     staff_dict = {}
-    resp = await check_api_db_response(await api_get_db_table(table))
+    resp = await check_api_db_response(await api_get_db_table(table, **kwargs))
     for staff in resp:
         family_name = staff.get("family_name") if staff.get("family_name") else "??????"
         first_name = staff.get("name") if staff.get("name") else "??????"

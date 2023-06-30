@@ -1,3 +1,4 @@
+import functools
 import logging
 from calendar import monthrange
 from datetime import date
@@ -12,6 +13,7 @@ from app.common.exceptions import ApeksApiException
 def api_get_request_handler(func):
     """Декоратор для функций, отправляющих GET запрос к API Апекс-ВУЗ"""
 
+    @functools.wraps(func)
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params = await func(*args, **kwargs)
         async with httpx.AsyncClient() as client:
@@ -104,7 +106,10 @@ async def check_api_db_response(response: dict) -> list:
             список словарей с содержимым ответа API по ключу 'data'
     """
     if not isinstance(response, dict):
-        message = "Нет связи с сервером или получен неверный ответ от API Апекс-ВУЗ"
+        message = (
+            "Нет связи с сервером или получен неверный ответ от "
+            f"API Апекс-ВУЗ. response - {response}"
+        )
         logging.error(message)
         raise ApeksApiException(message)
     if "status" in response:
@@ -260,5 +265,41 @@ async def get_lessons(
         "Переданы параметры для запроса 'get_lessons': "
         f"date between '{date(year, month_start, day_start).isoformat()}' "
         f"and '{date(year, month_end, day_end).isoformat()}'"
+    )
+    return endpoint, params
+
+
+@api_get_request_handler
+async def get_state_staff_history(
+    req_date: date,
+    table_name: str = Apeks.TABLES.get("state_staff_history"),
+    url: str = Apeks.URL,
+    token: str = Apeks.TOKEN,
+):
+    """
+    Получение списка сотрудников на указанную дату.
+
+    Parameters
+    ----------
+        req_date: date
+            дата.
+        table_name: str
+            имя_таблицы
+        url: str
+            URL сервера
+        token: str
+            токен для API
+    """
+    endpoint = f"{url}/api/call/system-database/get"
+    params = {
+        "token": token,
+        "table": table_name,
+        "filter": f"start_date <= '{req_date}' "
+        f"and (end_date >= '{req_date}' or end_date IS NULL ) ",
+    }
+    logging.debug(
+        "Переданы параметры для запроса 'get_state_staff_history': "
+        f"start_date <= '{req_date}' and (end_date >= '{req_date}' "
+        f"or end_date IS NULL ) "
     )
     return endpoint, params

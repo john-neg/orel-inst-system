@@ -1,3 +1,4 @@
+import functools
 import logging
 from json import JSONDecodeError
 
@@ -10,6 +11,7 @@ from app.common.exceptions import ApeksApiException
 def api_post_request_handler(func):
     """Декоратор для функций, отправляющих POST запрос к API Апекс-ВУЗ"""
 
+    @functools.wraps(func)
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params, data = await func(*args, **kwargs)
         async with httpx.AsyncClient() as client:
@@ -48,6 +50,7 @@ def api_post_request_handler(func):
                         f"{func.__name__}. Ошибка конвертации "
                         f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                     )
+
     return wrapper
 
 
@@ -83,8 +86,8 @@ async def api_add_to_db_table(
 @api_post_request_handler
 async def api_edit_db_table(
     table_name: str,
-    filters: dict[int | str: int | str | tuple[int | str] | list[int | str]],
-    fields: dict[int | str: int | str],
+    filters: dict[int | str : int | str | tuple[int | str] | list[int | str]],
+    fields: dict[int | str : int | str],
     url: str = Apeks.URL,
     token: str = Apeks.TOKEN,
 ):

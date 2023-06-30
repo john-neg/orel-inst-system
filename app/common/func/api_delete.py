@@ -1,3 +1,4 @@
+import functools
 import logging
 from json import JSONDecodeError
 
@@ -10,6 +11,7 @@ from app.common.exceptions import ApeksApiException
 def api_delete_request_handler(func):
     """Декоратор для функций, отправляющих DELETE запрос к API Апекс-ВУЗ"""
 
+    @functools.wraps(func)
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params = await func(*args, **kwargs)
         async with httpx.AsyncClient() as client:
@@ -48,6 +50,7 @@ def api_delete_request_handler(func):
                         f"{func.__name__}. Ошибка конвертации "
                         f"ответа API Апекс-ВУЗ в JSON: '{error}'"
                     )
+
     return wrapper
 
 

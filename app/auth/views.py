@@ -7,12 +7,12 @@ from sqlalchemy import select
 
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager
-from app.db.database import db
+from app.common.func.app_core import get_paginated_data
+from app.common.func.ldap_data import get_user_data
 from app.db.auth_models import User, UserRoles
+from app.db.database import db
 from config import FlaskConfig
 from . import bp
-from ..common.func.app_core import get_paginated_data
-from ..common.func.ldap_data import get_user_data
 
 
 @login_manager.user_loader

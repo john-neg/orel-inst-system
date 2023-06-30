@@ -120,5 +120,3 @@ def make_slug(text, prefix=None):
         )[:32]
 
     return process(f"{prefix}{text}") if prefix else process(text)
-
-

@@ -1,50 +1,11 @@
 from functools import reduce
 
-from sqlalchemy import select
 from sqlalchemy.orm import Mapped
 
-from app.db.database import db
+from app.db.database import db, CRUDBase
 
 
-class PaymentBase:
-    """Базовый класс для приложения Payments."""
-
-    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
-
-    @classmethod
-    def get(cls, id_) -> db.Model:
-        """Возвращает объект по id."""
-
-        return db.session.execute(select(cls).where(cls.id == id_)).scalar_one_or_none()
-
-    @classmethod
-    def get_all(cls) -> list[db.Model]:
-        return db.session.scalars(select(cls)).all()
-
-    @classmethod
-    def create(cls, **kwargs) -> db.Model:
-        db_obj = cls(**kwargs)
-        db.session.add(db_obj)
-        db.session.commit()
-        return cls.get(db_obj.id)
-
-    @classmethod
-    def update(cls, id_, **kwargs) -> db.Model:
-        db_obj = cls.get(id_)
-        for column, value in kwargs.items():
-            setattr(db_obj, column, value)
-        db.session.commit()
-        return db_obj
-
-    @classmethod
-    def delete(cls, id_) -> str:
-        db_obj = cls.get(id_)
-        db.session.delete(db_obj)
-        db.session.commit()
-        return f"Запись '{db_obj}' удалена"
-
-
-class PaymentDocuments(db.Model, PaymentBase):
+class PaymentDocuments(db.Model, CRUDBase):
     """Модель для нормативных документов."""
 
     __tablename__ = "payment_documents"
@@ -61,7 +22,7 @@ class PaymentDocuments(db.Model, PaymentBase):
         return self.name
 
 
-class PaymentRates(db.Model, PaymentBase):
+class PaymentRates(db.Model, CRUDBase):
     """Модель базовых окладов."""
 
     __tablename__ = "payment_rates"
@@ -118,7 +79,7 @@ class PaymentRates(db.Model, PaymentBase):
                 return item
 
 
-class PaymentRatesValues(db.Model, PaymentBase):
+class PaymentRatesValues(db.Model, CRUDBase):
     """Модель значений базовых окладов."""
 
     __tablename__ = "payment_rates_values"
@@ -149,7 +110,7 @@ class PaymentRatesValues(db.Model, PaymentBase):
         return self.name
 
 
-class PaymentAddons(db.Model, PaymentBase):
+class PaymentAddons(db.Model, CRUDBase):
     """Модель коэффициентов дополнительных выплат к зарплате."""
 
     __tablename__ = "payment_addons"
@@ -187,7 +148,7 @@ class PaymentAddons(db.Model, PaymentBase):
                 return item
 
 
-class PaymentAddonsValues(db.Model, PaymentBase):
+class PaymentAddonsValues(db.Model, CRUDBase):
     """Модель значений дополнительных выплат к зарплате."""
 
     __tablename__ = "payment_addons_values"
@@ -234,7 +195,7 @@ class PaymentMatchRateAddon(db.Model):
     )
 
 
-class PaymentSingleAddons(db.Model, PaymentBase):
+class PaymentSingleAddons(db.Model, CRUDBase):
     """Модель коэффициентов единичных надбавок к зарплате."""
 
     __tablename__ = "payment_single_addons"
@@ -282,7 +243,7 @@ class PaymentMatchRateSingle(db.Model):
     )
 
 
-class PaymentIncrease(db.Model, PaymentBase):
+class PaymentIncrease(db.Model, CRUDBase):
     """Модель с данными об индексации окладов."""
 
     __tablename__ = "payment_increase"
@@ -325,7 +286,7 @@ class PaymentMatchRateIncrease(db.Model):
     )
 
 
-class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
+class PaymentPensionDutyCoefficient(db.Model, CRUDBase):
     """Модель понижающих пенсию коэффициентов за выслугу лет."""
 
     __tablename__ = "payment_pension_duty_coefficient"
@@ -345,7 +306,7 @@ class PaymentPensionDutyCoefficient(db.Model, PaymentBase):
         return self.name
 
 
-class PaymentGlobalCoefficient(db.Model, PaymentBase):
+class PaymentGlobalCoefficient(db.Model, CRUDBase):
     """Модель глобальных коэффициентов, влияющих на общую сумму выплаты."""
 
     __tablename__ = "payment_global_coefficient"

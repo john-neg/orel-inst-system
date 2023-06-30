@@ -24,7 +24,7 @@ from .forms import CalendarForm
 
 @bp.route("/schedule", methods=["GET", "POST"])
 async def schedule():
-    departments = await get_departments()
+    departments = await get_departments(department_filter="kafedra")
     year = date.today().year
     month = date.today().month
     form = CalendarForm()

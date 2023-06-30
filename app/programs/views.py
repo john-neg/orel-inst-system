@@ -133,7 +133,7 @@ bp.add_url_rule(
 @bp.route("/dept_check", methods=["GET", "POST"])
 async def dept_check():
     form = DepartmentProgramCheck()
-    departments = await get_departments()
+    departments = await get_departments(department_filter="kafedra")
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
@@ -435,32 +435,29 @@ async def field_edit():
             )
         if request.form.get("field_update") and form.validate_on_submit():
             load_data = request.form.get("field_edit")
-            kwargs = {parameter: load_data}
+            if parameter == "department_data":
+                parameter1 = Apeks.MM_WORK_PROGRAMS.get("date_department")
+                d = (
+                    load_data.split("\r\n")[0]
+                    .replace("Дата заседания кафедры:", "")
+                    .replace(" ", "")
+                )
+                d = datetime.strptime(d, "%d.%m.%Y")
+                p1_data = date.isoformat(d)
+                parameter2 = Apeks.MM_WORK_PROGRAMS.get("document_department")
+                p2_data = (
+                    load_data.split("\r\n")[1]
+                    .replace("Протокол №", "")
+                    .replace(" ", "")
+                )
+                kwargs = {parameter1: p1_data, parameter2: p2_data}
+            else:
+                kwargs = {parameter: load_data}
             try:
                 await edit_work_programs_data(program_id, **kwargs)
                 flash("Данные обновлены", category="success")
             except ApeksWrongParameterException:
-                if parameter == "department_data":
-                    parameter1 = Apeks.MM_WORK_PROGRAMS.get("date_department")
-                    d = (
-                        load_data.split("\r\n")[0]
-                        .replace("Дата заседания кафедры:", "")
-                        .replace(" ", "")
-                    )
-                    d = datetime.strptime(d, "%d.%m.%Y")
-                    p1_data = date.isoformat(d)
-                    parameter2 = Apeks.MM_WORK_PROGRAMS.get("document_department")
-                    p2_data = (
-                        load_data.split("\r\n")[1]
-                        .replace("Протокол №", "")
-                        .replace(" ", "")
-                    )
-                    kwargs = {parameter1: p1_data, parameter2: p2_data}
-                    await edit_work_programs_data(program_id, **kwargs)
-                    flash("Данные обновлены", category="success")
-                else:
-                    flash(f"Передан неверный параметр: {parameter}", category="danger")
-
+                flash(f"Передан неверный параметр: {parameter}", category="danger")
     form.program_fields.data = parameter
     db_sections = True if parameter in Apeks.MM_SECTIONS else False
     db_fields = True if parameter in Apeks.MM_WORK_PROGRAMS_DATA else False
@@ -538,7 +535,7 @@ async def program_data(plan_id):
                 state_staff_positions=await check_api_db_response(
                     await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
                 ),
-                departments=await get_departments(),
+                departments=await get_departments(department_filter="kafedra"),
             )
             for disc_id in plan.non_exist:
                 dept_id = plan.plan_curriculum_disciplines[disc_id].get("department_id")

@@ -21,7 +21,9 @@ from .forms import LoadReportForm
 
 @bp.route("/load", methods=["GET", "POST"])
 async def load_report():
-    departments = await get_departments()
+    departments = await get_departments(
+        department_filter="kafedra"
+    )
     year = date.today().year
     month = date.today().month
     form = LoadReportForm()
@@ -72,7 +74,9 @@ async def load_report_export(year, month_start, month_end, department_id):
         state_staff_positions=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
         ),
-        departments=await get_departments(),
+        departments=await get_departments(
+            department_filter="kafedra"
+        ),
     )
     department_staff = staff.department_staff(department_id)
     load = LoadReportProcessor(

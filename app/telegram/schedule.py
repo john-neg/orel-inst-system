@@ -57,7 +57,9 @@ async def schedule_date_chosen(message: types.Message, state: FSMContext):
     await state.update_data(chosen_month=int(message.text.lower().split(".")[0]))
     await state.update_data(chosen_year=int(message.text.lower().split(".")[1]))
 
-    departments = await get_departments()
+    departments = await get_departments(
+        department_filter="kafedra"
+    )
     await state.update_data(departments=departments)
     dept_list = [v.get("short") for v in departments.values()]
     for i in range(1, len(dept_list), 2):

@@ -31,5 +31,16 @@
     "pension": false,
     "default_state": false,
     "apply_to": ["Занимаемая должность"]
+  },
+  "health_danger": {
+    "name": "Риск. для жизни и здор. в мирное время",
+    "value": 0.2,
+    "payment_name": "Надбавка за выполнение задач, связанных с риском для жизни и здоровья в мирное время",
+    "description": "",
+    "document_id": 15,
+    "salary": true,
+    "pension": false,
+    "default_state": false,
+    "apply_to": ["Занимаемая должность"]
   }
 }

@@ -5,16 +5,16 @@ import pytz
 from dotenv import load_dotenv
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(os.path.join(BASEDIR, '.env'))
+load_dotenv(os.path.join(BASEDIR, ".env"))
 
 
 class FlaskConfig(object):
     """Конфигурация Flask."""
 
     SECRET_KEY = os.getenv("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL"
-    ) or f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
+    SQLALCHEMY_DATABASE_URI = (
+        os.environ.get("DATABASE_URL") or f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMP_FILE_DIR = os.path.join(BASEDIR, "temp/")
     EXPORT_FILE_DIR = os.path.join(BASEDIR, "temp/export/")
@@ -35,10 +35,10 @@ class FlaskConfig(object):
     AVAILABLE_PAGES = 3
 
     # LDAP Config
-    AD_LOGIN = os.getenv("AD_LOGIN")
-    AD_PASSWORD = os.getenv("AD_PASSWORD")
+    # AD_LOGIN = os.getenv("AD_LOGIN")
+    # AD_PASSWORD = os.getenv("AD_PASSWORD")
     AD_DOMAIN = os.getenv("AD_DOMAIN")
-    AD_USER = f"{AD_LOGIN}@{AD_DOMAIN}"
+    # AD_USER = f"{AD_LOGIN}@{AD_DOMAIN}"
     AD_SERVER = os.getenv("AD_SERVER")
     AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
 
@@ -60,8 +60,12 @@ class ApeksConfig(object):
     URL = os.getenv("APEKS_URL")
     TOKEN = os.getenv("APEKS_TOKEN")
 
-    # ID типа подразделения "кафедра" в БД Апекс-ВУЗ
-    DEPT_ID = 4
+    # Типы подразделений (для поля type таблицы "state_departments")
+    DEPT_TYPES = {
+        "0": "Подразделения",
+        "1": "Кафедры",
+        "2": "Факультеты",
+    }
 
     # Таблицы базы данных, используемые в приложении
     TABLES = {
