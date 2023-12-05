@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, ValidationError, EqualTo, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
 
-from app.db.auth_models import User, UserRoles
+from app.db.auth_models import Users, UsersRoles
 
 
 class UserLoginForm(FlaskForm):
@@ -25,7 +25,7 @@ class UserRegisterForm(FlaskForm):
     """Форма регистрации пользователя."""
 
     def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
+        user = Users.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError("Имя уже существует")
 
@@ -39,7 +39,7 @@ class UserRegisterForm(FlaskForm):
     role = QuerySelectField(
         "Права доступа",
         validators=[DataRequired()],
-        query_factory=UserRoles.available_roles,
+        query_factory=UsersRoles.available_roles,
         allow_blank=False,
     )
     submit = SubmitField("Зарегистрировать")
@@ -54,7 +54,7 @@ class UserEditForm(FlaskForm):
     role = QuerySelectField(
         "Права доступа",
         validators=[DataRequired()],
-        query_factory=UserRoles.available_roles,
+        query_factory=UsersRoles.available_roles,
         allow_blank=False,
     )
     submit = SubmitField("Сохранить")

@@ -9,7 +9,7 @@ from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, User
 from app.common.extensions import login_manager
 from app.common.func.app_core import get_paginated_data
 from app.common.func.ldap_data import get_user_data
-from app.db.auth_models import User, UserRoles
+from app.db.auth_models import Users, UsersRoles
 from app.db.database import db
 from config import FlaskConfig
 from . import bp
@@ -18,7 +18,7 @@ from . import bp
 @login_manager.user_loader
 def load_user(user_id):
     with db.session() as session:
-        return session.get(User, user_id)
+        return session.get(Users, user_id)
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -30,23 +30,30 @@ def login():
         username = form.username.data
         password = form.password.data
         with db.session() as session:
-            user = session.scalars(
-                select(User).filter_by(username=username).limit(1)
-            ).first()
+            # user = session.scalars(
+            #     select(User).filter_by(username=username).limit(1)
+            # ).first()
+            user = session.execute(
+                select(Users).filter_by(username=username)
+            ).scalar_one()
+        check_password = user.check_password(password)
         try:
             name, ldap_groups = get_user_data(username, password)
             if not user and ldap_groups:
-                user = User.add_user(
+                user = Users.add_user(
                     username=username,
                     password=password,
-                    role_id=UserRoles.get_by_slug(FlaskConfig.ROLE_USER).id
+                    role_id=UsersRoles.get_by_slug(FlaskConfig.ROLE_USER).id,
                 )
+            elif not check_password and user and ldap_groups:
+                user.edit_user(username, password, role_id=user.role_id)
+                check_password = user.check_password(password)
         except LDAPSocketOpenError:
             message = "Нет связи с сервером авторизации"
             flash(message, category='warning')
             logging.info(message)
 
-        if user is None or not user.check_password(form.password.data):
+        if user is None or not check_password:
             error = "Неверный логин или пароль"
             return render_template(
                 "auth/login.html", title="Авторизация", form=form, error=error
@@ -62,7 +69,7 @@ def login():
 def users():
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    paginated_data = get_paginated_data(User.query)
+    paginated_data = get_paginated_data(Users.query)
     return render_template(
         "auth/users.html", title="Пользователи", paginated_data=paginated_data
     )
@@ -75,7 +82,7 @@ def register():
         return redirect(url_for("main.index"))
     form = UserRegisterForm()
     if form.validate_on_submit():
-        new_user = User.add_user(
+        new_user = Users.add_user(
             username=form.username.data,
             password=form.password.data,
             role_id=form.role.data.id,
@@ -99,7 +106,7 @@ def register():
 def edit(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    user = db.session.get(User, int(user_id))
+    user = db.session.get(Users, int(user_id))
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")
@@ -139,7 +146,7 @@ def delete(user_id):
 
     form = UserDeleteForm()
     with db.session() as session:
-        user = session.get(User, user_id)
+        user = session.get(Users, user_id)
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")

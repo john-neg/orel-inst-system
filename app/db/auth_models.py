@@ -1,19 +1,24 @@
 from flask_login import AnonymousUserMixin, UserMixin
-from sqlalchemy import select
+from sqlalchemy import select, String, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.db.database import db
 
 
-class User(db.Model, UserMixin):
+class Users(db.Model, UserMixin):
     """Модель пользователя."""
 
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
-    role_id = db.Column(db.Integer, db.ForeignKey("users_roles.id"), nullable=False)
-    role = db.relationship("UserRoles", back_populates="user", lazy='subquery')
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(64), index=True, unique=True)
+    password_hash: Mapped[str] = mapped_column(String(128))
+    role_id: Mapped[int] = mapped_column(ForeignKey("users_roles.id"), nullable=False)
+    role: Mapped["UsersRoles"] = relationship(
+        "UsersRoles",
+        back_populates="user",
+        lazy='immediate'
+    )
 
     def __repr__(self):
         return self.username
@@ -26,7 +31,7 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def add_user(username, password, role_id):
-        new_user = User(username=username, role_id=role_id)
+        new_user = Users(username=username, role_id=role_id)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -41,32 +46,31 @@ class User(db.Model, UserMixin):
 
     @staticmethod
     def delete_user(user_id):
-        user = db.session.get(User, user_id)
+        user = db.session.get(Users, user_id)
         db.session.delete(user)
         db.session.commit()
 
 
-
-class UserRoles(db.Model):
+class UsersRoles(db.Model):
     """Модель ролей пользователей."""
 
     __tablename__ = "users_roles"
-    id = db.Column(db.Integer, primary_key=True)
-    slug = db.Column(db.String(10), nullable=False, unique=True)
-    name = db.Column(db.String(64), nullable=False, unique=True)
-    user = db.relationship("User", back_populates="role")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slug: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    user: Mapped[list["UsersRoles"]] = relationship("Users", back_populates="role")
 
     def __repr__(self):
         return self.name
 
     @staticmethod
     def available_roles():
-        return db.session.scalars(select(UserRoles)).all()
+        return db.session.scalars(select(UsersRoles)).all()
 
     @staticmethod
     def get_by_slug(slug):
         return db.session.execute(
-            select(UserRoles).filter_by(slug=slug)
+            select(UsersRoles).filter_by(slug=slug)
         ).scalar_one()
 
 

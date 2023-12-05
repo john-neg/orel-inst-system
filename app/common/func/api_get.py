@@ -39,13 +39,12 @@ def api_get_request_handler(func):
                         logging.debug(
                             f"{func.__name__}. Запрос успешно выполнен: {params}"
                         )
-                        return resp_json
                     else:
                         logging.debug(
                             f"{func.__name__}. Произошла ошибка: "
                             f"{resp_json.get('message')}"
                         )
-                        return resp_json
+                    return resp_json
                 except JSONDecodeError as error:
                     logging.error(
                         f"{func.__name__}. Ошибка конвертации "
@@ -206,6 +205,7 @@ async def check_api_staff_lessons_response(response: dict) -> list:
         raise TypeError(message)
     if "lessons" not in data:
         message = "В ответе API отсутствует ключ 'lessons'"
+        print(response)
         logging.error(message)
         raise ApeksApiException(message)
     lessons = data.get("lessons")

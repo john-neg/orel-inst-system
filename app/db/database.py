@@ -1,14 +1,19 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import select
-from sqlalchemy.orm import Mapped
+from sqlalchemy import select, Integer
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 
-db = SQLAlchemy()
+
+class Base(DeclarativeBase):
+    pass
+
+
+db = SQLAlchemy(model_class=Base)
 
 
 class CRUDBase(object):
     """Базовый класс CRUD операций."""
 
-    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     @classmethod
     def get(cls, id_) -> db.Model:

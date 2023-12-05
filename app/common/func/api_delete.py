@@ -38,13 +38,12 @@ def api_delete_request_handler(func):
                             f"{func.__name__}. Запрос успешно выполнен: "
                             f"{params}. Данные удалены: {resp_json.get('data')}"
                         )
-                        return resp_json
                     else:
                         logging.debug(
                             f"{func.__name__}. Произошла ошибка: "
                             f"{resp_json.get('message')}"
                         )
-                        return resp_json
+                    return resp_json
                 except JSONDecodeError as error:
                     logging.error(
                         f"{func.__name__}. Ошибка конвертации "
