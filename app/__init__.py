@@ -26,6 +26,14 @@ def check_tokens() -> bool:
         "APEKS_URL": ApeksConfig.URL,
         "APEKS_TOKEN": ApeksConfig.TOKEN,
     }
+    if FlaskConfig.LDAP_AUTH:
+        required_env.update(
+            {
+                "AD_DOMAIN": FlaskConfig.AD_DOMAIN,
+                "AD_SERVER": FlaskConfig.AD_SERVER,
+                "AD_SEARCH_TREE": FlaskConfig.AD_SEARCH_TREE,
+            }
+        )
     missing_env = []
     for key in required_env:
         if not required_env[key]:

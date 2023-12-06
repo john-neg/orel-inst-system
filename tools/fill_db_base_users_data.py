@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append('.')
 
-from app.db.auth_models import UserRoles, User
+from app.db.auth_models import UsersRoles, Users
 from config import FlaskConfig
 
 engine = create_engine(FlaskConfig.SQLALCHEMY_DATABASE_URI, echo=True)
@@ -15,7 +15,7 @@ session = Session()
 
 
 tables = {
-    UserRoles: {
+    UsersRoles: {
         FlaskConfig.ROLE_USER: 'Пользователь',
         FlaskConfig.ROLE_METOD: 'Методист',
         FlaskConfig.ROLE_BIBL: 'Библиотека',
@@ -28,10 +28,10 @@ for table in tables:
         session.add(table(slug=slug, name=name))
         session.commit()
 
-for record in tables[UserRoles]:
-    new_user = User(username=record)
+for record in tables[UsersRoles]:
+    new_user = Users(username=record)
     new_user.role_id = session.execute(
-        select(UserRoles.id).where(UserRoles.slug == record)
+        select(UsersRoles.id).where(UsersRoles.slug == record)
     ).scalar_one()
     new_user.set_password(record)
     session.add(new_user)

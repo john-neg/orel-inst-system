@@ -11,9 +11,11 @@ load_dotenv(os.path.join(BASEDIR, ".env"))
 class FlaskConfig(object):
     """Конфигурация Flask."""
 
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    SECRET_KEY = os.urandom(16).hex()
     SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL") or f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
+        os.environ.get(
+            "DATABASE_URL", f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
+        )
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMP_FILE_DIR = os.path.join(BASEDIR, "temp/")
@@ -35,10 +37,8 @@ class FlaskConfig(object):
     AVAILABLE_PAGES = 3
 
     # LDAP Config
-    # AD_LOGIN = os.getenv("AD_LOGIN")
-    # AD_PASSWORD = os.getenv("AD_PASSWORD")
+    LDAP_AUTH = os.getenv("LDAP_AUTH") in ('True', 'true', '1')
     AD_DOMAIN = os.getenv("AD_DOMAIN")
-    # AD_USER = f"{AD_LOGIN}@{AD_DOMAIN}"
     AD_SERVER = os.getenv("AD_SERVER")
     AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
 
@@ -67,7 +67,7 @@ class ApeksConfig(object):
         "2": "Факультеты",
     }
 
-    # Таблицы базы данных, используемые в приложении
+    # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
     TABLES = {
         "load_groups": "load_groups",
         "load_subgroups": "load_subgroups",
@@ -360,7 +360,7 @@ class ApeksConfig(object):
         "adj-fgt": 10,
     }
 
-    # Список должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
+    # Идентификаторы должностей кафедр не относящихся к ППС (не рассчитывается нагрузка)
     EXCLUDE_LIST = {
         12: "инструктора произв. обучения",
         13: "начальник кабинета",

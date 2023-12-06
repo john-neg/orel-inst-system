@@ -1,10 +1,18 @@
 from functools import reduce
 
-from sqlalchemy import Integer, Text, Boolean, String, ForeignKey, Float, \
-    UniqueConstraint
+from sqlalchemy import (
+    Integer,
+    Text,
+    Boolean,
+    String,
+    ForeignKey,
+    Float,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.database import db, CRUDBase
+from app import db
+from app.services.base_db_service import CRUDBase
 
 
 class PaymentDocuments(db.Model, CRUDBase):
@@ -215,7 +223,7 @@ class PaymentSingleAddons(db.Model, CRUDBase):
     rates: Mapped[list[PaymentRates]] = relationship(
         PaymentRates,
         secondary="payment_match_rate_single",
-        back_populates="single_addons"
+        back_populates="single_addons",
     )
 
     def __repr__(self):

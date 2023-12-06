@@ -3,7 +3,6 @@ import logging
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import logout_user, login_user, current_user, login_required
 from ldap3.core.exceptions import LDAPSocketOpenError
-from sqlalchemy import select
 
 from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from app.common.extensions import login_manager
@@ -11,57 +10,72 @@ from app.common.func.app_core import get_paginated_data
 from app.common.func.ldap_data import get_user_data
 from app.db.auth_models import Users, UsersRoles
 from app.db.database import db
+from app.services.auth import UsersCRUDService
 from config import FlaskConfig
 from . import bp
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    with db.session() as session:
-        return session.get(Users, user_id)
+    service = UsersCRUDService(Users, db_session=db.session)
+    return service.get(id=user_id)
 
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
+    service = UsersCRUDService(Users, db_session=db.session)
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
     form = UserLoginForm()
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        with db.session() as session:
-            # user = session.scalars(
-            #     select(User).filter_by(username=username).limit(1)
-            # ).first()
-            user = session.execute(
-                select(Users).filter_by(username=username)
-            ).scalar_one()
-        check_password = user.check_password(password)
-        try:
-            name, ldap_groups = get_user_data(username, password)
-            if not user and ldap_groups:
-                user = Users.add_user(
-                    username=username,
-                    password=password,
-                    role_id=UsersRoles.get_by_slug(FlaskConfig.ROLE_USER).id,
-                )
-            elif not check_password and user and ldap_groups:
-                user.edit_user(username, password, role_id=user.role_id)
-                check_password = user.check_password(password)
-        except LDAPSocketOpenError:
-            message = "Нет связи с сервером авторизации"
-            flash(message, category='warning')
-            logging.info(message)
+        user = service.get(username=username)
+        check_password = (
+            service.check_password(user.password_hash, password) if user else False
+        )
+
+        if FlaskConfig.LDAP_AUTH:
+            try:
+                name, ldap_groups = get_user_data(username, password)
+                if not user and ldap_groups:
+                    user = service.create_user(
+                        username=username,
+                        password=password,
+                        role_id=UsersRoles.get_by_slug(FlaskConfig.ROLE_USER).id,
+                    )
+                    message = f"Создан новый пользователь: {username}"
+                    flash(message, category="info")
+                    logging.info(message)
+                elif not check_password and user and ldap_groups:
+                    user = service.update_user(user.id, password=password)
+                    check_password = service.check_password(
+                        user.password_hash, password
+                    )
+                    message = f"Обновлен пароль пользователя: {username}"
+                    flash(message, category="info")
+                    logging.info(message)
+            except LDAPSocketOpenError:
+                message = "Нет связи с сервером авторизации"
+                flash(message, category="warning")
+                logging.info(message)
 
         if user is None or not check_password:
             error = "Неверный логин или пароль"
             return render_template(
-                "auth/login.html", title="Авторизация", form=form, error=error
+                "auth/login.html",
+                title="Авторизация",
+                form=form,
+                error=error,
             )
         login_user(user)
         logging.info(f"Успешная авторизация - {user}")
         return redirect(url_for("main.index"))
-    return render_template("auth/login.html", title="Авторизация", form=form)
+    return render_template(
+        "auth/login.html",
+        title="Авторизация",
+        form=form,
+    )
 
 
 @bp.route("/users", methods=["GET", "POST"])
@@ -71,18 +85,21 @@ def users():
         return redirect(url_for("main.index"))
     paginated_data = get_paginated_data(Users.query)
     return render_template(
-        "auth/users.html", title="Пользователи", paginated_data=paginated_data
+        "auth/users.html",
+        title="Пользователи",
+        paginated_data=paginated_data,
     )
 
 
 @bp.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
+    service = UsersCRUDService(Users, db_session=db.session)
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = UserRegisterForm()
     if form.validate_on_submit():
-        new_user = Users.add_user(
+        new_user = service.create_user(
             username=form.username.data,
             password=form.password.data,
             role_id=form.role.data.id,
@@ -106,7 +123,8 @@ def register():
 def edit(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    user = db.session.get(Users, int(user_id))
+    service = UsersCRUDService(Users, db_session=db.session)
+    user = service.get(id=user_id)
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")
@@ -117,16 +135,17 @@ def edit(user_id):
     form.role.data = user.role
 
     if form.validate_on_submit():
-        user.edit_user(
+        service.update_user(
+            user_id,
             username=request.form.get("username"),
             password=request.form.get("password"),
             role_id=request.form.get("role"),
         )
         logging.info(
-            f"'{current_user}' отредактировал данные " f"пользователя - {user.username}"
+            f"'{current_user}' отредактировал данные пользователя - {user.username}"
         )
         flash(
-            f"Информация о пользователе {user.username} " f"успешно изменена.",
+            f"Информация о пользователе {user.username} успешно изменена",
             category="success",
         )
         return redirect(url_for("auth.users"))
@@ -143,10 +162,9 @@ def edit(user_id):
 def delete(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-
+    service = UsersCRUDService(Users, db_session=db.session)
     form = UserDeleteForm()
-    with db.session() as session:
-        user = session.get(Users, user_id)
+    user = service.get(id=user_id)
 
     if not user:
         flash(f"Пользователь не найден!", category="danger")
@@ -157,7 +175,7 @@ def delete(user_id):
         return redirect(url_for("auth.users"))
 
     if form.validate_on_submit():
-        user.delete_user(user_id)
+        service.delete(user_id)
 
         logging.info(f"'{current_user}' удалил пользователя - {user.username}")
         flash(f"Пользователь {user.username} - удален.", category="success")

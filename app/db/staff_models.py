@@ -2,8 +2,9 @@ from sqlalchemy import Date
 from sqlalchemy.orm import Mapped
 from sqlalchemy.types import DateTime
 
-from app.db.auth_models import User
-from app.db.database import db, CRUDBase
+from app.db.auth_models import Users
+from app.db.database import db
+from app.services.base_db_service import CRUDBase
 
 
 class StaffOperations(db.Model, CRUDBase):
@@ -21,8 +22,8 @@ class StaffOperationsJournal(db.Model, CRUDBase):
         db.ForeignKey("users.id"),
         nullable=False,
     )
-    user: Mapped[User] = db.relationship(
-        User,
+    user: Mapped[Users] = db.relationship(
+        Users,
         lazy="joined",
     )
     operation_id: Mapped[int] = db.Column(
@@ -57,4 +58,3 @@ class StaffBusyJournal(db.Model, CRUDBase):
         lazy="joined",
     )
     description: Mapped[str] = db.Column(db.Text)
-
