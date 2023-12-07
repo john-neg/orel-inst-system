@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 from typing import Generic, TypeVar, Any
 
+from flask import request
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import select, Integer
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.database import db
-from app.db.database import DefaultBase
-
+from config import FlaskConfig
+from ..db.database import DefaultBase
+from ..db.database import db
 
 ModelType = TypeVar("ModelType", bound=DefaultBase)
 
@@ -26,6 +28,18 @@ class BaseDBService(Generic[ModelType]):
         result = self.db_session.execute(statement)
         objs: list[ModelType] = result.scalars().all()
         return objs
+
+    def paginated(self, **kwargs: Any) -> Pagination:
+        """Возвращает Pagination объект содержащий объекты модели."""
+
+        page = request.args.get("page", 1, type=int)
+        paginated_data = db.paginate(
+            select(self.model).filter_by(**kwargs),
+            page=page,
+            per_page=FlaskConfig.ITEMS_PER_PAGE,
+            error_out=True,
+        )
+        return paginated_data
 
     def get(self, **kwargs: Any) -> ModelType:
         """Возвращает один объект соответствующий параметрам запроса."""

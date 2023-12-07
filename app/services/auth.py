@@ -1,12 +1,15 @@
 from dataclasses import dataclass
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.db.auth_models import Users
-from app.services.base_db_service import BaseDBService, ModelType
+from ..db.auth_models import Users, UsersRoles
+from ..services.base_db_service import BaseDBService, ModelType
 
 
 @dataclass
 class UsersCRUDService(BaseDBService[Users]):
+    """Класс для CRUD операций модели Users"""
+
     @staticmethod
     def get_password_hash(password) -> str:
         return generate_password_hash(password)
@@ -38,3 +41,10 @@ class UsersCRUDService(BaseDBService[Users]):
         if role_id:
             update_dict["role_id"] = role_id
         return self.update(user_id, **update_dict)
+
+
+@dataclass
+class UsersRolesCRUDService(BaseDBService[UsersRoles]):
+    """Класс для CRUD операций модели UsersRoles"""
+
+    pass

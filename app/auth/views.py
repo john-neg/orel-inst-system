@@ -4,57 +4,59 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import logout_user, login_user, current_user, login_required
 from ldap3.core.exceptions import LDAPSocketOpenError
 
-from app.auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
-from app.common.extensions import login_manager
-from app.common.func.app_core import get_paginated_data
-from app.common.func.ldap_data import get_user_data
-from app.db.auth_models import Users, UsersRoles
-from app.db.database import db
-from app.services.auth import UsersCRUDService
 from config import FlaskConfig
 from . import bp
+from ..auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
+from ..common.extensions import login_manager
+from ..common.func.ldap_data import get_user_data
+from ..db.auth_models import Users, UsersRoles
+from ..db.database import db
+from ..services.auth import UsersCRUDService, UsersRolesCRUDService
+
+users_service = UsersCRUDService(Users, db_session=db.session)
+users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    service = UsersCRUDService(Users, db_session=db.session)
-    return service.get(id=user_id)
+    return users_service.get(id=user_id)
 
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
-    service = UsersCRUDService(Users, db_session=db.session)
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
     form = UserLoginForm()
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = service.get(username=username)
+        user = users_service.get(username=username)
         check_password = (
-            service.check_password(user.password_hash, password) if user else False
+            users_service.check_password(user.password_hash, password)
+            if user
+            else False
         )
-
         if FlaskConfig.LDAP_AUTH:
             try:
                 name, ldap_groups = get_user_data(username, password)
                 if not user and ldap_groups:
-                    user = service.create_user(
+                    user_role = users_role_service.get(slug=FlaskConfig.ROLE_USER)
+                    user = users_service.create_user(
                         username=username,
                         password=password,
-                        role_id=UsersRoles.get_by_slug(FlaskConfig.ROLE_USER).id,
+                        role_id=user_role.id,
                     )
                     message = f"Создан новый пользователь: {username}"
                     flash(message, category="info")
                     logging.info(message)
                 elif not check_password and user and ldap_groups:
-                    user = service.update_user(user.id, password=password)
-                    check_password = service.check_password(
-                        user.password_hash, password
-                    )
+                    user = users_service.update_user(user.id, password=password)
                     message = f"Обновлен пароль пользователя: {username}"
                     flash(message, category="info")
                     logging.info(message)
+                check_password = users_service.check_password(
+                    user.password_hash, password
+                )
             except LDAPSocketOpenError:
                 message = "Нет связи с сервером авторизации"
                 flash(message, category="warning")
@@ -83,7 +85,7 @@ def login():
 def users():
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    paginated_data = get_paginated_data(Users.query)
+    paginated_data = users_service.paginated()
     return render_template(
         "auth/users.html",
         title="Пользователи",
@@ -94,12 +96,11 @@ def users():
 @bp.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
-    service = UsersCRUDService(Users, db_session=db.session)
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = UserRegisterForm()
     if form.validate_on_submit():
-        new_user = service.create_user(
+        new_user = users_service.create_user(
             username=form.username.data,
             password=form.password.data,
             role_id=form.role.data.id,
@@ -123,19 +124,15 @@ def register():
 def edit(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    service = UsersCRUDService(Users, db_session=db.session)
-    user = service.get(id=user_id)
-
+    user = users_service.get(id=user_id)
     if not user:
         flash(f"Пользователь не найден!", category="danger")
         return redirect(url_for("auth.users"))
-
     form = UserEditForm()
     form.username.data = user.username
     form.role.data = user.role
-
     if form.validate_on_submit():
-        service.update_user(
+        users_service.update_user(
             user_id,
             username=request.form.get("username"),
             password=request.form.get("password"),
@@ -149,7 +146,6 @@ def edit(user_id):
             category="success",
         )
         return redirect(url_for("auth.users"))
-
     return render_template(
         "auth/edit.html",
         title="Редактирование пользователя",
@@ -162,25 +158,19 @@ def edit(user_id):
 def delete(user_id):
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
-    service = UsersCRUDService(Users, db_session=db.session)
     form = UserDeleteForm()
-    user = service.get(id=user_id)
-
+    user = users_service.get(id=user_id)
     if not user:
         flash(f"Пользователь не найден!", category="danger")
         return redirect(url_for("auth.users"))
-
     if current_user.id == user_id:
         flash(f"Нельзя удалить самого себя!", category="danger")
         return redirect(url_for("auth.users"))
-
     if form.validate_on_submit():
-        service.delete(user_id)
-
+        users_service.delete(user_id)
         logging.info(f"'{current_user}' удалил пользователя - {user.username}")
         flash(f"Пользователь {user.username} - удален.", category="success")
         return redirect(url_for("auth.users"))
-
     return render_template(
         "auth/delete.html",
         title="Удаление пользователя",

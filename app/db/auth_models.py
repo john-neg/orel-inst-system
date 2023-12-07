@@ -1,8 +1,8 @@
 from flask_login import AnonymousUserMixin, UserMixin
-from sqlalchemy import select, String, ForeignKey, Integer
+from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.database import db
+from ..db.database import db
 
 
 class Users(db.Model, UserMixin):
@@ -32,14 +32,6 @@ class UsersRoles(db.Model):
 
     def __repr__(self):
         return self.name
-
-    @staticmethod
-    def available_roles():
-        return db.session.scalars(select(UsersRoles)).all()
-
-    @staticmethod
-    def get_by_slug(slug):
-        return db.session.execute(select(UsersRoles).filter_by(slug=slug)).scalar_one()
 
 
 class AnonymousUser(AnonymousUserMixin):

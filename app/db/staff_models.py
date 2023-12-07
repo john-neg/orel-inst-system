@@ -1,60 +1,55 @@
-from sqlalchemy import Date
-from sqlalchemy.orm import Mapped
+from sqlalchemy import Date, Integer, ForeignKey, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import DateTime
 
-from app.db.auth_models import Users
-from app.db.database import db
-from app.services.base_db_service import CRUDBase
+from ..db.auth_models import Users
+from ..db.database import db
 
 
-class StaffOperations(db.Model, CRUDBase):
-
+class StaffOperations(db.Model):
     __tablename__ = "staff_operations"
-    name: Mapped[str] = db.Column(db.Text)
+    name: Mapped[str] = mapped_column(Text)
 
 
-class StaffOperationsJournal(db.Model, CRUDBase):
-
+class StaffOperationsJournal(db.Model):
     __tablename__ = "staff_operations_journal"
-    name: Mapped[str] = db.Column(db.Text)
-    user_id: Mapped[int] = db.Column(
-        db.Integer,
-        db.ForeignKey("users.id"),
+    name: Mapped[str] = mapped_column(Text)
+    user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("users.id"),
         nullable=False,
     )
-    user: Mapped[Users] = db.relationship(
+    user: Mapped[Users] = relationship(
         Users,
         lazy="joined",
     )
-    operation_id: Mapped[int] = db.Column(
-        db.Integer,
-        db.ForeignKey("staff_operations.id"),
+    operation_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("staff_operations.id"),
         nullable=False,
     )
-    time: Mapped[DateTime] = db.Column(db.DateTime)
+    time: Mapped[DateTime] = mapped_column(DateTime)
 
 
-class StaffBusyTypes(db.Model, CRUDBase):
-
+class StaffBusyTypes(db.Model):
     __tablename__ = "staff_busy_types"
-    name: Mapped[str] = db.Column(db.Text)
+    name: Mapped[str] = mapped_column(Text)
 
 
-class StaffBusyJournal(db.Model, CRUDBase):
-
+class StaffBusyJournal(db.Model):
     __tablename__ = "staff_busy_journal"
-    staff_id: Mapped[int] = db.Column(
-        db.Integer,
+    staff_id: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
     )
-    date: Mapped[Date] = db.Column(db.Date)
-    busy_id: Mapped[int] = db.Column(
-        db.Integer,
-        db.ForeignKey("staff_busy_types.id"),
+    date: Mapped[Date] = mapped_column(Date)
+    busy_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("staff_busy_types.id"),
         nullable=False,
     )
-    busy: Mapped[StaffBusyTypes] = db.relationship(
+    busy: Mapped[StaffBusyTypes] = relationship(
         StaffBusyTypes,
         lazy="joined",
     )
-    description: Mapped[str] = db.Column(db.Text)
+    description: Mapped[str] = mapped_column(Text)

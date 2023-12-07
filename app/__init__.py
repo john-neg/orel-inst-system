@@ -42,7 +42,8 @@ def check_tokens() -> bool:
         return True
     else:
         logging.critical(
-            "Отсутствуют необходимые переменные окружения: " f'{", ".join(missing_env)}'
+            "Отсутствуют необходимые переменные окружения: " 
+            f'{", ".join(missing_env)}'
         )
         raise SystemExit(
             "Отсутствуют ключи доступа. Программа принудительно остановлена."

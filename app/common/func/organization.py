@@ -78,7 +78,9 @@ async def get_departments(
     :return: dict {'Название группы':
         {id: {'full': 'полное название', 'short': 'сокращенное название'}}}
     """
-    state_departments = await check_api_db_response(await api_get_db_table(table))
+    state_departments = await check_api_db_response(
+        await api_get_db_table(table)
+    )
 
     filters = {
         "department": Apeks.DEPT_TYPES["0"],
