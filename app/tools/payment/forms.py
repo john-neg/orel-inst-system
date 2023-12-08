@@ -14,8 +14,8 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, NumberRange
 
-from app import db
 from config import BASEDIR
+from ...db.database import db
 
 FILE_DIR = os.path.join(BASEDIR, "app", "tools", "data_payment")
 DEFAULT_OPTIONS = [(0, "нет")]

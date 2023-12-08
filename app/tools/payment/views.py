@@ -4,19 +4,6 @@ from flask import render_template, request, flash, redirect, url_for
 from flask.views import View
 from flask_login import login_required, current_user
 
-from app import db
-from app.common.func.app_core import get_paginated_data, make_slug
-from app.db.payment_models import (
-    PaymentRates,
-    PaymentAddons,
-    PaymentSingleAddons,
-    PaymentGlobalCoefficient,
-    PaymentPensionDutyCoefficient,
-    PaymentDocuments,
-    PaymentIncrease,
-    PaymentRatesValues,
-    PaymentAddonsValues,
-)
 from config import FlaskConfig
 from . import payment_bp as bp
 from .forms import (
@@ -31,6 +18,19 @@ from .forms import (
     create_addons_form,
     create_addons_values_form,
     create_single_addons_form,
+)
+from .func import get_paginated_data, make_slug
+from ...db.database import db
+from ...db.payment_models import (
+    PaymentRates,
+    PaymentAddons,
+    PaymentSingleAddons,
+    PaymentGlobalCoefficient,
+    PaymentPensionDutyCoefficient,
+    PaymentDocuments,
+    PaymentIncrease,
+    PaymentRatesValues,
+    PaymentAddonsValues,
 )
 
 

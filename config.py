@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import timedelta
 
 import pytz
 from dotenv import load_dotenv
@@ -25,6 +26,7 @@ class FlaskConfig(object):
     TEMPLATE_FILE_DIR = os.path.join(BASEDIR, "app/common/reports/templates/")
     STATIC_FILE_DIR = os.path.join(BASEDIR, "app/static/")
     ALLOWED_EXTENSIONS = {"xlsx", "csv"}
+    USER_LOGIN_DURATION = timedelta(hours=8)
 
     # Группы пользователей
     ROLE_ADMIN: str = "admin"

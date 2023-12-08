@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, EqualTo, Length
+from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
 
 from ..db.auth_models import Users, UsersRoles
 from ..db.database import db
-from ..services.auth import UsersRolesCRUDService, UsersCRUDService
+from ..services.auth_service import UsersRolesCRUDService, UsersCRUDService
 
 users_service = UsersCRUDService(Users, db_session=db.session)
 users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
@@ -28,12 +28,6 @@ class UserLoginForm(FlaskForm):
 
 class UserRegisterForm(FlaskForm):
     """Форма регистрации пользователя."""
-
-    # @staticmethod
-    # def validate_username(username):
-    #     user = users_service.get(username=username.data)
-    #     if user is not None:
-    #         raise ValidationError("Имя уже существует")
 
     username = StringField("Логин", validators=[DataRequired(), Length(min=4, max=20)])
     password = PasswordField(

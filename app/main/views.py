@@ -48,6 +48,8 @@ def get_temp_file(filename):
 
 @bp.app_errorhandler(Exception)
 def handle_exception(error):
+    """Обработка исключений, вывод всех (кроме HTTP) ошибок в виде сообщений."""
+
     # pass through HTTP errors
     if isinstance(error, HTTPException):
         return error

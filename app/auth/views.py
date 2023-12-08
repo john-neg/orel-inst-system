@@ -11,7 +11,7 @@ from ..common.extensions import login_manager
 from ..common.func.ldap_data import get_user_data
 from ..db.auth_models import Users, UsersRoles
 from ..db.database import db
-from ..services.auth import UsersCRUDService, UsersRolesCRUDService
+from ..services.auth_service import UsersCRUDService, UsersRolesCRUDService
 
 users_service = UsersCRUDService(Users, db_session=db.session)
 users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
@@ -20,6 +20,11 @@ users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
 @login_manager.user_loader
 def load_user(user_id):
     return users_service.get(id=user_id)
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for("auth.login"))
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -36,6 +41,7 @@ def login():
             if user
             else False
         )
+
         if FlaskConfig.LDAP_AUTH:
             try:
                 name, ldap_groups = get_user_data(username, password)
@@ -70,7 +76,11 @@ def login():
                 form=form,
                 error=error,
             )
-        login_user(user)
+        login_user(
+            user,
+            remember=form.remember_me,
+            duration=FlaskConfig.USER_LOGIN_DURATION,
+        )
         logging.info(f"Успешная авторизация - {user}")
         return redirect(url_for("main.index"))
     return render_template(
