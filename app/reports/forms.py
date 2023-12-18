@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
+from config import ApeksConfig as Apeks
+
 
 class LoadReportForm(FlaskForm):
     department = SelectField("Кафедра:", coerce=int, validators=[DataRequired()])
@@ -32,3 +34,24 @@ class LoadReportForm(FlaskForm):
         validators=[DataRequired()],
     )
     load_report = SubmitField('Cформировать')
+
+
+class HolidaysReportForm(FlaskForm):
+    year = SelectField(
+        "Год",
+        coerce=int,
+        validators=[DataRequired()],
+    )
+    month_start = SelectField(
+        "Начальный месяц",
+        coerce=int,
+        choices=[(k, v.title()) for k, v in Apeks.MONTH_DICT.items()],
+        validators=[DataRequired()],
+    )
+    month_end = SelectField(
+        "Конечный месяц",
+        coerce=int,
+        choices=[(k, v.title()) for k, v in Apeks.MONTH_DICT.items()],
+        validators=[DataRequired()],
+    )
+    holidays_report = SubmitField('Cформировать')

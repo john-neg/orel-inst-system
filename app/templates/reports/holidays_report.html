@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <h3 class="text-center text-dark mb-1">
+    {% block title %}Отчет о занятости в выходные{% endblock %}
+  </h3>
+</div>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row">
+          <div class="col-md-2">
+            {{ form.year.label(class="text-dark") }}
+            {{ form.year(class="form-select") }}
+          </div>
+          <div class="col-md-5">
+            {{ form.month_start.label(class="text-dark") }}
+            {{ form.month_start(class="form-select") }}
+          </div>
+          <div class="col-md-5">
+            {{ form.month_end.label(class="text-dark") }}
+            {{ form.month_end(class="form-select") }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label class="text-dark" for="load_report">Отчет</label>
+            {{ form.holidays_report(class="btn btn-primary", style="background: #008751;width: 100%;border-style: none;") }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

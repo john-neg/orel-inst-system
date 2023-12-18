@@ -165,7 +165,8 @@ TELEGRAM_TOKEN = 'telegram_bot_key'
 sudo nano /etc/systemd/system/apeks.service
 ```
 
-Копируем содержимое
+Копируем содержимое 
+(количество workers соответствует количеству cpu)
 ```
 [Unit]
 Description=Gunicorn instance to serve apeks-vuz-extension
@@ -176,7 +177,7 @@ User=www-user
 Group=www-data
 WorkingDirectory=/var/www/apeks-vuz-extension
 Environment="PATH=/var/www/apeks-vuz-extension/venv/bin"
-ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 3 --timeout 180 --bind unix:apeks.sock -m 007 wsgi:app
+ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
 
 [Install]
 WantedBy=multi-user.target

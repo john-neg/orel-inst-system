@@ -11,7 +11,7 @@ from app.auth import bp as login_bp
 from app.common.extensions import login_manager
 from app.db.database import db
 from app.library import bp as library_bp
-from app.load import bp as load_bp
+from app.reports import bp as reports_bp
 from app.main import bp as main_bp
 from app.plans import bp as plans_bp
 from app.programs import bp as programs_bp
@@ -59,7 +59,7 @@ def register_blueprints(app):
     app.register_blueprint(login_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(schedule_bp)
-    app.register_blueprint(load_bp)
+    app.register_blueprint(reports_bp)
     app.register_blueprint(plans_bp, url_prefix="/plans")
     app.register_blueprint(programs_bp, url_prefix="/programs")
     app.register_blueprint(library_bp)
