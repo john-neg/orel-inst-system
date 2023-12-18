@@ -12,7 +12,7 @@ load_dotenv(os.path.join(BASEDIR, ".env"))
 class FlaskConfig(object):
     """Конфигурация Flask."""
 
-    SECRET_KEY = os.urandom(16).hex()
+    SECRET_KEY = os.getenv("SECRET_KEY") or "DEFAULT_SECRET_KEY"
     SQLALCHEMY_DATABASE_URI = (
         os.environ.get(
             "DATABASE_URL", f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
