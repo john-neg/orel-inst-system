@@ -130,15 +130,15 @@ async def generate_holidays_report(
         curr_name = curr_staff.get("name")
         curr_total_lessons = curr_staff.get("total_lessons")
         curr_holidays_lessons = curr_staff.get("holidays_lessons")
-        curr_percent_of_lessons = f"{curr_staff.get('holidays_lessons') / curr_staff.get('total_lessons'):.2%}"
+        curr_percent_of_lessons = curr_staff.get('holidays_lessons') / curr_staff.get('total_lessons')
         curr_busy_holidays = len(curr_staff.get("busy_holidays"))
         curr_total_holidays = len(total_holidays)
         try:
             curr_avg_lessons_holidays = (
-                f"{curr_holidays_lessons / curr_busy_holidays:.2f}"
+                curr_holidays_lessons / curr_busy_holidays
             )
         except ZeroDivisionError:
-            curr_avg_lessons_holidays = 0
+            curr_avg_lessons_holidays = 0.0
 
         ws.cell(row, 1).value = curr_name
         ws.cell(row, 1).style = ExcelStyle.Base_No_Wrap
@@ -148,13 +148,14 @@ async def generate_holidays_report(
         ws.cell(row, 3).style = ExcelStyle.Number
         ws.cell(row, 4).value = curr_percent_of_lessons
         ws.cell(row, 4).style = ExcelStyle.Number
+        ws.cell(row, 4).number_format = '0.00%'
         ws.cell(row, 5).value = curr_busy_holidays
         ws.cell(row, 5).style = ExcelStyle.Number
         ws.cell(row, 6).value = curr_total_holidays
         ws.cell(row, 6).style = ExcelStyle.Number
         ws.cell(row, 7).value = curr_avg_lessons_holidays
-        ws.cell(row, 7).number_format = "0.00"
         ws.cell(row, 7).style = ExcelStyle.Number
+        ws.cell(row, 7).number_format = '0.00'
 
         row += 1
 
