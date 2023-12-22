@@ -26,4 +26,4 @@ roles = {
 
 for slug, name in roles.items():
     role = users_role_service.create(slug=slug, name=name)
-    users_service.create_user(username=name, password=name, role_id=role.id)
+    users_service.create_user(username=slug, password=slug, role_id=role.id)
