@@ -19,3 +19,4 @@ WTForms==3.1.1
 WTForms-SQLAlchemy==0.3
 Werkzeug==3.0.1
 ldap3~=2.9.1
+pymongo~=4.6.1

@@ -44,6 +44,17 @@ class FlaskConfig(object):
     AD_SERVER = os.getenv("AD_SERVER")
     AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
 
+    # Staff collection statuses
+    # Название статуса документа "в процессе"
+    STAFF_IN_PROGRESS_STATUS = 'in progress'
+    # Название статуса завершенного документа
+    STAFF_COMPLETED_STATUS = 'completed'
+    # Название историй операций
+    STAFF_COLLECTION_STATUSES = {
+        STAFF_IN_PROGRESS_STATUS: "Редактируется",
+        STAFF_COMPLETED_STATUS: "Изменения запрещены"
+    }
+
 
 class LoggerConfig(object):
     """Logger Configuration."""
@@ -104,6 +115,7 @@ class ApeksConfig(object):
         "state_staff": "state_staff",
         "state_staff_history": "state_staff_history",
         "state_staff_positions": "state_staff_positions",
+        "state_vacancies": "state_vacancies",
         "system_files": "system_files",
         "system_reports": "system_reports",
         "system_settings": "system_settings",
@@ -430,3 +442,24 @@ class ApeksConfig(object):
         ".в .": ".в.",
         "None": "",
     }
+
+
+class MongoDBSettings:
+    """Настройки для базы данных MongoDB."""
+
+    # Имя пользователя БД
+    MONGO_DB_USER = os.getenv('MONGO_DB_USER')
+    # Пароль
+    MONGO_DB_PASS = os.getenv('MONGO_DB_PASS')
+    # Адрес сервера БД
+    MONGO_DB_URL = os.getenv('MONGO_DB_URL')
+    # Имя базы данных
+    MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
+    # Строка подключения к БД
+    CONNECTION_STRING = f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"
+    # Название коллекции данных переменного состава
+    STAFF_STABLE_COLLECTION = 'stable_staff'
+    # Название коллекции данных постоянного состава
+    STAFF_VARIOUS_COLLECTION = 'various_staff'
+    # Название коллекции истории операций
+    STAFF_LOGS_COLLECTION = 'staff_logs'

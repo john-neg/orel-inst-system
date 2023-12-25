@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Строевая записка - постоянный состав{% endblock %}
+    </h3>
+      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
+      <h4 class="fw-normal text-center text-dark mb-1">Статус - {{ config.STAFF_COLLECTION_STATUSES[doc_status]|lower }}</h4>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="table-responsive">
+            <table class="table table-sm mt-3">
+              {% for dept_type in staff_data %}
+                <thead>
+                  <tr>
+                    <th class="text-center text-dark mb-1 text-uppercase" colspan="5">{{ dept_type }}</th>
+                  </tr>
+                </thead>
+                <thead>
+                  <tr>
+                    <th>Название</th>
+                    <th class="text-center">По списку</th>
+                    <th class="text-center">В строю</th>
+                    <th class="text-center">Отсутствуют</th>
+                    <th class="text-center">Действия</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for dept_data in staff_data[dept_type] %}
+                    <tr>
+                      <td>{{ staff_data[dept_type][dept_data].get("name") }}</td>
+                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_total") }}</td>
+                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_stock") }}</td>
+                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_absence") }}</td>
+                      <td class="text-center">
+                        {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
+                          {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
+                            <a class="btn btn-primary btn-sm" role="button" target="_blank"
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Добавить</a>
+                          {% else %}
+                            <a class="btn btn-warning btn-sm" role="button" target="_blank"
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Изменить</a>
+                          {% endif %}
+                        {% else %}
+                          {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
+                            <div class="fw-bold text text-danger">нет данных<div>
+                          {% else %}
+                            <a class="btn btn-success btn-sm" role="button" target="_blank"
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Просмотр</a>
+                          {% endif %}
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8 mt-3 mb-3">
+          <div class="btn-group" role="group">
+            {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
+              {{ form.finish_edit(class="btn btn-danger fw-bold") }}
+            {% elif doc_status == config.STAFF_COMPLETED_STATUS %}
+              {{ form.enable_edit(class="btn btn-warning fw-bold") }}
+            {% endif %}
+            {{ form.make_report(class="btn btn-success fw-bold") }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}
