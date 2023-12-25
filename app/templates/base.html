@@ -40,8 +40,10 @@
               </a>
             </li>
             <!-- Расписание -->
-            <li class="nav-item text-start"><a class="nav-link py-2" href="{{ url_for('schedule.schedule') }}">
-              <i class="far fa-calendar-alt"></i><span>Расписание</span></a>
+            <li class="nav-item text-start">
+              <a class="nav-link py-2" href="{{ url_for('schedule.schedule') }}">
+                <i class="far fa-calendar-alt"></i><span>Расписание</span>
+              </a>
             </li>
             <!-- Отчеты -->
             <li class="nav-item dropdown">
@@ -54,10 +56,20 @@
                   <a class="dropdown-item text-center py-1" href="{{ url_for('reports.holidays_report') }}">Занятость в выходные</a>
                 {% endif %}
               </div>
-
             </li>
+            <!-- Строевка -->
+            <li class="nav-item dropdown">
+              <a class="dropdown-toggle nav-link py-2" aria-expanded="true" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
+                <i class="fas fa-user-friends"></i><span>Строевая записка</span>
+              </a>
+              <div class="dropdown-menu text-center py-0">
+{#                <a class="dropdown-item text-center py-1" href="../staff/staff_info.html">Общая информация</a>#}
+                <a class="dropdown-item text-center py-1" href="{{ url_for('staff.stable_staff') }}">Постоянный состав</a>
+{#                <a class="dropdown-item text-center py-1" href="../staff/various_staff.html">Переменный состав</a>#}
+              </div>
+            </li>
+            <!-- Учебные планы -->
             {% if current_user.is_authenticated and current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-              <!-- Учебные планы -->
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle nav-link py-2" aria-expanded="true" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
                   <i class="fas fa-layer-group"></i><span>Учебные планы</span>
