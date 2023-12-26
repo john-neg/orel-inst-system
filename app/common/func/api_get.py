@@ -56,10 +56,10 @@ def api_get_request_handler(func):
 
 @api_get_request_handler
 async def api_get_db_table(
-    table_name: str,
-    url: str = Apeks.URL,
-    token: str = Apeks.TOKEN,
-    **kwargs,
+        table_name: str,
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
+        **kwargs,
 ):
     """
     Запрос к API для получения информации из таблицы базы данных Апекс-ВУЗ.
@@ -139,11 +139,11 @@ async def check_api_db_response(response: dict) -> list:
 
 @api_get_request_handler
 async def api_get_staff_lessons(
-    staff_id: int | str,
-    month: int | str,
-    year: int | str,
-    url: str = Apeks.URL,
-    token: str = Apeks.TOKEN,
+        staff_id: int | str,
+        month: int | str,
+        year: int | str,
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
 ):
     """
     Получение списка занятий по id преподавателя за определенный месяц и год.
@@ -221,14 +221,14 @@ async def check_api_staff_lessons_response(response: dict) -> list:
 
 @api_get_request_handler
 async def get_lessons(
-    year: int,
-    month_start: int,
-    month_end: int,
-    day_start: int = 1,
-    day_end: int = None,
-    table_name: str = Apeks.TABLES.get("schedule_day_schedule_lessons"),
-    url: str = Apeks.URL,
-    token: str = Apeks.TOKEN,
+        year: int,
+        month_start: int,
+        month_end: int,
+        day_start: int = 1,
+        day_end: int = None,
+        table_name: str = Apeks.TABLES.get("schedule_day_schedule_lessons"),
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
 ):
     """
     Получение списка занятий за указанный период.
@@ -259,7 +259,7 @@ async def get_lessons(
         "token": token,
         "table": table_name,
         "filter": f"date between '{date(year, month_start, day_start).isoformat()}' "
-        f"and '{date(year, month_end, day_end).isoformat()}'",
+                  f"and '{date(year, month_end, day_end).isoformat()}'",
     }
     logging.debug(
         "Переданы параметры для запроса 'get_lessons': "
@@ -271,10 +271,11 @@ async def get_lessons(
 
 @api_get_request_handler
 async def get_state_staff_history(
-    req_date: date,
-    table_name: str = Apeks.TABLES.get("state_staff_history"),
-    url: str = Apeks.URL,
-    token: str = Apeks.TOKEN,
+        req_date: date,
+        department_id: int | str | None = None,
+        table_name: str = Apeks.TABLES.get("state_staff_history"),
+        url: str = Apeks.URL,
+        token: str = Apeks.TOKEN,
 ):
     """
     Получение списка сотрудников на указанную дату.
@@ -282,7 +283,9 @@ async def get_state_staff_history(
     Parameters
     ----------
         req_date: date
-            дата.
+            дата
+        department_id: int|str
+            id подразделения
         table_name: str
             имя_таблицы
         url: str
@@ -291,15 +294,16 @@ async def get_state_staff_history(
             токен для API
     """
     endpoint = f"{url}/api/call/system-database/get"
+    dept_filter = f' and department_id={department_id}' if department_id else ''
     params = {
         "token": token,
         "table": table_name,
-        "filter": f"start_date <= '{req_date}' "
-        f"and (end_date >= '{req_date}' or end_date IS NULL ) ",
+        "filter": (
+            f"start_date <= '{req_date}' and (end_date >= '{req_date}' "
+            f"or end_date IS NULL){dept_filter}"
+        )
     }
     logging.debug(
-        "Переданы параметры для запроса 'get_state_staff_history': "
-        f"start_date <= '{req_date}' and (end_date >= '{req_date}' "
-        f"or end_date IS NULL ) "
+        f"Переданы параметры для запроса 'get_state_staff_history': {params['filter']}"
     )
     return endpoint, params
