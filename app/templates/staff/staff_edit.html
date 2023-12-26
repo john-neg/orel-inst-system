@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Строевая записка{% endblock %}
+    </h3>
+      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
+      <h4 class="fw-normal text-center text-dark mb-1">Подразделение - {{ department }}</h4>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <div class="table-responsive">
+            <table class="table table-sm mt-3">
+              <thead>
+                <tr>
+                  <th class="text-center">Ф.И.О.</th>
+                  <th class="text-center">Должность</th>
+                  <th class="text-center">Местонахождение</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for staff in form.staff_list %}
+{#                  {{ staff }}#}
+                  <tr>
+                    <td hidden="hidden">{{ staff.staff_id }}</td>
+                    <td class="text-center">{{ staff.staff_name }}</td>
+                    <td class="text-center">{{ staff.position }}</td>
+                    <td class="text-center">{{ staff.current_status }}
+{#                      <select class="form-select">#}
+{#                        <option value="0" selected="">В строю</option>#}
+{#                        <optgroup label="Причины отсутствия:">#}
+{#                          {% for choice in staff.current_status.choices %}#}
+{#                            <option value={{ choice }}>{{ choice }}</option>#}
+{#                          {% endfor %}#}
+{#                        </optgroup>#}
+{#                      </select>#}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+            <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
+{#          {{ form.submit(class="btn btn-success fw-bold", id=form.submit.label.field_id, style="width: 100%;font-weight: bold;border-style: none;") }}#}
+        </div>
+      </div>
+    </div>
+    {% if form.form_errors %}
+      <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+    {% endif %}
+
+  </form>
+{% endblock %}
