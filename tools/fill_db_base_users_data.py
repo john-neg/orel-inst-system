@@ -22,8 +22,10 @@ roles = {
     FlaskConfig.ROLE_METOD: 'Методист',
     FlaskConfig.ROLE_BIBL: 'Библиотека',
     FlaskConfig.ROLE_USER: 'Пользователь',
+    FlaskConfig.ROLE_STAFF: 'Строевая записка',
 }
 
 for slug, name in roles.items():
-    role = users_role_service.create(slug=slug, name=name)
-    users_service.create_user(username=slug, password=slug, role_id=role.id)
+    if not users_role_service.get(slug=slug):
+        role = users_role_service.create(slug=slug, name=name)
+        users_service.create_user(username=slug, password=slug, role_id=role.id)
