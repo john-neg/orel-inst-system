@@ -13,7 +13,7 @@
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
           <div class="table-responsive">
-            <table class="table table-sm mt-3">
+            <table class="table table-sm text-dark mt-3" style="border-color:darkgray;">
               {% for dept_type in staff_data %}
                 <thead>
                   <tr>
@@ -65,11 +65,13 @@
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mt-3 mb-3">
           <div class="btn-group" role="group">
+          {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_STAFF, ) %}
             {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
               {{ form.finish_edit(class="btn btn-danger fw-bold") }}
             {% elif doc_status == config.STAFF_COMPLETED_STATUS %}
               {{ form.enable_edit(class="btn btn-warning fw-bold") }}
             {% endif %}
+          {% endif %}
             {{ form.make_report(class="btn btn-success fw-bold") }}
           </div>
         </div>

@@ -33,6 +33,7 @@ class FlaskConfig(object):
     ROLE_METOD: str = "metod"
     ROLE_BIBL: str = "bibl"
     ROLE_USER: str = "user"
+    ROLE_STAFF: str = "staff"
 
     # Pagination
     ITEMS_PER_PAGE = 10

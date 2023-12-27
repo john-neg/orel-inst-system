@@ -1,18 +1,20 @@
 import logging
 import datetime as dt
 
-from flask import render_template, request, url_for
-from flask_login import login_required
+from flask import render_template, request, url_for, flash
+from flask_login import login_required, current_user
+from pymongo.errors import PyMongoError
 from werkzeug.utils import redirect
 
 from config import ApeksConfig as Apeks, MongoDBSettings, FlaskConfig
 from . import bp
-from .forms import StableStaffForm, StaffPersonForm, DepartmentEditForm
+from .forms import StableStaffForm, create_staff_edit_form
 from ..common.func.api_get import check_api_db_response, get_state_staff_history, \
     api_get_db_table
 from ..common.func.app_core import data_processor
 from ..common.func.organization import get_departments
 from ..common.func.staff import get_state_staff
+from ..db.auth_models import Users
 from ..db.database import db
 from ..db.mongodb import get_mongo_db
 from ..db.staff_models import StaffStableBusyTypes
@@ -25,26 +27,26 @@ async def stable_staff():
 
     working_date = dt.date.today()
     mongo_db = get_mongo_db()
-    db_collection = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
+    staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
 
-    current_data = db_collection.find_one({"date": working_date.isoformat()})
+    current_data = staff_db.find_one({"date": working_date.isoformat()})
     if not current_data:
         current_data = {
             'date': working_date.isoformat(),
             'departments': {},
             'status': FlaskConfig.STAFF_IN_PROGRESS_STATUS
         }
-        db_collection.insert_one(current_data)
+        staff_db.insert_one(current_data)
 
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get('finish_edit'):
-            db_collection.find_one_and_update(
+            staff_db.find_one_and_update(
                 {"_id": current_data.get("_id")},
                 {"$set": {'status': FlaskConfig.STAFF_COMPLETED_STATUS}}
             )
             return redirect(url_for('staff.stable_staff'))
         elif request.form.get('enable_edit'):
-            db_collection.find_one_and_update(
+            staff_db.find_one_and_update(
                 {"_id": current_data.get("_id")},
                 {"$set": {'status': FlaskConfig.STAFF_IN_PROGRESS_STATUS}}
             )
@@ -98,12 +100,14 @@ async def stable_staff():
 
 @bp.route("/stable_staff_edit/<int:department_id>", methods=["GET", "POST"])
 async def stable_staff_edit(department_id):
-    # department_id = int(request.args.get("department_id"))
 
-    working_date = request.args.get("date")
+    mongo_db = get_mongo_db()
+    staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
+    logs_db = mongo_db[MongoDBSettings.STAFF_LOGS_COLLECTION]
+    staff_stable_service = BaseDBService(StaffStableBusyTypes, db_session=db.session)
     working_date = (
-        dt.date.fromisoformat(working_date)
-        if working_date
+        dt.date.fromisoformat(request.args.get("date"))
+        if request.args.get("date")
         else dt.date.today()
     )
 
@@ -135,7 +139,6 @@ async def stable_staff_edit(department_id):
     )
 
     final_staff_data = []
-
     for staff_id, staff_hist in staff_ids.items():
         staff_id = staff_id
         position_id = int(staff_hist.get('position_id'))
@@ -153,28 +156,63 @@ async def stable_staff_edit(department_id):
 
     final_staff_data.sort(key=lambda x: int(x['sort']), reverse=True)
 
-    staff_stable_service = BaseDBService(StaffStableBusyTypes, db_session=db.session)
-    busy_types = [(item.slug, item.name) for item in staff_stable_service.list()]
+    busy_types = staff_stable_service.list(is_active=1)
 
-    form = DepartmentEditForm()
-    form.name = department_name
+    form = create_staff_edit_form(
+        staff_data=final_staff_data,
+        busy_types=busy_types
+    )
+
+    current_db_data = staff_db.find_one({"date": working_date.isoformat()})
 
     if request.method == 'POST' and form.validate_on_submit():
-        print()
-        print()
-        print()
-        print(request.form)
-        print()
-        print()
-        print()
+        if current_db_data.get('status') == FlaskConfig.STAFF_IN_PROGRESS_STATUS:
+            load_data = {
+                'id': department_id,
+                'name': department_name,
+                'total': len(staff_ids),
+                'absence': {item.slug: {} for item in busy_types},
+                'user': current_user.username if isinstance(current_user, Users) else 'anonymous',
+                'updated': dt.datetime.now().isoformat()
+            }
+            for _id in staff_ids:
+                staff_absence = request.form.get(f"staff_id_{_id}")
+                if staff_absence != '0' and staff_absence in load_data['absence']:
+                    load_data['absence'][staff_absence][_id] = state_staff[int(_id)].get('short')
+                elif staff_absence != '0' and staff_absence not in load_data['absence']:
+                    message = f"Форма вернула неизвестное Местонахождение: {staff_absence}"
+                    flash(message, category="danger")
+                    logging.info(message)
 
-    for staff in final_staff_data:
-        person_form = StaffPersonForm()
-        person_form.staff_id = staff.get('staff_id')
-        person_form.staff_name = staff.get('name')
-        person_form.position = staff.get('position')
-        person_form.current_status.choices = busy_types
-        form.staff_list.append_entry(person_form)
+            try:
+                staff_db.update_one(
+                    {"date": working_date.isoformat()},
+                    {
+                        '$set': {f"departments.{department_id}": load_data}
+                        },
+                    upsert=True
+                )
+                logs_db.insert_one(load_data)
+                current_db_data = staff_db.find_one({"date": working_date.isoformat()})
+                message = (f"Данные подразделения {department_name} за "
+                           f"{working_date.isoformat()} успешно переданы")
+                flash(message, category="success")
+                logging.info(message)
+            except PyMongoError as error:
+                message = f"Произошла ошибка записи данных: {error}"
+                flash(message, category="danger")
+                logging.info(message)
+        else:
+            message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
+            flash(message, category="danger")
+
+    current_dept_data = current_db_data['departments'].get(str(department_id))
+    if current_dept_data:
+        for absence, items in current_dept_data['absence'].items():
+            if items:
+                for _id in items:
+                    attr = getattr(form, f"staff_id_{_id}")
+                    attr.data = absence
 
     return render_template(
         "staff/staff_edit.html",
@@ -182,5 +220,6 @@ async def stable_staff_edit(department_id):
         form=form,
         date=working_date,
         department=department_name,
-        # final_staff_data=staff_stable_service.list()
+        staff_data=final_staff_data,
+        status=current_db_data.get('status')
     )
