@@ -75,8 +75,7 @@ async def get_departments(
 
     :param table: Название таблицы БД, содержащей список подразделений.
     :param department_filter: Тип подразделения (department, kafedra, faculty, other).
-    :return: dict {'Название группы':
-        {id: {'full': 'полное название', 'short': 'сокращенное название'}}}
+    :return: dict {id: {'full': 'полное название', 'short': 'сокращенное название'}}}
     """
     state_departments = await check_api_db_response(
         await api_get_db_table(table)
