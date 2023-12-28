@@ -15,6 +15,16 @@ class ExcelStyle(object):
     Header.border = AllBorder
     Header.alignment = Alignment(wrap_text=True)
 
+    HeaderSmall = NamedStyle(name="header_small")
+    HeaderSmall.font = Font(name="Times New Roman", size=10, bold=True)
+    HeaderSmall.border = AllBorder
+    HeaderSmall.alignment = Alignment(
+                horizontal="center",
+                vertical="center",
+                wrap_text=True,
+                shrink_to_fit=True,
+            )
+
     Base = NamedStyle(name="base")
     Base.font = Font(name="Times New Roman", size=11)
     Base.border = AllBorder
