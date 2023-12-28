@@ -11,41 +11,39 @@
     {{ form.hidden_tag() }}
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-9">
-          <div class="table-responsive">
-            <table class="table table-sm text-dark mt-3" style="border-color:darkgray;">
-              <thead>
-                <tr>
-                  <th class="text-center">Ф.И.О.</th>
-                  <th class="text-center">Должность</th>
-                  <th class="text-center">Местонахождение</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for staff in staff_data %}
-                <tr>
-                  <td hidden="hidden">{{ staff.get('staff_id') }}</td>
-                  <td class="text-center">{{ staff.get('name') }}</td>
-                  <td class="text-center">{{ staff.get('position') }}</td>
-                  <td class="text-center">
-                    {% for item in form %}
-                      {% if item.label.field_id == 'staff_id_' + staff.get('staff_id') %}
-                        <div class="row mb-1">
-                          <div class="col">
-                            {{ item(class="form-select") }}
-                            {% for error in item.errors %}
-                              <span style="color: var(--bs-danger);">{{ error }}</span>
-                            {% endfor %}
-                          </div>
+        <div class="col-md-10 col-xl-9 table-responsive">
+          <table class="table table-sm text-dark mt-3" style="border-color:darkgray;">
+            <thead>
+              <tr>
+                <th class="text-center">Ф.И.О.</th>
+                <th class="text-center">Должность</th>
+                <th class="text-center">Местонахождение</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for staff in staff_data %}
+              <tr>
+                <td hidden="hidden">{{ staff.get('staff_id') }}</td>
+                <td class="text-center">{{ staff.get('name') }}</td>
+                <td class="text-center">{{ staff.get('position') }}</td>
+                <td class="text-center">
+                  {% for item in form %}
+                    {% if item.label.field_id == 'staff_id_' + staff.get('staff_id') %}
+                      <div class="row mb-1">
+                        <div class="col">
+                          {{ item(class="form-select") }}
+                          {% for error in item.errors %}
+                            <span style="color: var(--bs-danger);">{{ error }}</span>
+                          {% endfor %}
                         </div>
-                      {% endif %}
-                     {% endfor %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    {% endif %}
+                   {% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
           <div class="btn-group" role="group">
             {% if status == config.STAFF_IN_PROGRESS_STATUS %}
               <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
