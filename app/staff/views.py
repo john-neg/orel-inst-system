@@ -65,6 +65,7 @@ async def stable_staff():
             filename = generate_stable_staff_report(
                 current_db_data, busy_types
             )
+            return redirect(url_for("main.get_file", filename=filename))
 
     departments = await get_departments()
     staff_history = await check_api_db_response(

@@ -40,17 +40,17 @@
                         {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
                           {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
                             <a class="btn btn-primary btn-sm" role="button" target="_blank"
-                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Добавить</a>
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Добавить</a>
                           {% else %}
                             <a class="btn btn-warning btn-sm" role="button" target="_blank"
-                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Изменить</a>
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Изменить</a>
                           {% endif %}
                         {% else %}
                           {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
                             <div class="fw-bold text text-danger">нет данных<div>
                           {% else %}
                             <a class="btn btn-success btn-sm" role="button" target="_blank"
-                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data) }}">Просмотр</a>
+                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Просмотр</a>
                           {% endif %}
                         {% endif %}
                       </td>

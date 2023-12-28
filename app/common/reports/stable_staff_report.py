@@ -4,6 +4,7 @@ import os
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
+from openpyxl.worksheet.page import PageMargins
 
 from app.common.reports.ExcelStyles import ExcelStyle
 from config import ApeksConfig as Apeks, FlaskConfig
@@ -34,6 +35,10 @@ def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
         wb = Workbook()
         ws = wb.active
         ws.title = workdate
+        ws.page_margins = PageMargins(
+            left=0.3, right=0.3, top=0.1, bottom=0.1, header=0.2, footer=0.2
+        )
+        ws.page_setup.fitToWidth = 1
 
         # Номера строк для объединения
         row_to_merge = []
@@ -135,7 +140,7 @@ def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
         ws.row_dimensions[row].height = 85
         for key, val in headers.items():
             ws.cell(row, column).value = key
-            ws.cell(row, column).style = ExcelStyle.Header
+            ws.cell(row, column).style = ExcelStyle.HeaderSmall
             ws.cell(row, column).fill = ExcelStyle.GreyFill
             text_rotation = 90 if val <= 5 else 0
             ws.cell(row, column).alignment = Alignment(
