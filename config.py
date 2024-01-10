@@ -457,7 +457,8 @@ class MongoDBSettings:
     # Имя базы данных
     MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
     # Строка подключения к БД
-    CONNECTION_STRING = f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"
+    CONNECTION_STRING = (f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"
+                         f"/?authMechanism=DEFAULT&authSource={MONGO_DB_NAME}")
     # Название коллекции данных переменного состава
     STAFF_STABLE_COLLECTION = 'stable_staff'
     # Название коллекции данных постоянного состава

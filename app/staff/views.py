@@ -26,6 +26,7 @@ from ..services.base_db_service import BaseDBService
 
 
 @bp.route("/stable_staff", methods=["GET", "POST"])
+@login_required
 async def stable_staff():
     form = StableStaffForm()
     working_date = (
@@ -114,6 +115,7 @@ async def stable_staff():
 
 
 @bp.route("/stable_staff_edit/<int:department_id>", methods=["GET", "POST"])
+@login_required
 async def stable_staff_edit(department_id):
     mongo_db = get_mongo_db()
     staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
