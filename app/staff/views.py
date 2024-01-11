@@ -206,8 +206,9 @@ async def stable_staff_edit(department_id):
                     {"$set": {f"departments.{department_id}": load_data}},
                     upsert=True,
                 )
-                logs_db.insert_one(load_data)
                 current_db_data = staff_db.find_one({"date": working_date.isoformat()})
+                load_data["edit_document_id"] = current_db_data.get('_id', None)
+                logs_db.insert_one(load_data)
                 message = (
                     f"Данные подразделения {department_name} за "
                     f"{working_date.isoformat()} успешно переданы"
