@@ -36,11 +36,6 @@ def login():
         username = form.username.data
         password = form.password.data
         user = users_service.get(username=username)
-        check_password = (
-            users_service.check_password(user.password_hash, password)
-            if user
-            else False
-        )
 
         if FlaskConfig.LDAP_AUTH:
             try:
@@ -55,20 +50,20 @@ def login():
                     message = f"Создан новый пользователь: {username}"
                     flash(message, category="info")
                     logging.info(message)
-                elif not check_password and user and ldap_groups:
-                    user = users_service.update_user(user.id, password=password)
-                    message = f"Обновлен пароль пользователя: {username}"
-                    flash(message, category="info")
-                    logging.info(message)
-                check_password = users_service.check_password(
-                    user.password_hash, password
-                )
+                elif user and ldap_groups:
+                    if not users_service.check_password(user.password_hash, password):
+                        user = users_service.update_user(user.id, password=password)
+                        message = f"Обновлен пароль пользователя: {username}"
+                        flash(message, category="info")
+                        logging.info(message)
             except LDAPSocketOpenError:
                 message = "Нет связи с сервером авторизации"
                 flash(message, category="warning")
                 logging.info(message)
 
-        if user is None or not check_password:
+        if user is None or not users_service.check_password(
+            user.password_hash, password
+        ):
             error = "Неверный логин или пароль"
             return render_template(
                 "auth/login.html",
