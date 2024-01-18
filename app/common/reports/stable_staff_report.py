@@ -55,7 +55,7 @@ def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
 
         # Базовые столбцы таблицы: название и ширина столбца
         row = 2
-        headers = {"Подразделение": 15, "По списку": 3, "В строю": 3, "Отсутствуют": 3}
+        headers = {"Подразделение": 15, "По списку": 4, "В строю": 4, "Отсутствуют": 4}
 
         row += 1
         addon_headers = []
