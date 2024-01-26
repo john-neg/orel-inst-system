@@ -4,7 +4,7 @@ from json import JSONDecodeError
 
 import httpx
 
-from ..common.exceptions import ApeksApiException
+from ..exceptions import ApeksApiException
 from .abstract_repository import AbstractApiRepository
 
 

@@ -3,20 +3,20 @@ from datetime import date
 
 from flask import render_template, request, redirect, url_for, flash
 
-from app.common.classes.EducationStaff import EducationStaff
-from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from app.common.func.api_get import (
+from app.core.classes.EducationStaff import EducationStaff
+from app.core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from app.core.func.api_get import (
     check_api_db_response,
     api_get_db_table,
     check_api_staff_lessons_response,
     api_get_staff_lessons,
 )
-from app.common.func.app_core import data_processor
-from app.common.func.education_plan import get_plan_disciplines
-from app.common.func.organization import get_departments
-from app.common.func.staff import get_state_staff
-from app.common.reports.schedule_ical import generate_schedule_ical
-from app.common.reports.schedule_xlsx import generate_schedule_xlsx
+from app.core.func.app_core import data_processor
+from app.core.func.education_plan import get_plan_disciplines
+from app.core.func.organization import get_departments
+from app.core.func.staff import get_state_staff
+from app.core.reports.schedule_ical import generate_schedule_ical
+from app.core.reports.schedule_xlsx import generate_schedule_xlsx
 from config import ApeksConfig as Apeks
 from . import bp
 from .forms import CalendarForm

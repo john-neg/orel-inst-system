@@ -4,11 +4,11 @@ from dataclasses import dataclass
 
 from openpyxl import load_workbook
 
-from app.common.classes.EducationPlan import (
+from app.core.classes.EducationPlan import (
     EducationPlanCompetencies,
     EducationPlanIndicators,
 )
-from app.common.func.app_core import xlsx_iter_rows, xlsx_normalize
+from app.core.func.app_core import xlsx_iter_rows, xlsx_normalize
 from app.plans.func import get_competency_code
 from config import ApeksConfig as Apeks
 

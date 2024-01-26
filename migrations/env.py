@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine
 
-from app.db import payment_models, auth_models, reports_models, staff_models
-from app.db.database import db
+from app.core.db import payment_models, auth_models, reports_models, staff_models
+from app.core.db.database import db
 from config import FlaskConfig
 
 

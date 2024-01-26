@@ -7,7 +7,7 @@ from json import JSONDecodeError
 import httpx
 
 from config import ApeksConfig as Apeks
-from app.common.exceptions import ApeksApiException
+from app.core.exceptions import ApeksApiException
 
 
 def api_get_request_handler(func):

@@ -23,7 +23,7 @@ class FlaskConfig(object):
     EXPORT_FILE_DIR = os.path.join(BASEDIR, "temp/export/")
     UPLOAD_FILE_DIR = os.path.join(BASEDIR, "temp/upload/")
     LOG_FILE_DIR = os.path.join(BASEDIR, "logs/")
-    TEMPLATE_FILE_DIR = os.path.join(BASEDIR, "app/common/reports/templates/")
+    TEMPLATE_FILE_DIR = os.path.join(BASEDIR, "app/core/reports/templates/")
     STATIC_FILE_DIR = os.path.join(BASEDIR, "app/static/")
     ALLOWED_EXTENSIONS = {"xlsx", "csv"}
     USER_LOGIN_DURATION = timedelta(hours=8)
@@ -47,9 +47,9 @@ class FlaskConfig(object):
 
     # Staff collection statuses
     # Название статуса документа "в процессе"
-    STAFF_IN_PROGRESS_STATUS = 'in progress'
+    STAFF_IN_PROGRESS_STATUS: str = 'in progress'
     # Название статуса завершенного документа
-    STAFF_COMPLETED_STATUS = 'completed'
+    STAFF_COMPLETED_STATUS: str = 'completed'
     # Название историй операций
     STAFF_COLLECTION_STATUSES = {
         STAFF_IN_PROGRESS_STATUS: "Редактируется",

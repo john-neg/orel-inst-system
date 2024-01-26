@@ -3,8 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
 
-from ..common.services.users_roles_service import get_users_roles_service
-
+from ..core.services.users_service import get_users_roles_service
 
 users_roles_service = get_users_roles_service()
 

@@ -9,19 +9,19 @@ from werkzeug.utils import redirect
 from config import ApeksConfig as Apeks, MongoDBSettings, FlaskConfig
 from . import bp
 from .forms import StableStaffForm, create_staff_edit_form
-# from ..common.func.api_get import (
-#     check_api_db_response,
-#     get_state_staff_history,
-#     api_get_db_table,
-# )
-# from ..common.func.app_core import data_processor
-# from ..common.func.organization import get_departments
-# from ..common.func.staff import get_state_staff
-from ..common.reports.stable_staff_report import generate_stable_staff_report
-from ..common.db.auth_models import Users
-from ..common.db.mongo_db import get_mongo_db
-from ..common.services.mongo_crud_service import MongoCRUDService
-from ..common.services.staff_stable_busy_types_service import get_staff_stable_busy_types_service
+from ..core.func.api_get import (
+    check_api_db_response,
+    get_state_staff_history,
+    api_get_db_table,
+)
+from ..core.func.app_core import data_processor
+from ..core.func.organization import get_departments
+from ..core.func.staff import get_state_staff
+from ..core.reports.stable_staff_report import generate_stable_staff_report
+from ..core.db.auth_models import Users
+from ..core.services.staff_document_service import get_staff_stable_crud_service, \
+    DocumentStatusType
+from ..core.services.staff_service import get_staff_stable_busy_types_service
 
 
 @bp.route("/staff_stable", methods=["GET", "POST"])
@@ -33,34 +33,34 @@ async def staff_stable():
         if request.args.get("date")
         else dt.date.today()
     )
-    staff_stable_service = MongoCRUDService(
-        mongo_db=get_mongo_db(),
-        collection_name=MongoDBSettings.STAFF_STABLE_COLLECTION
-    )
+    staff_stable_service = get_staff_stable_crud_service()
     busy_types_service = get_staff_stable_busy_types_service()
 
-    current_db_data = staff_stable_service.get({"date": working_date.isoformat()})
+    current_db_data = staff_stable_service.get(
+        query_filter={"date": working_date.isoformat()}
+    )
     if not current_db_data:
-        current_db_data = {
-            "date": working_date.isoformat(),
-            "departments": {},
-            "status": FlaskConfig.STAFF_IN_PROGRESS_STATUS,
-        }
-        result = staff_stable_service.create(current_db_data)
-        logging.info(result)
-        current_db_data = staff_stable_service.get({"date": working_date.isoformat()})
-
+        result_info = staff_stable_service.make_blank_document(working_date)
+        logging.info(
+            f"Создан документ - строевая записка постоянного состава "
+            f"за {working_date.isoformat()}. {result_info}"
+        )
+        current_db_data = staff_stable_service.get(
+            query_filter={"date": working_date.isoformat()}
+        )
+    print(current_db_data)
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("finish_edit"):
-            staff_stable_service.update(
-                {"_id": current_db_data.get("_id")},
-                {"$set": {"status": FlaskConfig.STAFF_COMPLETED_STATUS}},
+            result = staff_stable_service.change_status(
+                _id=current_db_data.get("_id"),
+                status=DocumentStatusType.COMPLETED.value
             )
+            logging.error(f"СТАТУС: {result}")
             return redirect(url_for("staff.staff_stable"))
         elif request.form.get("enable_edit"):
-            staff_stable_service.update(
-                {"_id": current_db_data.get("_id")},
-                {"$set": {"status": FlaskConfig.STAFF_IN_PROGRESS_STATUS}},
+            staff_stable_service.change_status(
+                _id=current_db_data.get("_id"),
+                status=DocumentStatusType.IN_PROGRESS.value
             )
             return redirect(url_for("staff.staff_stable"))
         elif request.form.get("make_report"):

@@ -8,8 +8,8 @@ from flask.logging import create_logger
 
 from config import FlaskConfig, ApeksConfig, LoggerConfig
 from .auth import bp as login_bp
-from .common.extensions import login_manager
-from .common.db.database import db
+from .core.extensions import login_manager
+from .core.db.database import db
 from .library import bp as library_bp
 from .reports import bp as reports_bp
 from .staff import bp as staff_bp

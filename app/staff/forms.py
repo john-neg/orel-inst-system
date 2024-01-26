@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
-from ..common.db.database import db
+from ..core.db.database import db
 
 
 class StableStaffForm(FlaskForm):

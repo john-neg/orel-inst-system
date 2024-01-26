@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.page import PageMargins
 
-from app.common.reports.ExcelStyles import ExcelStyle
+from app.core.reports.ExcelStyles import ExcelStyle
 from config import ApeksConfig as Apeks, FlaskConfig
 
 

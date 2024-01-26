@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from functools import singledispatchmethod
 from typing import TypeVar, Optional, Mapping, Any
 
+from bson import ObjectId
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
@@ -26,6 +28,14 @@ class MongoDbRepository(AbstractDBRepository):
 
     def get(self, query_filter, *args, **kwargs) -> Optional[DocumentType] | None:
         return self.collection.find_one(query_filter, *args, **kwargs)
+
+    @singledispatchmethod
+    def get_by_id(self, _id: str, *args, **kwargs) -> Optional[DocumentType] | None:
+        return self.get({"_id": ObjectId(_id)}, *args, **kwargs)
+
+    @get_by_id.register(ObjectId)
+    def _(self, _id: ObjectId, *args, **kwargs):
+        return self.get({"_id": _id}, *args, **kwargs)
 
     def create(self, document: DocumentType, **kwargs) -> InsertOneResult:
         return self.collection.insert_one(document, **kwargs)

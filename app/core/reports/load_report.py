@@ -4,7 +4,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl.styles import Font
 
-from app.common.classes import LoadReportProcessor
+from app.core.classes import LoadReportProcessor
 from config import FlaskConfig
 from .ExcelStyles import ExcelStyle
 

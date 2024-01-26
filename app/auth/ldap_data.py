@@ -5,7 +5,7 @@ from config import FlaskConfig
 
 
 def get_user_data(username: str, password: str) -> tuple[str, list]:
-    """Get user data from LDAP Server"""
+    """Получение данных пользователя от LDAP сервера."""
 
     server = Server(FlaskConfig.AD_SERVER, connect_timeout=5, get_info='ALL')
     search_parameters = {

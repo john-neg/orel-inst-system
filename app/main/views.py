@@ -48,13 +48,10 @@ def get_temp_file(filename):
 
 @bp.app_errorhandler(Exception)
 def handle_exception(error):
-    """Обработка исключений, вывод всех (кроме HTTP) ошибок в виде сообщений."""
-
-    # pass through HTTP errors
+    """Обработка и вывод всех ошибок (кроме HTTP) в виде flash-сообщений."""
     if isinstance(error, HTTPException):
         return error
-
-    # now you're handling non-HTTP exceptions only
-    flash(f"{type(error).__name__} - {error}", category='danger')
-    logging.info(f"{type(error).__name__} - {error}")
+    message = f"Произошла ошибка - {type(error).__name__} - {error}"
+    flash(message, category='danger')
+    logging.error(message)
     return render_template("errors/500_generic.html"), 500

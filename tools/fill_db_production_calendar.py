@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 sys.path.append('.')
 
 from app.services.base_db_service import BaseDBService
-from app.common.func.app_core import read_json_file
+from app.core.func.app_core import read_json_file
 from app.db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,

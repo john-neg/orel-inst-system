@@ -8,7 +8,7 @@ sys.path.append('.')
 
 from app.services.base_db_service import BaseDBService
 from app.tools.payment.func import make_slug
-from app.common.func.app_core import read_json_file
+from app.core.func.app_core import read_json_file
 from app.db.payment_models import (
     PaymentRates,
     PaymentRatesValues,

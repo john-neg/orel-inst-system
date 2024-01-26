@@ -5,37 +5,37 @@ from flask import render_template, request, redirect, url_for, flash
 from flask.views import View
 from flask_login import login_required
 
-from app.common.classes.EducationPlan import (
+from app.core.classes.EducationPlan import (
     EducationPlanExtended,
     EducationPlanWorkPrograms,
     EducationPlanIndicators,
 )
-from app.common.classes.EducationStaff import EducationStaff
-from app.common.exceptions import (
+from app.core.classes.EducationStaff import EducationStaff
+from app.core.exceptions import (
     ApeksWrongParameterException,
     ApeksParameterNonExistException,
 )
-from app.common.func.api_get import (
+from app.core.func.api_get import (
     check_api_db_response,
     api_get_db_table,
 )
-from app.common.func.app_core import (
+from app.core.func.app_core import (
     data_processor,
 )
-from app.common.func.education_plan import (
+from app.core.func.education_plan import (
     get_plan_education_specialties,
     get_education_plans,
     get_plan_curriculum_disciplines,
     get_plan_discipline_competencies,
 )
-from app.common.func.organization import (
+from app.core.func.organization import (
     get_organization_name,
     get_organization_chief_info,
     get_departments,
 )
-from app.common.func.staff import get_rank_name, get_state_staff
-from app.common.func.system_data import get_system_reports_data
-from app.common.func.work_program import (
+from app.core.func.staff import get_rank_name, get_state_staff
+from app.core.func.system_data import get_system_reports_data
+from app.core.func.work_program import (
     get_work_programs_data,
     work_program_view_data,
     work_program_field_tb_table,
@@ -45,7 +45,7 @@ from app.common.func.work_program import (
     work_programs_dates_update,
     edit_work_programs_data,
 )
-from app.common.reports.program_title_pages import generate_program_title_pages
+from app.core.reports.program_title_pages import generate_program_title_pages
 from config import ApeksConfig as Apeks
 from . import bp
 from .forms import (

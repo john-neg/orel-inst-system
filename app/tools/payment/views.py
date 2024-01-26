@@ -20,8 +20,8 @@ from .forms import (
     create_single_addons_form,
 )
 from .func import get_paginated_data, make_slug
-from ...common.db.database import db
-from ...common.db.payment_models import (
+from ...core.db.database import db
+from ...core.db.payment_models import (
     PaymentRates,
     PaymentAddons,
     PaymentSingleAddons,

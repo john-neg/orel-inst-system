@@ -8,19 +8,19 @@ from werkzeug.utils import redirect
 from config import ApeksConfig as Apeks
 from . import bp
 from .forms import LoadReportForm, HolidaysReportForm
-from ..common.classes.EducationStaff import EducationStaff
-from ..common.classes.LoadReportProcessor import LoadReportProcessor
-from ..common.func.api_get import check_api_db_response, api_get_db_table, get_lessons
-from ..common.func.organization import get_departments
-from ..common.func.staff import get_state_staff
-from ..common.reports.holidays_report import generate_holidays_report
-from ..common.reports.load_report import generate_load_report
-from ..common.db.database import db
-from ..common.db.reports_models import (
+from ..core.classes.EducationStaff import EducationStaff
+from ..core.classes.LoadReportProcessor import LoadReportProcessor
+from ..core.func.api_get import check_api_db_response, api_get_db_table, get_lessons
+from ..core.func.organization import get_departments
+from ..core.func.staff import get_state_staff
+from ..core.reports.holidays_report import generate_holidays_report
+from ..core.reports.load_report import generate_load_report
+from ..core.db.database import db
+from ..core.db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,
 )
-from ..common.repository.sqlalchemy_repository import DbRepository
+from ..core.repository.sqlalchemy_repository import DbRepository
 
 
 @bp.route("/load_report", methods=["GET", "POST"])

@@ -8,9 +8,8 @@ from config import FlaskConfig
 from . import bp
 from .forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from .ldap_data import get_user_data
-from ..common.extensions import login_manager
-from ..common.services.users_roles_service import get_users_roles_service
-from ..common.services.users_service import get_users_service
+from ..core.extensions import login_manager
+from ..core.services.users_service import get_users_service, get_users_roles_service
 
 
 @login_manager.user_loader
@@ -21,7 +20,7 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.login", next=request.path))
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -76,7 +75,7 @@ def login():
             duration=FlaskConfig.USER_LOGIN_DURATION,
         )
         logging.info(f"Успешная авторизация - {user}")
-        return redirect(url_for("main.index"))
+        return redirect(request.args.get("next") or url_for("main.index"))
     return render_template(
         "auth/login.html",
         title="Авторизация",

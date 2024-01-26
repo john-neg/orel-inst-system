@@ -2,7 +2,7 @@ from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 from config import ApeksConfig as Apeks
-from app.common.forms import ChooseDepartment
+from app.core.forms import ChooseDepartment
 
 
 class CalendarForm(ChooseDepartment):

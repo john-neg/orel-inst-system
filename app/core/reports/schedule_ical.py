@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, tzinfo
 import pytz
 from icalendar import Calendar, Timezone, TimezoneStandard, Event, Alarm
 
-from app.common.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from app.core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
 from config import FlaskConfig, ApeksConfig as Apeks
 
 

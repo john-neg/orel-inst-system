@@ -1,7 +1,7 @@
 import logging
 
-from app.common.classes.EducationPlan import EducationPlanWorkPrograms
-from app.common.exceptions import (
+from app.core.classes.EducationPlan import EducationPlanWorkPrograms
+from app.core.exceptions import (
     ApeksParameterNonExistException,
     ApeksWrongParameterException,
 )
