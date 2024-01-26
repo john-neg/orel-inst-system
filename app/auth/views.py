@@ -6,11 +6,11 @@ from ldap3.core.exceptions import LDAPSocketOpenError
 
 from config import FlaskConfig
 from . import bp
-from ..auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
+from .forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
+from .ldap_data import get_user_data
 from ..common.extensions import login_manager
-from ..common.func.ldap_data import get_user_data
-from ..services.users_roles_service import get_users_roles_service
-from ..services.users_service import get_users_service
+from ..common.services.users_roles_service import get_users_roles_service
+from ..common.services.users_service import get_users_service
 
 
 @login_manager.user_loader

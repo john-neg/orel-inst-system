@@ -18,10 +18,10 @@ from .forms import StableStaffForm, create_staff_edit_form
 # from ..common.func.organization import get_departments
 # from ..common.func.staff import get_state_staff
 from ..common.reports.stable_staff_report import generate_stable_staff_report
-from ..db.auth_models import Users
-from ..db.mongo_db import get_mongo_db
-from ..services.mongo_crud_service import MongoCRUDService
-from ..services.staff_stable_busy_types_service import get_staff_stable_busy_types_service
+from ..common.db.auth_models import Users
+from ..common.db.mongo_db import get_mongo_db
+from ..common.services.mongo_crud_service import MongoCRUDService
+from ..common.services.staff_stable_busy_types_service import get_staff_stable_busy_types_service
 
 
 @bp.route("/staff_stable", methods=["GET", "POST"])

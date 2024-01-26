@@ -7,17 +7,17 @@ from flask import Flask
 from flask.logging import create_logger
 
 from config import FlaskConfig, ApeksConfig, LoggerConfig
-from app.auth import bp as login_bp
-from app.common.extensions import login_manager
-from app.db.database import db
-from app.library import bp as library_bp
-from app.reports import bp as reports_bp
-from app.staff import bp as staff_bp
-from app.main import bp as main_bp
-from app.plans import bp as plans_bp
-from app.programs import bp as programs_bp
-from app.schedule import bp as schedule_bp
-from app.tools import bp as tools_bp
+from .auth import bp as login_bp
+from .common.extensions import login_manager
+from .common.db.database import db
+from .library import bp as library_bp
+from .reports import bp as reports_bp
+from .staff import bp as staff_bp
+from .main import bp as main_bp
+from .plans import bp as plans_bp
+from .programs import bp as programs_bp
+from .schedule import bp as schedule_bp
+from .tools import bp as tools_bp
 
 
 def check_tokens() -> bool:

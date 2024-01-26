@@ -15,12 +15,12 @@ from ..common.func.organization import get_departments
 from ..common.func.staff import get_state_staff
 from ..common.reports.holidays_report import generate_holidays_report
 from ..common.reports.load_report import generate_load_report
-from ..db.database import db
-from ..db.reports_models import (
+from ..common.db.database import db
+from ..common.db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,
 )
-from ..repository.sqlalchemy_repository import DbRepository
+from ..common.repository.sqlalchemy_repository import DbRepository
 
 
 @bp.route("/load_report", methods=["GET", "POST"])
