@@ -2,7 +2,7 @@ from flask_login import AnonymousUserMixin, UserMixin
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.database import db
+from .database import db
 
 
 class Users(db.Model, UserMixin):

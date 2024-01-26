@@ -1,4 +1,4 @@
-from app.db.mongodb import get_mongo_db
+from app.db.mongo_db import get_mongo_db
 from config import MongoDBSettings
 
 db = get_mongo_db()

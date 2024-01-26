@@ -1,13 +1,13 @@
-from dataclasses import dataclass
-
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy.session import Session
+from sqlalchemy.orm import scoped_session
 
-from ..db.auth_models import Users, UsersRoles
-from ..services.base_db_service import BaseDBService, ModelType
+from ..db.auth_models import Users
+from ..repository.sqlalchemy_repository import ModelType, DbRepository
+from ..db.database import get_db_session
 
 
-@dataclass
-class UsersCRUDService(BaseDBService[Users]):
+class UsersCRUDService(DbRepository[Users]):
     """Класс для CRUD операций модели Users"""
 
     @staticmethod
@@ -27,11 +27,11 @@ class UsersCRUDService(BaseDBService[Users]):
         return new_user
 
     def update_user(
-        self,
-        user_id: int,
-        username: str | None = None,
-        password: str | None = None,
-        role_id: int | None = None,
+            self,
+            user_id: int,
+            username: str | None = None,
+            password: str | None = None,
+            role_id: int | None = None,
     ) -> ModelType:
         update_dict = {}
         if username:
@@ -43,8 +43,11 @@ class UsersCRUDService(BaseDBService[Users]):
         return self.update(user_id, **update_dict)
 
 
-@dataclass
-class UsersRolesCRUDService(BaseDBService[UsersRoles]):
-    """Класс для CRUD операций модели UsersRoles"""
-
-    pass
+def get_users_service(
+        model: type[Users] = Users,
+        db_session: scoped_session[Session] = get_db_session()
+) -> UsersCRUDService:
+    return UsersCRUDService(
+        model=model,
+        db_session=db_session
+    )

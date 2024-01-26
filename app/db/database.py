@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+from flask_sqlalchemy.session import Session
+from sqlalchemy.orm import DeclarativeBase, scoped_session
 
 
 class DefaultBase(DeclarativeBase):
@@ -7,3 +8,8 @@ class DefaultBase(DeclarativeBase):
 
 
 db = SQLAlchemy(model_class=DefaultBase)
+
+
+def get_db_session(database: SQLAlchemy = db) -> scoped_session[Session]:
+    """Возвращает текущую сессию базы данных SQLAlchemy."""
+    return database.session

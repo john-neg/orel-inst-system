@@ -1,24 +1,27 @@
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Any
+from typing import TypeVar, Any, Generic
 
+import flask_sqlalchemy.session
 from flask import request
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
 from config import FlaskConfig
+from .abstract_repository import AbstractDBRepository
 from ..db.database import DefaultBase
 from ..db.database import db
+
 
 ModelType = TypeVar("ModelType", bound=DefaultBase)
 
 
 @dataclass
-class BaseDBService(Generic[ModelType]):
+class DbRepository(Generic[ModelType], AbstractDBRepository):
     """Базовый класс операций с базой данных."""
 
     model: type[ModelType]
-    db_session: db.session
+    db_session: flask_sqlalchemy.session
 
     def list(self, **kwargs: Any) -> list[ModelType]:
         """Выводит список всех объектов модели базы данных."""
@@ -27,18 +30,6 @@ class BaseDBService(Generic[ModelType]):
         result = self.db_session.execute(statement)
         objs: list[ModelType] = result.scalars().all()
         return objs
-
-    def paginated(self, **kwargs: Any) -> Pagination:
-        """Возвращает Pagination объект содержащий объекты модели."""
-
-        page = request.args.get("page", 1, type=int)
-        paginated_data = db.paginate(
-            select(self.model).filter_by(**kwargs),
-            page=page,
-            per_page=FlaskConfig.ITEMS_PER_PAGE,
-            error_out=True,
-        )
-        return paginated_data
 
     def get(self, **kwargs: Any) -> ModelType:
         """Возвращает один объект соответствующий параметрам запроса."""
@@ -75,3 +66,15 @@ class BaseDBService(Generic[ModelType]):
         self.db_session.delete(db_obj)
         self.db_session.commit()
         return f"Запись {self.model.__name__.lower()} удалена"
+
+    def paginated(self, **kwargs: Any) -> Pagination:
+        """Возвращает Pagination объект содержащий объекты модели."""
+
+        page = request.args.get("page", 1, type=int)
+        paginated_data = db.paginate(
+            select(self.model).filter_by(**kwargs),
+            page=page,
+            per_page=FlaskConfig.ITEMS_PER_PAGE,
+            error_out=True,
+        )
+        return paginated_data

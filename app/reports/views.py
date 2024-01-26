@@ -20,7 +20,7 @@ from ..db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,
 )
-from ..services.base_db_service import BaseDBService
+from ..repository.sqlalchemy_repository import DbRepository
 
 
 @bp.route("/load_report", methods=["GET", "POST"])
@@ -157,11 +157,11 @@ async def holidays_report():
 async def holiday_report_export(year, month_start, month_end):
     non_working = [
         d.date
-        for d in BaseDBService(ProductionCalendarHolidays, db_session=db.session).list()
+        for d in DbRepository(ProductionCalendarHolidays, db_session=db.session).list()
     ]
     working_sat = [
         d.date
-        for d in BaseDBService(
+        for d in DbRepository(
             ProductionCalendarWorkingDays, db_session=db.session
         ).list()
     ]

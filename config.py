@@ -57,6 +57,34 @@ class FlaskConfig(object):
     }
 
 
+class MongoDBSettings:
+    """Настройки для базы данных MongoDB."""
+
+    # Имя пользователя БД
+    MONGO_DB_USER = os.getenv('MONGO_DB_USER')
+    # Пароль
+    MONGO_DB_PASS = os.getenv('MONGO_DB_PASS')
+    # Адрес сервера БД
+    MONGO_DB_URL = os.getenv('MONGO_DB_URL')
+    # Имя базы данных
+    MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
+    # Источник аутентификации
+    MONGO_DB_AUTH_SOURCE = os.getenv('MONGO_DB_AUTH_SOURCE') or 'admin'
+    # Механизм аутентификации
+    MONGO_DB_AUTH_MECHANISM = os.getenv('MONGO_DB_AUTH_MECHANISM') or 'DEFAULT'
+    # Строка подключения к БД
+    CONNECTION_STRING = (
+        f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"
+        f"/?authMechanism={MONGO_DB_AUTH_MECHANISM}&authSource={MONGO_DB_AUTH_SOURCE}"
+    )
+    # Название коллекции данных переменного состава
+    STAFF_STABLE_COLLECTION = 'stable_staff'
+    # Название коллекции данных постоянного состава
+    STAFF_VARIOUS_COLLECTION = 'various_staff'
+    # Название коллекции истории операций
+    STAFF_LOGS_COLLECTION = 'staff_logs'
+
+
 class LoggerConfig(object):
     """Logger Configuration."""
 
@@ -70,9 +98,17 @@ class LoggerConfig(object):
 class ApeksConfig(object):
     """Конфигурация для работы с API АпексВУЗ"""
 
-    # Данные API АпексВУЗ
+    # Данные для запросов по API к АпексВУЗ
     URL = os.getenv("APEKS_URL")
     TOKEN = os.getenv("APEKS_TOKEN")
+
+    # Точки доступа к данным АпексВУЗ
+    DB_GET_ENDPOINT = f"{URL}/api/call/system-database/get"
+    DB_ADD_ENDPOINT = f"{URL}/api/call/system-database/add"
+    DB_EDIT_ENDPOINT = f"{URL}/api/call/system-database/edit"
+    DB_DEL_ENDPOINT = f"{URL}/api/call/system-database/delete"
+    STUDENT_SCHEDULE_ENDPOINT = f"{URL}/api/call/schedule-schedule/student"
+    STAFF_SCHEDULE_ENDPOINT = f"{URL}/api/call/schedule-schedule/staff"
 
     # Типы подразделений (для поля type таблицы "state_departments")
     DEPT_TYPES = {
@@ -443,31 +479,3 @@ class ApeksConfig(object):
         ".в .": ".в.",
         "None": "",
     }
-
-
-class MongoDBSettings:
-    """Настройки для базы данных MongoDB."""
-
-    # Имя пользователя БД
-    MONGO_DB_USER = os.getenv('MONGO_DB_USER')
-    # Пароль
-    MONGO_DB_PASS = os.getenv('MONGO_DB_PASS')
-    # Адрес сервера БД
-    MONGO_DB_URL = os.getenv('MONGO_DB_URL')
-    # Имя базы данных
-    MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
-    # Источник аутентификации
-    MONGO_DB_AUTH_SOURCE = os.getenv('MONGO_DB_AUTH_SOURCE') or 'admin'
-    # Механизм аутентификации
-    MONGO_DB_AUTH_MECHANISM = os.getenv('MONGO_DB_AUTH_MECHANISM') or 'DEFAULT'
-    # Строка подключения к БД
-    CONNECTION_STRING = (
-        f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"
-        f"/?authMechanism={MONGO_DB_AUTH_MECHANISM}&authSource={MONGO_DB_AUTH_SOURCE}"
-    )
-    # Название коллекции данных переменного состава
-    STAFF_STABLE_COLLECTION = 'stable_staff'
-    # Название коллекции данных постоянного состава
-    STAFF_VARIOUS_COLLECTION = 'various_staff'
-    # Название коллекции истории операций
-    STAFF_LOGS_COLLECTION = 'staff_logs'

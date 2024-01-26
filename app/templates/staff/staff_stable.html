@@ -43,14 +43,14 @@
                                href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Добавить</a>
                           {% else %}
                             <a class="btn btn-warning btn-sm" role="button"
-                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Изменить</a>
+                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Изменить</a>
                           {% endif %}
                         {% else %}
                           {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
                             <div class="fw-bold text text-danger">нет данных<div>
                           {% else %}
                             <a class="btn btn-success btn-sm" role="button"
-                               href="{{ url_for("staff.stable_staff_edit", department_id=dept_data, date=date) }}">Просмотр</a>
+                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Просмотр</a>
                           {% endif %}
                         {% endif %}
                       </td>

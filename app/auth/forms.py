@@ -3,12 +3,10 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms_sqlalchemy.fields import QuerySelectField
 
-from ..db.auth_models import Users, UsersRoles
-from ..db.database import db
-from ..services.auth_service import UsersRolesCRUDService, UsersCRUDService
+from ..services.users_roles_service import get_users_roles_service
 
-users_service = UsersCRUDService(Users, db_session=db.session)
-users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
+
+users_roles_service = get_users_roles_service()
 
 
 class UserLoginForm(FlaskForm):
@@ -39,7 +37,7 @@ class UserRegisterForm(FlaskForm):
     role = QuerySelectField(
         "Права доступа",
         validators=[DataRequired()],
-        query_factory=users_role_service.list,
+        query_factory=users_roles_service.list,
         allow_blank=False,
     )
     submit = SubmitField("Зарегистрировать")
@@ -54,7 +52,7 @@ class UserEditForm(FlaskForm):
     role = QuerySelectField(
         "Права доступа",
         validators=[DataRequired()],
-        query_factory=users_role_service.list,
+        query_factory=users_roles_service.list,
         allow_blank=False,
     )
     submit = SubmitField("Сохранить")

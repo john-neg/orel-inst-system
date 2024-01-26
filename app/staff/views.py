@@ -9,60 +9,62 @@ from werkzeug.utils import redirect
 from config import ApeksConfig as Apeks, MongoDBSettings, FlaskConfig
 from . import bp
 from .forms import StableStaffForm, create_staff_edit_form
-from ..common.func.api_get import (
-    check_api_db_response,
-    get_state_staff_history,
-    api_get_db_table,
-)
-from ..common.func.app_core import data_processor
-from ..common.func.organization import get_departments
-from ..common.func.staff import get_state_staff
+# from ..common.func.api_get import (
+#     check_api_db_response,
+#     get_state_staff_history,
+#     api_get_db_table,
+# )
+# from ..common.func.app_core import data_processor
+# from ..common.func.organization import get_departments
+# from ..common.func.staff import get_state_staff
 from ..common.reports.stable_staff_report import generate_stable_staff_report
 from ..db.auth_models import Users
-from ..db.database import db
-from ..db.mongodb import get_mongo_db
-from ..db.staff_models import StaffStableBusyTypes
-from ..services.base_db_service import BaseDBService
+from ..db.mongo_db import get_mongo_db
+from ..services.mongo_crud_service import MongoCRUDService
+from ..services.staff_stable_busy_types_service import get_staff_stable_busy_types_service
 
 
-@bp.route("/stable_staff", methods=["GET", "POST"])
+@bp.route("/staff_stable", methods=["GET", "POST"])
 @login_required
-async def stable_staff():
+async def staff_stable():
     form = StableStaffForm()
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
         else dt.date.today()
     )
+    staff_stable_service = MongoCRUDService(
+        mongo_db=get_mongo_db(),
+        collection_name=MongoDBSettings.STAFF_STABLE_COLLECTION
+    )
+    busy_types_service = get_staff_stable_busy_types_service()
 
-    mongo_db = get_mongo_db()
-    staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
-    staff_stable_service = BaseDBService(StaffStableBusyTypes, db_session=db.session)
-    current_db_data = staff_db.find_one({"date": working_date.isoformat()})
+    current_db_data = staff_stable_service.get({"date": working_date.isoformat()})
     if not current_db_data:
         current_db_data = {
             "date": working_date.isoformat(),
             "departments": {},
             "status": FlaskConfig.STAFF_IN_PROGRESS_STATUS,
         }
-        staff_db.insert_one(current_db_data)
-        current_db_data = staff_db.find_one({"date": working_date.isoformat()})
+        result = staff_stable_service.create(current_db_data)
+        logging.info(result)
+        current_db_data = staff_stable_service.get({"date": working_date.isoformat()})
 
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("finish_edit"):
-            staff_db.find_one_and_update(
+            staff_stable_service.update(
                 {"_id": current_db_data.get("_id")},
                 {"$set": {"status": FlaskConfig.STAFF_COMPLETED_STATUS}},
             )
-            return redirect(url_for("staff.stable_staff"))
+            return redirect(url_for("staff.staff_stable"))
         elif request.form.get("enable_edit"):
-            staff_db.find_one_and_update(
+            staff_stable_service.update(
                 {"_id": current_db_data.get("_id")},
                 {"$set": {"status": FlaskConfig.STAFF_IN_PROGRESS_STATUS}},
             )
-            return redirect(url_for("staff.stable_staff"))
+            return redirect(url_for("staff.staff_stable"))
         elif request.form.get("make_report"):
-            busy_types = {item.slug: item.name for item in staff_stable_service.list()}
+            busy_types = {item.slug: item.name for item in busy_types_service.list()}
             filename = generate_stable_staff_report(
                 current_db_data, busy_types
             )
@@ -105,7 +107,7 @@ async def stable_staff():
             }
 
     return render_template(
-        "staff/stable_staff.html",
+        "staff/staff_stable.html",
         active="staff",
         form=form,
         date=working_date,
@@ -114,13 +116,13 @@ async def stable_staff():
     )
 
 
-@bp.route("/stable_staff_edit/<int:department_id>", methods=["GET", "POST"])
+@bp.route("/staff_stable_edit/<int:department_id>", methods=["GET", "POST"])
 @login_required
-async def stable_staff_edit(department_id):
-    mongo_db = get_mongo_db()
-    staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
-    logs_db = mongo_db[MongoDBSettings.STAFF_LOGS_COLLECTION]
-    staff_stable_service = BaseDBService(StaffStableBusyTypes, db_session=db.session)
+async def staff_stable_edit(department_id):
+    # mongo_db = get_mongo_db()
+    # staff_db = mongo_db[MongoDBSettings.STAFF_STABLE_COLLECTION]
+    # logs_db = mongo_db[MongoDBSettings.STAFF_LOGS_COLLECTION]
+    busy_types_service = get_staff_stable_busy_types_service()
 
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
@@ -168,7 +170,7 @@ async def stable_staff_edit(department_id):
 
     final_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)
 
-    busy_types = staff_stable_service.list(is_active=1)
+    busy_types = busy_types_service.list(is_active=1)
 
     form = create_staff_edit_form(staff_data=final_staff_data, busy_types=busy_types)
 
@@ -198,7 +200,7 @@ async def stable_staff_edit(department_id):
                         f"Форма вернула неизвестное местонахождение: {staff_absence}"
                     )
                     flash(message, category="danger")
-                    logging.info(message)
+                    logging.error(message)
 
             try:
                 staff_db.update_one(
@@ -218,7 +220,7 @@ async def stable_staff_edit(department_id):
             except PyMongoError as error:
                 message = f"Произошла ошибка записи данных: {error}"
                 flash(message, category="danger")
-                logging.info(message)
+                logging.error(message)
         else:
             message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
             flash(message, category="danger")
@@ -232,7 +234,7 @@ async def stable_staff_edit(department_id):
                     attr.data = absence
 
     return render_template(
-        "staff/staff_edit.html",
+        "staff/staff_stable_edit.html",
         active="staff",
         form=form,
         date=working_date,

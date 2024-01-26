@@ -9,16 +9,13 @@ from . import bp
 from ..auth.forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from ..common.extensions import login_manager
 from ..common.func.ldap_data import get_user_data
-from ..db.auth_models import Users, UsersRoles
-from ..db.database import db
-from ..services.auth_service import UsersCRUDService, UsersRolesCRUDService
-
-users_service = UsersCRUDService(Users, db_session=db.session)
-users_role_service = UsersRolesCRUDService(UsersRoles, db_session=db.session)
+from ..services.users_roles_service import get_users_roles_service
+from ..services.users_service import get_users_service
 
 
 @login_manager.user_loader
 def load_user(user_id):
+    users_service = get_users_service()
     return users_service.get(id=user_id)
 
 
@@ -29,6 +26,8 @@ def unauthorized():
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
+    users_service = get_users_service()
+    users_roles_service = get_users_roles_service()
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
     form = UserLoginForm()
@@ -41,7 +40,7 @@ def login():
             try:
                 name, ldap_groups = get_user_data(username, password)
                 if not user and ldap_groups:
-                    user_role = users_role_service.get(slug=FlaskConfig.ROLE_USER)
+                    user_role = users_roles_service.get(slug=FlaskConfig.ROLE_USER)
                     user = users_service.create_user(
                         username=username,
                         password=password,
@@ -88,6 +87,7 @@ def login():
 @bp.route("/users", methods=["GET", "POST"])
 @login_required
 def users():
+    users_service = get_users_service()
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     paginated_data = users_service.paginated()
@@ -101,6 +101,7 @@ def users():
 @bp.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
+    users_service = get_users_service()
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = UserRegisterForm()
@@ -127,6 +128,7 @@ def register():
 @bp.route("/edit/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def edit(user_id):
+    users_service = get_users_service()
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     user = users_service.get(id=user_id)
@@ -161,6 +163,7 @@ def edit(user_id):
 @bp.route("/delete/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def delete(user_id):
+    users_service = get_users_service()
     if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
         return redirect(url_for("main.index"))
     form = UserDeleteForm()
