@@ -111,13 +111,19 @@ class ApeksConfig(object):
     STAFF_SCHEDULE_ENDPOINT = f"{URL}/api/call/schedule-schedule/staff"
 
     # Типы подразделений (для поля type таблицы "state_departments")
+    TYPE_DEPARTM = "0"
+    TYPE_KAFEDRA = "1"
+    TYPE_FACULTY = "2"
     DEPT_TYPES = {
-        "0": "Подразделения",
-        "1": "Кафедры",
-        "2": "Факультеты",
+        TYPE_DEPARTM: "Подразделения",
+        TYPE_KAFEDRA: "Кафедры",
+        TYPE_FACULTY: "Факультеты",
     }
 
     # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
+    STATE_DEPARTMENTS_TABLE = "state_departments"
+    
+    
     TABLES = {
         "load_groups": "load_groups",
         "load_subgroups": "load_subgroups",

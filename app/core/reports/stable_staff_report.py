@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import TypeAlias
 
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
@@ -7,12 +8,15 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.page import PageMargins
 
 from app.core.reports.ExcelStyles import ExcelStyle
-from config import ApeksConfig as Apeks, FlaskConfig
+from config import ApeksConfig, FlaskConfig
 
 
-def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
+Filename: TypeAlias = str
+
+
+def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> Filename:
     """
-    Формирует отчет о нагрузке кафедры в формате xlsx.
+    Формирует отчет - строевая записка постоянного состава.
 
     Parameters
     ----------
@@ -61,7 +65,7 @@ def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
         addon_headers = []
         addon_values = []
         total_staff = 0
-        for _, dept_type in Apeks.DEPT_TYPES.items():
+        for _, dept_type in ApeksConfig.DEPT_TYPES.items():
             ws.cell(row, 1).value = dept_type
             ws.cell(row, 1).style = ExcelStyle.Header
             ws.cell(row, 1).alignment = Alignment(
@@ -160,5 +164,5 @@ def generate_stable_staff_report(db_data: dict | None, busy_types: dict) -> str:
         # Формируем файл отчета
         filename = f"{title}.xlsx"
         wb.save(os.path.join(FlaskConfig.EXPORT_FILE_DIR, filename))
-        logging.debug(f'Файл c расписанием "{filename}" успешно сформирован')
+        logging.debug(f"Файл '{filename}' успешно сформирован")
         return filename

@@ -82,9 +82,9 @@ async def get_departments(
     )
 
     filters = {
-        "department": Apeks.DEPT_TYPES["0"],
-        "kafedra": Apeks.DEPT_TYPES["1"],
-        "faculty": Apeks.DEPT_TYPES["2"],
+        "department": Apeks.DEPT_TYPES[Apeks.TYPE_DEPARTM],
+        "kafedra": Apeks.DEPT_TYPES[Apeks.TYPE_KAFEDRA],
+        "faculty": Apeks.DEPT_TYPES[Apeks.TYPE_FACULTY],
         "other": "Иные",
     }
 

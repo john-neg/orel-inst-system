@@ -1,11 +1,24 @@
 import functools
 import logging
+from enum import Enum
 from json import JSONDecodeError
 
 import httpx
 
-from ..exceptions import ApeksApiException
+from config import ApeksConfig
 from .abstract_repository import AbstractApiRepository
+from ..exceptions import ApeksApiException
+
+
+class ApeksApiEndpoints(str, Enum):
+    """Класс точек доступа к API."""
+
+    DB_GET_ENDPOINT = ApeksConfig.DB_GET_ENDPOINT
+    DB_ADD_ENDPOINT = ApeksConfig.DB_ADD_ENDPOINT
+    DB_EDIT_ENDPOINT = ApeksConfig.DB_EDIT_ENDPOINT
+    DB_DEL_ENDPOINT = ApeksConfig.DB_DEL_ENDPOINT
+    STUDENT_SCHEDULE_ENDPOINT = ApeksConfig.STUDENT_SCHEDULE_ENDPOINT
+    STAFF_SCHEDULE_ENDPOINT = ApeksConfig.STAFF_SCHEDULE_ENDPOINT
 
 
 class ApeksApiRepository(AbstractApiRepository):
@@ -64,51 +77,25 @@ class ApeksApiRepository(AbstractApiRepository):
         return wrapper
 
     @request_handler
-    async def get(self, endpoint: str, params: dict) -> httpx.Response:
+    async def get(self, endpoint: ApeksApiEndpoints, params: dict) -> httpx.Response:
         async with httpx.AsyncClient() as client:
             response = await client.get(endpoint, params=params)
         return response
 
     @request_handler
-    async def post(self, endpoint: str, params: dict, data: dict) -> httpx.Response:
+    async def post(self, endpoint: ApeksApiEndpoints, params: dict, data: dict) -> httpx.Response:
         async with httpx.AsyncClient() as client:
             response = await client.post(endpoint, params=params, data=data)
         return response
 
-    async def put(self, endpoint: str, params: dict, data: dict):
+    async def put(self, endpoint: ApeksApiEndpoints, params: dict, data: dict):
         raise ApeksApiException("API АпексВУЗ не поддерживает метод PUT")
 
-    async def patch(self, endpoint: str, params: dict, data: dict):
+    async def patch(self, endpoint: ApeksApiEndpoints, params: dict, data: dict):
         raise ApeksApiException("API АпексВУЗ не поддерживает метод PATCH")
 
     @request_handler
-    async def delete(self, endpoint: str, params: dict) -> httpx.Response:
+    async def delete(self, endpoint: ApeksApiEndpoints, params: dict) -> httpx.Response:
         async with httpx.AsyncClient() as client:
             response = await client.delete(endpoint, params=params)
         return response
-
-    @staticmethod
-    def data_processor(table_data, dict_key: str = "id") -> dict:
-        """
-        Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
-
-        Parameters
-        ----------
-            table_data
-                данные таблицы, содержащей список словарей в формате JSON
-            dict_key: str
-                название поля значения которого станут ключами словаря
-                по умолчанию - 'id'
-
-        Returns
-        -------
-            dict
-                {id: {keys: values}}.
-        """
-        data = {}
-        for d_val in table_data:
-            key_val = d_val.get(dict_key)
-            if key_val:
-                data[int(key_val)] = d_val
-        logging.debug(f"Обработаны данные. Ключ: {dict_key}")
-        return data

@@ -48,14 +48,13 @@ async def staff_stable():
         current_db_data = staff_stable_service.get(
             query_filter={"date": working_date.isoformat()}
         )
-    print(current_db_data)
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("finish_edit"):
             result = staff_stable_service.change_status(
                 _id=current_db_data.get("_id"),
                 status=DocumentStatusType.COMPLETED.value
             )
-            logging.error(f"СТАТУС: {result}")
+            logging.error(f"Изменен статус документа : {result}")
             return redirect(url_for("staff.staff_stable"))
         elif request.form.get("enable_edit"):
             staff_stable_service.change_status(

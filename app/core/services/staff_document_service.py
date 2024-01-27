@@ -8,6 +8,7 @@ from pymongo.database import Database
 from pymongo.results import UpdateResult, InsertOneResult
 
 from config import MongoDBSettings, FlaskConfig
+from .base_mongo_db_crud_service import BaseMongoDbCrudService
 from ..db.mongo_db import get_mongo_db
 from ..repository.mongo_db_repository import MongoDbRepository
 
@@ -35,7 +36,8 @@ class StaffStableDocStructure:
         )
 
 
-class StaffStableCRUDService(MongoDbRepository):
+@dataclass
+class StaffStableCRUDService(BaseMongoDbCrudService):
     """Класс для CRUD операций модели StaffStable"""
 
     def change_status(
@@ -51,7 +53,6 @@ class StaffStableCRUDService(MongoDbRepository):
 
     def make_blank_document(self, document_date: datetime.date) -> InsertOneResult:
         """Создает пустой документ с заданной датой."""
-
         document = StaffStableDocStructure(
             date=document_date,
             departments=dict(),
@@ -64,4 +65,6 @@ def get_staff_stable_crud_service(
     mongo_db: Database = get_mongo_db(),
     collection_name: str = MongoDBSettings.STAFF_STABLE_COLLECTION,
 ) -> StaffStableCRUDService:
-    return StaffStableCRUDService(mongo_db, collection_name)
+    return StaffStableCRUDService(
+        repository=MongoDbRepository(mongo_db, collection_name)
+    )
