@@ -31,7 +31,7 @@
                     {% if item.label.field_id == 'staff_id_' + staff.get('staff_id') %}
                       <div class="row mb-1">
                         <div class="col">
-                          {{ item(class="form-select") }}
+                          {{ item(class="form-select text-dark") }}
                           {% for error in item.errors %}
                             <span style="color: var(--bs-danger);">{{ error }}</span>
                           {% endfor %}
