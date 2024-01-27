@@ -9,19 +9,31 @@ from ..repository.apeks_api_repository import ApeksApiRepository, ApeksApiEndpoi
 
 @dataclass
 class ApeksApiDbService(AbstractDBRepository):
-    """Класс для доступа к базе данных АпексВУЗ через API."""
+    """
+    Класс для доступа к базе данных АпексВУЗ через API.
 
+    Attributes
+    ----------
+    table : str
+        название таблицы базы данных АпексВУЗ
+    repository : ApeksApiRepository
+        репозитория для запросов к API АпексВУЗ
+    token : str
+        токен доступа к API АпексВУЗ
+    """
+
+    table: str
     repository: ApeksApiRepository
     token: str
 
-    async def list(self, table):
+    async def list(self):
         """Возвращает все объекты из таблицы базы данных АпексВУЗ."""
-        return await self.get(table)
+        return await self.get()
 
-    async def get(self, table, **filters) -> list:
+    async def get(self, **filters) -> list:
         """Возвращает список объектов из таблицы базы данных АпексВУЗ."""
-        endpoint = ApeksApiEndpoints.DB_GET_ENDPOINT
-        params = {"token": self.token, "table": table}
+        endpoint = ApeksApiEndpoints.DB_GET_ENDPOINT.value
+        params = {"token": self.token, "table": self.table}
         if filters:
             for db_filter, db_value in filters.items():
                 if isinstance(db_value, (int, str)):
@@ -29,24 +41,24 @@ class ApeksApiDbService(AbstractDBRepository):
                 else:
                     values = [str(val) for val in db_value]
                 params[f"filter[{db_filter}][]"] = values
-        logging.debug(f"Созданы параметры для GET запроса к таблице: {table}")
+        logging.debug(f"Созданы параметры для GET запроса к таблице: {self.table}")
         return await self.repository.get(endpoint, params)
 
-    async def create(self, table, **fields) -> dict | Any:
+    async def create(self, **fields) -> dict | Any:
         """Создает объект в таблице базы данных АпексВУЗ."""
-        endpoint = ApeksApiEndpoints.DB_ADD_ENDPOINT
+        endpoint = ApeksApiEndpoints.DB_ADD_ENDPOINT.value
         params = {"token": self.token}
-        data = {"table": table}
+        data = {"table": self.table}
         for db_field, db_value in fields.items():
             data[f"fields[{db_field}]"] = str(db_value)
-        logging.debug(f"Созданы параметры для POST (CREATE) запроса к таблице {table}")
+        logging.debug(f"Созданы параметры для POST (CREATE) запроса к таблице {self.table}")
         return await self.repository.post(endpoint, params, data)
 
-    async def update(self, table: str, filters: dict, fields: dict) -> dict | Any:
+    async def update(self, filters: dict, fields: dict) -> dict | Any:
         """Изменяет объекты в таблице базы данных АпексВУЗ."""
-        endpoint = ApeksApiEndpoints.DB_EDIT_ENDPOINT
+        endpoint = ApeksApiEndpoints.DB_EDIT_ENDPOINT.value
         params = {"token": self.token}
-        data = {"table": table}
+        data = {"table": self.table}
         for db_field, db_value in filters.items():
             if type(db_value) in (int, str):
                 values = str(db_value)
@@ -63,14 +75,14 @@ class ApeksApiDbService(AbstractDBRepository):
         for db_field, db_value in fields.items():
             data[f"fields[{db_field}]"] = str(db_value)
         logging.debug(
-            f"Переданы параметры для POST (CREATE) запроса к таблице '{table}'"
+            f"Переданы параметры для POST (CREATE) запроса к таблице '{self.table}'"
         )
         return await self.repository.post(endpoint, params, data)
 
-    async def delete(self, table, **filters) -> dict | Any:
+    async def delete(self, **filters) -> dict | Any:
         """Удаляет объекты в таблице базы данных АпексВУЗ."""
-        endpoint = ApeksApiEndpoints.DB_DEL_ENDPOINT
-        params = {"token": self.token, "table": table}
+        endpoint = ApeksApiEndpoints.DB_DEL_ENDPOINT.value
+        params = {"token": self.token, "table": self.table}
         for db_field, db_value in filters.items():
             params[f"filter[{db_field}][]"] = db_value
             if not db_value:

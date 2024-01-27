@@ -1,4 +1,5 @@
 import datetime
+import logging
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
@@ -58,7 +59,12 @@ class StaffStableCRUDService(BaseMongoDbCrudService):
             departments=dict(),
             status=DocumentStatusType.IN_PROGRESS,
         )
-        return self.create(document.__dict__())
+        result_info = self.create(document.__dict__())
+        logging.info(
+            f"Создан документ - строевая записка постоянного состава "
+            f"за {document_date.isoformat()}. {result_info}"
+        )
+        return result_info
 
 
 def get_staff_stable_crud_service(

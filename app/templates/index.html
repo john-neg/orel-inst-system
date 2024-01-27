@@ -12,58 +12,68 @@
       <div class="col">
         <div class="card">
           <div class="card-body p-4">
-            <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
-              <i class="far fa-calendar-alt"></i>
-            </div>
-            <h4 class="card-title" style="color: rgb(58,59,69);">Расписание</h4>
+            <a class="dropdown-item" href="{{ url_for('staff.staff_stable') }}">
+              <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                <i class="fas fa-user-friends"></i>
+              </div>
+              <h4 class="card-title" style="color: rgb(58,59,69);">Строевая записка</h4>
+            </a>
+            <p class="card-text">подача строевой записки о наличии личного состава</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body p-4">
+            <a class="dropdown-item" href="{{ url_for('schedule.schedule') }}">
+              <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                <i class="far fa-calendar-alt"></i>
+              </div>
+              <h4 class="card-title" style="color: rgb(58,59,69);">Расписание</h4>
+            </a>
             <p class="card-text">выгрузка расписания преподавателя (iCal, xlsx)<br></p>
           </div>
         </div>
       </div>
-        <div class="col">
-          <div class="card">
-            <div class="card-body p-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-body p-4">
+            <a class="dropdown-item" href="{{ url_for('reports.load_report') }}">
               <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
                 <i class="fas fa-receipt"></i>
               </div>
               <h4 class="card-title" style="color: rgb(58,59,69);">Нагрузка</h4>
-              <p class="card-text">формирование отчета о нагрузке за месяц / семестр<br></p>
-            </div>
+            </a>
+            <p class="card-text">формирование отчета о нагрузке за месяц / семестр<br></p>
           </div>
         </div>
-        <div class="col">
-          <div class="card">
-            <div class="card-body p-4">
-              <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
-                <i class="fas fa-layer-group"></i>
-              </div>
-              <h4 class="card-title" style="color: rgb(58,59,69);">Учебные планы</h4>
-              <p class="card-text">работа с компетенциями и их индикаторами</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card">
-            <div class="card-body p-4">
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body p-4">
+            <a class="dropdown-item" href="{{ url_for('programs.dept_check') }}">
               <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
                 <i class="fas fa-clipboard-list"></i>
               </div>
               <h4 class="card-title" style="color: rgb(58,59,69);">Программы</h4>
-              <p class="card-text">проверка заполнения полей рабочих программ</p>
-            </div>
+            </a>
+            <p class="card-text">проверка заполнения полей рабочих программ</p>
           </div>
         </div>
-        <div class="col">
-          <div class="card">
-            <div class="card-body p-4">
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body p-4">
+            <a class="dropdown-item" href="{{ url_for('tools.payment.payment_tool') }}">
               <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
-                <i class="fas fa-book-open"></i>
+                <i class="fas fa-tools"></i>
               </div>
-              <h4 class="card-title" style="color: rgb(58,59,69);">Обеспечение</h4>
-              <p class="card-text">загрузка обеспечивающих материалов в рабочие программы</p>
-            </div>
+              <h4 class="card-title" style="color: rgb(58,59,69);">Расчет зарплаты/пенсии</h4>
+            </a>
+            <p class="card-text">расчет денежного довольствия аттестованного состава института </p>
           </div>
         </div>
+      </div>
     </div>
   </div>
 {% endblock %}

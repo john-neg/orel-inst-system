@@ -16,6 +16,8 @@ def create_staff_edit_form(
     busy_types: list[db.Model],
     **kwargs,
 ):
+    """Конструктор формы StaffEditForm."""
+
     class StaffEditForm(FlaskForm):
         """Класс формы наличия личного состава."""
 

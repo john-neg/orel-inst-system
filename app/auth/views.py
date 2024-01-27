@@ -9,7 +9,7 @@ from . import bp
 from .forms import UserRegisterForm, UserLoginForm, UserDeleteForm, UserEditForm
 from .ldap_data import get_user_data
 from ..core.extensions import login_manager
-from ..core.services.users_service import get_users_service, get_users_roles_service
+from ..core.services.db_users_service import get_users_service, get_users_roles_service
 
 
 @login_manager.user_loader

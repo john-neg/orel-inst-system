@@ -122,8 +122,10 @@ class ApeksConfig(object):
 
     # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
     STATE_DEPARTMENTS_TABLE = "state_departments"
-    
-    
+    STATE_STAFF_POSITIONS_TABLE = "state_staff_positions"
+    STATE_STAFF_TABLE = "state_staff"
+    STATE_STAFF_HISTORY_TABLE = "state_staff_history"
+
     TABLES = {
         "load_groups": "load_groups",
         "load_subgroups": "load_subgroups",
