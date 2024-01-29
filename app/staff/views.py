@@ -8,7 +8,7 @@ from werkzeug.utils import redirect
 
 from config import FlaskConfig
 from . import bp
-from .forms import StableStaffForm, create_staff_edit_form
+from .forms import StableStaffForm, create_staff_edit_form, StaffForm
 from .func import process_stable_staff_data, process_full_staff_data
 from .stable_staff_report import generate_stable_staff_report
 from ..core.db.auth_models import Users
@@ -34,9 +34,34 @@ from ..core.services.staff_stable_document_service import (
 )
 
 
-@bp.route("/staff_stable", methods=["GET", "POST"])
+@bp.route("/staff_stable_info", methods=["GET", "POST"])
 @login_required
-async def staff_stable():
+async def staff_stable_info():
+    form = StaffForm()
+    current_date = request.form.get("document_date") or dt.date.today().isoformat()
+    staff_stable_service = get_staff_stable_crud_service()
+    staff_stable_data = staff_stable_service.get(
+        query_filter={"date": current_date}
+    )
+    busy_types_service = get_staff_stable_busy_types_service()
+    busy_types = {item.slug: item.name for item in busy_types_service.list()}
+    if request.method == "POST" and form.validate_on_submit():
+        if request.form.get("make_report"):
+            filename = generate_stable_staff_report(staff_stable_data, busy_types)
+            return redirect(url_for("main.get_file", filename=filename))
+    return render_template(
+        "staff/staff_stable_info.html",
+        active="staff",
+        form=form,
+        date=current_date,
+        busy_types=busy_types,
+        staff_stable_data=staff_stable_data,
+    )
+
+
+@bp.route("/staff_stable_load", methods=["GET", "POST"])
+@login_required
+async def staff_stable_load():
     form = StableStaffForm()
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
@@ -63,7 +88,7 @@ async def staff_stable():
                 f"{current_user} запретил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_stable"))
+            return redirect(url_for("staff.staff_stable_load"))
         elif request.form.get("enable_edit"):
             result = staff_stable_service.change_status(
                 _id=current_data.get("_id"),
@@ -73,7 +98,7 @@ async def staff_stable():
                 f"{current_user} разрешил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_stable"))
+            return redirect(url_for("staff.staff_stable_load"))
         elif request.form.get("make_report"):
             busy_types = {item.slug: item.name for item in busy_types_service.list()}
             filename = generate_stable_staff_report(current_data, busy_types)
@@ -84,7 +109,7 @@ async def staff_stable():
     staff_history = await staff_history_service.get_staff_for_date(working_date)
     staff_data = process_stable_staff_data(departments, staff_history, current_data)
     return render_template(
-        "staff/staff_stable.html",
+        "staff/staff_stable_load.html",
         active="staff",
         form=form,
         date=working_date,

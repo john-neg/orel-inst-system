@@ -1,11 +1,24 @@
+import datetime
+
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.fields.datetime import DateField
+from wtforms.validators import DataRequired, Length
 
 from ..core.db.database import db
 
 
+class StaffForm(FlaskForm):
+    document_date = DateField(
+        "Дата документа",
+        default=datetime.date.today()
+    )
+    make_report = SubmitField("Сформировать отчет")
+
+
 class StableStaffForm(FlaskForm):
+    """Форма для заполнения данных """
+
     finish_edit = SubmitField("Завершить редактирование")
     enable_edit = SubmitField("Разрешить редактирование")
     make_report = SubmitField("Сформировать отчет")
@@ -19,7 +32,7 @@ def create_staff_edit_form(
     """Конструктор формы StaffEditForm."""
 
     class StaffEditForm(FlaskForm):
-        """Класс формы наличия личного состава."""
+        """Класс формы заполнения личного состава подразделения."""
 
         submit = SubmitField("Сохранить")
 
