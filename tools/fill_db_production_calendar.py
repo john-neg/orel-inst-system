@@ -7,9 +7,9 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append('.')
 
-from app.services.base_db_service import BaseDBService
+from app.core.repository.sqlalchemy_repository import DbRepository
 from app.core.func.app_core import read_json_file
-from app.db.reports_models import (
+from app.core.db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,
 )
@@ -22,10 +22,10 @@ session = Session()
 
 FILE_DIR = os.path.join(BASEDIR, "tools", "production_calendar")
 
-holidays_service = BaseDBService(
+holidays_service = DbRepository(
     ProductionCalendarHolidays, db_session=session
 )
-working_service = BaseDBService(
+working_service = DbRepository(
     ProductionCalendarWorkingDays, db_session=session
 )
 

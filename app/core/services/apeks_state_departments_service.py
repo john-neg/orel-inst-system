@@ -66,7 +66,7 @@ class ApeksStateDepartmentsService(ApeksApiDbService):
                 dept_group = departments_groups.get(group_id)
                 if dept_group:
                     for dept in dept_group:
-                        dept_dict[int(dept["id"])] = {
+                        dept_dict[dept["id"]] = {
                             "full": dept.get("name"),
                             "short": dept.get("name_short"),
                             "type": group_type,

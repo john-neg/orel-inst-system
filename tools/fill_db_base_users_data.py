@@ -5,8 +5,8 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append('.')
 
-from app.db.auth_models import UsersRoles, Users
-from app.services.db_crud_service import UsersCRUDService, UsersRolesCRUDService
+from app.core.db.auth_models import UsersRoles, Users
+from app.core.services.db_users_service import UsersCRUDService, UsersRolesCRUDService
 from config import FlaskConfig
 
 

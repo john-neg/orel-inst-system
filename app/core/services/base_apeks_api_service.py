@@ -51,7 +51,9 @@ class ApeksApiDbService(AbstractDBRepository):
         data = {"table": self.table}
         for db_field, db_value in fields.items():
             data[f"fields[{db_field}]"] = str(db_value)
-        logging.debug(f"Созданы параметры для POST (CREATE) запроса к таблице {self.table}")
+        logging.debug(
+            f"Созданы параметры для POST (CREATE) запроса к таблице {self.table}"
+        )
         return await self.repository.post(endpoint, params, data)
 
     async def update(self, filters: dict, fields: dict) -> dict | Any:
@@ -92,7 +94,10 @@ class ApeksApiDbService(AbstractDBRepository):
         return await self.repository.delete(endpoint, params)
 
 
-def data_processor(table_data: list[dict], dict_key: str = "id") -> dict:
+# При рефакторинге со старой функции убрать преобразование в int
+def data_processor(
+    table_data: list[dict[str, Any]], key: str = "id"
+) -> dict[str, dict[str, Any]]:
     """
     Преобразует полученные данные из таблиц БД Апекс-ВУЗ.
 
@@ -100,7 +105,7 @@ def data_processor(table_data: list[dict], dict_key: str = "id") -> dict:
     ----------
         table_data
             данные таблицы, содержащей список словарей в формате JSON
-        dict_key: str
+        key: str
             название поля, значения которого станут ключами словаря
             (по умолчанию - 'id')
 
@@ -109,10 +114,6 @@ def data_processor(table_data: list[dict], dict_key: str = "id") -> dict:
         dict
             {id: {keys: values}}.
     """
-    data = {}
-    for d_val in table_data:
-        key_val = d_val.get(dict_key)
-        if key_val:
-            data[int(key_val)] = d_val
-    logging.debug(f"Обработаны данные. Ключ: {dict_key}")
+    data = {item.get(key): item for item in table_data if item.get(key)}
+    logging.debug(f"Обработаны данные. Ключ: {key}")
     return data

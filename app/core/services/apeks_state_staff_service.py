@@ -53,7 +53,7 @@ def process_state_staff_data(state_staff_data) -> dict:
         family_name = staff.get("family_name", " ")
         first_name = staff.get("name", " ")
         second_name = staff.get("surname", " ")
-        staff_dict[int(staff.get("id"))] = {
+        staff_dict[staff.get("id")] = {
             "full": f"{family_name} {first_name} {second_name}",
             "short": f"{family_name} {first_name[0]}.{second_name[0]}.",
             "user_id": staff.get("user_id"),

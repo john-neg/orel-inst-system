@@ -6,10 +6,11 @@ from flask_login import login_required, current_user
 from pymongo.errors import PyMongoError
 from werkzeug.utils import redirect
 
-from config import FlaskConfig
+from config import FlaskConfig, ApeksConfig
 from . import bp
 from .forms import StableStaffForm, create_staff_edit_form, StaffForm
-from .func import process_stable_staff_data, process_full_staff_data
+from .func import process_apeks_stable_staff_data, process_full_staff_data, \
+    process_document_stable_staff_data
 from .stable_staff_report import generate_stable_staff_report
 from ..core.db.auth_models import Users
 from ..core.services.apeks_state_departments_service import (
@@ -40,14 +41,13 @@ async def staff_stable_info():
     form = StaffForm()
     current_date = request.form.get("document_date") or dt.date.today().isoformat()
     staff_stable_service = get_staff_stable_crud_service()
-    staff_stable_data = staff_stable_service.get(
-        query_filter={"date": current_date}
-    )
+    staff_stable_document = staff_stable_service.get(query_filter={"date": current_date})
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
+    staff_stable_data = process_document_stable_staff_data(staff_stable_document)
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("make_report"):
-            filename = generate_stable_staff_report(staff_stable_data, busy_types)
+            filename = generate_stable_staff_report(staff_stable_document, busy_types)
             return redirect(url_for("main.get_file", filename=filename))
     return render_template(
         "staff/staff_stable_info.html",
@@ -55,6 +55,7 @@ async def staff_stable_info():
         form=form,
         date=current_date,
         busy_types=busy_types,
+        department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
     )
 
@@ -107,7 +108,9 @@ async def staff_stable_load():
     departments = await departments_service.get_departments()
     staff_history_service = get_apeks_state_staff_history_service()
     staff_history = await staff_history_service.get_staff_for_date(working_date)
-    staff_data = process_stable_staff_data(departments, staff_history, current_data)
+    staff_data = process_apeks_stable_staff_data(
+        departments, staff_history, current_data
+    )
     return render_template(
         "staff/staff_stable_load.html",
         active="staff",
@@ -118,7 +121,7 @@ async def staff_stable_load():
     )
 
 
-@bp.route("/staff_stable_edit/<int:department_id>", methods=["GET", "POST"])
+@bp.route("/staff_stable_edit/<string:department_id>", methods=["GET", "POST"])
 @login_required
 async def staff_stable_edit(department_id):
     working_date = (
@@ -130,6 +133,7 @@ async def staff_stable_edit(department_id):
     staff_history = await staff_history_service.get_staff_for_date(
         working_date, department_id=department_id
     )
+    # Отбираем тех кто стоит на должности со ставкой 1
     staff_ids = {
         item.get("staff_id"): item
         for item in staff_history
@@ -137,7 +141,7 @@ async def staff_stable_edit(department_id):
     }
     departments_service = get_apeks_state_departments_service()
     departments = await departments_service.get_departments()
-    department_data = departments.get(int(department_id))
+    department_data = departments.get(department_id)
     department_name = department_data.get("short")
     department_type = department_data.get("type")
     state_staff_service = get_apeks_state_staff_service()
@@ -172,9 +176,9 @@ async def staff_stable_edit(department_id):
             for _id in staff_ids:
                 staff_absence = request.form.get(f"staff_id_{_id}")
                 if staff_absence != "0" and staff_absence in load_data["absence"]:
-                    load_data["absence"][staff_absence][_id] = state_staff[
-                        int(_id)
-                    ].get("short")
+                    load_data["absence"][staff_absence][_id] = state_staff[_id].get(
+                        "short"
+                    )
                 elif staff_absence != "0" and staff_absence not in load_data["absence"]:
                     message = (
                         f"Форма вернула неизвестное местонахождение: {staff_absence}"
@@ -206,7 +210,7 @@ async def staff_stable_edit(department_id):
         else:
             message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
             flash(message, category="danger")
-    current_dept_data = current_data["departments"].get(str(department_id))
+    current_dept_data = current_data["departments"].get(department_id)
     if current_dept_data:
         for absence, items in current_dept_data["absence"].items():
             if items:

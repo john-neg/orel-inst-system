@@ -13,6 +13,7 @@
             {{ form.document_date(class="form-control form-control-lg", onchange="form.submit()") }}
           </div>
         </div>
+        {% if staff_stable_data.get("departments_by_type") %}
           <div class="row justify-content-center">
             <div class="col-md-10 col-xl-8">
               <div class="row row-cols-1 row-cols-sm-3 justify-content-center">
@@ -24,7 +25,7 @@
                       </svg>
                     </div>
                     <div class="text-center px-3">
-                      <h4 class="fw-bold text-center text-dark mb-0">123</h4>
+                      <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data.get("staff_total") }}</h4>
                       <p class="text-center text-dark mb-0">По списку</p>
                     </div>
                   </div>
@@ -38,7 +39,7 @@
                       </svg>
                     </div>
                     <div class="text-center px-3">
-                      <h4 class="fw-bold text-center text-dark mb-0">45</h4>
+                      <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data.get("staff_stock") }}</h4>
                       <p class="text-center text-dark mb-0">В строю</p>
                     </div>
                   </div>
@@ -52,7 +53,7 @@
                       </svg>
                     </div>
                     <div class="px-3">
-                      <h4 class="fw-bold text-dark mb-0">67</h4>
+                      <h4 class="fw-bold text-dark mb-0">{{ staff_stable_data.get("staff_absence") }}</h4>
                       <p class="text-dark mb-0">Отсутствуют</p>
                     </div>
                   </div>
@@ -60,71 +61,84 @@
               </div>
             </div>
           </div>
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Причины отсутствия</th>
-                      <th>Кол-во</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Больничный</td>
-                      <td>15</td>
-                    </tr>
-                    <tr>
-                      <td>Незаконно отсутствует</td>
-                      <td>17</td>
-                    </tr>
-                  </tbody>
-                </table>
+          {% if staff_stable_data.get("staff_absence") %}
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-xl-8">
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Причины отсутствия</th>
+                        <th>Кол-во</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for absence in staff_stable_data.get("absence_types") %}
+                        <tr>
+                          <td>{{ busy_types.get(absence) }}</td>
+                          <td>{{ staff_stable_data["absence_types"][absence] }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-              <h5 class="text-center text-black">Подразделения</h5>
-            </div>
-          </div>
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-              <div class="table-responsive">
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th class="table-primary text-center" colspan="3">ОМТО</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="fw-bold text-center">По списку</td>
-                      <td class="fw-bold text-center">В строю</td>
-                      <td class="fw-bold text-center">Отсутствуют</td>
-                    </tr>
-                    <tr>
-                      <td class="text-center">8</td>
-                      <td class="text-center">нет данных</td>
-                      <td class="text-center">34</td>
-                    </tr>
-                    <tr>
-                      <td class="fw-bold text-center">Болен</td>
-                      <td class="text-center" colspan="2">Иванов А.И, Попов Д.И.</td>
-                    </tr>
-                  </tbody>
-                </table>
+          {% endif %}
+          {% for department_type in department_types %}
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-xl-8">
+                <h5 class="text-center text-black">{{ department_type }}</h5>
               </div>
             </div>
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-xl-8">
+                <div class="table-responsive">
+                  {% for department in staff_stable_data["departments_by_type"].get(department_type) %}
+                    <table class="table table-sm table-bordered">
+                      <thead>
+                        <tr>
+                          <th class="table-primary text-center" colspan="3">{{ department.get("name") }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="fw-bold text-center">По списку</td>
+                          <td class="fw-bold text-center">В строю</td>
+                          <td class="fw-bold text-center">Отсутствуют</td>
+                        </tr>
+                        <tr>
+                          <td class="text-center">{{ department.get("total") }}</td>
+                          <td class="text-center">{{ department.get("total") - department.get("total_absence") }}</td>
+                          <td class="text-center">{{ department.get("total_absence") }}</td>
+                        </tr>
+                        {% for absence in department.get("absence") %}
+                          {% if department["absence"][absence] %}
+                            <tr>
+                              <td class="fw-bold text-center">{{ busy_types.get(absence) }}</td>
+                              <td class="text-center" colspan="2">{{ ', '.join(department["absence"][absence].values()) }}</td>
+                            </tr>
+                          {% endif %}
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          <div class="row justify-content-center">
+            <div class="col-md-10 col-xl-8">
+              {{ form.make_report(class="btn btn-success fw-bold") }}
+            </div>
           </div>
-
-        <div class="row justify-content-center">
-          <div class="col-md-10 col-xl-8">
-            {{ form.make_report(class="btn btn-success fw-bold") }}
+        {% else %}
+          <div class="row justify-content-center">
+            <div class="col-md-10 col-xl-8 mt-3">
+              <h5 class="text-center text-black">Нет данных</h5>
+            </div>
           </div>
-        </div>
+        {% endif %}
     </div>
   </form>
-  {{ staff_stable_data }}
 {% endblock %}
