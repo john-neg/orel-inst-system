@@ -10,6 +10,9 @@ from .abstract_repository import AbstractApiRepository
 from ..exceptions import ApeksApiException
 
 
+transport = httpx.AsyncHTTPTransport(retries=3)
+
+
 class ApeksApiEndpoints(str, Enum):
     """Класс точек доступа к API."""
 
@@ -78,7 +81,7 @@ class ApeksApiRepository(AbstractApiRepository):
 
     @request_handler
     async def get(self, endpoint: ApeksApiEndpoints, params: dict) -> httpx.Response:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=transport) as client:
             response = await client.get(endpoint, params=params)
         return response
 

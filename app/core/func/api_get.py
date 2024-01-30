@@ -6,8 +6,10 @@ from json import JSONDecodeError
 
 import httpx
 
-from config import ApeksConfig as Apeks
 from app.core.exceptions import ApeksApiException
+from config import ApeksConfig as Apeks
+
+transport = httpx.AsyncHTTPTransport(retries=3)
 
 
 def api_get_request_handler(func):
@@ -16,7 +18,7 @@ def api_get_request_handler(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params = await func(*args, **kwargs)
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=transport) as client:
             try:
                 response = await client.get(endpoint, params=params)
                 response.raise_for_status()
