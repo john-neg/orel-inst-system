@@ -21,7 +21,7 @@ from config import ApeksConfig as Apeks
 
 def comps_file_processing(file: str) -> list:
     """
-    Обработка загруженного файла c компетенциями.
+    Обработка загруженного файла с компетенциями.
 
     Parameters
     ----------
@@ -46,7 +46,7 @@ def get_competency_code(indicator) -> str:
     """
     Выводит код компетенций индикатора.
 
-    :return: код компетенции
+    :return: Код компетенции
     """
     comp_code = re.split(Apeks.COMP_FROM_IND_REGEX, indicator, 1)[0]
     if len(comp_code) > 12:

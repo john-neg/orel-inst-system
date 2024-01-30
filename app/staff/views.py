@@ -9,8 +9,11 @@ from werkzeug.utils import redirect
 from config import FlaskConfig, ApeksConfig
 from . import bp
 from .forms import StableStaffForm, create_staff_edit_form, StaffForm
-from .func import process_apeks_stable_staff_data, process_full_staff_data, \
-    process_document_stable_staff_data
+from .func import (
+    process_apeks_stable_staff_data,
+    process_full_staff_data,
+    process_document_stable_staff_data,
+)
 from .stable_staff_report import generate_stable_staff_report
 from ..core.db.auth_models import Users
 from ..core.services.apeks_state_departments_service import (
@@ -41,9 +44,16 @@ async def staff_stable_info():
     form = StaffForm()
     current_date = request.form.get("document_date") or dt.date.today().isoformat()
     staff_stable_service = get_staff_stable_crud_service()
-    staff_stable_document = staff_stable_service.get(query_filter={"date": current_date})
+    staff_stable_document = staff_stable_service.get(
+        query_filter={"date": current_date}
+    )
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
+    document_status = (
+        FlaskConfig.STAFF_COLLECTION_STATUSES.get(staff_stable_document.get("status"))
+        if staff_stable_document
+        else None
+    )
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("make_report"):
@@ -57,6 +67,7 @@ async def staff_stable_info():
         busy_types=busy_types,
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
+        document_status=document_status,
     )
 
 

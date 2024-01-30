@@ -54,7 +54,7 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
         staff_document_data["departments"].values(),
         key=lambda item: item.get("name")
     )
-    final_data = {
+    staff_data = {
         "staff_total": 0,
         "staff_stock": 0,
         "staff_absence": 0,
@@ -64,17 +64,17 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
     for department in departments:
         dept_type = department.get("type")
         department["total_absence"] = 0
-        type_data = final_data["departments_by_type"].setdefault(dept_type, list())
+        type_data = staff_data["departments_by_type"].setdefault(dept_type, list())
         type_data.append(department)
-        final_data["staff_total"] += department.get("total")
+        staff_data["staff_total"] += department.get("total")
         dept_abscence = department.get("absence")
         for abscence in dept_abscence:
-            final_data["absence_types"].setdefault(abscence, 0)
-            final_data["absence_types"][abscence] += len(dept_abscence[abscence])
+            staff_data["absence_types"].setdefault(abscence, 0)
+            staff_data["absence_types"][abscence] += len(dept_abscence[abscence])
             department["total_absence"] += len(dept_abscence[abscence])
-    final_data["staff_absence"] = sum(final_data["absence_types"].values())
-    final_data["staff_stock"] = final_data["staff_total"] - final_data["staff_absence"]
-    return final_data
+    staff_data["staff_absence"] = sum(staff_data["absence_types"].values())
+    staff_data["staff_stock"] = staff_data["staff_total"] - staff_data["staff_absence"]
+    return staff_data
 
 
 def process_full_staff_data(

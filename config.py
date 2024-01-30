@@ -53,7 +53,7 @@ class FlaskConfig(object):
     # Название историй операций
     STAFF_COLLECTION_STATUSES = {
         STAFF_IN_PROGRESS_STATUS: "Редактируется",
-        STAFF_COMPLETED_STATUS: "Изменения запрещены"
+        STAFF_COMPLETED_STATUS: "Сформирован"
     }
 
 
@@ -209,9 +209,9 @@ class ApeksConfig(object):
         "date_department": "date_department",
         # Номер протокола заседания кафедры
         "document_department": "document_department",
-        # Дата протокола заседания метод. совета
+        # Дата протокола заседания метод совета
         "date_methodical": "date_methodical",
-        # Номер протокола заседания метод. совета
+        # Номер протокола заседания метод совета
         "document_methodical": "document_methodical",
         # Дата протокола заседания ученого совета
         "date_academic": "date_academic",

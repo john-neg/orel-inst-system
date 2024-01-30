@@ -83,7 +83,9 @@ class ApeksApiRepository(AbstractApiRepository):
         return response
 
     @request_handler
-    async def post(self, endpoint: ApeksApiEndpoints, params: dict, data: dict) -> httpx.Response:
+    async def post(
+        self, endpoint: ApeksApiEndpoints, params: dict, data: dict
+    ) -> httpx.Response:
         async with httpx.AsyncClient() as client:
             response = await client.post(endpoint, params=params, data=data)
         return response

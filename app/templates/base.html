@@ -146,7 +146,6 @@
               </button>
               <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
               <ul class="navbar-nav flex-nowrap ms-auto">
-                <div class="d-none d-sm-block topbar-divider"></div>
                 <li class="nav-item dropdown no-arrow">
                   {% if current_user.is_anonymous %}
                     <a class="nav-link" href="{{ url_for('auth.login') }}">

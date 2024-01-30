@@ -7,10 +7,10 @@ openpyxl==3.1.2
 python-docx==1.1.0
 python-dotenv==1.0.1
 pytest==7.4.4
-pytest-asyncio==0.23.3
+pytest-asyncio==0.23.4
 pytest-httpx==0.28.0
 icalendar==5.0.11
-pytz==2023.3.post1
+pytz==2023.4
 httpx==0.26.0
 phpserialize~=1.3
 SQLAlchemy==2.0.25

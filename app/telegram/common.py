@@ -24,12 +24,6 @@ async def cmd_cancel(message: types.Message, state: FSMContext):
     await message.answer("Действие отменено", reply_markup=types.ReplyKeyboardRemove())
 
 
-# Просто функция, которая доступна только администратору,
-# чей ID указан в файле конфигурации.
-# async def secret_command(message: types.Message):
-# await message.answer("Поздравляю! Эта команда доступна только администратору бота.")
-
-
 def register_handlers_common(dp: Dispatcher):
     dp.register_message_handler(cmd_start, commands="start", state="*")
     dp.register_message_handler(cmd_cancel, commands="cancel", state="*")

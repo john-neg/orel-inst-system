@@ -5,7 +5,7 @@ from app.core.func.app_core import xlsx_iter_rows, xlsx_normalize
 
 def library_file_processing(file: str) -> dict:
     """
-    Обработка загруженного файла c данными об обеспечении.
+    Обработка загруженного файла с данными об обеспечении.
     (словарь без первой строки файла).
 
     Parameters

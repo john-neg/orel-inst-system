@@ -6,7 +6,7 @@ from flask import Response
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
 
-from app import create_app
+from app.app_factory import create_app
 
 
 T = TypeVar("T")

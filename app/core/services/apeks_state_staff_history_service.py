@@ -52,7 +52,8 @@ class ApeksStateStaffHistoryService(ApeksApiDbService):
             ),
         }
         logging.debug(
-            f"Переданы параметры для запроса 'get_state_staff_history': {params['filter']}"
+            "Переданы параметры для запроса 'get_state_staff_history': "
+            f"{params['filter']}"
         )
         return await self.repository.get(endpoint, params)
 

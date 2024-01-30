@@ -85,8 +85,8 @@ async def api_add_to_db_table(
 @api_post_request_handler
 async def api_edit_db_table(
     table_name: str,
-    filters: dict[int | str : int | str | tuple[int | str] | list[int | str]],
-    fields: dict[int | str : int | str],
+    filters: dict[int | str: int | str | tuple[int | str] | list[int | str]],
+    fields: dict[int | str: int | str],
     url: str = Apeks.URL,
     token: str = Apeks.TOKEN,
 ):
