@@ -13,7 +13,18 @@ class StaffForm(FlaskForm):
         "Дата документа",
         default=datetime.date.today()
     )
-    make_report = SubmitField("Сформировать отчет")
+    submit = SubmitField("Выбрать")
+
+
+class StableStaffReportForm(FlaskForm):
+    document_start_date = DateField(
+        "Дата начала",
+    )
+    document_end_date = DateField(
+        "Дата окончания",
+        default=datetime.date.today()
+    )
+    submit = SubmitField("Сформировать отчет")
 
 
 class StableStaffForm(FlaskForm):

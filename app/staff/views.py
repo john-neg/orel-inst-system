@@ -1,3 +1,4 @@
+import datetime
 import datetime as dt
 import logging
 
@@ -8,11 +9,13 @@ from werkzeug.utils import redirect
 
 from config import FlaskConfig, ApeksConfig
 from . import bp
-from .forms import StableStaffForm, create_staff_edit_form, StaffForm
+from .forms import StableStaffForm, create_staff_edit_form, StaffForm, \
+    StableStaffReportForm
 from .func import (
     process_apeks_stable_staff_data,
     process_full_staff_data,
-    process_document_stable_staff_data,
+    process_document_stable_staff_data, process_documents_range_by_busy_type,
+    process_documents_range_by_staff_id,
 )
 from .stable_staff_report import generate_stable_staff_report
 from ..core.db.auth_models import Users
@@ -69,6 +72,52 @@ async def staff_stable_info():
         staff_stable_data=staff_stable_data,
         document_status=document_status,
     )
+
+
+@bp.route("/staff_stable_report", methods=["GET", "POST"])
+@login_required
+async def staff_stable_report():
+    form = StableStaffReportForm()
+    busy_data, staff_data = None, None
+    # form.document_start_date.data = request.form.get("document_start_date")
+    # form.document_end_date.data = datetime.date.today()
+
+    if request.method == "POST" and form.validate_on_submit():
+        start_date = request.form.get("document_start_date")
+        end_date = request.form.get("document_end_date")
+        staff_stable_service = get_staff_stable_crud_service()
+        staff_stable_documents = list(
+            staff_stable_service.list(
+                {
+                    "date": {'$gte': start_date, "$lte": end_date},
+                    "status": FlaskConfig.STAFF_COMPLETED_STATUS
+                }
+            )
+        )
+        busy_data = process_documents_range_by_busy_type(staff_stable_documents)
+        staff_data = process_documents_range_by_staff_id(staff_stable_documents)
+
+    busy_types_service = get_staff_stable_busy_types_service()
+    busy_types = {item.slug: item.name for item in busy_types_service.list()}
+
+    busy_type = request.args.get("busy_type")
+    staff_id = request.args.get("staff_id")
+
+    return render_template(
+        "staff/staff_stable_report.html",
+        active="staff",
+        form=form,
+        busy_data=busy_data,
+        staff_data=staff_data,
+        busy_types=busy_types,
+        busy_type=busy_type,
+        staff_id=staff_id,
+    )
+    # return render_template(
+    #     "staff/staff_stable_report.html",
+    #     active="staff",
+    #     form=form,
+    # )
 
 
 @bp.route("/staff_stable_load", methods=["GET", "POST"])

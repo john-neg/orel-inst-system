@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">Строевая записка постоянного состава - отчет</h3>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="container mb-3">
+      <div class="row justify-content-center">
+        <div class="col-md-7 col-xl-4">
+          <label class="form-label text-dark">{{ form.document_start_date.label }}</label>
+          {{ form.document_start_date(class="form-control form-control-lg") }}
+        </div>
+        <div class="col-md-7 col-xl-4">
+          <label class="form-label text-dark">{{ form.document_end_date.label }}</label>
+          {{ form.document_end_date(class="form-control form-control-lg") }}
+        </div>
+      </div>
+      <div class="row justify-content-center mt-2">
+        <div class="col-md-7 col-xl-3 text-center d-grid">
+          {{ form.submit(class="btn btn-primary fw-bold") }}
+        </div>
+      </div>
+    </div>
+  </form>
+  {% if busy_data %}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8">
+          <h5 class="text-center text-black">Причины отсутствия</h5>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-5">
+          {% for busy_type in busy_data %}
+            <a class="btn btn-warning mb-2" href="{{ url_for("staff.staff_stable_report", busy_type=busy_type) }}" type="submit" style="width: 100%;font-weight: bold;border-style: none;">{{ busy_types.get(busy_type, busy_type) }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {% if staff_data %}
+    <div class="container">
+      <div class="row justify-content-center mt-2">
+        <div class="col-md-10 col-xl-8">
+          <h5 class="text-center text-black">Список сотрудников, отсутствовавших в указанный период</h5>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-5">
+          <ul class="list-group">
+            <li class="list-group-item fs-5 text-bg-light d-flex gap-3 py-2" style="opacity: 1;">
+              <div class="fw-bold text-start d-flex gap-2 w-100 justify-content-between">
+                <span>Ф.И.О.</span><small class="text-nowrap">Кол-во дней</small>
+              </div>
+            </li>
+            {% for staff_id in staff_data %}
+              <a href="{{ url_for("staff.staff_stable_report", staff_id=staff_id) }}" class="list-group-item list-group-item-action d-flex gap-3 py-1" aria-current="true">
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                  <div>
+                    <p class="mb-0 text-dark">{{ staff_data[staff_id].get("name") }}</p>
+                  </div>
+                  <small class="opacity-75 text-nowrap">{{ staff_data[staff_id].get("total") }}</small>
+                </div>
+              </a>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  {{ busy_type }}
+  {{ staff_id }}
+{% endblock %}

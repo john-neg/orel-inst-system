@@ -1,4 +1,8 @@
+import logging
 from typing import Any
+
+from flask import flash
+from pymongo.cursor import Cursor
 
 from config import ApeksConfig
 
@@ -51,15 +55,14 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
     if not staff_document_data:
         return {}
     departments = sorted(
-        staff_document_data["departments"].values(),
-        key=lambda item: item.get("name")
+        staff_document_data["departments"].values(), key=lambda item: item.get("name")
     )
     staff_data = {
         "staff_total": 0,
         "staff_stock": 0,
         "staff_absence": 0,
         "departments_by_type": {},
-        "absence_types": {}
+        "absence_types": {},
     }
     for department in departments:
         dept_type = department.get("type")
@@ -106,3 +109,69 @@ def process_full_staff_data(
         )
     full_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)
     return full_staff_data
+
+
+def process_documents_range_by_busy_type(
+    staff_documents_data: Cursor | list,
+) -> dict[str, dict[str, Any]]:
+    """
+    Рассчитывает количество пропусков по типам за период.
+
+    :returns: {"absence_type": {"staff_id": {"name": "staff_name", "count": value}}}
+    """
+    processed_data = {}
+    for document in staff_documents_data:
+        try:
+            departments = document["departments"]
+            for dept_id in departments:
+                absence_data = departments[dept_id]["absence"]
+                for absence, data in absence_data.items():
+                    absence_type_data = processed_data.setdefault(absence, {})
+                    if data is not None:
+                        for key, value in data.items():
+                            staff_info = absence_type_data.setdefault(key, {"count": 0})
+                            staff_info["count"] += 1
+                            staff_info["name"] = value
+        except KeyError:
+            message = (
+                f"Не удалось прочитать документ {document.get('_id')}. "
+                f"Дата документа: {document.get('date')}"
+            )
+            logging.error(message)
+            flash(message, "danger")
+    return processed_data
+
+
+def process_documents_range_by_staff_id(
+    staff_documents_data: Cursor | list,
+) -> dict[str, dict[str, Any]]:
+    """
+    Рассчитывает количество пропусков по сотрудникам за период.
+
+    :returns: {"staff_id" :{"name": "staff_name", "absence": {"absence_type": value}}}
+    """
+    processed_data = {}
+    for document in staff_documents_data:
+        try:
+            departments = document["departments"]
+            for dept_id in departments:
+                absence_data = departments[dept_id]["absence"]
+                for absence, staff_data in absence_data.items():
+                    if staff_data is not None:
+                        for key, value in staff_data.items():
+                            staff_info = processed_data.setdefault(
+                                key, {"absence": {}, "total": 0}
+                            )
+                            staff_info["name"] = value
+                            staff_info["absence"][absence] = (
+                                staff_info["absence"].get(absence, 0) + 1
+                            )
+                            staff_info["total"] += 1
+        except KeyError:
+            message = (
+                f"Не удалось прочитать документ {document.get('_id')}. "
+                f"Дата документа: {document.get('date')}"
+            )
+            logging.error(message)
+            flash(message, "danger")
+    return dict(sorted(processed_data.items(), key=lambda x: x[1].get("name")))
