@@ -67,7 +67,7 @@ class StaffStableCRUDService(BaseMongoDbCrudService):
         return result_info
 
 
-def get_staff_stable_crud_service(
+def get_staff_stable_document_service(
     mongo_db: Database = get_mongo_db(),
     collection_name: str = MongoDBSettings.STAFF_STABLE_COLLECTION,
 ) -> StaffStableCRUDService:

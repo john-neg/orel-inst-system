@@ -1,26 +1,33 @@
 import logging
+from dataclasses import dataclass
 from datetime import date
 
-from flask import render_template, request, url_for
-from flask_login import login_required
+from flask import render_template, request, url_for, flash
+from flask.views import View
+from flask_login import login_required, current_user
 from werkzeug.utils import redirect
 
-from config import ApeksConfig as Apeks
+from config import ApeksConfig, FlaskConfig
 from . import bp
-from .forms import LoadReportForm, HolidaysReportForm
+from .forms import LoadReportForm, HolidaysReportForm, ProductionCalendarForm
 from ..core.classes.EducationStaff import EducationStaff
 from ..core.classes.LoadReportProcessor import LoadReportProcessor
-from ..core.func.api_get import check_api_db_response, api_get_db_table, get_lessons
-from ..core.func.organization import get_departments
-from ..core.func.staff import get_state_staff
-from ..core.reports.holidays_report import generate_holidays_report
-from ..core.reports.load_report import generate_load_report
 from ..core.db.database import db
 from ..core.db.reports_models import (
     ProductionCalendarHolidays,
     ProductionCalendarWorkingDays,
 )
+from ..core.forms import ObjectDeleteForm
+from ..core.func.api_get import check_api_db_response, api_get_db_table, get_lessons
+from ..core.func.organization import get_departments
+from ..core.func.staff import get_state_staff
+from ..core.reports.holidays_report import generate_holidays_report
+from ..core.reports.load_report import generate_load_report
 from ..core.repository.sqlalchemy_repository import DbRepository
+from ..core.services.db_production_calendar_service import (
+    get_productions_calendar_holidays_service,
+    get_productions_calendar_working_days_service,
+)
 
 
 @bp.route("/load_report", methods=["GET", "POST"])
@@ -68,12 +75,12 @@ async def load_report_export(year, month_start, month_end, department_id):
         state_staff=await get_state_staff(),
         state_staff_history=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("state_staff_history"),
+                ApeksConfig.TABLES.get("state_staff_history"),
                 department_id=department_id,
             )
         ),
         state_staff_positions=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
+            await api_get_db_table(ApeksConfig.TABLES.get("state_staff_positions"))
         ),
         departments=await get_departments(department_filter="kafedra"),
     )
@@ -90,22 +97,22 @@ async def load_report_export(year, month_start, month_end, department_id):
         ),
         schedule_lessons_staff=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("schedule_day_schedule_lessons_staff"),
+                ApeksConfig.TABLES.get("schedule_day_schedule_lessons_staff"),
                 staff_id=[*department_staff],
             )
         ),
         load_groups=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("load_groups"))
+            await api_get_db_table(ApeksConfig.TABLES.get("load_groups"))
         ),
         load_subgroups=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("load_subgroups"))
+            await api_get_db_table(ApeksConfig.TABLES.get("load_subgroups"))
         ),
         plan_education_plans=await check_api_db_response(
-            await api_get_db_table(Apeks.TABLES.get("plan_education_plans"))
+            await api_get_db_table(ApeksConfig.TABLES.get("plan_education_plans"))
         ),
         plan_education_plans_education_forms=await check_api_db_response(
             await api_get_db_table(
-                Apeks.TABLES.get("plan_education_plans_education_forms"),
+                ApeksConfig.TABLES.get("plan_education_plans_education_forms"),
             )
         ),
         staff_history_data=staff.staff_history(),
@@ -169,3 +176,224 @@ async def holiday_report_export(year, month_start, month_end):
         year, month_start, month_end, working_sat, non_working
     )
     return redirect(url_for("main.get_file", filename=filename))
+
+
+@dataclass
+class ProductionCalendarGetView(View):
+    """View класс для просмотра записей производственного календаря."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self):
+        paginated_data = self.service.paginated(reverse=True)
+        return render_template(
+            self.template_name,
+            title=self.title,
+            paginated_data=paginated_data,
+            base_view_slug=self.base_view_slug,
+        )
+
+
+bp.add_url_rule(
+    "/production_calendar_holidays",
+    view_func=ProductionCalendarGetView.as_view(
+        "production_calendar_holidays",
+        title="Производственный календарь - выходные дни",
+        template_name="reports/production_calendar_view.html",
+        service=get_productions_calendar_holidays_service(),
+        base_view_slug="production_calendar_holidays",
+    ),
+)
+
+bp.add_url_rule(
+    "/production_calendar_working_days",
+    view_func=ProductionCalendarGetView.as_view(
+        "production_calendar_working_days",
+        title="Производственный календарь - рабочие выходные",
+        template_name="reports/production_calendar_view.html",
+        service=get_productions_calendar_working_days_service(),
+        base_view_slug="production_calendar_working_days",
+    ),
+)
+
+
+@dataclass
+class ProductionCalendarAddView(View):
+    """View класс для добавления записей производственного календаря."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self, **kwargs):
+        if current_user.role.slug not in (
+            FlaskConfig.ROLE_ADMIN,
+            FlaskConfig.ROLE_METOD,
+        ):
+            return redirect(url_for("main.index"))
+        form = ProductionCalendarForm()
+        if request.method == "POST" and form.validate_on_submit():
+            self.service.create(
+                date=date.fromisoformat(request.form.get("date")),
+            )
+            flash(
+                f"Запись {request.form.get('date')} успешно добавлена",
+                category="success",
+            )
+            return redirect(url_for(f".{self.base_view_slug}"))
+        return render_template(
+            self.template_name,
+            title=f'Добавить запись в "{self.title.lower()}"',
+            form=form,
+            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+        )
+
+
+bp.add_url_rule(
+    "/production_calendar_holidays_add",
+    view_func=ProductionCalendarAddView.as_view(
+        "production_calendar_holidays_add",
+        title="Производственный календарь - выходные дни",
+        template_name="reports/production_calendar_edit.html",
+        service=get_productions_calendar_holidays_service(),
+        base_view_slug="production_calendar_holidays",
+    ),
+)
+
+bp.add_url_rule(
+    "/production_calendar_working_days_add",
+    view_func=ProductionCalendarAddView.as_view(
+        "production_calendar_working_days_add",
+        title="Производственный календарь - рабочие выходные",
+        template_name="reports/production_calendar_edit.html",
+        service=get_productions_calendar_working_days_service(),
+        base_view_slug="production_calendar_working_days",
+    ),
+)
+
+
+@dataclass
+class ProductionCalendarEditView(View):
+    """View класс для редактирования записей производственного календаря."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self, id_: int, **kwargs):
+        if current_user.role.slug not in (
+            FlaskConfig.ROLE_ADMIN,
+            FlaskConfig.ROLE_METOD,
+        ):
+            return redirect(url_for("main.index"))
+        obj = self.service.get(id=id_)
+        form = ProductionCalendarForm(obj=obj)
+        if request.method == "POST" and form.validate_on_submit():
+            self.service.update(
+                id_,
+                date=date.fromisoformat(request.form.get("date")),
+            )
+            flash(
+                f"Запись {request.form.get('date')} успешно обновлена",
+                category="success",
+            )
+            return redirect(url_for(f".{self.base_view_slug}"))
+        return render_template(
+            self.template_name,
+            title=f'Изменить запись в "{self.title.lower()}"',
+            form=form,
+            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+        )
+
+
+bp.add_url_rule(
+    "/production_calendar_holidays/<int:id_>",
+    view_func=ProductionCalendarEditView.as_view(
+        "production_calendar_holidays_edit",
+        title="Производственный календарь - выходные дни",
+        template_name="reports/production_calendar_edit.html",
+        service=get_productions_calendar_holidays_service(),
+        base_view_slug="production_calendar_holidays",
+    ),
+)
+
+bp.add_url_rule(
+    "/production_calendar_working_days/<int:id_>",
+    view_func=ProductionCalendarEditView.as_view(
+        "production_calendar_working_days_edit",
+        title="Производственный календарь - рабочие выходные",
+        template_name="reports/production_calendar_edit.html",
+        service=get_productions_calendar_working_days_service(),
+        base_view_slug="production_calendar_working_days",
+    ),
+)
+
+
+@dataclass
+class ProductionCalendarDeleteView(View):
+    """View класс для удаления записей производственного календаря."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self, id_: int, **kwargs):
+        if current_user.role.slug not in (
+            FlaskConfig.ROLE_ADMIN,
+            FlaskConfig.ROLE_METOD,
+        ):
+            return redirect(url_for("main.index"))
+        obj = self.service.get(id=id_)
+        form = ObjectDeleteForm(obj=obj)
+        current_date = str(obj.date)
+        if request.method == "POST" and form.validate_on_submit():
+            self.service.delete(obj.id)
+            flash(
+                f"Запись {current_date} успешно удалена",
+                category="success",
+            )
+            return redirect(url_for(f".{self.base_view_slug}"))
+        return render_template(
+            self.template_name,
+            title=f'Удалить запись в "{self.title.lower()}"',
+            obj_data=obj,
+            form=form,
+            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+        )
+
+
+bp.add_url_rule(
+    "/production_calendar_holidays/delete/<int:id_>",
+    view_func=ProductionCalendarDeleteView.as_view(
+        "production_calendar_holidays_delete",
+        title="Производственный календарь - выходные дни",
+        template_name="reports/production_calendar_delete.html",
+        service=get_productions_calendar_holidays_service(),
+        base_view_slug="production_calendar_holidays",
+    ),
+)
+
+bp.add_url_rule(
+    "/production_calendar_working_days/delete/<int:id_>",
+    view_func=ProductionCalendarDeleteView.as_view(
+        "production_calendar_working_days_delete",
+        title="Производственный календарь - рабочие выходные",
+        template_name="reports/production_calendar_delete.html",
+        service=get_productions_calendar_working_days_service(),
+        base_view_slug="production_calendar_working_days",
+    ),
+)

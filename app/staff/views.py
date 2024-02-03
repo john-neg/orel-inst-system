@@ -1,24 +1,33 @@
 import datetime
 import datetime as dt
 import logging
+from dataclasses import dataclass
 
 from flask import render_template, request, url_for, flash
+from flask.views import View
 from flask_login import login_required, current_user
 from pymongo.errors import PyMongoError
 from werkzeug.utils import redirect
 
 from config import FlaskConfig, ApeksConfig
 from . import bp
-from .forms import StableStaffForm, create_staff_edit_form, StaffForm, \
-    StableStaffReportForm
+from .forms import (
+    StableStaffForm,
+    create_staff_edit_form,
+    StaffForm,
+    StaffReportForm,
+    StaffStableBusyTypesForm,
+)
 from .func import (
     process_apeks_stable_staff_data,
     process_full_staff_data,
-    process_document_stable_staff_data, process_documents_range_by_busy_type,
+    process_document_stable_staff_data,
+    process_documents_range_by_busy_type,
     process_documents_range_by_staff_id,
 )
 from .stable_staff_report import generate_stable_staff_report
 from ..core.db.auth_models import Users
+from ..core.repository.sqlalchemy_repository import DbRepository
 from ..core.services.apeks_state_departments_service import (
     get_apeks_state_departments_service,
 )
@@ -36,7 +45,7 @@ from ..core.services.base_apeks_api_service import data_processor
 from ..core.services.db_staff_service import get_staff_stable_busy_types_service
 from ..core.services.staff_logs_document_service import get_staff_logs_crud_service
 from ..core.services.staff_stable_document_service import (
-    get_staff_stable_crud_service,
+    get_staff_stable_document_service,
     DocumentStatusType,
 )
 
@@ -46,7 +55,7 @@ from ..core.services.staff_stable_document_service import (
 async def staff_stable_info():
     form = StaffForm()
     current_date = request.form.get("document_date") or dt.date.today().isoformat()
-    staff_stable_service = get_staff_stable_crud_service()
+    staff_stable_service = get_staff_stable_document_service()
     staff_stable_document = staff_stable_service.get(
         query_filter={"date": current_date}
     )
@@ -74,28 +83,28 @@ async def staff_stable_info():
     )
 
 
-@bp.route("/staff_stable_report", methods=["GET", "POST"])
+@bp.route("/staff_stable_report", methods=["GET"])
 @login_required
 async def staff_stable_report():
-    form = StableStaffReportForm()
-    busy_data, staff_data = None, None
-    # form.document_start_date.data = request.form.get("document_start_date")
-    # form.document_end_date.data = datetime.date.today()
-
-    if request.method == "POST" and form.validate_on_submit():
-        start_date = request.form.get("document_start_date")
-        end_date = request.form.get("document_end_date")
-        staff_stable_service = get_staff_stable_crud_service()
+    form = StaffReportForm()
+    busy_data, staff_data, total_docs = None, None, None
+    document_start_date = request.args.get("document_start_date")
+    document_end_date = request.args.get("document_end_date")
+    if document_start_date and document_end_date:
+        staff_stable_service = get_staff_stable_document_service()
         staff_stable_documents = list(
             staff_stable_service.list(
                 {
-                    "date": {'$gte': start_date, "$lte": end_date},
-                    "status": FlaskConfig.STAFF_COMPLETED_STATUS
+                    "date": {"$gte": document_start_date, "$lte": document_end_date},
+                    "status": FlaskConfig.STAFF_COMPLETED_STATUS,
                 }
             )
         )
+        total_docs = len(staff_stable_documents)
         busy_data = process_documents_range_by_busy_type(staff_stable_documents)
         staff_data = process_documents_range_by_staff_id(staff_stable_documents)
+        form.document_start_date.data = datetime.date.fromisoformat(document_start_date)
+        form.document_end_date.data = datetime.date.fromisoformat(document_end_date)
 
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
@@ -107,17 +116,15 @@ async def staff_stable_report():
         "staff/staff_stable_report.html",
         active="staff",
         form=form,
+        document_start_date=document_start_date,
+        document_end_date=document_end_date,
         busy_data=busy_data,
-        staff_data=staff_data,
         busy_types=busy_types,
         busy_type=busy_type,
+        staff_data=staff_data,
         staff_id=staff_id,
+        total_docs=total_docs,
     )
-    # return render_template(
-    #     "staff/staff_stable_report.html",
-    #     active="staff",
-    #     form=form,
-    # )
 
 
 @bp.route("/staff_stable_load", methods=["GET", "POST"])
@@ -129,7 +136,7 @@ async def staff_stable_load():
         if request.args.get("date")
         else dt.date.today()
     )
-    staff_stable_service = get_staff_stable_crud_service()
+    staff_stable_service = get_staff_stable_document_service()
     busy_types_service = get_staff_stable_busy_types_service()
     current_data = staff_stable_service.get(
         query_filter={"date": working_date.isoformat()}
@@ -216,7 +223,7 @@ async def staff_stable_edit(department_id):
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = busy_types_service.list(is_active=1)
     form = create_staff_edit_form(staff_data=full_staff_data, busy_types=busy_types)
-    staff_stable_service = get_staff_stable_crud_service()
+    staff_stable_service = get_staff_stable_document_service()
     current_data = staff_stable_service.get({"date": working_date.isoformat()})
     if request.method == "POST" and form.validate_on_submit():
         if current_data.get("status") == FlaskConfig.STAFF_IN_PROGRESS_STATUS:
@@ -287,3 +294,146 @@ async def staff_stable_edit(department_id):
         staff_data=full_staff_data,
         status=current_data.get("status"),
     )
+
+
+@bp.route("/staff_data_edit", methods=["GET"])
+@login_required
+def staff_data_edit():
+    data = {
+        "Причины отсутствия постоянного состава": url_for(".staff_stable_busy_types"),
+    }
+    return render_template(
+        "staff/staff_data_edit.html",
+        title="Редактировать информацию",
+        data=data,
+    )
+
+
+@dataclass
+class StaffDataGetView(View):
+    """View класс для просмотра списка записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self):
+        paginated_data = self.service.paginated()
+        return render_template(
+            self.template_name,
+            title=self.title,
+            paginated_data=paginated_data,
+            base_view_slug=self.base_view_slug,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types",
+    view_func=StaffDataGetView.as_view(
+        "staff_stable_busy_types",
+        title="Причины отсутствия постоянного состава",
+        template_name="staff/staff_busy_types.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)
+
+
+@dataclass
+class StaffDataAddView(View):
+    """View класс для добавления записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self):
+        if current_user.role.slug not in (
+            FlaskConfig.ROLE_ADMIN,
+            FlaskConfig.ROLE_STAFF,
+        ):
+            return redirect(url_for("main.index"))
+        form = StaffStableBusyTypesForm()
+        if request.method == "POST" and form.validate_on_submit():
+            self.service.create(
+                slug=request.form.get("slug"),
+                name=request.form.get("name"),
+                is_active=True if request.form.get("is_active") else False,
+            )
+            flash("Запись успешно добавлена", category="success")
+            return redirect(url_for(f".{self.base_view_slug}"))
+        return render_template(
+            "staff/staff_busy_types_edit.html",
+            title=f'Добавить запись в "{self.title}"',
+            base_view_slug=self.base_view_slug,
+            slug_edit_disable=False,
+            form=form,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types_add",
+    view_func=StaffDataAddView.as_view(
+        "staff_stable_busy_types_add",
+        title="Причины отсутствия постоянного состава",
+        template_name="staff/staff_busy_types_edit.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)
+
+
+@dataclass
+class StaffDataEditView(View):
+    """View класс для изменения записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @login_required
+    async def dispatch_request(self, id_: int):
+        if current_user.role.slug not in (
+            FlaskConfig.ROLE_ADMIN,
+            FlaskConfig.ROLE_STAFF,
+        ):
+            return redirect(url_for("main.index"))
+        obj = self.service.get(id=id_)
+        form = StaffStableBusyTypesForm(obj=obj)
+        if request.method == "POST" and form.validate_on_submit():
+            name = request.form.get("name")
+            self.service.update(
+                id_,
+                name=name,
+                is_active=True if request.form.get("is_active") else False,
+            )
+            flash(f"Данные {name} обновлены", category="success")
+            return redirect(url_for(f".{self.base_view_slug}"))
+
+        return render_template(
+            "staff/staff_busy_types_edit.html",
+            title=f"Изменить - {obj.name.lower()}",
+            base_view_slug=self.base_view_slug,
+            slug_edit_disable=True,
+            form=form,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types/<int:id_>",
+    view_func=StaffDataEditView.as_view(
+        "staff_stable_busy_types_edit",
+        title="Причина отсутствия постоянного состава",
+        template_name="staff/staff_busy_types_edit.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)

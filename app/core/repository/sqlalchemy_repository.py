@@ -4,7 +4,7 @@ from typing import TypeVar, Any, Generic
 import flask_sqlalchemy.session
 from flask import request
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.exc import NoResultFound
 
 from config import FlaskConfig
@@ -59,20 +59,23 @@ class DbRepository(Generic[ModelType], AbstractDBRepository):
         self.db_session.commit()
         return db_obj
 
-    def delete(self, id_: int) -> str:
+    def delete(self, id_: int) -> None:
         """Удаляет объект базы данных."""
 
         db_obj = self.get(id=id_)
         self.db_session.delete(db_obj)
         self.db_session.commit()
-        return f"Запись {self.model.__name__.lower()} удалена"
 
-    def paginated(self, **kwargs: Any) -> Pagination:
+    def paginated(self, reverse=False, **kwargs: Any) -> Pagination:
         """Возвращает Pagination объект содержащий объекты модели."""
 
+        if reverse:
+            query_select = select(self.model).filter_by(**kwargs).order_by(desc(self.model.id))
+        else:
+            query_select = select(self.model).filter_by(**kwargs)
         page = request.args.get("page", 1, type=int)
         paginated_data = db.paginate(
-            select(self.model).filter_by(**kwargs),
+            query_select,
             page=page,
             per_page=FlaskConfig.ITEMS_PER_PAGE,
             error_out=True,

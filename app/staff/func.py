@@ -139,6 +139,14 @@ def process_documents_range_by_busy_type(
             )
             logging.error(message)
             flash(message, "danger")
+    for busy_type in processed_data:
+        processed_data[busy_type] = dict(
+            sorted(
+                processed_data[busy_type].items(),
+                key=lambda x: x[1].get("count"),
+                reverse=True,
+            )
+        )
     return processed_data
 
 

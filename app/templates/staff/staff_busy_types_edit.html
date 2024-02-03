@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}{{ title }}{% endblock %}
+    </h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <div class="card shadow mb-2">
+            <div class="card-header py-3">
+              <p class="text-center text-primary m-0 fw-bold" id="increase_label">Текущие данные</p>
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.slug.label(class="text-center text-primary m-0 fw-bold", id=form.slug.label.field_id+"_label") }}
+              {{ form.slug(class="form-control", id=form.slug.label.field_id, readonly=slug_edit_disable, disabled=slug_edit_disable) }}
+              {% for error in form.slug.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              {{ form.name.label(class="text-center text-primary m-0 fw-bold", id=form.name.label.field_id+"_label") }}
+              {{ form.name(class="form-control", id=form.name.label.field_id) }}
+              {% for error in form.name.errors %}
+                <span style="color: var(--bs-danger);">{{ error }}</span>
+              {% endfor %}
+            </div>
+            <div class="card-body" style="padding-top: 8px;">
+              <div class="form-check form-switch">
+                {{ form.is_active(class="form-check-input", type="checkbox", checked=form.is_active.data, id=form.is_active.label.field_id) }}
+                {{ form.is_active.label(class="form-check-label", for=form.is_active.label.field_id) }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              {{ form.submit(class="btn btn-primary link-light", id=form.submit.label.field_id, style="width: 100%;font-weight: bold;border-style: none;") }}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

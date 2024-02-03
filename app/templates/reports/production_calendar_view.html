@@ -1,0 +1,28 @@
+{% extends 'common/base_list.html' %}
+{% block table %}
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>Дата</th>
+      <th>Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for obj in paginated_data.items %}
+      <tr>
+        <td>{{ obj.id }}</td>
+        <td class="text-start">{{ obj.date }}</td>
+        <td>
+          <div class="btn-group" role="group">
+            <a class="btn btn-secondary btn-sm" role="button" href="{{ url_for('.' + base_view_slug + "_edit", id_=obj.id) }}">Редактировать</a>
+            <a class="btn btn-danger btn-sm" role="button" href="{{ url_for('.' + base_view_slug + "_delete", id_=obj.id) }}">Удалить</a
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+{% endblock %}
+{% block footer_buttons %}
+  <a class="btn btn-primary" role="button" href="{{ url_for('.' + base_view_slug + '_add') }}">Добавить</a>
+  <a class="btn btn-secondary" role="button" href="{{ url_for('.holidays_report') }}">Назад</a>
+{% endblock %}

@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
+from wtforms.fields.datetime import DateField
 from wtforms.validators import DataRequired
 
 from config import ApeksConfig as Apeks
@@ -16,27 +17,29 @@ class LoadReportForm(FlaskForm):
         "Месяц",
         coerce=str,
         choices=[
-            ('1-1', "Январь"),
-            ('2-2', "Февраль"),
-            ('3-3', "Март"),
-            ('4-4', "Апрель"),
-            ('5-5', "Май"),
-            ('6-6', "Июнь"),
-            ('7-7', "Июль"),
-            ('8-8', "Август"),
-            ('1-8', "(Январь-Август) полугодие"),
-            ('9-9', "Сентябрь"),
-            ('10-10', "Октябрь"),
-            ('11-11', "Ноябрь"),
-            ('12-12', "Декабрь"),
-            ('9-12', "(Сентябрь-Декабрь) полугодие"),
+            ("1-1", "Январь"),
+            ("2-2", "Февраль"),
+            ("3-3", "Март"),
+            ("4-4", "Апрель"),
+            ("5-5", "Май"),
+            ("6-6", "Июнь"),
+            ("7-7", "Июль"),
+            ("8-8", "Август"),
+            ("1-8", "(Январь-Август) полугодие"),
+            ("9-9", "Сентябрь"),
+            ("10-10", "Октябрь"),
+            ("11-11", "Ноябрь"),
+            ("12-12", "Декабрь"),
+            ("9-12", "(Сентябрь-Декабрь) полугодие"),
         ],
         validators=[DataRequired()],
     )
-    load_report = SubmitField('Cформировать')
+    load_report = SubmitField("Cформировать")
 
 
 class HolidaysReportForm(FlaskForm):
+    """Форма для формирования отчета о работы в выходные дни."""
+
     year = SelectField(
         "Год",
         coerce=int,
@@ -54,4 +57,11 @@ class HolidaysReportForm(FlaskForm):
         choices=[(k, v.title()) for k, v in Apeks.MONTH_DICT.items()],
         validators=[DataRequired()],
     )
-    holidays_report = SubmitField('Cформировать')
+    holidays_report = SubmitField("Cформировать")
+
+
+class ProductionCalendarForm(FlaskForm):
+    """Форма для заполнения производственного календаря."""
+
+    date = DateField("Дата", validators=[DataRequired()])
+    submit = SubmitField("Сохранить")

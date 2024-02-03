@@ -3,32 +3,30 @@ import datetime
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 from wtforms.fields.datetime import DateField
-from wtforms.validators import DataRequired, Length
+from wtforms.fields.simple import StringField, BooleanField
+from wtforms.validators import DataRequired, Regexp
 
 from ..core.db.database import db
 
 
 class StaffForm(FlaskForm):
-    document_date = DateField(
-        "Дата документа",
-        default=datetime.date.today()
-    )
-    submit = SubmitField("Выбрать")
+    """Форма для просмотра информации по строевой записке."""
+
+    document_date = DateField("Дата документа", default=datetime.date.today())
+    make_report = SubmitField("Выбрать")
 
 
-class StableStaffReportForm(FlaskForm):
+class StaffReportForm(FlaskForm):
+    """Форма для отчетов по наличию личного состава."""
+
     document_start_date = DateField(
         "Дата начала",
     )
-    document_end_date = DateField(
-        "Дата окончания",
-        default=datetime.date.today()
-    )
-    submit = SubmitField("Сформировать отчет")
+    document_end_date = DateField("Дата окончания", default=datetime.date.today())
 
 
 class StableStaffForm(FlaskForm):
-    """Форма для заполнения данных """
+    """Форма для заполнения данных"""
 
     finish_edit = SubmitField("Завершить редактирование")
     enable_edit = SubmitField("Разрешить редактирование")
@@ -62,3 +60,22 @@ def create_staff_edit_form(
         setattr(StaffEditForm, label, field)
 
     return StaffEditForm(**kwargs)
+
+
+class StaffStableBusyTypesForm(FlaskForm):
+    """Класс формы причин отсутствия постоянного состава."""
+
+    slug = StringField(
+        "Код",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w_-]+",
+                message="Допускаются только маленькие буквы "
+                "латинского алфавита, цифры и подчеркивания",
+            ),
+        ],
+    )
+    name = StringField("Название", validators=[DataRequired()])
+    is_active = BooleanField("Действует")
+    submit = SubmitField("Сохранить")

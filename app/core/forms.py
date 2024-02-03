@@ -25,3 +25,9 @@ class ChoosePlan(FlaskForm):
         validators=[DataRequired()]
     )
     plan_choose = SubmitField("Выбор")
+
+
+class ObjectDeleteForm(FlaskForm):
+    """Класс формы удаления данных."""
+
+    submit = SubmitField("Удалить")

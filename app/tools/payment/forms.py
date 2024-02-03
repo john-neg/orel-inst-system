@@ -9,8 +9,6 @@ from wtforms import (
     FloatField,
     BooleanField,
     IntegerField,
-    FieldList,
-    FormField,
 )
 from wtforms.validators import DataRequired, NumberRange
 
@@ -65,7 +63,6 @@ def create_payment_form(
         )
         setattr(PaymentForm, label, field)
 
-
     # Добавляем поле для расчета пенсии в зависимости от выслуги лет
     if pension_duty_items:
         label = "pension_duty_years"
@@ -106,10 +103,8 @@ def create_increase_form(
             "Значение",
             validators=[
                 DataRequired(
-                    message=(
-                        "Введите число (Например: ",
-                        "для индексации на +5% число - 1.05",
-                    )
+                    message="Введите число (Например: для индексации "
+                    "на +5% число - 1.05",
                 )
             ],
         )
@@ -275,9 +270,8 @@ def create_pension_duty_form(
             "Значение",
             validators=[
                 DataRequired(
-                    message=(
-                        "Введите число (Например: для коэффициента 50% число - 0.5)",
-                    )
+                    message="Введите число (Например: для "
+                    "коэффициента 50% число - 0.5)",
                 )
             ],
         )
@@ -303,9 +297,8 @@ def create_global_coefficient_form(
             "Значение",
             validators=[
                 DataRequired(
-                    message=(
-                        "Введите число (Например: для коэффициента 5% число - 0.05)",
-                    )
+                    message="Введите число (Например: для "
+                    "коэффициента 5% число - 0.05)",
                 )
             ],
         )
@@ -313,7 +306,6 @@ def create_global_coefficient_form(
         description = TextAreaField("Описание (пункт документа)")
         salary = BooleanField("Зарплата")
         pension = BooleanField("Пенсия")
-        FieldList(FormField)
         document_id = SelectField(
             "Документ",
             validators=[DataRequired()],
