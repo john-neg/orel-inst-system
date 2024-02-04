@@ -9,7 +9,7 @@ from flask_login import login_required, current_user
 from pymongo.errors import PyMongoError
 from werkzeug.utils import redirect
 
-from config import FlaskConfig, ApeksConfig
+from config import ApeksConfig, MongoDBSettings, PermissionsConfig
 from . import bp
 from .forms import (
     StableStaffForm,
@@ -26,6 +26,7 @@ from .func import (
     process_documents_range_by_staff_id,
 )
 from .stable_staff_report import generate_stable_staff_report
+from ..auth.func import permission_required
 from ..core.db.auth_models import Users
 from ..core.repository.sqlalchemy_repository import DbRepository
 from ..core.services.apeks_state_departments_service import (
@@ -62,7 +63,7 @@ async def staff_stable_info():
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
     document_status = (
-        FlaskConfig.STAFF_COLLECTION_STATUSES.get(staff_stable_document.get("status"))
+        MongoDBSettings.STAFF_COLLECTION_STATUSES.get(staff_stable_document.get("status"))
         if staff_stable_document
         else None
     )
@@ -84,6 +85,7 @@ async def staff_stable_info():
 
 
 @bp.route("/staff_stable_report", methods=["GET"])
+@permission_required(PermissionsConfig.STAFF_REPORT_PERMISSION)
 @login_required
 async def staff_stable_report():
     form = StaffReportForm()
@@ -96,7 +98,7 @@ async def staff_stable_report():
             staff_stable_service.list(
                 {
                     "date": {"$gte": document_start_date, "$lte": document_end_date},
-                    "status": FlaskConfig.STAFF_COMPLETED_STATUS,
+                    "status": MongoDBSettings.STAFF_COMPLETED_STATUS,
                 }
             )
         )
@@ -226,7 +228,7 @@ async def staff_stable_edit(department_id):
     staff_stable_service = get_staff_stable_document_service()
     current_data = staff_stable_service.get({"date": working_date.isoformat()})
     if request.method == "POST" and form.validate_on_submit():
-        if current_data.get("status") == FlaskConfig.STAFF_IN_PROGRESS_STATUS:
+        if current_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             load_data = {
                 "id": department_id,
                 "name": department_name,
@@ -297,6 +299,7 @@ async def staff_stable_edit(department_id):
 
 
 @bp.route("/staff_data_edit", methods=["GET"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
 @login_required
 def staff_data_edit():
     data = {
@@ -319,6 +322,7 @@ class StaffDataGetView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self):
         paginated_data = self.service.paginated()
@@ -352,11 +356,12 @@ class StaffDataAddView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self):
         if current_user.role.slug not in (
-            FlaskConfig.ROLE_ADMIN,
-            FlaskConfig.ROLE_STAFF,
+            PermissionsConfig.ROLE_ADMIN,
+            PermissionsConfig.ROLE_STAFF,
         ):
             return redirect(url_for("main.index"))
         form = StaffStableBusyTypesForm()
@@ -399,11 +404,12 @@ class StaffDataEditView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, id_: int):
         if current_user.role.slug not in (
-            FlaskConfig.ROLE_ADMIN,
-            FlaskConfig.ROLE_STAFF,
+            PermissionsConfig.ROLE_ADMIN,
+            PermissionsConfig.ROLE_STAFF,
         ):
             return redirect(url_for("main.index"))
         obj = self.service.get(id=id_)

@@ -4,12 +4,13 @@ from datetime import date
 
 from flask import render_template, request, url_for, flash
 from flask.views import View
-from flask_login import login_required, current_user
+from flask_login import login_required
 from werkzeug.utils import redirect
 
-from config import ApeksConfig, FlaskConfig
+from config import ApeksConfig, PermissionsConfig
 from . import bp
 from .forms import LoadReportForm, HolidaysReportForm, ProductionCalendarForm
+from ..auth.func import permission_required
 from ..core.classes.EducationStaff import EducationStaff
 from ..core.classes.LoadReportProcessor import LoadReportProcessor
 from ..core.db.database import db
@@ -31,6 +32,7 @@ from ..core.services.db_production_calendar_service import (
 
 
 @bp.route("/load_report", methods=["GET", "POST"])
+@login_required
 async def load_report():
     departments = await get_departments(department_filter="kafedra")
     year = date.today().year
@@ -67,6 +69,7 @@ async def load_report():
     "/load_report/<int:year>/<int:month_start>/<int:month_end>/<int:department_id>",
     methods=["GET", "POST"],
 )
+@login_required
 async def load_report_export(year, month_start, month_end, department_id):
     staff = EducationStaff(
         year,
@@ -122,6 +125,7 @@ async def load_report_export(year, month_start, month_end, department_id):
 
 
 @bp.route("/holidays_report", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
 @login_required
 async def holidays_report():
     year = date.today().year
@@ -160,6 +164,7 @@ async def holidays_report():
     "/holiday_report/<int:year>/<int:month_start>/<int:month_end>",
     methods=["GET", "POST"],
 )
+@permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
 @login_required
 async def holiday_report_export(year, month_start, month_end):
     non_working = [
@@ -188,6 +193,7 @@ class ProductionCalendarGetView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
     @login_required
     async def dispatch_request(self):
         paginated_data = self.service.paginated(reverse=True)
@@ -232,13 +238,9 @@ class ProductionCalendarAddView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.PRODUCTION_CALENDAR_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, **kwargs):
-        if current_user.role.slug not in (
-            FlaskConfig.ROLE_ADMIN,
-            FlaskConfig.ROLE_METOD,
-        ):
-            return redirect(url_for("main.index"))
         form = ProductionCalendarForm()
         if request.method == "POST" and form.validate_on_submit():
             self.service.create(
@@ -253,7 +255,7 @@ class ProductionCalendarAddView(View):
             self.template_name,
             title=f'Добавить запись в "{self.title.lower()}"',
             form=form,
-            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+            back_link=url_for(f".{self.base_view_slug}", **kwargs),
         )
 
 
@@ -290,13 +292,9 @@ class ProductionCalendarEditView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.PRODUCTION_CALENDAR_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, id_: int, **kwargs):
-        if current_user.role.slug not in (
-            FlaskConfig.ROLE_ADMIN,
-            FlaskConfig.ROLE_METOD,
-        ):
-            return redirect(url_for("main.index"))
         obj = self.service.get(id=id_)
         form = ProductionCalendarForm(obj=obj)
         if request.method == "POST" and form.validate_on_submit():
@@ -313,7 +311,7 @@ class ProductionCalendarEditView(View):
             self.template_name,
             title=f'Изменить запись в "{self.title.lower()}"',
             form=form,
-            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+            back_link=url_for(f".{self.base_view_slug}", **kwargs),
         )
 
 
@@ -350,13 +348,9 @@ class ProductionCalendarDeleteView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
+    @permission_required(PermissionsConfig.PRODUCTION_CALENDAR_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, id_: int, **kwargs):
-        if current_user.role.slug not in (
-            FlaskConfig.ROLE_ADMIN,
-            FlaskConfig.ROLE_METOD,
-        ):
-            return redirect(url_for("main.index"))
         obj = self.service.get(id=id_)
         form = ObjectDeleteForm(obj=obj)
         current_date = str(obj.date)
@@ -372,7 +366,7 @@ class ProductionCalendarDeleteView(View):
             title=f'Удалить запись в "{self.title.lower()}"',
             obj_data=obj,
             form=form,
-            back_link=url_for(f".{self.base_view_slug}", **kwargs)
+            back_link=url_for(f".{self.base_view_slug}", **kwargs),
         )
 
 

@@ -3,7 +3,7 @@
   <div class="container-fluid">
     <h3 class="text-center text-dark mb-2">
       {% block title %}Расчет денежного содержания (аттестованные)
-        {% if current_user.is_authenticated and current_user.role.slug in (config.ROLE_ADMIN, ) %}
+        {% if has_permission(config.PAYMENTS_DATA_EDIT_PERMISSION) %}
           <a class="btn btn-light btn-sm border rounded mx-1" role="button" href="{{ url_for('.payment_data') }}">EDIT</a>
         {% endif %}
       {% endblock %}

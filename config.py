@@ -28,13 +28,6 @@ class FlaskConfig(object):
     ALLOWED_EXTENSIONS = {"xlsx", "csv"}
     USER_LOGIN_DURATION = timedelta(hours=8)
 
-    # Группы пользователей
-    ROLE_ADMIN: str = "admin"
-    ROLE_METOD: str = "metod"
-    ROLE_BIBL: str = "bibl"
-    ROLE_USER: str = "user"
-    ROLE_STAFF: str = "staff"
-
     # Pagination
     ITEMS_PER_PAGE = 10
     AVAILABLE_PAGES = 3
@@ -45,15 +38,43 @@ class FlaskConfig(object):
     AD_SERVER = os.getenv("AD_SERVER")
     AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
 
-    # Staff collection statuses
-    # Название статуса документа "в процессе"
-    STAFF_IN_PROGRESS_STATUS: str = 'in progress'
-    # Название статуса завершенного документа
-    STAFF_COMPLETED_STATUS: str = 'completed'
-    # Название историй операций
-    STAFF_COLLECTION_STATUSES = {
-        STAFF_IN_PROGRESS_STATUS: "Редактируется",
-        STAFF_COMPLETED_STATUS: "Сформирован"
+
+class PermissionsConfig:
+    """Настройки прав доступа."""
+
+    ROLE_ADMIN: str = "admin"
+    ROLE_METOD: str = "metod"
+    ROLE_BIBL: str = "bibl"
+    ROLE_USER: str = "user"
+    ROLE_STAFF: str = "staff"
+    BASE_ROLES = {
+        ROLE_ADMIN: "Администратор",
+        ROLE_USER: "Пользователь",
+    }
+
+    USERS_EDIT_PERMISSION: str = "users_edit"
+    HOLIDAYS_REPORT_PERMISSION: str = "holidays_report"
+    PRODUCTION_CALENDAR_EDIT_PERMISSION: str = "production_calendar_edit"
+    LIBRARY_LOAD_SOURCES_PERMISSION: str = "library_load_sources"
+    LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: str = "library_load_internet_links"
+    LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION: str = "library_load_info_systems"
+    LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION: str = "library_load_science_products"
+    STAFF_BUSY_TYPES_EDIT_PERMISSION: str = "staff_busy_types_edit"
+    STAFF_CLOSE_DOCUMENT_PERMISSION: str = "staff_close_document"
+    STAFF_REPORT_PERMISSION: str = "staff_report"
+    PAYMENTS_DATA_EDIT_PERMISSION: str = "payments_data_edit"
+    PERMISSION_DESCRIPTIONS = {
+        USERS_EDIT_PERMISSION: "Пользователи - права и редактирование",
+        HOLIDAYS_REPORT_PERMISSION: "Отчеты - занятость в выходные",
+        PRODUCTION_CALENDAR_EDIT_PERMISSION: "Производственный календарь - редактирование",
+        LIBRARY_LOAD_SOURCES_PERMISSION: "Обеспечение - загрузка списка литературы в рабочие программы",
+        LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: "Обеспечение - загрузка интернет ресурсов в рабочие программы",
+        LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION: "Обеспечение - загрузка баз данных и инф.-справ. систем",
+        LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION: "Обеспечение - загрузка научной продукции в рабочие программы",
+        STAFF_BUSY_TYPES_EDIT_PERMISSION: "Строевая записка - редактирование видов отвлечений",
+        STAFF_CLOSE_DOCUMENT_PERMISSION: "Строевая записка - установка разрешения/запрета на редактирование документа",
+        STAFF_REPORT_PERMISSION: "Строевая записка - просмотр отчетов",
+        PAYMENTS_DATA_EDIT_PERMISSION: "Инструменты - редактирование данных расчета денежного содержания"
     }
 
 
@@ -83,6 +104,17 @@ class MongoDBSettings:
     STAFF_VARIOUS_COLLECTION = 'various_staff'
     # Название коллекции истории операций
     STAFF_LOGS_COLLECTION = 'staff_logs'
+
+    # Статусы документа для строевой записки
+    # Название статуса документа "в процессе"
+    STAFF_IN_PROGRESS_STATUS: str = 'in progress'
+    # Название статуса завершенного документа
+    STAFF_COMPLETED_STATUS: str = 'completed'
+    # Название историй операций
+    STAFF_COLLECTION_STATUSES = {
+        STAFF_IN_PROGRESS_STATUS: "Редактируется",
+        STAFF_COMPLETED_STATUS: "Сформирован"
+    }
 
 
 class LoggerConfig(object):

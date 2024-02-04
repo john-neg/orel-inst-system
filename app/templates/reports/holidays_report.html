@@ -32,26 +32,26 @@
       </div>
     </div>
   </div>
-    <div class="container-fluid mt-5">
-      <h3 class="text-center text-dark mb-1"><span style="color: rgb(33, 37, 41);">Производственный календарь</span></h3>
-    </div>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
-          <div class="row">
-            <div class="col-md-6 mt-2">
-              <a href="{{ url_for('.production_calendar_holidays') }}" class="btn btn-warning fw-bold" id="calendar_holidays" type="submit" style="width: 100%" name="calendar_holidays">Выходные дни</a>
-            </div>
-            <div class="col-md-6 mt-2">
-              <a href="{{ url_for('.production_calendar_working_days') }}" class="btn btn-primary fw-bold" id="calendar_working_days" type="submit" style="width: 100%" name="calendar_working_days">Рабочие дни</a>
-            </div>
+  <div class="container-fluid mt-5">
+    <h3 class="text-center text-dark mb-1"><span style="color: rgb(33, 37, 41);">Производственный календарь</span></h3>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-xl-8">
+        <div class="row">
+          <div class="col-md-6 mt-2">
+            <a href="{{ url_for('.production_calendar_holidays') }}" class="btn btn-warning fw-bold" id="calendar_holidays" type="submit" style="width: 100%" name="calendar_holidays">Выходные дни</a>
           </div>
-          <div class="row">
-            <div class="col mt-2"><small class="form-text">Выходные дни, которые выпадают на понедельник, вторник, среду, четверг и пятницу</small></div>
-            <div class="col mt-2"><small class="form-text">Рабочие дни, которые выпадают на субботу и воскресенье.</small></div>
+          <div class="col-md-6 mt-2">
+            <a href="{{ url_for('.production_calendar_working_days') }}" class="btn btn-primary fw-bold" id="calendar_working_days" type="submit" style="width: 100%" name="calendar_working_days">Рабочие дни</a>
           </div>
+        </div>
+        <div class="row">
+          <div class="col mt-2"><small class="form-text">Выходные дни, которые выпадают на понедельник, вторник, среду, четверг и пятницу</small></div>
+          <div class="col mt-2"><small class="form-text">Рабочие дни, которые выпадают на субботу и воскресенье.</small></div>
         </div>
       </div>
     </div>
+  </div>
 </form>
 {% endblock %}

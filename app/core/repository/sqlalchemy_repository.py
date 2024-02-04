@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeVar, Any, Generic
+from typing import Any, Generic
 
 import flask_sqlalchemy.session
 from flask import request
@@ -9,11 +9,7 @@ from sqlalchemy.exc import NoResultFound
 
 from config import FlaskConfig
 from .abstract_repository import AbstractDBRepository
-from ..db.database import DefaultBase
-from ..db.database import db
-
-
-ModelType = TypeVar("ModelType", bound=DefaultBase)
+from ..db.database import db, ModelType
 
 
 @dataclass
@@ -70,7 +66,9 @@ class DbRepository(Generic[ModelType], AbstractDBRepository):
         """Возвращает Pagination объект содержащий объекты модели."""
 
         if reverse:
-            query_select = select(self.model).filter_by(**kwargs).order_by(desc(self.model.id))
+            query_select = (
+                select(self.model).filter_by(**kwargs).order_by(desc(self.model.id))
+            )
         else:
             query_select = select(self.model).filter_by(**kwargs)
         page = request.args.get("page", 1, type=int)

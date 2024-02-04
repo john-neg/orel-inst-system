@@ -17,8 +17,8 @@ from ..repository.mongo_db_repository import MongoDbRepository
 class DocumentStatusType(str, Enum):
     """Класс статусов документа."""
 
-    IN_PROGRESS = FlaskConfig.STAFF_IN_PROGRESS_STATUS
-    COMPLETED = FlaskConfig.STAFF_COMPLETED_STATUS
+    IN_PROGRESS = MongoDBSettings.STAFF_IN_PROGRESS_STATUS
+    COMPLETED = MongoDBSettings.STAFF_COMPLETED_STATUS
 
 
 @dataclass

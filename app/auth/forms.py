@@ -34,7 +34,7 @@ class UserRegisterForm(FlaskForm):
         "Повторите пароль", validators=[DataRequired(), EqualTo("password")]
     )
     role = QuerySelectField(
-        "Права доступа",
+        "Роль (группа)",
         validators=[DataRequired()],
         query_factory=users_roles_service.list,
         allow_blank=False,
@@ -57,7 +57,18 @@ class UserEditForm(FlaskForm):
     submit = SubmitField("Сохранить")
 
 
-class UserDeleteForm(FlaskForm):
-    """Форма удаления пользователя."""
+def create_roles_form(permissions_items, **kwargs):
+    class UsersRolesForm(FlaskForm):
+        """Класс формы редактирования ролей пользователей."""
 
-    submit = SubmitField("Удалить")
+        slug = StringField("Код", validators=[DataRequired()])
+        name = StringField("Название", validators=[DataRequired()])
+        submit = SubmitField("Сохранить")
+
+    # Добавляем переключатели для прав доступа
+    for obj in sorted(permissions_items):
+        label = f"permission_{obj.slug}"
+        field = SubmitField(label=obj.name)
+        setattr(UsersRolesForm, label, field)
+
+    return UsersRolesForm(**kwargs)

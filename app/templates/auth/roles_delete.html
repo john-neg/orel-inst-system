@@ -18,10 +18,10 @@
               <form class="text-center" method="post" style="width: 250px;">
                 {{ form.hidden_tag() }}
                 <div class="mb-3">
-                  <p>Вы действительно хотите удалить пользователя?</p>
+                  <p>Вы действительно хотите удалить роль?</p>
                 </div>
                 <div class="mb-3">
-                  <p class="fs-4">{{ username | upper }}</p>
+                  <p class="fs-4">{{ name | upper }}</p>
                 </div>
                 <div class="mb-3">
                   <div class="row">
@@ -29,7 +29,7 @@
                       <button class="btn btn-danger" type="submit">Удалить</button>
                     </div>
                     <div class="col-6">
-                      <a class="btn btn-secondary" role="button" href="/users">Отмена</a>
+                      <a class="btn btn-secondary" role="button" href="{{ url_for("auth.roles") }}">Отмена</a>
                     </div>
                   </div>
                 </div>

@@ -23,10 +23,25 @@ from app.core.func.work_program import (
     load_lib_edit_field,
 )
 from app.core.reports.library_report import library_report
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import FlaskConfig, ApeksConfig, PermissionsConfig
 from . import bp
 from .forms import LibraryForm
 from .func import library_file_processing
+from ..auth.func import permission_required
+
+
+load_sources_permission_required = permission_required(
+    PermissionsConfig.LIBRARY_LOAD_SOURCES_PERMISSION
+)
+load_internet_links_permission_required = permission_required(
+    PermissionsConfig.LIBRARY_LOAD_INTERNET_LINKS_PERMISSION
+)
+load_info_systems_permission_required = permission_required(
+    PermissionsConfig.LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION
+)
+load_science_products_permission_required = permission_required(
+    PermissionsConfig.LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION
+)
 
 
 class LibraryChoosePlanView(View):
@@ -74,38 +89,46 @@ class LibraryChoosePlanView(View):
 
 bp.add_url_rule(
     "/library_choose_plan",
-    view_func=LibraryChoosePlanView.as_view(
-        "library_choose_plan",
-        lib_type="library",
-        lib_type_name="Литература",
-        title="Загрузка списка литературы",
-    ),
-)
-bp.add_url_rule(
-    "/library_np_choose_plan",
-    view_func=LibraryChoosePlanView.as_view(
-        "library_np_choose_plan",
-        lib_type="library_np",
-        lib_type_name="Научная продукция",
-        title="Загрузка списка научной продукции",
+    view_func=load_sources_permission_required(
+        LibraryChoosePlanView.as_view(
+            "library_choose_plan",
+            lib_type="library",
+            lib_type_name="Литература",
+            title="Загрузка списка литературы",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_int_choose_plan",
-    view_func=LibraryChoosePlanView.as_view(
-        "library_int_choose_plan",
-        lib_type="library_int",
-        lib_type_name="Интернет ресурсы",
-        title="Загрузка ресурсов сети Интернет",
+    view_func=load_internet_links_permission_required(
+        LibraryChoosePlanView.as_view(
+            "library_int_choose_plan",
+            lib_type="library_int",
+            lib_type_name="Интернет ресурсы",
+            title="Загрузка ресурсов сети Интернет",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_db_choose_plan",
-    view_func=LibraryChoosePlanView.as_view(
-        "library_db_choose_plan",
-        lib_type="library_db",
-        lib_type_name="Базы и справочные системы",
-        title="Загрузка ресурсов баз данных и инф.-справ. систем",
+    view_func=load_info_systems_permission_required(
+        LibraryChoosePlanView.as_view(
+            "library_db_choose_plan",
+            lib_type="library_db",
+            lib_type_name="Базы и справочные системы",
+            title="Загрузка ресурсов баз данных и инф.-справ. систем",
+        )
+    ),
+)
+bp.add_url_rule(
+    "/library_np_choose_plan",
+    view_func=load_science_products_permission_required(
+        LibraryChoosePlanView.as_view(
+            "library_np_choose_plan",
+            lib_type="library_np",
+            lib_type_name="Научная продукция",
+            title="Загрузка списка научной продукции",
+        )
     ),
 )
 
@@ -127,7 +150,7 @@ class LibraryUploadView(View):
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
-                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    ApeksConfig.TABLES.get("plan_education_plans"), id=plan_id
                 )
             ),
             plan_curriculum_disciplines=await get_plan_curriculum_disciplines(plan_id),
@@ -172,7 +195,7 @@ class LibraryUploadView(View):
             title=self.title,
             lib_type_name=self.lib_type_name,
             form=form,
-            url=Apeks.URL,
+            url=ApeksConfig.URL,
             plan_id=plan_id,
             plan_name=plan.name,
         )
@@ -180,38 +203,46 @@ class LibraryUploadView(View):
 
 bp.add_url_rule(
     "/library_upload/<int:plan_id>",
-    view_func=LibraryUploadView.as_view(
-        "library_upload",
-        lib_type="library",
-        lib_type_name="Литература",
-        title="Загрузка списка литературы",
-    ),
-)
-bp.add_url_rule(
-    "/library_np_upload/<int:plan_id>",
-    view_func=LibraryUploadView.as_view(
-        "library_np_upload",
-        lib_type="library_np",
-        lib_type_name="Научная продукция",
-        title="Загрузка списка научной продукции",
+    view_func=load_sources_permission_required(
+        LibraryUploadView.as_view(
+            "library_upload",
+            lib_type="library",
+            lib_type_name="Литература",
+            title="Загрузка списка литературы",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_int_upload/<int:plan_id>",
-    view_func=LibraryUploadView.as_view(
-        "library_int_upload",
-        lib_type="library_int",
-        lib_type_name="Интернет ресурсы",
-        title="Загрузка ресурсов сети Интернет",
+    view_func=load_internet_links_permission_required(
+        LibraryUploadView.as_view(
+            "library_int_upload",
+            lib_type="library_int",
+            lib_type_name="Интернет ресурсы",
+            title="Загрузка ресурсов сети Интернет",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_db_upload/<int:plan_id>",
-    view_func=LibraryUploadView.as_view(
-        "library_db_upload",
-        lib_type="library_db",
-        lib_type_name="Базы и справочные системы",
-        title="Загрузка ресурсов баз данных и инф.-справ. систем",
+    view_func=load_info_systems_permission_required(
+        LibraryUploadView.as_view(
+            "library_db_upload",
+            lib_type="library_db",
+            lib_type_name="Базы и справочные системы",
+            title="Загрузка ресурсов баз данных и инф.-справ. систем",
+        )
+    ),
+)
+bp.add_url_rule(
+    "/library_np_upload/<int:plan_id>",
+    view_func=load_science_products_permission_required(
+        LibraryUploadView.as_view(
+            "library_np_upload",
+            lib_type="library_np",
+            lib_type_name="Научная продукция",
+            title="Загрузка списка научной продукции",
+        )
     ),
 )
 
@@ -234,7 +265,7 @@ class LibraryCheckView(View):
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
-                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    ApeksConfig.TABLES.get("plan_education_plans"), id=plan_id
                 )
             ),
             plan_curriculum_disciplines=plan_disciplines,
@@ -289,7 +320,7 @@ class LibraryCheckView(View):
             title=self.title,
             lib_type_name=self.lib_type_name,
             form=form,
-            url=Apeks.URL,
+            url=ApeksConfig.URL,
             plan_id=plan_id,
             plan_name=plan.name,
             no_data=no_data,
@@ -302,38 +333,46 @@ class LibraryCheckView(View):
 
 bp.add_url_rule(
     "/library_check/<int:plan_id>/<string:filename>",
-    view_func=LibraryCheckView.as_view(
-        "library_check",
-        lib_type="library",
-        lib_type_name="Литература",
-        title="Загрузка списка литературы",
-    ),
-)
-bp.add_url_rule(
-    "/library_np_check/<int:plan_id>/<string:filename>",
-    view_func=LibraryCheckView.as_view(
-        "library_np_check",
-        lib_type="library_np",
-        lib_type_name="Научная продукция",
-        title="Загрузка списка научной продукции",
+    view_func=load_sources_permission_required(
+        LibraryCheckView.as_view(
+            "library_check",
+            lib_type="library",
+            lib_type_name="Литература",
+            title="Загрузка списка литературы",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_int_check/<int:plan_id>/<string:filename>",
-    view_func=LibraryCheckView.as_view(
-        "library_int_check",
-        lib_type="library_int",
-        lib_type_name="Интернет ресурсы",
-        title="Загрузка ресурсов сети Интернет",
+    view_func=load_internet_links_permission_required(
+        LibraryCheckView.as_view(
+            "library_int_check",
+            lib_type="library_int",
+            lib_type_name="Интернет ресурсы",
+            title="Загрузка ресурсов сети Интернет",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_db_check/<int:plan_id>/<string:filename>",
-    view_func=LibraryCheckView.as_view(
-        "library_db_check",
-        lib_type="library_db",
-        lib_type_name="Базы и справочные системы",
-        title="Загрузка ресурсов баз данных и инф.-справ. систем",
+    view_func=load_info_systems_permission_required(
+        LibraryCheckView.as_view(
+            "library_db_check",
+            lib_type="library_db",
+            lib_type_name="Базы и справочные системы",
+            title="Загрузка ресурсов баз данных и инф.-справ. систем",
+        )
+    ),
+)
+bp.add_url_rule(
+    "/library_np_check/<int:plan_id>/<string:filename>",
+    view_func=load_science_products_permission_required(
+        LibraryCheckView.as_view(
+            "library_np_check",
+            lib_type="library_np",
+            lib_type_name="Научная продукция",
+            title="Загрузка списка научной продукции",
+        )
     ),
 )
 
@@ -353,7 +392,7 @@ class LibraryUpdateView(View):
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
-                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    ApeksConfig.TABLES.get("plan_education_plans"), id=plan_id
                 )
             ),
             plan_curriculum_disciplines=plan_disciplines,
@@ -365,7 +404,7 @@ class LibraryUpdateView(View):
         for disc in file_data:
             for wp_id in plan.work_programs_data:
                 if plan.work_programs_data[wp_id].get("name").strip() == disc.strip():
-                    lib_items = Apeks.LIB_TYPES[self.lib_type]
+                    lib_items = ApeksConfig.LIB_TYPES[self.lib_type]
                     for i in range(len(lib_items)):
                         if lib_items[i] not in plan.work_programs_data[wp_id]["fields"]:
                             await load_lib_add_field(wp_id, lib_items[i])
@@ -379,34 +418,42 @@ class LibraryUpdateView(View):
 
 bp.add_url_rule(
     "/library_update/<int:plan_id>/<string:filename>",
-    view_func=LibraryUpdateView.as_view(
-        "library_update",
-        lib_type="library",
-        lib_type_name="Литература",
-    ),
-)
-bp.add_url_rule(
-    "/library_np_update/<int:plan_id>/<string:filename>",
-    view_func=LibraryUpdateView.as_view(
-        "library_np_update",
-        lib_type="library_np",
-        lib_type_name="Научная продукция",
+    view_func=load_sources_permission_required(
+        LibraryUpdateView.as_view(
+            "library_update",
+            lib_type="library",
+            lib_type_name="Литература",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_int_update/<int:plan_id>/<string:filename>",
-    view_func=LibraryUpdateView.as_view(
-        "library_int_update",
-        lib_type="library_int",
-        lib_type_name="Интернет ресурсы",
+    view_func=load_internet_links_permission_required(
+        LibraryUpdateView.as_view(
+            "library_int_update",
+            lib_type="library_int",
+            lib_type_name="Интернет ресурсы",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_db_update/<int:plan_id>/<string:filename>",
-    view_func=LibraryUpdateView.as_view(
-        "library_db_update",
-        lib_type="library_db",
-        lib_type_name="Базы и справочные системы",
+    view_func=load_info_systems_permission_required(
+        LibraryUpdateView.as_view(
+            "library_db_update",
+            lib_type="library_db",
+            lib_type_name="Базы и справочные системы",
+        )
+    ),
+)
+bp.add_url_rule(
+    "/library_np_update/<int:plan_id>/<string:filename>",
+    view_func=load_science_products_permission_required(
+        LibraryUpdateView.as_view(
+            "library_np_update",
+            lib_type="library_np",
+            lib_type_name="Научная продукция",
+        )
     ),
 )
 
@@ -425,7 +472,7 @@ class LibraryExportView(View):
             education_plan_id=plan_id,
             plan_education_plans=await check_api_db_response(
                 await api_get_db_table(
-                    Apeks.TABLES.get("plan_education_plans"), id=plan_id
+                    ApeksConfig.TABLES.get("plan_education_plans"), id=plan_id
                 )
             ),
             plan_curriculum_disciplines=plan_disciplines,
@@ -441,33 +488,41 @@ class LibraryExportView(View):
 
 bp.add_url_rule(
     "/library_export/<int:plan_id>",
-    view_func=LibraryExportView.as_view(
-        "library_export",
-        lib_type="library",
-        lib_type_name="Литература",
-    ),
-)
-bp.add_url_rule(
-    "/library_np_export/<int:plan_id>",
-    view_func=LibraryExportView.as_view(
-        "library_np_export",
-        lib_type="library_np",
-        lib_type_name="Научная продукция",
+    view_func=load_sources_permission_required(
+        LibraryExportView.as_view(
+            "library_export",
+            lib_type="library",
+            lib_type_name="Литература",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_int_export/<int:plan_id>",
-    view_func=LibraryExportView.as_view(
-        "library_int_export",
-        lib_type="library_int",
-        lib_type_name="Интернет ресурсы",
+    view_func=load_internet_links_permission_required(
+        LibraryExportView.as_view(
+            "library_int_export",
+            lib_type="library_int",
+            lib_type_name="Интернет ресурсы",
+        )
     ),
 )
 bp.add_url_rule(
     "/library_db_export/<int:plan_id>",
-    view_func=LibraryExportView.as_view(
-        "library_db_export",
-        lib_type="library_db",
-        lib_type_name="Базы и справочные системы",
+    view_func=load_info_systems_permission_required(
+        LibraryExportView.as_view(
+            "library_db_export",
+            lib_type="library_db",
+            lib_type_name="Базы и справочные системы",
+        )
+    ),
+)
+bp.add_url_rule(
+    "/library_np_export/<int:plan_id>",
+    view_func=load_science_products_permission_required(
+        LibraryExportView.as_view(
+            "library_np_export",
+            lib_type="library_np",
+            lib_type_name="Научная продукция",
+        )
     ),
 )

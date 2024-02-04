@@ -2,7 +2,7 @@ from flask_sqlalchemy.session import Session
 from sqlalchemy.orm import scoped_session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from ..db.auth_models import Users, UsersRoles
+from ..db.auth_models import Users, UsersRoles, UsersPermissions
 from ..db.database import get_db_session
 from ..repository.sqlalchemy_repository import ModelType, DbRepository
 
@@ -54,7 +54,7 @@ def get_users_service(
 
 
 class UsersRolesCRUDService(DbRepository[UsersRoles]):
-    """Класс для CRUD операций модели StaffStableBusyTypes"""
+    """Класс для CRUD операций модели UsersRoles."""
 
     pass
 
@@ -64,6 +64,22 @@ def get_users_roles_service(
         db_session: scoped_session[Session] = get_db_session()
 ) -> UsersRolesCRUDService:
     return UsersRolesCRUDService(
+        model=model,
+        db_session=db_session
+    )
+
+
+class UsersPermissionsCRUDService(DbRepository[UsersPermissions]):
+    """Класс для CRUD операций модели UsersPermissions."""
+
+    pass
+
+
+def get_users_permissions_service(
+        model: type[UsersPermissions] = UsersPermissions,
+        db_session: scoped_session[Session] = get_db_session()
+) -> UsersPermissionsCRUDService:
+    return UsersPermissionsCRUDService(
         model=model,
         db_session=db_session
     )

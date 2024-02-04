@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-dark mb-1" style="text-align: center;">{{ title }}<br></h3>
+  </div>
+  <section class="position-relative py-2 py-xl-2">
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+        <div class="col-md-6 col-xl-4">
+          <div class="card mb-5">
+            <div class="card-body d-flex flex-column align-items-center">
+              <div class="bs-icon-xl bs-icon-circle bs-icon-primary bs-icon my-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-x-fill">
+                  <path fill-rule="evenodd" d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6.146-2.854a.5.5 0 0 1 .708 0L14 6.293l1.146-1.147a.5.5 0 0 1 .708.708L14.707 7l1.147 1.146a.5.5 0 0 1-.708.708L14 7.707l-1.146 1.147a.5.5 0 0 1-.708-.708L13.293 7l-1.147-1.146a.5.5 0 0 1 0-.708z"></path>
+                </svg>
+              </div>
+              <form class="text-center" method="post" style="width: 250px;">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                  <p>Вы действительно хотите удалить пользователя?</p>
+                </div>
+                <div class="mb-3">
+                  <p class="fs-4">{{ username | upper }}</p>
+                </div>
+                <div class="mb-3">
+                  <div class="row">
+                    <div class="col-6">
+                      <button class="btn btn-danger" type="submit">Удалить</button>
+                    </div>
+                    <div class="col-6">
+                      <a class="btn btn-secondary" role="button" href="{{ url_for("auth.users") }}">Отмена</a>
+                    </div>
+                  </div>
+                </div>
+                <span class="text-success" id="error" style="color: var(--bs-danger);">{{ error }}</span>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

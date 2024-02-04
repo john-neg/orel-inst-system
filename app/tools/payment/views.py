@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from flask import render_template, request, flash, redirect, url_for
 from flask.views import View
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from config import FlaskConfig
+from config import PermissionsConfig
 from . import payment_bp as bp
 from .forms import (
     create_payment_form,
@@ -20,6 +20,7 @@ from .forms import (
     create_single_addons_form,
 )
 from .func import get_paginated_data, make_slug
+from ...auth.func import permission_required
 from ...core.db.database import db
 from ...core.db.payment_models import (
     PaymentRates,
@@ -208,6 +209,7 @@ class PaymentGetView(View):
     payment_class: db.Model
     methods = ["GET", "POST"]
 
+    @permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self):
         paginated_data = get_paginated_data(self.payment_class.query)
@@ -289,11 +291,10 @@ bp.add_url_rule(
 )
 
 
-@login_required
 @bp.route("/payment/documents/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def documents_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     form = DocumentsForm()
     if request.method == "POST" and form.validate_on_submit():
         PaymentDocuments.create(name=request.form.get("name"))
@@ -306,11 +307,10 @@ async def documents_add():
     )
 
 
-@login_required
 @bp.route("/payment/documents/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def documents_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     document = PaymentDocuments.get(id_)
     form = DocumentsForm(obj=document)
     if request.method == "POST" and form.validate_on_submit():
@@ -328,11 +328,10 @@ async def documents_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/rates/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def rates_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     form = RatesForm()
     if request.method == "POST" and form.validate_on_submit():
         PaymentRates.create(
@@ -353,11 +352,10 @@ async def rates_add():
     )
 
 
-@login_required
 @bp.route("/payment/rates/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def rates_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate = PaymentRates.get(id_)
     form = RatesForm(obj=rate)
     if request.method == "POST" and form.validate_on_submit():
@@ -379,11 +377,10 @@ async def rates_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/rates/<int:id_>/values", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def rates_values_get(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate = PaymentRates.get(id_)
     paginated_data = get_paginated_data(PaymentRatesValues.query.filter_by(rate_id=id_))
     return render_template(
@@ -395,11 +392,10 @@ async def rates_values_get(id_):
     )
 
 
-@login_required
 @bp.route("/payment/rates/<int:id_>/values/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def rates_values_add(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
     form = create_rate_values_form(
@@ -422,11 +418,10 @@ async def rates_values_add(id_):
     )
 
 
-@login_required
 @bp.route("/payment/rates/<int:id_>/values/<int:value_id>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def rates_values_edit(id_, value_id):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     value = PaymentRatesValues.get(value_id)
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
@@ -454,11 +449,10 @@ async def rates_values_edit(id_, value_id):
     )
 
 
-@login_required
 @bp.route("/payment/addons/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def addons_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate_items = PaymentRates.get_all()
     form = create_addons_form(rate_items=rate_items)
     if request.method == "POST" and form.validate_on_submit():
@@ -479,11 +473,10 @@ async def addons_add():
     )
 
 
-@login_required
 @bp.route("/payment/addons/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def addons_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     addon = PaymentAddons.get(id_)
     rate_items = PaymentRates.get_all()
     form = create_addons_form(obj=addon, rate_items=rate_items)
@@ -510,11 +503,10 @@ async def addons_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/addons/<int:id_>/values", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def addons_values_get(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     addon = PaymentAddons.get(id_)
     paginated_data = get_paginated_data(
         PaymentAddonsValues.query.filter_by(addon_id=id_)
@@ -528,11 +520,10 @@ async def addons_values_get(id_):
     )
 
 
-@login_required
 @bp.route("/payment/addons/<int:id_>/values/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def addons_values_add(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     addons_items = PaymentAddons.get_all()
     document_items = PaymentDocuments.get_all()
     form = create_addons_values_form(
@@ -557,11 +548,10 @@ async def addons_values_add(id_):
     )
 
 
-@login_required
 @bp.route("/payment/addons/<int:id_>/values/<int:value_id>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def addons_values_edit(value_id):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     value = PaymentAddonsValues.get(value_id)
     addons_items = PaymentAddons.get_all()
     document_items = PaymentDocuments.get_all()
@@ -589,11 +579,10 @@ async def addons_values_edit(value_id):
     )
 
 
-@login_required
 @bp.route("/payment/single_addons/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def single_addons_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
     form = create_single_addons_form(
@@ -622,11 +611,10 @@ async def single_addons_add():
     )
 
 
-@login_required
 @bp.route("/payment/single_addons/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def single_addons_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     addon = PaymentSingleAddons.get(id_)
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
@@ -662,11 +650,10 @@ async def single_addons_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/increase/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def increase_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
     form = create_increase_form(
@@ -689,11 +676,10 @@ async def increase_add():
     )
 
 
-@login_required
 @bp.route("/payment/increase/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def increase_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     increase = PaymentIncrease.get(id_)
     rate_items = PaymentRates.get_all()
     document_items = PaymentDocuments.get_all()
@@ -723,11 +709,10 @@ async def increase_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/pension_duty/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def pension_duty_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     document_items = PaymentDocuments.get_all()
     form = create_pension_duty_form(
         document_items=document_items,
@@ -747,11 +732,10 @@ async def pension_duty_add():
     )
 
 
-@login_required
 @bp.route("/payment/pension_duty/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def pension_duty_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     pension_duty = PaymentPensionDutyCoefficient.get(id_)
     document_items = PaymentDocuments.get_all()
     form = create_pension_duty_form(
@@ -775,11 +759,10 @@ async def pension_duty_edit(id_):
     )
 
 
-@login_required
 @bp.route("/payment/global_coefficient/add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def global_coefficient_add():
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     document_items = PaymentDocuments.get_all()
     form = create_global_coefficient_form(
         document_items=document_items,
@@ -804,11 +787,10 @@ async def global_coefficient_add():
     )
 
 
-@login_required
 @bp.route("/payment/global_coefficient/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def global_coefficient_edit(id_):
-    if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-        return redirect(url_for(".payment_tool"))
     global_coefficient = PaymentGlobalCoefficient.get(id_)
     document_items = PaymentDocuments.get_all()
     form = create_global_coefficient_form(
@@ -847,10 +829,9 @@ class PaymentDeleteView(View):
     payment_class: db.Model
     methods = ["GET", "POST"]
 
+    @permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, del_id, **kwargs):
-        if current_user.role.slug != FlaskConfig.ROLE_ADMIN:
-            return redirect(url_for(".payment_tool"))
         data = self.payment_class.get(del_id)
         form = DeleteForm()
         if request.method == "POST" and form.validate_on_submit():
@@ -966,8 +947,9 @@ bp.add_url_rule(
 )
 
 
-@login_required
 @bp.route("/payment/data", methods=["GET"])
+@permission_required(PermissionsConfig.PAYMENTS_DATA_EDIT_PERMISSION)
+@login_required
 async def payment_data():
     data = {
         "Нормативные документы": url_for(".documents_get"),

@@ -13,7 +13,7 @@ class StaffForm(FlaskForm):
     """Форма для просмотра информации по строевой записке."""
 
     document_date = DateField("Дата документа", default=datetime.date.today())
-    make_report = SubmitField("Выбрать")
+    make_report = SubmitField("Сформировать отчет")
 
 
 class StaffReportForm(FlaskForm):

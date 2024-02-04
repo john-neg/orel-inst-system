@@ -7,27 +7,29 @@
   <section class="clean-block" style="padding-bottom: 0;">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
-          <div class="table-responsive text-center">
+        <div class="col-md-12 col-xl-10">
+          <div class="table-responsive">
             <table class="table table-sm">
               <thead>
                 <tr>
                   <th>id</th>
-                  <th>Имя</th>
-                  <th>Роль (группа)</th>
+                  <th>Код</th>
+                  <th>Название</th>
+                  <th>Права доступа</th>
                   <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
-              {% for user in paginated_data.items %}
+              {% for role in paginated_data.items %}
                 <tr>
-                  <td>{{ user.id }}</td>
-                  <td>{{ user.username }}</td>
-                  <td>{{ user.role.name }}</td>
-                  <td>
+                  <td class="text-center">{{ role.id }}</td>
+                  <td class="text-center">{{ role.slug }}</td>
+                  <td class="text-center">{{ role.name }}</td>
+                  <td class="text-left">{% for perm in role.permissions|sort %}{{ config.PERMISSION_DESCRIPTIONS.get(perm.slug)}}<br>{% endfor %}</td>
+                  <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
-                      <a class="btn btn-secondary" role="button" href="{{ url_for("auth.users_edit", user_id=user.id) }}">Редактировать</a>
-                      <a class="btn btn-danger" role="button" href="{{ url_for("auth.users_delete", user_id=user.id) }}">Удалить</a>
+                      <a class="btn btn-secondary" role="button" href="{{ url_for("auth.roles_edit", id_=role.id) }}">Редактировать</a>
+                      <a class="btn btn-danger" role="button" href="{{ url_for("auth.roles_delete", id_=role.id) }}">Удалить</a>
                     </div>
                   </td>
                 </tr>
@@ -38,7 +40,7 @@
           <div class="container">
             <div class="row">
               <div class="col">
-                <a class="btn btn-primary btn-sm" role="button" href="{{ url_for("auth.users_register") }}">Добавить пользователя</a>
+                <a class="btn btn-primary btn-sm" role="button" href="{{ url_for("auth.roles_add") }}">Добавить роль</a>
               </div>
               <div class="col">
                 {% if paginated_data.pages > 1 %}

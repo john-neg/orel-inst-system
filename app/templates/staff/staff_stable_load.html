@@ -65,7 +65,7 @@
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mt-3 mb-3">
           <div class="btn-group" role="group">
-          {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_STAFF, ) %}
+          {% if has_permission(config.STAFF_CLOSE_DOCUMENT_PERMISSION) %}
             {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
               {{ form.finish_edit(class="btn btn-danger fw-bold") }}
             {% elif doc_status == config.STAFF_COMPLETED_STATUS %}

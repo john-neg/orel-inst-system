@@ -1,3 +1,5 @@
+from typing import TypeVar
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session
 from sqlalchemy.orm import DeclarativeBase, scoped_session
@@ -6,6 +8,8 @@ from sqlalchemy.orm import DeclarativeBase, scoped_session
 class DefaultBase(DeclarativeBase):
     pass
 
+
+ModelType = TypeVar("ModelType", bound=DefaultBase)
 
 db = SQLAlchemy(model_class=DefaultBase)
 
