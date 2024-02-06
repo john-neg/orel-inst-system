@@ -25,10 +25,6 @@ users_permission_service = UsersPermissionsCRUDService(
 
 roles = {
     PermissionsConfig.ROLE_ADMIN: "Администратор",
-    # PermissionsConfig.ROLE_METOD: 'Методист',
-    # PermissionsConfig.ROLE_BIBL: 'Библиотека',
-    # PermissionsConfig.ROLE_USER: 'Пользователь',
-    # PermissionsConfig.ROLE_STAFF: 'Строевая записка',
 }
 
 for slug, name in roles.items():

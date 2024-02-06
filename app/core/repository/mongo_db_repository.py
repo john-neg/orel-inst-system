@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import TypeVar, Optional, Mapping, Any
+from typing import Any, Mapping, Optional, TypeVar
 
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.database import Database
-from pymongo.results import InsertOneResult, DeleteResult, UpdateResult
+from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
 from .abstract_repository import AbstractDBRepository
 

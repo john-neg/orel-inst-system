@@ -4,8 +4,8 @@ from json import JSONDecodeError
 
 import httpx
 
+from ...core.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
-from app.core.exceptions import ApeksApiException
 
 
 def api_post_request_handler(func):

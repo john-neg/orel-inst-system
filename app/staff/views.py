@@ -359,11 +359,6 @@ class StaffDataAddView(View):
     @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self):
-        if current_user.role.slug not in (
-            PermissionsConfig.ROLE_ADMIN,
-            PermissionsConfig.ROLE_STAFF,
-        ):
-            return redirect(url_for("main.index"))
         form = StaffStableBusyTypesForm()
         if request.method == "POST" and form.validate_on_submit():
             self.service.create(
@@ -407,11 +402,6 @@ class StaffDataEditView(View):
     @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
     @login_required
     async def dispatch_request(self, id_: int):
-        if current_user.role.slug not in (
-            PermissionsConfig.ROLE_ADMIN,
-            PermissionsConfig.ROLE_STAFF,
-        ):
-            return redirect(url_for("main.index"))
         obj = self.service.get(id=id_)
         form = StaffStableBusyTypesForm(obj=obj)
         if request.method == "POST" and form.validate_on_submit():

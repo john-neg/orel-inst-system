@@ -2,7 +2,7 @@ import logging
 
 from config import ApeksConfig as Apeks
 from .api_delete import api_delete_from_db_table
-from .api_get import check_api_db_response, api_get_db_table
+from .api_get import api_get_db_table, check_api_db_response
 from .api_post import api_add_to_db_table
 from .app_core import data_processor
 

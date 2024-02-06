@@ -4,8 +4,8 @@ import os
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
-from app.core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from config import FlaskConfig, ApeksConfig as Apeks
+from ...core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from config import ApeksConfig as Apeks, FlaskConfig
 from .ExcelStyles import ExcelStyle
 
 

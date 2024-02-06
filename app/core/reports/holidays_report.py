@@ -6,7 +6,7 @@ from openpyxl.workbook import Workbook
 
 from config import ApeksConfig as Apeks, FlaskConfig
 from ..classes.EducationStaff import EducationStaff
-from ..func.api_get import check_api_db_response, get_lessons, api_get_db_table
+from ..func.api_get import api_get_db_table, check_api_db_response, get_lessons
 from ..func.organization import get_departments
 from ..func.staff import get_state_staff
 from ..reports.ExcelStyles import ExcelStyle

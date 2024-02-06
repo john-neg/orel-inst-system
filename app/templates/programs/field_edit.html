@@ -14,12 +14,7 @@
           <div class="row mb-2">
             <div class="col">
               {{ form.program_fields.label(class="text-dark") }}
-              {{ form.program_fields(class="form-select") }}
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col">
-              {{ form.fields_data(class="btn btn-secondary mb-1 mt-1", type="submit") }}
+              {{ form.program_fields(class="form-select", onchange="form.submit()") }}
             </div>
           </div>
           <div class="row">

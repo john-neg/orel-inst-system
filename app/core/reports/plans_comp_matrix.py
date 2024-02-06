@@ -6,7 +6,7 @@ from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 
 from app.core.classes.EducationPlan import EducationPlanCompetencies
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks, FlaskConfig
 from .ExcelStyles import ExcelStyle
 
 

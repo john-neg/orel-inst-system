@@ -1,63 +1,60 @@
-import operator
 from datetime import date, datetime
+import operator
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import flash, redirect, render_template, request, url_for
 from flask.views import View
 from flask_login import login_required
 
-from app.core.classes.EducationPlan import (
-    EducationPlanExtended,
-    EducationPlanWorkPrograms,
-    EducationPlanIndicators,
-)
-from app.core.classes.EducationStaff import EducationStaff
-from app.core.exceptions import (
-    ApeksWrongParameterException,
-    ApeksParameterNonExistException,
-)
-from app.core.func.api_get import (
-    check_api_db_response,
-    api_get_db_table,
-)
-from app.core.func.app_core import (
-    data_processor,
-)
-from app.core.func.education_plan import (
-    get_plan_education_specialties,
-    get_education_plans,
-    get_plan_curriculum_disciplines,
-    get_plan_discipline_competencies,
-)
-from app.core.func.organization import (
-    get_organization_name,
-    get_organization_chief_info,
-    get_departments,
-)
-from app.core.func.staff import get_rank_name, get_state_staff
-from app.core.func.system_data import get_system_reports_data
-from app.core.func.work_program import (
-    get_work_programs_data,
-    work_program_view_data,
-    work_program_field_tb_table,
-    work_program_get_parameter_info,
-    create_work_program,
-    work_program_add_parameter,
-    work_programs_dates_update,
-    edit_work_programs_data,
-)
-from app.core.reports.program_title_pages import generate_program_title_pages
 from config import ApeksConfig as Apeks
 from . import bp
 from .forms import (
-    ProgramDatesUpdate,
-    ProgramFieldsForm,
+    BaseTemplateUpdate,
     ChoosePlan,
     DepartmentProgramCheck,
-    ProgramFieldUpdate,
-    TitlePagesGenerator,
     ProgramDataSubmit,
-    BaseTemplateUpdate,
+    ProgramDatesUpdate,
+    ProgramFieldUpdate,
+    ProgramFieldsForm,
+    TitlePagesGenerator,
 )
+from ..core.classes.EducationPlan import (
+    EducationPlanExtended,
+    EducationPlanIndicators,
+    EducationPlanWorkPrograms,
+)
+from ..core.classes.EducationStaff import EducationStaff
+from ..core.exceptions import (
+    ApeksParameterNonExistException,
+    ApeksWrongParameterException,
+)
+from ..core.func.api_get import api_get_db_table, check_api_db_response
+from ..core.func.app_core import (
+    data_processor,
+)
+from ..core.func.education_plan import (
+    get_education_plans,
+    get_plan_curriculum_disciplines,
+    get_plan_discipline_competencies,
+    get_plan_education_specialties,
+)
+from ..core.func.organization import (
+    get_departments,
+    get_organization_chief_info,
+    get_organization_name,
+)
+from ..core.func.staff import get_rank_name, get_state_staff
+from ..core.func.system_data import get_system_reports_data
+from ..core.func.work_program import (
+    create_work_program,
+    edit_work_programs_data,
+    get_work_programs_data,
+    work_program_add_parameter,
+    work_program_field_tb_table,
+    work_program_get_parameter_info,
+    work_program_view_data,
+    work_programs_dates_update,
+)
+from ..core.reports.program_title_pages import generate_program_title_pages
 
 
 class ProgramsChoosePlanView(View):

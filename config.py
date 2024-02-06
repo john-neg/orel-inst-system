@@ -12,7 +12,7 @@ load_dotenv(os.path.join(BASEDIR, ".env"))
 class FlaskConfig(object):
     """Конфигурация Flask."""
 
-    SECRET_KEY = os.getenv("SECRET_KEY") or "DEFAULT_SECRET_KEY"
+    SECRET_KEY = os.getenv("SECRET_KEY", "DEFAULT_SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = (
         os.environ.get(
             "DATABASE_URL", f"sqlite:///{os.path.join(BASEDIR, 'app.db')}"
@@ -38,43 +38,50 @@ class FlaskConfig(object):
     AD_SERVER = os.getenv("AD_SERVER")
     AD_SEARCH_TREE = os.getenv("AD_SEARCH_TREE")
 
+    ORGANIZATION_NAME: str = os.getenv("ORGANIZATION_NAME", "Образовательная организация")
+
 
 class PermissionsConfig:
     """Настройки прав доступа."""
 
+    # Базовые роли
     ROLE_ADMIN: str = "admin"
-    ROLE_METOD: str = "metod"
-    ROLE_BIBL: str = "bibl"
     ROLE_USER: str = "user"
-    ROLE_STAFF: str = "staff"
     BASE_ROLES = {
         ROLE_ADMIN: "Администратор",
         ROLE_USER: "Пользователь",
     }
 
-    USERS_EDIT_PERMISSION: str = "users_edit"
-    HOLIDAYS_REPORT_PERMISSION: str = "holidays_report"
-    PRODUCTION_CALENDAR_EDIT_PERMISSION: str = "production_calendar_edit"
-    LIBRARY_LOAD_SOURCES_PERMISSION: str = "library_load_sources"
-    LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: str = "library_load_internet_links"
+    # Разрешения
     LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION: str = "library_load_info_systems"
+    LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: str = "library_load_internet_links"
     LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION: str = "library_load_science_products"
+    LIBRARY_LOAD_SOURCES_PERMISSION: str = "library_load_sources"
+    PAYMENTS_DATA_EDIT_PERMISSION: str = "payments_data_edit"
+    PLAN_MATRIX_EDIT_PERMISSION: str = "plan_matrix_edit"
+    PRODUCTION_CALENDAR_EDIT_PERMISSION: str = "production_calendar_edit"
+    PROGRAMS_EDIT_FIELDS_PERMISSION: str = "programs_edit_fields"
+    PROGRAMS_VIEW_PLAN_INFO_PERMISSION: str = "programs_view_plan_info"
+    REPORT_HOLIDAYS_PERMISSION: str = "report_holidays"
     STAFF_BUSY_TYPES_EDIT_PERMISSION: str = "staff_busy_types_edit"
     STAFF_CLOSE_DOCUMENT_PERMISSION: str = "staff_close_document"
     STAFF_REPORT_PERMISSION: str = "staff_report"
-    PAYMENTS_DATA_EDIT_PERMISSION: str = "payments_data_edit"
+    USERS_EDIT_PERMISSION: str = "users_edit"
     PERMISSION_DESCRIPTIONS = {
-        USERS_EDIT_PERMISSION: "Пользователи - права и редактирование",
-        HOLIDAYS_REPORT_PERMISSION: "Отчеты - занятость в выходные",
-        PRODUCTION_CALENDAR_EDIT_PERMISSION: "Производственный календарь - редактирование",
-        LIBRARY_LOAD_SOURCES_PERMISSION: "Обеспечение - загрузка списка литературы в рабочие программы",
-        LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: "Обеспечение - загрузка интернет ресурсов в рабочие программы",
         LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION: "Обеспечение - загрузка баз данных и инф.-справ. систем",
+        LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: "Обеспечение - загрузка интернет ресурсов в рабочие программы",
         LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION: "Обеспечение - загрузка научной продукции в рабочие программы",
+        LIBRARY_LOAD_SOURCES_PERMISSION: "Обеспечение - загрузка списка литературы в рабочие программы",
+        PAYMENTS_DATA_EDIT_PERMISSION: "Инструменты - редактирование данных расчета денежного содержания",
+        PLAN_MATRIX_EDIT_PERMISSION: "Учебные планы - загрузка и удаление компетенций и индикаторов",
+        PRODUCTION_CALENDAR_EDIT_PERMISSION: "Производственный календарь - редактирование",
+        PROGRAMS_EDIT_FIELDS_PERMISSION: "Программы - создание и внесение изменений в РП",
+        PROGRAMS_VIEW_PLAN_INFO_PERMISSION: "Программы - доступ к информации на уровне уч. плана",
+        REPORT_HOLIDAYS_PERMISSION: "Отчеты - занятость в выходные",
         STAFF_BUSY_TYPES_EDIT_PERMISSION: "Строевая записка - редактирование видов отвлечений",
         STAFF_CLOSE_DOCUMENT_PERMISSION: "Строевая записка - установка разрешения/запрета на редактирование документа",
         STAFF_REPORT_PERMISSION: "Строевая записка - просмотр отчетов",
-        PAYMENTS_DATA_EDIT_PERMISSION: "Инструменты - редактирование данных расчета денежного содержания"
+        USERS_EDIT_PERMISSION: "Пользователи - права и редактирование",
     }
 
 
@@ -90,9 +97,9 @@ class MongoDBSettings:
     # Имя базы данных
     MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
     # Источник аутентификации
-    MONGO_DB_AUTH_SOURCE = os.getenv('MONGO_DB_AUTH_SOURCE') or 'admin'
+    MONGO_DB_AUTH_SOURCE = os.getenv('MONGO_DB_AUTH_SOURCE', 'admin')
     # Механизм аутентификации
-    MONGO_DB_AUTH_MECHANISM = os.getenv('MONGO_DB_AUTH_MECHANISM') or 'DEFAULT'
+    MONGO_DB_AUTH_MECHANISM = os.getenv('MONGO_DB_AUTH_MECHANISM', 'DEFAULT')
     # Строка подключения к БД
     CONNECTION_STRING = (
         f"mongodb://{MONGO_DB_USER}:{MONGO_DB_PASS}@{MONGO_DB_URL}"

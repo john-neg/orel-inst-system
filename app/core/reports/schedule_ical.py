@@ -2,10 +2,10 @@ import logging
 from datetime import datetime, timedelta, tzinfo
 
 import pytz
-from icalendar import Calendar, Timezone, TimezoneStandard, Event, Alarm
+from icalendar import Alarm, Calendar, Event, Timezone, TimezoneStandard
 
-from app.core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from config import FlaskConfig, ApeksConfig as Apeks
+from ...core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from config import ApeksConfig as Apeks, FlaskConfig
 
 
 def generate_schedule_ical(

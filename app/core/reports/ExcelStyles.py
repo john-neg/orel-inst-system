@@ -1,4 +1,4 @@
-from openpyxl.styles import Side, NamedStyle, Font, Border, Alignment, PatternFill
+from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
 
 
 class ExcelStyle(object):

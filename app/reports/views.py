@@ -125,7 +125,7 @@ async def load_report_export(year, month_start, month_end, department_id):
 
 
 @bp.route("/holidays_report", methods=["GET", "POST"])
-@permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
+@permission_required(PermissionsConfig.REPORT_HOLIDAYS_PERMISSION)
 @login_required
 async def holidays_report():
     year = date.today().year
@@ -164,7 +164,7 @@ async def holidays_report():
     "/holiday_report/<int:year>/<int:month_start>/<int:month_end>",
     methods=["GET", "POST"],
 )
-@permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
+@permission_required(PermissionsConfig.REPORT_HOLIDAYS_PERMISSION)
 @login_required
 async def holiday_report_export(year, month_start, month_end):
     non_working = [
@@ -193,7 +193,7 @@ class ProductionCalendarGetView(View):
     methods = ["GET", "POST"]
     base_view_slug: str
 
-    @permission_required(PermissionsConfig.HOLIDAYS_REPORT_PERMISSION)
+    @permission_required(PermissionsConfig.REPORT_HOLIDAYS_PERMISSION)
     @login_required
     async def dispatch_request(self):
         paginated_data = self.service.paginated(reverse=True)

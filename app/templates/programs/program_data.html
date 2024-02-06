@@ -168,7 +168,7 @@
                           </td>
                           <td>
                             {{ programs[wp].get('name') }}
-                            {% if current_user.role.slug in (config.ROLE_ADMIN, ) %}
+                            {% if has_permission(config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
                               <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
                                  href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter=name">EDIT</a>
                             {% endif %}
@@ -209,7 +209,7 @@
 
 <form method="post">
   {{ form.hidden_tag() }}
-  {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+  {% if has_permission(config.PROGRAMS_VIEW_PLAN_INFO_PERMISSION, config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mb-2">
@@ -259,7 +259,7 @@
       </div>
     </div>
   </div>
-  {% if program_non_exist and current_user.role.slug in (config.ROLE_ADMIN, ) %}
+  {% if program_non_exist and has_permission(config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mb-2">

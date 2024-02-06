@@ -1,10 +1,10 @@
 from flask_sqlalchemy.session import Session
 from sqlalchemy.orm import scoped_session
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from ..db.auth_models import Users, UsersRoles, UsersPermissions
+from ..db.auth_models import Users, UsersPermissions, UsersRoles
 from ..db.database import get_db_session
-from ..repository.sqlalchemy_repository import ModelType, DbRepository
+from ..repository.sqlalchemy_repository import DbRepository, ModelType
 
 
 class UsersCRUDService(DbRepository[Users]):

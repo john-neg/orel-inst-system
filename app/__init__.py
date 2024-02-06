@@ -7,23 +7,28 @@ from flask import Flask
 from flask.logging import create_logger
 
 from config import (
-    FlaskConfig,
     ApeksConfig,
+    FlaskConfig,
     LoggerConfig,
-    PermissionsConfig,
     MongoDBSettings,
+    PermissionsConfig,
 )
 from .auth import bp as login_bp
 from .auth.func import has_permission
-from .core.extensions import login_manager
 from .core.db.database import db
+from .core.extensions import login_manager
+from .core.services.db_users_service import (
+    get_users_permissions_service,
+    get_users_roles_service,
+    get_users_service,
+)
 from .library import bp as library_bp
-from .reports import bp as reports_bp
-from .staff import bp as staff_bp
 from .main import bp as main_bp
 from .plans import bp as plans_bp
 from .programs import bp as programs_bp
+from .reports import bp as reports_bp
 from .schedule import bp as schedule_bp
+from .staff import bp as staff_bp
 from .tools import bp as tools_bp
 
 
@@ -81,6 +86,30 @@ def add_functions_to_templates():
     return dict(has_permission=has_permission)
 
 
+def check_base_roles_and_permissions_in_database():
+    users_service = get_users_service()
+    users_role_service = get_users_roles_service()
+    permissions_service = get_users_permissions_service()
+    for slug, name in PermissionsConfig.BASE_ROLES.items():
+        if not users_role_service.get(slug=slug):
+            users_role_service.create(slug=slug, name=name)
+    if not users_service.get(username=PermissionsConfig.ROLE_ADMIN):
+        role = users_role_service.get(slug=PermissionsConfig.ROLE_ADMIN)
+        users_service.create_user(
+            username=PermissionsConfig.ROLE_ADMIN,
+            password=PermissionsConfig.ROLE_ADMIN,
+            role_id=role.id,
+        )
+    for slug, name in PermissionsConfig.PERMISSION_DESCRIPTIONS.items():
+        if not permissions_service.get(slug=slug):
+            permissions_service.create(slug=slug, name=name)
+            admin_role = users_role_service.get(slug=PermissionsConfig.ROLE_ADMIN)
+            users_role_service.update(
+                admin_role.id,
+                permissions=[permission for permission in permissions_service.list()],
+            )
+
+
 def create_app(config_class=FlaskConfig):
     """Создает приложение Flask."""
 
@@ -130,6 +159,7 @@ def create_app(config_class=FlaskConfig):
     with app.app_context():
         register_blueprints(app)
         db.init_app(app)
+        check_base_roles_and_permissions_in_database()
         # if not os.path.exists(os.path.join(BASEDIR, 'app.db')):
         #     init_db()
 

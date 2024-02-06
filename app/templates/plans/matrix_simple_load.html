@@ -46,91 +46,87 @@
               {{ form.make_matrix(class="btn btn-primary", style="width: 100%;font-weight: bold;border-style: none;border-color: var(--bs-dark);") }}
               <small class="form-text" style="text-align: center;">(скачать текущую матрицу в формате Excel)</small>
             </div>
-            {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
             <div class="col-md-6 col-md-4">
               {{ form.data_delete(class="btn btn-danger", style="width: 100%;font-weight: bold;border-style: none;") }}
               <small class="form-text">(удаление связей дисциплин и компетенций, и их содержимого из программ)</small>
             </div>
-            {% endif %}
           </div>
         </div>
       </div>
-      {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-        <div class="row justify-content-center">
-          <div class="col-md-10 col-xl-8 mb-3">
-            {{ form.file.label(class="form-label", style="color: var(--bs-dark);") }}
-            {{ form.file(class="form-control", style="border-color: var(--bs-gray-400);") }}
-          </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8 mb-3">
+          {{ form.file.label(class="form-label", style="color: var(--bs-dark);") }}
+          {{ form.file(class="form-control", style="border-color: var(--bs-gray-400);") }}
         </div>
-        <div class="row justify-content-center">
-          <div class="col-md-10 col-xl-8 mb-3">
-            {{ form.file_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
-          </div>
-          {% if comp_not_in_plan %}
-            <div class="col-md-10 col-xl-8">
-              <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                <h6 class="alert-heading fw-bold text-center">Коды компетенций файла, которые не найдены в плане</h6>
-                <span>{{ ', '.join(comp_not_in_plan) }}</span>
-              </div>
-            </div>
-          {% endif %}
-          {% if comp_not_in_file %}
-            <div class="col-md-10 col-xl-8">
-              <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
-                <h6 class="alert-heading fw-bold text-center">Коды компетенций плана, которые не найдены в файле</h6>
-                <span>{{ ', '.join(comp_not_in_file) }}</span>
-              </div>
-            </div>
-          {% endif %}
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-8 mb-3">
+          {{ form.file_check(class="btn btn-secondary", style="width: 100%;font-weight: bold;border-style: none;") }}
         </div>
-        {% if match_data %}
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-              <div class="card shadow">
-                <div class="card-header py-3">
-                  <p class="text-center text-primary m-0 fw-bold">Связи дисциплин и компетенций из файла:<br></p>
-                </div>
-                <div class="card-body">
-                  <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
-                    <table class="table my-0" id="dataTable">
-                      <thead>
-                        <tr>
-                          <th>Дисциплина<br></th>
-                          <th>Компетенции<br></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for disc in match_data %}
-                          <tr>
-                            <td>{{ disc }}</td>
-                            {% if match_data[disc].get('comps') %}
-                              <td>{{ ', '.join(match_data[disc]['comps']) }}</td>
-                            {% elif 'comps' in match_data[disc] %}
-                              <td class="fw-bold text-danger">Нет связей в файле</td>
-                            {% else %}
-                              <td class="fw-bold text-danger">Отсутствует в файле </td>
-                            {% endif %}
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td><strong>Дисциплина</strong></td>
-                          <td><strong>Компетенции</strong></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row justify-content-center mb-2">
-            <div class="col-md-10 col-xl-8 mb-3">
-              {{ form.file_load(class="btn btn-success link-light mt-2", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+        {% if comp_not_in_plan %}
+          <div class="col-md-10 col-xl-8">
+            <div class="alert alert-warning text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center">Коды компетенций файла, которые не найдены в плане</h6>
+              <span>{{ ', '.join(comp_not_in_plan) }}</span>
             </div>
           </div>
         {% endif %}
+        {% if comp_not_in_file %}
+          <div class="col-md-10 col-xl-8">
+            <div class="alert alert-danger text-center py-1 mb-1" role="alert" style="opacity: 0.80;">
+              <h6 class="alert-heading fw-bold text-center">Коды компетенций плана, которые не найдены в файле</h6>
+              <span>{{ ', '.join(comp_not_in_file) }}</span>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+      {% if match_data %}
+        <div class="row justify-content-center">
+          <div class="col-md-10 col-xl-8">
+            <div class="card shadow">
+              <div class="card-header py-3">
+                <p class="text-center text-primary m-0 fw-bold">Связи дисциплин и компетенций из файла:<br></p>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive table mt-2" id="dataTable-1" role="grid" aria-describedby="dataTable_info">
+                  <table class="table my-0" id="dataTable">
+                    <thead>
+                      <tr>
+                        <th>Дисциплина<br></th>
+                        <th>Компетенции<br></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for disc in match_data %}
+                        <tr>
+                          <td>{{ disc }}</td>
+                          {% if match_data[disc].get('comps') %}
+                            <td>{{ ', '.join(match_data[disc]['comps']) }}</td>
+                          {% elif 'comps' in match_data[disc] %}
+                            <td class="fw-bold text-danger">Нет связей в файле</td>
+                          {% else %}
+                            <td class="fw-bold text-danger">Отсутствует в файле </td>
+                          {% endif %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td><strong>Дисциплина</strong></td>
+                        <td><strong>Компетенции</strong></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center mb-2">
+          <div class="col-md-10 col-xl-8 mb-3">
+            {{ form.file_load(class="btn btn-success link-light mt-2", style="background: #008751;width: 100%;font-weight: bold;border-style: none;") }}
+          </div>
+        </div>
       {% endif %}
     </div>
 </form>

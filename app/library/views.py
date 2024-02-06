@@ -1,34 +1,30 @@
 import operator
 import os
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import flash, redirect, render_template, request, url_for
 from flask.views import View
 from flask_login import login_required
 
-from app.core.classes.EducationPlan import EducationPlan, EducationPlanWorkPrograms
-from app.core.forms import ChoosePlan
-from app.core.func.api_get import (
-    check_api_db_response,
-    api_get_db_table,
-)
-from app.core.func.app_core import allowed_file
-from app.core.func.education_plan import (
-    get_plan_education_specialties,
-    get_education_plans,
-    get_plan_curriculum_disciplines,
-)
-from app.core.func.work_program import (
-    get_work_programs_data,
-    load_lib_add_field,
-    load_lib_edit_field,
-)
-from app.core.reports.library_report import library_report
-from config import FlaskConfig, ApeksConfig, PermissionsConfig
+from config import ApeksConfig, FlaskConfig, PermissionsConfig
 from . import bp
 from .forms import LibraryForm
 from .func import library_file_processing
 from ..auth.func import permission_required
-
+from ..core.classes.EducationPlan import EducationPlan, EducationPlanWorkPrograms
+from ..core.forms import ChoosePlan
+from ..core.func.api_get import api_get_db_table, check_api_db_response
+from ..core.func.app_core import allowed_file
+from ..core.func.education_plan import (
+    get_education_plans,
+    get_plan_curriculum_disciplines,
+    get_plan_education_specialties,
+)
+from ..core.func.work_program import (
+    get_work_programs_data,
+    load_lib_add_field,
+    load_lib_edit_field,
+)
+from ..core.reports.library_report import library_report
 
 load_sources_permission_required = permission_required(
     PermissionsConfig.LIBRARY_LOAD_SOURCES_PERMISSION

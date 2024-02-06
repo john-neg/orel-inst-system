@@ -5,7 +5,7 @@ from docx import Document
 from docx.enum.text import WD_LINE_SPACING, WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Cm, Pt
 
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks, FlaskConfig
 
 
 def generate_indicators_file(plan_name: str, report_data: dict) -> str:

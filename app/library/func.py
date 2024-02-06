@@ -1,8 +1,6 @@
-from typing import LiteralString
-
 from openpyxl import load_workbook
 
-from app.core.func.app_core import xlsx_iter_rows, xlsx_normalize
+from ..core.func.app_core import xlsx_iter_rows, xlsx_normalize
 
 
 def library_file_processing(file: str) -> dict:
@@ -12,7 +10,7 @@ def library_file_processing(file: str) -> dict:
 
     Parameters
     ----------
-        file: LiteralString
+        file: str
             полный путь к файлу с обеспечением для дисциплины
 
     Returns

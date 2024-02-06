@@ -9,7 +9,6 @@ from config import ApeksConfig
 from .abstract_repository import AbstractApiRepository
 from ..exceptions import ApeksApiException
 
-
 transport = httpx.AsyncHTTPTransport(retries=3)
 
 

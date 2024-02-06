@@ -4,24 +4,55 @@
   <div class="container">
     <div class="row mb-1">
       <div class="col-md-8 col-xl-6 text-center mx-auto">
-        <h2 style="color: rgb(58,59,69);">Дополнительные модули, взаимодействующие с системой посредством REST API<br></h2>
+        <h2 style="color: rgb(58,59,69);">Функциональные сервисы<br></h2>
         <p class="w-lg-50" style="color: rgb(58,59,69);">Возможности:<br></p>
       </div>
     </div>
     <div class="row gy-4 row-cols-1 row-cols-md-2 row-cols-xl-3">
-      <div class="col">
-        <div class="card">
-          <div class="card-body p-4">
-            <a class="dropdown-item" href="{{ url_for('staff.staff_stable_load') }}">
-              <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
-                <i class="fas fa-user-friends"></i>
-              </div>
-              <h4 class="card-title" style="color: rgb(58,59,69);">Строевая записка</h4>
-            </a>
-            <p class="card-text">подача строевой записки о наличии личного состава</p>
+
+      {% if has_permission(config.STAFF_REPORT_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('staff.staff_stable_info') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-user-friends"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Строевая записка - сегодня</h4>
+              </a>
+              <p class="card-text">Данные по строевой записке постоянного состава</p>
+            </div>
           </div>
         </div>
-      </div>
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('staff.staff_stable_report') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-user-friends"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Строевая записка - отчет</h4>
+              </a>
+              <p class="card-text">Отчеты по строевым запискам постоянного состава</p>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('staff.staff_stable_load') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-user-friends"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Строевая записка</h4>
+              </a>
+              <p class="card-text">Подача строевой записки о наличии личного состава</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="col">
         <div class="card">
           <div class="card-body p-4">
@@ -31,10 +62,27 @@
               </div>
               <h4 class="card-title" style="color: rgb(58,59,69);">Расписание</h4>
             </a>
-            <p class="card-text">выгрузка расписания преподавателя (iCal, xlsx)<br></p>
+            <p class="card-text">Выгрузка расписания преподавателя (iCal, xlsx)<br></p>
           </div>
         </div>
       </div>
+
+      {% if has_permission(config.REPORT_HOLIDAYS_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('reports.holidays_report') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-receipt"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Занятость в выходные</h4>
+              </a>
+              <p class="card-text">Формирование отчета о занятости преподавателей в выходные дни<br></p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="col">
         <div class="card">
           <div class="card-body p-4">
@@ -42,25 +90,120 @@
               <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
                 <i class="fas fa-receipt"></i>
               </div>
-              <h4 class="card-title" style="color: rgb(58,59,69);">Нагрузка</h4>
+              <h4 class="card-title" style="color: rgb(58,59,69);">Учебная нагрузка</h4>
             </a>
-            <p class="card-text">формирование отчета о нагрузке за месяц / семестр<br></p>
+            <p class="card-text">Формирование отчета об учебной нагрузке по кафедре за месяц / семестр<br></p>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card">
-          <div class="card-body p-4">
-            <a class="dropdown-item" href="{{ url_for('programs.dept_check') }}">
-              <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
-                <i class="fas fa-clipboard-list"></i>
-              </div>
-              <h4 class="card-title" style="color: rgb(58,59,69);">Программы</h4>
-            </a>
-            <p class="card-text">проверка заполнения полей рабочих программ</p>
+
+      {% if has_permission(config.PROGRAMS_VIEW_PLAN_INFO_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('programs.program_data_choose_plan') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Информация по программам</h4>
+              </a>
+              <p class="card-text">Общая информация по рабочим программам учебного плана</p>
+            </div>
           </div>
         </div>
-      </div>
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('programs.fields_choose_plan') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Проверка рабочих программ</h4>
+              </a>
+              <p class="card-text">Проверка заполнения полей рабочих программ на уровне учебного плана</p>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('programs.dept_check') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Проверка рабочих программ</h4>
+              </a>
+              <p class="card-text">Проверка заполнения полей рабочих программ по кафедре</p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if has_permission(config.LIBRARY_LOAD_SOURCES_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('schedule.schedule') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-book-open"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Список литературы</h4>
+              </a>
+              <p class="card-text">Загрузка списка литературы в рабочие программы<br></p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if has_permission(config.LIBRARY_LOAD_INTERNET_LINKS_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('schedule.schedule') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-book-open"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Интернет ресурсы</h4>
+              </a>
+              <p class="card-text">Загрузка интернет ресурсов в рабочие программы<br></p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if has_permission(config.LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('schedule.schedule') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-book-open"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Базы данных и инф. системы</h4>
+              </a>
+              <p class="card-text">Загрузка списка баз данных и инф. систем в рабочие программы<br></p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if has_permission(config.LIBRARY_LOAD_SCIENCE_PRODUCTS_PERMISSION) %}
+        <div class="col">
+          <div class="card">
+            <div class="card-body p-4">
+              <a class="dropdown-item" href="{{ url_for('schedule.schedule') }}">
+                <div class="bs-icon-md bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center d-inline-block mb-3 bs-icon">
+                  <i class="fas fa-book-open"></i>
+                </div>
+                <h4 class="card-title" style="color: rgb(58,59,69);">Научная продукция</h4>
+              </a>
+              <p class="card-text">Загрузка научной продукции в рабочие программы<br></p>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="col">
         <div class="card">
           <div class="card-body p-4">
@@ -70,10 +213,11 @@
               </div>
               <h4 class="card-title" style="color: rgb(58,59,69);">Расчет зарплаты/пенсии</h4>
             </a>
-            <p class="card-text">расчет денежного довольствия аттестованного состава института </p>
+            <p class="card-text">Расчет денежного довольствия аттестованного состава института </p>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 {% endblock %}

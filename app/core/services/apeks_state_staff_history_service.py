@@ -5,7 +5,7 @@ from typing import Optional
 
 from config import ApeksConfig
 from .base_apeks_api_service import ApeksApiDbService
-from ..repository.apeks_api_repository import ApeksApiRepository, ApeksApiEndpoints
+from ..repository.apeks_api_repository import ApeksApiEndpoints, ApeksApiRepository
 
 
 @dataclass

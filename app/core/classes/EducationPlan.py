@@ -1,5 +1,5 @@
-from typing import Iterable
 from dataclasses import dataclass
+from typing import Iterable
 
 from config import ApeksConfig as Apeks
 

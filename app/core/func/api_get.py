@@ -6,7 +6,7 @@ from json import JSONDecodeError
 
 import httpx
 
-from app.core.exceptions import ApeksApiException
+from ...core.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
 transport = httpx.AsyncHTTPTransport(retries=3)

@@ -2,17 +2,17 @@ from datetime import date
 
 from flask_wtf import FlaskForm
 from wtforms import (
+    BooleanField,
+    IntegerField,
     SelectField,
     StringField,
     SubmitField,
-    IntegerField,
     TextAreaField,
-    BooleanField,
 )
 from wtforms.validators import DataRequired, Length, NumberRange
 
 from config import ApeksConfig as Apeks
-from app.core.forms import ChoosePlan
+from ..core.forms import ChoosePlan
 
 
 class ProgramFieldsForm(FlaskForm):
@@ -71,13 +71,16 @@ class DepartmentProgramCheck(ProgramFieldsForm):
         "Год",
         coerce=str,
         choices=[
-            date.today().year - 5,
-            date.today().year - 4,
-            date.today().year - 3,
-            date.today().year - 2,
-            date.today().year - 1,
-            date.today().year,
-            date.today().year + 1,
+            (str(value), str(value))
+            for value in [
+                date.today().year - 5,
+                date.today().year - 4,
+                date.today().year - 3,
+                date.today().year - 2,
+                date.today().year - 1,
+                date.today().year,
+                date.today().year + 1,
+            ]
         ],
         default=date.today().year,
         validators=[DataRequired()],
@@ -109,11 +112,7 @@ class ProgramDatesUpdate(ChoosePlan):
 
 
 class BaseTemplateUpdate(ChoosePlan):
-    template = SelectField(
-        "Шаблон:",
-        coerce=str,
-        validators=[DataRequired()]
-    )
+    template = SelectField("Шаблон:", coerce=str, validators=[DataRequired()])
     base_template_update = SubmitField("Установить шаблон")
     base_template_remove = SubmitField("Без шаблона")
 
@@ -200,6 +199,7 @@ class TitlePagesGenerator(FlaskForm):
         choices=[
             ("spec", "специализация"),
             ("bak", "профиль образовательной программы"),
+            ("napr", "направленность образовательной программы"),
         ],
         validators=[],
     )

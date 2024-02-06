@@ -4,12 +4,12 @@ from typing import Any, Generic
 import flask_sqlalchemy.session
 from flask import request
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy import select, desc
+from sqlalchemy import desc, select
 from sqlalchemy.exc import NoResultFound
 
 from config import FlaskConfig
 from .abstract_repository import AbstractDBRepository
-from ..db.database import db, ModelType
+from ..db.database import ModelType, db
 
 
 @dataclass

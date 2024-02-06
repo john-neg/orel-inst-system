@@ -3,7 +3,7 @@ import os
 
 from openpyxl import load_workbook
 
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks, FlaskConfig
 
 
 def library_report(lib_data: dict, lib_type: str, filename: str) -> None:

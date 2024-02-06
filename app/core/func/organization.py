@@ -2,7 +2,7 @@ import json
 import logging
 
 from config import ApeksConfig as Apeks
-from .api_get import check_api_db_response, api_get_db_table
+from .api_get import api_get_db_table, check_api_db_response
 
 
 async def get_organization_name(

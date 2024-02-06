@@ -1,7 +1,7 @@
 from functools import total_ordering
 
 from flask_login import AnonymousUserMixin, UserMixin
-from sqlalchemy import String, ForeignKey, Integer, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import db

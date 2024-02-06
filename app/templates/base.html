@@ -52,7 +52,7 @@
               </a>
               <div class="dropdown-menu text-center py-0">
                 <a class="dropdown-item text-center py-1" href="{{ url_for('reports.load_report') }}">Нагрузка по кафедре</a>
-                {% if has_permission(config.HOLIDAYS_REPORT_PERMISSION) %}
+                {% if has_permission(config.REPORT_HOLIDAYS_PERMISSION) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('reports.holidays_report') }}">Занятость в выходные</a>
                 {% endif %}
               </div>
@@ -76,19 +76,15 @@
               </div>
             </li>
             <!-- Учебные планы -->
-            {% if current_user.is_authenticated and current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
+            {% if has_permission(config.PLAN_MATRIX_EDIT_PERMISSION) %}
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle nav-link py-2" aria-expanded="true" data-bs-toggle="dropdown" data-bs-auto-close="false" href="#">
                   <i class="fas fa-layer-group"></i><span>Учебные планы</span>
                 </a>
                 <div class="dropdown-menu text-center py-0">
-                  {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.competencies_choose_plan') }}">Загрузка компетенций</a>
-                  {% endif %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.competencies_choose_plan') }}">Загрузка компетенций</a>
                   <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_simple_choose_plan') }}">Матрица простая</a>
-                  {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
-                    <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_choose_plan') }}">Матрица с индикаторами</a>
-                  {% endif %}
+                  <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_choose_plan') }}">Матрица с индикаторами</a>
                   <a class="dropdown-item text-center py-1" href="{{ url_for('plans.matrix_indicator_file') }}">Индикаторы по дисциплинам</a>
                 </div>
               </li>
@@ -100,14 +96,12 @@
               </a>
               <div class="dropdown-menu text-center py-0">
                 <a class="dropdown-item text-center py-1" href="{{ url_for('programs.dept_check') }}">Проверка по кафедре</a>
-                {% if current_user.role.slug in (config.ROLE_ADMIN, ) %}
+                {% if has_permission(config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('programs.dates_update') }}">Обновление дат</a>
                   <a class="dropdown-item text-center py-1" href="{{ url_for('programs.base_template') }}">Базовый шаблон</a>
                 {% endif %}
-                {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD, config.ROLE_BIBL) %}
+                {% if has_permission(config.PROGRAMS_VIEW_PLAN_INFO_PERMISSION, config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('programs.fields_choose_plan') }}">Значения полей</a>
-                {% endif %}
-                {% if current_user.role.slug in (config.ROLE_ADMIN, config.ROLE_METOD) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('programs.program_data_choose_plan') }}">Общая информация</a>
                   <a class="dropdown-item text-center py-1" href="{{ url_for('programs.title_pages_choose_plan') }}">Титульные листы</a>
                 {% endif %}
@@ -155,7 +149,7 @@
               <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
                 <i class="fas fa-bars"></i>
               </button>
-              <h5 class="text-dark mb-0">Расширения базовых функций Апекс-ВУЗ<br></h5>
+              <h5 class="text-dark mb-0">{{ config.ORGANIZATION_NAME }}<br></h5>
               <ul class="navbar-nav flex-nowrap ms-auto">
                 <li class="nav-item dropdown no-arrow">
                   {% if current_user.is_anonymous %}

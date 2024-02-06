@@ -2,21 +2,23 @@ import re
 
 from openpyxl import load_workbook
 
-from app.core.classes.EducationPlan import (
+from config import ApeksConfig as Apeks
+from ..core.classes.EducationPlan import (
     EducationPlanCompetencies,
     EducationPlanIndicators,
 )
-from app.core.func.api_get import (
-    check_api_db_response,
-    api_get_db_table,
+from ..core.func.api_get import api_get_db_table, check_api_db_response
+from ..core.func.app_core import data_processor, xlsx_iter_rows, xlsx_normalize
+from ..core.func.education_plan import (
+    get_plan_curriculum_disciplines,
+    get_plan_discipline_competencies,
+    plan_competencies_del,
+    plan_disciplines_competencies_del,
 )
-from app.core.func.app_core import xlsx_iter_rows, xlsx_normalize, data_processor
-from app.core.func.education_plan import get_plan_curriculum_disciplines, \
-    get_plan_discipline_competencies, plan_disciplines_competencies_del, \
-    plan_competencies_del
-from app.core.func.work_program import get_work_programs_data, \
-    work_programs_competencies_del
-from config import ApeksConfig as Apeks
+from ..core.func.work_program import (
+    get_work_programs_data,
+    work_programs_competencies_del,
+)
 
 
 def comps_file_processing(file: str) -> list:

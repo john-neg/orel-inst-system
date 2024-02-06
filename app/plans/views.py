@@ -2,32 +2,11 @@ import logging
 import operator
 import os
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import flash, redirect, render_template, request, url_for
 from flask.views import View
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
 
-from app.core.classes.PlanMatrixProcessor import (
-    MatrixSimpleProcessor,
-    MatrixIndicatorProcessor,
-    MatrixFileProcessor,
-)
-from app.core.forms import ChoosePlan
-from app.core.func.app_core import allowed_file
-from app.core.func.education_plan import (
-    get_plan_education_specialties,
-    get_education_plans,
-    plan_competency_add,
-    discipline_competency_add,
-)
-from app.core.func.work_program import (
-    work_programs_competencies_level_del,
-    work_program_competency_data_add,
-    work_program_competency_level_add,
-    work_program_competency_level_edit,
-)
-from app.core.reports.plans_comp_matrix import generate_plans_comp_matrix
-from app.core.reports.plans_indicators_file import generate_indicators_file
-from config import FlaskConfig, ApeksConfig as Apeks
+from config import ApeksConfig as Apeks, FlaskConfig, PermissionsConfig
 from . import bp
 from .forms import (
     CompLoadForm,
@@ -39,8 +18,30 @@ from .func import (
     comps_file_processing,
     get_plan_competency_instance,
     get_plan_indicator_instance,
+    plan_competencies_data_cleanup,
 )
-from .func import plan_competencies_data_cleanup
+from ..auth.func import permission_required
+from ..core.classes.PlanMatrixProcessor import (
+    MatrixFileProcessor,
+    MatrixIndicatorProcessor,
+    MatrixSimpleProcessor,
+)
+from ..core.forms import ChoosePlan
+from ..core.func.app_core import allowed_file
+from ..core.func.education_plan import (
+    discipline_competency_add,
+    get_education_plans,
+    get_plan_education_specialties,
+    plan_competency_add,
+)
+from ..core.func.work_program import (
+    work_program_competency_data_add,
+    work_program_competency_level_add,
+    work_program_competency_level_edit,
+    work_programs_competencies_level_del,
+)
+from ..core.reports.plans_comp_matrix import generate_plans_comp_matrix
+from ..core.reports.plans_indicators_file import generate_indicators_file
 
 
 class PlanChoosePlanView(View):
@@ -50,6 +51,8 @@ class PlanChoosePlanView(View):
         self.title = title
         self.plan_type = plan_type
 
+    @permission_required(PermissionsConfig.PLAN_MATRIX_EDIT_PERMISSION)
+    @login_required
     async def dispatch_request(self):
         form = ChoosePlan()
         specialities = await get_plan_education_specialties()
@@ -109,6 +112,7 @@ bp.add_url_rule(
 
 
 @bp.route("/competencies_load/<int:plan_id>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PLAN_MATRIX_EDIT_PERMISSION)
 @login_required
 async def competencies_load(plan_id):
     form = CompLoadForm()
@@ -179,6 +183,7 @@ async def competencies_load(plan_id):
 
 
 @bp.route("/matrix_simple_load/<int:plan_id>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PLAN_MATRIX_EDIT_PERMISSION)
 @login_required
 async def matrix_simple_load(plan_id):
     form = MatrixSimpleForm()
@@ -253,6 +258,7 @@ async def matrix_simple_load(plan_id):
 
 
 @bp.route("/matrix_indicator_load/<int:plan_id>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PLAN_MATRIX_EDIT_PERMISSION)
 @login_required
 async def matrix_indicator_load(plan_id):
     form = MatrixIndicatorForm()
@@ -333,8 +339,10 @@ async def matrix_indicator_load(plan_id):
                             )
                             if resp.get("data"):
                                 comp_relations_counter += int(resp.get("data"))
-                message = (f"Добавлены связи дисциплин и компетенций - "
-                           f"{comp_relations_counter}")
+                message = (
+                    f"Добавлены связи дисциплин и компетенций - "
+                    f"{comp_relations_counter}"
+                )
                 logging.info(f"{current_user} - {message}")
                 flash(message, category="success")
             # Загрузка данных в рабочие программы
@@ -343,8 +351,10 @@ async def matrix_indicator_load(plan_id):
                     level_id=plan.program_comp_level_delete
                 )
                 level_delete_counter = resp.get("data")
-                message = ("Удалены лишние уровни формирования "
-                           f"компетенций - {level_delete_counter}")
+                message = (
+                    "Удалены лишние уровни формирования "
+                    f"компетенций - {level_delete_counter}"
+                )
                 logging.info(f"{current_user} - {message}")
                 flash(message, category="success")
 
@@ -361,19 +371,22 @@ async def matrix_indicator_load(plan_id):
                     resp = await work_program_competency_data_add(comp_data)
                     if resp.get("data"):
                         comp_add_counter += int(resp.get("data"))
-                message = ("Добавлена информация об индикаторах компетенций "
-                           f"в рабочие программы - {comp_add_counter}")
+                message = (
+                    "Добавлена информация об индикаторах компетенций "
+                    f"в рабочие программы - {comp_add_counter}"
+                )
                 logging.info(f"{current_user} - {message}")
                 flash(message, category="success")
 
                 level_add_counter = 0
                 for level_add in program_comp_level_add:
-
                     resp = await work_program_competency_level_add(level_add)
                     if resp.get("data"):
                         level_add_counter += int(resp.get("data"))
-                message = ("Добавлены отсутствовавшие уровни формирования "
-                           f"компетенций - {level_add_counter}")
+                message = (
+                    "Добавлены отсутствовавшие уровни формирования "
+                    f"компетенций - {level_add_counter}"
+                )
                 logging.info(f"{current_user} - {message}")
                 flash(message, category="success")
 
@@ -384,8 +397,10 @@ async def matrix_indicator_load(plan_id):
                     )
                     if resp.get("data"):
                         level_edit_counter += int(resp.get("data"))
-                message = ("Отредактированы уровни формирования "
-                           f"компетенций - {level_edit_counter}")
+                message = (
+                    "Отредактированы уровни формирования "
+                    f"компетенций - {level_edit_counter}"
+                )
                 logging.info(f"{current_user} - {message}")
                 flash(message, category="success")
 
@@ -419,6 +434,7 @@ async def matrix_indicator_load(plan_id):
 
 
 @bp.route("/matrix_indicator_file", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.PLAN_MATRIX_EDIT_PERMISSION)
 @login_required
 def matrix_indicator_file():
     form = IndicatorsFileForm()

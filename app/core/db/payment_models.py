@@ -1,14 +1,7 @@
 from functools import reduce
 
-from sqlalchemy import (
-    Integer,
-    Text,
-    Boolean,
-    String,
-    ForeignKey,
-    Float,
-    UniqueConstraint, select,
-)
+from sqlalchemy import (Boolean, Float, ForeignKey, Integer, String, Text,
+                        UniqueConstraint, select)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import db

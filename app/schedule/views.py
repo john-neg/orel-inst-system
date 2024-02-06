@@ -1,25 +1,25 @@
-import logging
 from datetime import date
+import logging
 
-from flask import render_template, request, redirect, url_for, flash
+from flask import flash, redirect, render_template, request, url_for
 
-from app.core.classes.EducationStaff import EducationStaff
-from app.core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
-from app.core.func.api_get import (
-    check_api_db_response,
-    api_get_db_table,
-    check_api_staff_lessons_response,
-    api_get_staff_lessons,
-)
-from app.core.func.app_core import data_processor
-from app.core.func.education_plan import get_plan_disciplines
-from app.core.func.organization import get_departments
-from app.core.func.staff import get_state_staff
-from app.core.reports.schedule_ical import generate_schedule_ical
-from app.core.reports.schedule_xlsx import generate_schedule_xlsx
 from config import ApeksConfig as Apeks
 from . import bp
 from .forms import CalendarForm
+from ..core.classes.EducationStaff import EducationStaff
+from ..core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
+from ..core.func.api_get import (
+    api_get_db_table,
+    api_get_staff_lessons,
+    check_api_db_response,
+    check_api_staff_lessons_response,
+)
+from ..core.func.app_core import data_processor
+from ..core.func.education_plan import get_plan_disciplines
+from ..core.func.organization import get_departments
+from ..core.func.staff import get_state_staff
+from ..core.reports.schedule_ical import generate_schedule_ical
+from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 
 
 @bp.route("/schedule", methods=["GET", "POST"])

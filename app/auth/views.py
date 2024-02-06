@@ -1,25 +1,20 @@
 import logging
 
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import logout_user, login_user, current_user, login_required
+from flask import flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from ldap3.core.exceptions import LDAPSocketOpenError
 
 from config import FlaskConfig, PermissionsConfig
 from . import bp
-from .forms import (
-    UserRegisterForm,
-    UserLoginForm,
-    UserEditForm,
-    create_roles_form,
-)
+from .forms import UserEditForm, UserLoginForm, UserRegisterForm, create_roles_form
 from .func import permission_required
 from .ldap_data import get_user_data
 from ..core.extensions import login_manager
 from ..core.forms import ObjectDeleteForm
 from ..core.services.db_users_service import (
-    get_users_service,
-    get_users_roles_service,
     get_users_permissions_service,
+    get_users_roles_service,
+    get_users_service,
 )
 
 
@@ -73,7 +68,7 @@ def login():
                 logging.info(message)
 
         if user is None or not users_service.check_password(
-                user.password_hash, password
+            user.password_hash, password
         ):
             error = "Неверный логин или пароль"
             return render_template(
@@ -233,9 +228,7 @@ def roles_add():
                 if request.form.get(f"permission_{obj.slug}")
             ],
         )
-        logging.info(
-            f"'{current_user}' добавил роль - {request.form.get('name')}"
-        )
+        logging.info(f"'{current_user}' добавил роль - {request.form.get('name')}")
         flash(
             f"Роль {request.form.get('name')} успешно добавлена",
             category="success",

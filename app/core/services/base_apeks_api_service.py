@@ -4,7 +4,7 @@ from typing import Any
 
 from ..exceptions import ApeksApiException
 from ..repository.abstract_repository import AbstractDBRepository
-from ..repository.apeks_api_repository import ApeksApiRepository, ApeksApiEndpoints
+from ..repository.apeks_api_repository import ApeksApiEndpoints, ApeksApiRepository
 
 
 @dataclass

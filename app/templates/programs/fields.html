@@ -47,7 +47,7 @@
                                       <span class="mx-1"></span>
                                     {% endif %}
                                     <span style="white-space: pre-line">{{ disc_name }}</span>
-                                    {% if wp != "none" and current_user.role.slug in (config.ROLE_ADMIN, ) %}
+                                    {% if wp != "none" and has_permission(config.PROGRAMS_EDIT_FIELDS_PERMISSION) %}
                                       <a class="btn btn-light btn-sm border rounded mx-1" role="button" target="_blank"
                                          href="{{ url_for('programs.field_edit') }}?wp_id={{ wp }}&parameter={{ program_field }}">EDIT</a>
                                     {% endif %}

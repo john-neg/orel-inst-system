@@ -4,9 +4,9 @@ from typing import Optional
 
 from bson import ObjectId
 from pymongo.cursor import Cursor
-from pymongo.results import InsertOneResult, UpdateResult, DeleteResult
+from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
-from ..repository.mongo_db_repository import MongoDbRepository, DocumentType
+from ..repository.mongo_db_repository import DocumentType, MongoDbRepository
 
 
 @dataclass

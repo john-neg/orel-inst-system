@@ -6,9 +6,9 @@ from typing import Any
 
 from bson import ObjectId
 from pymongo.database import Database
-from pymongo.results import UpdateResult, InsertOneResult
+from pymongo.results import InsertOneResult, UpdateResult
 
-from config import MongoDBSettings, FlaskConfig
+from config import MongoDBSettings
 from .base_mongo_db_crud_service import BaseMongoDbCrudService
 from ..db.mongo_db import get_mongo_db
 from ..repository.mongo_db_repository import MongoDbRepository
