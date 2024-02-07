@@ -42,6 +42,9 @@ from ..core.services.apeks_state_staff_service import (
     get_apeks_state_staff_service,
     process_state_staff_data,
 )
+from ..core.services.apeks_state_vacancies_service import (
+    get_apeks_state_vacancies_service,
+)
 from ..core.services.base_apeks_api_service import data_processor
 from ..core.services.db_staff_service import get_staff_stable_busy_types_service
 from ..core.services.staff_logs_document_service import get_staff_logs_crud_service
@@ -63,11 +66,44 @@ async def staff_stable_info():
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
     document_status = (
-        MongoDBSettings.STAFF_COLLECTION_STATUSES.get(staff_stable_document.get("status"))
+        MongoDBSettings.STAFF_COLLECTION_STATUSES.get(
+            staff_stable_document.get("status")
+        )
         if staff_stable_document
         else None
     )
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
+
+    if current_date == dt.date.today().isoformat():
+        departments_service = get_apeks_state_departments_service()
+        departments = await departments_service.get_departments()
+        staff_history_service = get_apeks_state_staff_history_service()
+        staff_history = data_processor(
+            await staff_history_service.get_staff_for_date(dt.date.today()),
+            key="staff_id",
+        )
+        state_vacancies_service = get_apeks_state_vacancies_service()
+        state_vacancies = data_processor(await state_vacancies_service.list())
+        staff_data = process_apeks_stable_staff_data(
+            departments,
+            staff_history,
+            staff_stable_document,
+            state_vacancies,
+        )
+        military_data = {
+            "staff_military_total": 0,
+            "staff_military_absence": 0,
+            "staff_military_stock": 0,
+        }
+        for dept_type in staff_data:
+            for dept in staff_data[dept_type]:
+                for item_name in military_data:
+                    military_data[item_name] += staff_data[dept_type][dept].get(
+                        item_name, 0
+                    )
+    else:
+        military_data = None
+
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("make_report"):
             filename = generate_stable_staff_report(staff_stable_document, busy_types)
@@ -81,6 +117,7 @@ async def staff_stable_info():
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
         document_status=document_status,
+        military_data=military_data,
     )
 
 
@@ -176,9 +213,13 @@ async def staff_stable_load():
     departments_service = get_apeks_state_departments_service()
     departments = await departments_service.get_departments()
     staff_history_service = get_apeks_state_staff_history_service()
-    staff_history = await staff_history_service.get_staff_for_date(working_date)
+    staff_history = data_processor(
+        await staff_history_service.get_staff_for_date(working_date), key="staff_id"
+    )
+    state_vacancies_service = get_apeks_state_vacancies_service()
+    state_vacancies = data_processor(await state_vacancies_service.list())
     staff_data = process_apeks_stable_staff_data(
-        departments, staff_history, current_data
+        departments, staff_history, current_data, state_vacancies
     )
     return render_template(
         "staff/staff_stable_load.html",
@@ -226,9 +267,9 @@ async def staff_stable_edit(department_id):
     busy_types = busy_types_service.list(is_active=1)
     form = create_staff_edit_form(staff_data=full_staff_data, busy_types=busy_types)
     staff_stable_service = get_staff_stable_document_service()
-    current_data = staff_stable_service.get({"date": working_date.isoformat()})
+    document_data = staff_stable_service.get({"date": working_date.isoformat()})
     if request.method == "POST" and form.validate_on_submit():
-        if current_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
+        if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             load_data = {
                 "id": department_id,
                 "name": department_name,
@@ -260,10 +301,10 @@ async def staff_stable_edit(department_id):
                     {"$set": {f"departments.{department_id}": load_data}},
                     upsert=True,
                 )
-                current_data = staff_stable_service.get(
+                document_data = staff_stable_service.get(
                     {"date": working_date.isoformat()}
                 )
-                load_data["edit_document_id"] = current_data.get("_id", None)
+                load_data["edit_document_id"] = document_data.get("_id", None)
                 staff_logs_service = get_staff_logs_crud_service()
                 staff_logs_service.create(load_data)
                 message = (
@@ -279,7 +320,7 @@ async def staff_stable_edit(department_id):
         else:
             message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
             flash(message, category="danger")
-    current_dept_data = current_data["departments"].get(department_id)
+    current_dept_data = document_data["departments"].get(department_id)
     if current_dept_data:
         for absence, items in current_dept_data["absence"].items():
             if items:
@@ -294,7 +335,7 @@ async def staff_stable_edit(department_id):
         date=working_date,
         department=department_name,
         staff_data=full_staff_data,
-        status=current_data.get("status"),
+        status=document_data.get("status"),
     )
 
 

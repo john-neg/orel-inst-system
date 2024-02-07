@@ -8,7 +8,10 @@ from config import ApeksConfig
 
 
 def process_apeks_stable_staff_data(
-    departments: dict, staff_history: list, staff_document_data: dict
+    departments: dict[str, Any],
+    staff_history: dict[str, Any],
+    staff_document_data: dict[str, Any],
+    state_vacancies: dict[str, Any],
 ) -> dict:
     """
     Рассчитывает информацию о наличии личного состава подразделений.
@@ -16,35 +19,74 @@ def process_apeks_stable_staff_data(
     :param departments: данные о подразделениях
     :param staff_history: данные таблицы staff_history
     :param staff_document_data: данные документа на определенную дату
+    :param state_vacancies: данные таблицы state_vacancies
     :return: {"Тип подразделения": {"Сокр. назв. подр.": {"name": "short",
-              "staff_total": num, "staff_absence": num, "staff_stock": num}}}
+              "staff_total": value, "staff_absence": value, "staff_stock": value,
+              "staff_military_total": value, "staff_military_absence": value,
+              "staff_military_stock": value}}}
     """
-    for staff in staff_history:
-        dept_id = staff.get("department_id")
+    for staff_id, staff_data in staff_history.items():
+        dept_id = staff_data.get("department_id")
         dept_data = departments[dept_id]
-        if staff.get("vacancy_id") and staff.get("value") == "1":
-            dept_data["staff_total"] = dept_data.get("staff_total", 0) + 1
+        vacancy_id = staff_data.get("vacancy_id")
+        if vacancy_id:
+            vacancy = state_vacancies.get(vacancy_id)
+            vacancy_value = staff_data.get("value")
+            staff_data["has_rank"] = vacancy.get("has_rank")
+            if vacancy_value == "1":
+                dept_staff_ids = dept_data.setdefault("dept_staff_ids", {})
+                dept_staff_ids[staff_id] = {"has_rank": vacancy.get("has_rank")}
     staff_data = {key: {} for key in ApeksConfig.DEPT_TYPES.values()}
     for dept in sorted(departments, key=lambda d: departments[d].get("short")):
         dept_data = departments[dept]
         dept_type = dept_data.get("type")
-        dept_cur_data = staff_document_data["departments"].get(dept)
-        dept_total = dept_data.get("staff_total", 0)
-        dept_absence = (
-            sum(len(val) for val in dept_cur_data["absence"].values())
-            if dept_cur_data
-            else "нет данных"
-        )
-        dept_stock = (
-            dept_total - dept_absence if isinstance(dept_absence, int) else "нет данных"
-        )
         if dept_type in staff_data:
+            dept_document_data = staff_document_data["departments"].get(dept)
+            dept_total = len(dept_data.get("dept_staff_ids", {}))
+            dept_military_total = len(
+                [
+                    item
+                    for item in dept_data.get("dept_staff_ids", {}).values()
+                    if item and item.get("has_rank") == "1"
+                ]
+            )
+            if dept_document_data:
+                dept_absence_staff_ids = [
+                    staff_id
+                    for absence_data in dept_document_data["absence"].values()
+                    for staff_id in absence_data
+                ]
+                dept_absence = len(dept_absence_staff_ids)
+                dept_military_absence = len(
+                    [
+                        staff_id
+                        for staff_id in dept_absence_staff_ids
+                        if staff_history[staff_id].get("has_rank") == "1"
+                    ]
+                )
+            else:
+                dept_absence = dept_military_absence = "нет данных"
+
+            dept_stock = (
+                dept_total - dept_absence
+                if isinstance(dept_absence, int)
+                else "нет данных"
+            )
+            dept_military_stock = (
+                dept_military_total - dept_military_absence
+                if isinstance(dept_military_absence, int)
+                else "нет данных"
+            )
+
             type_data = staff_data[dept_type]
             type_data[dept] = {
                 "name": dept_data.get("short"),
                 "staff_total": dept_total,
                 "staff_absence": dept_absence,
                 "staff_stock": dept_stock,
+                "staff_military_total": dept_military_total,
+                "staff_military_absence": dept_military_absence,
+                "staff_military_stock": dept_military_stock
             }
     return staff_data
 
@@ -83,7 +125,7 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
 def process_full_staff_data(
     staff_ids: dict[str, Any],
     state_staff_positions: dict[str, Any],
-    state_staff: dict[str, Any],
+    state_staff: dict[str, Any]
 ) -> list[dict[str, Any]]:
     """
     Формирует данные о личном составе с должностями и позициями сортировки.
@@ -97,14 +139,14 @@ def process_full_staff_data(
     full_staff_data = []
     for staff_id, staff_hist in staff_ids.items():
         position_id = staff_hist.get("position_id")
-        position = state_staff_positions.get(position_id)
+        position_data = state_staff_positions.get(position_id)
         staff_data = state_staff.get(staff_id)
         full_staff_data.append(
             {
                 "staff_id": staff_id,
                 "name": staff_data.get("short"),
-                "position": position.get("name"),
-                "sort": position.get("sort"),
+                "position": position_data.get("name"),
+                "sort": position_data.get("sort"),
             }
         )
     full_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)

@@ -164,6 +164,7 @@ class ApeksConfig(object):
     STATE_STAFF_POSITIONS_TABLE = "state_staff_positions"
     STATE_STAFF_TABLE = "state_staff"
     STATE_STAFF_HISTORY_TABLE = "state_staff_history"
+    STATE_VACANCIES_TABLE = "state_vacancies"
 
     TABLES = {
         "load_groups": "load_groups",

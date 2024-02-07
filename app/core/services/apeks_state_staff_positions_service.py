@@ -8,7 +8,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 @dataclass
 class ApeksStateStaffPositionsService(ApeksApiDbService):
     """
-    Класс для CRUD операций модели StateStaff.
+    Класс для CRUD операций модели StateStaffPositions.
 
     Пример данных модели:
     {'id': '71',
