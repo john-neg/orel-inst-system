@@ -122,7 +122,7 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
     return staff_data
 
 
-def process_full_staff_data(
+def process_stable_staff_data(
     staff_ids: dict[str, Any],
     state_staff_positions: dict[str, Any],
     state_staff: dict[str, Any]

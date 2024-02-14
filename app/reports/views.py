@@ -25,7 +25,7 @@ from ..core.func.staff import get_state_staff
 from ..core.reports.holidays_report import generate_holidays_report
 from ..core.reports.load_report import generate_load_report
 from ..core.repository.sqlalchemy_repository import DbRepository
-from ..core.services.db_production_calendar_service import (
+from ..core.services.db_production_calendar_services import (
     get_productions_calendar_holidays_service,
     get_productions_calendar_working_days_service,
 )

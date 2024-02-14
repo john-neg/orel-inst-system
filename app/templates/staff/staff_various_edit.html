@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-fluid">
+    <h3 class="text-center text-dark mb-1">
+      {% block title %}Строевая записка{% endblock %}
+    </h3>
+      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
+      <h4 class="fw-normal text-center text-dark mb-1">Группа - {{ group }}</h4>
+  </div>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-xl-9 table-responsive">
+          <table class="table table-sm text-dark mt-3" style="border-color:darkgray;">
+            <thead>
+              <tr>
+                <th class="text-center">№</th>
+                <th class="text-center">Ф.И.О.</th>
+                <th class="text-center">Местонахождение</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for num, student in students_data %}
+                <tr>
+                  <td hidden="hidden">{{ student.get('id') }}</td>
+                  <td class="text-center">{{ num }}</td>
+                  <td class="text-center">{{ student.get('family_name') }} {{ student.get('name')[0] }}.{{ student.get('surname')[0] }}.</td>
+                  <td class="text-center">
+                    {% for item in form %}
+                      {% if item.label.field_id == 'staff_id_' + student.get('id') %}
+                        <div class="row mb-1">
+                          <div class="col">
+                            {{ item(class="form-select text-dark") }}
+                            {% for error in item.errors %}
+                              <span style="color: var(--bs-danger);">{{ error }}</span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endif %}
+                     {% endfor %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="btn-group" role="group">
+            {% if status == config.STAFF_IN_PROGRESS_STATUS %}
+              <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
+            {% endif %}
+            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load') }}">Назад</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if form.form_errors %}
+      <span id="error" class="text-danger" style="color: var(--bs-danger);">{{ form.form_errors }}</span>
+    {% endif %}
+  </form>
+{% endblock %}

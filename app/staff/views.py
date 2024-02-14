@@ -666,3 +666,147 @@ async def staff_stable_edit(department_id):
         staff_data=full_staff_data,
         status=document_data.get("status"),
     )
+
+
+@bp.route("/staff_various_load", methods=["GET", "POST"])
+@login_required
+async def staff_various_load():
+    form = StaffLoadForm()
+    working_date = (
+        dt.date.fromisoformat(request.args.get("date"))
+        if request.args.get("date")
+        else dt.date.today()
+    )
+
+    student_service = get_apeks_schedule_schedule_student_service()
+    students_data = await student_service.get()
+    allowed_faculty_service = get_staff_allowed_faculty_service()
+    allowed_faculty = allowed_faculty_service.list()
+    groups_data = staff_various_groups_data_filter(students_data, allowed_faculty)
+
+    return render_template(
+        "staff/staff_various_load.html",
+        active="staff",
+        form=form,
+        date=working_date,
+        groups_data=groups_data,
+        doc_status="completed",  # current_data.get("status"),
+    )
+
+
+@bp.route("/staff_various_edit/<string:group_id>", methods=["GET", "POST"])
+@login_required
+async def staff_various_edit(group_id):
+    working_date = (
+        dt.date.fromisoformat(request.args.get("date"))
+        if request.args.get("date")
+        else dt.date.today()
+    )
+
+    group_service = get_apeks_load_groups_service()
+    group_data = await group_service.get(id=group_id)
+
+    students_group_service = get_apeks_student_students_groups_service()
+    group_students = data_processor(
+        await students_group_service.get(group_id=group_id),
+        key="student_id",
+    )
+
+    students_service = get_apeks_student_students_service()
+    students_data = await students_service.get(id=group_students)
+    students_data = sorted(students_data, key=lambda x: x.get("family_name"))
+
+    student_history_service = get_apeks_student_student_history_service()
+    fired_students = [
+        student.get("student_id")
+        for student in await student_history_service.get(
+            student_id=group_students, type=6
+        )
+    ]
+
+    students_data = [
+        student for student in students_data if student.get("id") not in fired_students
+    ]
+
+    busy_types_service = get_staff_various_busy_types_service()
+    busy_types = busy_types_service.list(is_active=1)
+
+    illness_types_service = get_staff_various_illness_types_service()
+    illness_types = illness_types_service.list(is_active=1)
+
+    form = create_staff_various_edit_form(
+        students_data=students_data, busy_types=busy_types, illness_types=illness_types
+    )
+
+    # staff_stable_service = get_staff_stable_document_service()
+    # document_data = staff_stable_service.get({"date": working_date.isoformat()})
+    # if request.method == "POST" and form.validate_on_submit():
+    #     if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
+    #         load_data = {
+    #             "id": department_id,
+    #             "name": department_name,
+    #             "type": department_type,
+    #             "total": len(staff_ids),
+    #             "absence": {item.slug: {} for item in busy_types},
+    #             "user": (
+    #                 current_user.username
+    #                 if isinstance(current_user, Users)
+    #                 else "anonymous"
+    #             ),
+    #             "updated": dt.datetime.now().isoformat(),
+    #         }
+    #         for _id in staff_ids:
+    #             staff_absence = request.form.get(f"staff_id_{_id}")
+    #             if staff_absence != "0" and staff_absence in load_data["absence"]:
+    #                 load_data["absence"][staff_absence][_id] = state_staff[_id].get(
+    #                     "short"
+    #                 )
+    #             elif staff_absence != "0" and staff_absence not in load_data["absence"]:
+    #                 message = (
+    #                     f"Форма вернула неизвестное местонахождение: {staff_absence}"
+    #                 )
+    #                 flash(message, category="danger")
+    #                 logging.error(message)
+    #         try:
+    #             staff_stable_service.update(
+    #                 {"date": working_date.isoformat()},
+    #                 {"$set": {f"departments.{department_id}": load_data}},
+    #                 upsert=True,
+    #             )
+    #             document_data = staff_stable_service.get(
+    #                 {"date": working_date.isoformat()}
+    #             )
+    #             load_data["edit_document_id"] = document_data.get("_id", None)
+    #             staff_logs_service = get_staff_logs_crud_service()
+    #             staff_logs_service.create(load_data)
+    #             message = (
+    #                 f"Данные подразделения {department_name} за "
+    #                 f"{working_date.isoformat()} успешно переданы"
+    #             )
+    #             flash(message, category="success")
+    #             logging.info(message)
+    #         except PyMongoError as error:
+    #             message = f"Произошла ошибка записи данных: {error}"
+    #             flash(message, category="danger")
+    #             logging.error(message)
+    #     else:
+    #         message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
+    #         flash(message, category="danger")
+    # current_dept_data = document_data["departments"].get(department_id)
+    # if current_dept_data:
+    #     for absence, items in current_dept_data["absence"].items():
+    #         if items:
+    #             for _id in items:
+    #                 attr = getattr(form, f"staff_id_{_id}")
+    #                 attr.data = absence
+
+    return render_template(
+        "staff/staff_various_edit.html",
+        active="staff",
+        form=form,
+        date=working_date,
+        group=group_data[0].get("name"),
+        # staff_data=full_staff_data,
+        students_data=enumerate(students_data, start=1),
+        status="in progress",  # document_data.get("status"),
+    )

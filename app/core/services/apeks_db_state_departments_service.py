@@ -7,7 +7,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 
 
 @dataclass
-class ApeksStateDepartmentsService(ApeksApiDbService):
+class ApeksDbStateDepartmentsService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StateDepartments.
 
@@ -85,10 +85,10 @@ class ApeksStateDepartmentsService(ApeksApiDbService):
             return dept_dict
 
 
-def get_apeks_state_departments_service(
+def get_db_apeks_state_departments_service(
     table: str = ApeksConfig.STATE_DEPARTMENTS_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStateDepartmentsService:
+) -> ApeksDbStateDepartmentsService:
     """Возвращает CRUD сервис для таблицы state_departments."""
-    return ApeksStateDepartmentsService(table=table, repository=repository, token=token)
+    return ApeksDbStateDepartmentsService(table=table, repository=repository, token=token)

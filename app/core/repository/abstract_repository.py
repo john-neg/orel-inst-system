@@ -5,23 +5,23 @@ class AbstractApiRepository(metaclass=abc.ABCMeta):
     """Абстрактный класс для запросов к API."""
 
     @abc.abstractmethod
-    def get(self, endpoint: str, params: dict):
+    def get(self, *args, **kwargs):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def post(self, endpoint: str, params: dict, data: dict):
+    def post(self, *args, **kwargs):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def put(self, endpoint: str, params: dict, data: dict):
+    def put(self, *args, **kwargs):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def patch(self, endpoint: str, params: dict, data: dict):
+    def patch(self, *args, **kwargs):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def delete(self, endpoint: str, params: dict):
+    def delete(self, *args, **kwargs):
         raise NotImplementedError
 
 

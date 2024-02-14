@@ -29,7 +29,7 @@ class FlaskConfig(object):
     USER_LOGIN_DURATION = timedelta(hours=8)
 
     # Pagination
-    ITEMS_PER_PAGE = 10
+    ITEMS_PER_PAGE = 15
     AVAILABLE_PAGES = 3
 
     # LDAP Config
@@ -160,11 +160,15 @@ class ApeksConfig(object):
     }
 
     # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
+    LOAD_GROUPS_TABLE = "load_groups"
     STATE_DEPARTMENTS_TABLE = "state_departments"
+    STATE_STAFF_HISTORY_TABLE = "state_staff_history"
     STATE_STAFF_POSITIONS_TABLE = "state_staff_positions"
     STATE_STAFF_TABLE = "state_staff"
-    STATE_STAFF_HISTORY_TABLE = "state_staff_history"
     STATE_VACANCIES_TABLE = "state_vacancies"
+    STUDENT_STUDENTS_GROUPS_TABLE = "student_students_groups"
+    STUDENT_STUDENTS_TABLE = "student_students"
+    STUDENT_STUDENT_HISTORY_TABLE = "student_student_history"
 
     TABLES = {
         "load_groups": "load_groups",

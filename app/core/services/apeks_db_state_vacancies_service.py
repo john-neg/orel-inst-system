@@ -6,7 +6,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 
 
 @dataclass
-class ApeksStateVacanciesService(ApeksApiDbService):
+class ApeksDbStateVacanciesService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StateVacancies.
 
@@ -21,12 +21,12 @@ class ApeksStateVacanciesService(ApeksApiDbService):
     pass
 
 
-def get_apeks_state_vacancies_service(
+def get_apeks_db_state_vacancies_service(
     table: str = ApeksConfig.STATE_VACANCIES_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStateVacanciesService:
+) -> ApeksDbStateVacanciesService:
     """Возвращает CRUD сервис для таблицы state_vacancies."""
-    return ApeksStateVacanciesService(
+    return ApeksDbStateVacanciesService(
         table=table, repository=repository, token=token
     )

@@ -9,7 +9,7 @@ from ..repository.apeks_api_repository import ApeksApiEndpoints, ApeksApiReposit
 
 
 @dataclass
-class ApeksStateStaffHistoryService(ApeksApiDbService):
+class ApeksDbStateStaffHistoryService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StateStaffHistory.
 
@@ -58,12 +58,12 @@ class ApeksStateStaffHistoryService(ApeksApiDbService):
         return await self.repository.get(endpoint, params)
 
 
-def get_apeks_state_staff_history_service(
+def get_db_apeks_state_staff_history_service(
     table: str = ApeksConfig.STATE_STAFF_HISTORY_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStateStaffHistoryService:
+) -> ApeksDbStateStaffHistoryService:
     """Возвращает CRUD сервис для таблицы state_staff_history."""
-    return ApeksStateStaffHistoryService(
+    return ApeksDbStateStaffHistoryService(
         table=table, repository=repository, token=token
     )

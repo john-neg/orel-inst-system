@@ -15,12 +15,12 @@ transport = httpx.AsyncHTTPTransport(retries=3)
 class ApeksApiEndpoints(str, Enum):
     """Класс точек доступа к API."""
 
+    STUDENT_SCHEDULE_ENDPOINT = ApeksConfig.STUDENT_SCHEDULE_ENDPOINT
+    STAFF_SCHEDULE_ENDPOINT = ApeksConfig.STAFF_SCHEDULE_ENDPOINT
     DB_GET_ENDPOINT = ApeksConfig.DB_GET_ENDPOINT
     DB_ADD_ENDPOINT = ApeksConfig.DB_ADD_ENDPOINT
     DB_EDIT_ENDPOINT = ApeksConfig.DB_EDIT_ENDPOINT
     DB_DEL_ENDPOINT = ApeksConfig.DB_DEL_ENDPOINT
-    STUDENT_SCHEDULE_ENDPOINT = ApeksConfig.STUDENT_SCHEDULE_ENDPOINT
-    STAFF_SCHEDULE_ENDPOINT = ApeksConfig.STAFF_SCHEDULE_ENDPOINT
 
 
 class ApeksApiRepository(AbstractApiRepository):

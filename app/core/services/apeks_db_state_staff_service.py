@@ -7,7 +7,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 
 
 @dataclass
-class ApeksStateStaffService(ApeksApiDbService):
+class ApeksDbStateStaffService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StateStaff.
 
@@ -62,10 +62,10 @@ def process_state_staff_data(state_staff_data) -> dict:
     return staff_dict
 
 
-def get_apeks_state_staff_service(
+def get_apeks_db_state_staff_service(
     table: str = ApeksConfig.STATE_STAFF_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStateStaffService:
+) -> ApeksDbStateStaffService:
     """Возвращает CRUD сервис для таблицы state_staff."""
-    return ApeksStateStaffService(table=table, repository=repository, token=token)
+    return ApeksDbStateStaffService(table=table, repository=repository, token=token)

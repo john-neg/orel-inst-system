@@ -17,7 +17,7 @@ from .auth import bp as login_bp
 from .auth.func import has_permission
 from .core.db.database import db
 from .core.extensions import login_manager
-from .core.services.db_users_service import (
+from .core.services.db_users_services import (
     get_users_permissions_service,
     get_users_roles_service,
     get_users_service,
@@ -93,17 +93,16 @@ def check_base_roles_and_permissions_in_database():
     for slug, name in PermissionsConfig.BASE_ROLES.items():
         if not users_role_service.get(slug=slug):
             users_role_service.create(slug=slug, name=name)
-    if not users_service.get(username=PermissionsConfig.ROLE_ADMIN):
-        role = users_role_service.get(slug=PermissionsConfig.ROLE_ADMIN)
+    admin_role = users_role_service.get(slug=PermissionsConfig.ROLE_ADMIN)
+    if not users_service.list(role_id=admin_role.id):
         users_service.create_user(
             username=PermissionsConfig.ROLE_ADMIN,
             password=PermissionsConfig.ROLE_ADMIN,
-            role_id=role.id,
+            role_id=admin_role.id,
         )
     for slug, name in PermissionsConfig.PERMISSION_DESCRIPTIONS.items():
         if not permissions_service.get(slug=slug):
             permissions_service.create(slug=slug, name=name)
-            admin_role = users_role_service.get(slug=PermissionsConfig.ROLE_ADMIN)
             users_role_service.update(
                 admin_role.id,
                 permissions=[permission for permission in permissions_service.list()],

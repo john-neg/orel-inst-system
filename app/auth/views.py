@@ -11,7 +11,7 @@ from .func import permission_required
 from .ldap_data import get_user_data
 from ..core.extensions import login_manager
 from ..core.forms import ObjectDeleteForm
-from ..core.services.db_users_service import (
+from ..core.services.db_users_services import (
     get_users_permissions_service,
     get_users_roles_service,
     get_users_service,

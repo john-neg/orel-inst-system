@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 sys.path.append(".")
 
 from app.core.db.auth_models import UsersRoles, Users, UsersPermissions
-from app.core.services.db_users_service import (
+from app.core.services.db_users_services import (
     UsersCRUDService,
     UsersRolesCRUDService,
     UsersPermissionsCRUDService,

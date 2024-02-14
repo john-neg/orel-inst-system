@@ -3,8 +3,48 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..exceptions import ApeksApiException
-from ..repository.abstract_repository import AbstractDBRepository
+from ..repository.abstract_repository import AbstractApiRepository, AbstractDBRepository
 from ..repository.apeks_api_repository import ApeksApiEndpoints, ApeksApiRepository
+
+
+@dataclass
+class ApeksApiBaseService(AbstractApiRepository):
+    """
+    Класс для работы с API АпексВУЗ.
+
+    Attributes:
+    ----------
+    endpoint : ApeksApiEndpoints
+        название точки доступа к API АпексВУЗ
+    repository : ApeksApiRepository
+        репозиторий для запросов к API АпексВУЗ
+    token : str
+        токен доступа к API АпексВУЗ
+    """
+
+    endpoint: ApeksApiEndpoints
+    repository: ApeksApiRepository
+    token: str
+
+    async def get(self, **kwargs):
+        params = {"token": self.token}
+        response_data = await self.repository.get(self.endpoint, params=params)
+        logging.debug(
+            f"Выполнен запрос к API АпексВУЗ {self.endpoint}. Параметры - {kwargs}"
+        )
+        return response_data
+
+    async def post(self, params: dict, data: dict):
+        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод POST")
+
+    async def put(self, params: dict, data: dict):
+        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PUT")
+
+    async def patch(self, params: dict, data: dict):
+        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PATCH")
+
+    async def delete(self, params: dict):
+        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод DELETE")
 
 
 @dataclass
@@ -17,7 +57,7 @@ class ApeksApiDbService(AbstractDBRepository):
     table : str
         название таблицы базы данных АпексВУЗ
     repository : ApeksApiRepository
-        репозитория для запросов к API АпексВУЗ
+        репозиторий для запросов к API АпексВУЗ
     token : str
         токен доступа к API АпексВУЗ
     """
@@ -41,8 +81,11 @@ class ApeksApiDbService(AbstractDBRepository):
                 else:
                     values = [str(val) for val in db_value]
                 params[f"filter[{db_filter}][]"] = values
-        logging.debug(f"Созданы параметры для GET запроса к таблице: {self.table}")
-        return await self.repository.get(endpoint, params)
+        response_data = await self.repository.get(endpoint, params)
+        logging.debug(
+            f"Выполнен GET запрос к таблице: {self.table}. Фильтры - {filters}"
+        )
+        return response_data
 
     async def create(self, **fields) -> dict | Any:
         """Создает объект в таблице базы данных АпексВУЗ."""
@@ -51,10 +94,12 @@ class ApeksApiDbService(AbstractDBRepository):
         data = {"table": self.table}
         for db_field, db_value in fields.items():
             data[f"fields[{db_field}]"] = str(db_value)
+        response_data = await self.repository.post(endpoint, params, data)
         logging.debug(
-            f"Созданы параметры для POST (CREATE) запроса к таблице {self.table}"
+            f"Выполнен POST (CREATE) к таблице {self.table}. "
+            f"Поля - {fields}"
         )
-        return await self.repository.post(endpoint, params, data)
+        return response_data
 
     async def update(self, filters: dict, fields: dict) -> dict | Any:
         """Изменяет объекты в таблице базы данных АпексВУЗ."""
@@ -76,10 +121,12 @@ class ApeksApiDbService(AbstractDBRepository):
                 raise ApeksApiException(message)
         for db_field, db_value in fields.items():
             data[f"fields[{db_field}]"] = str(db_value)
+        response_data = await self.repository.post(endpoint, params, data)
         logging.debug(
-            f"Переданы параметры для POST (CREATE) запроса к таблице '{self.table}'"
+            f"Выполнен POST (EDIT) запрос к таблице '{self.table}'. "
+            f"Поля - {fields}. Фильтры - {filters}"
         )
-        return await self.repository.post(endpoint, params, data)
+        return response_data
 
     async def delete(self, **filters) -> dict | Any:
         """Удаляет объекты в таблице базы данных АпексВУЗ."""
@@ -91,7 +138,12 @@ class ApeksApiDbService(AbstractDBRepository):
                 message = "Для операции DELETE передан параметр с пустым значением"
                 logging.error(message)
                 raise ApeksApiException(message)
-        return await self.repository.delete(endpoint, params)
+        response_data = await self.repository.delete(endpoint, params)
+        logging.debug(
+            f"Выполнен DELETE запрос к таблице '{self.table}'. "
+            f"Фильтры - {filters}"
+        )
+        return response_data
 
 
 # При рефакторинге со старой функции убрать преобразование в int

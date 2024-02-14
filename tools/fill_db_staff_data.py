@@ -14,7 +14,7 @@ from app.core.db.staff_models import (
     StaffVariousIllnessTypes
 )
 from app.core.func.app_core import read_json_file
-from app.core.services.db_staff_service import StaffStableBusyTypesCRUDService
+from app.core.services.db_staff_services import StaffStableBusyTypesCRUDService
 from config import FlaskConfig, BASEDIR
 
 
