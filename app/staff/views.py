@@ -12,15 +12,18 @@ from werkzeug.utils import redirect
 from config import ApeksConfig, MongoDBSettings, PermissionsConfig
 from . import bp
 from .forms import (
-    StableStaffForm,
-    create_staff_edit_form,
+    StaffAllowedFacultyAddForm,
+    StaffAllowedFacultyEditForm,
+    StaffLoadForm,
+    create_staff_stable_edit_form,
     StaffForm,
     StaffReportForm,
     StaffStableBusyTypesForm,
+    create_staff_various_edit_form,
 )
 from .func import (
     process_apeks_stable_staff_data,
-    process_full_staff_data,
+    process_stable_staff_data,
     process_document_stable_staff_data,
     process_documents_range_by_busy_type,
     process_documents_range_by_staff_id,
@@ -28,30 +31,350 @@ from .func import (
 from .stable_staff_report import generate_stable_staff_report
 from ..auth.func import permission_required
 from ..core.db.auth_models import Users
+from ..core.forms import ObjectDeleteForm
 from ..core.repository.sqlalchemy_repository import DbRepository
-from ..core.services.apeks_state_departments_service import (
-    get_apeks_state_departments_service,
+from ..core.services.apeks_db_load_groups_service import get_apeks_load_groups_service
+from ..core.services.apeks_db_state_departments_service import (
+    get_db_apeks_state_departments_service,
 )
-from ..core.services.apeks_state_staff_history_service import (
-    get_apeks_state_staff_history_service,
+from ..core.services.apeks_db_state_staff_history_service import (
+    get_db_apeks_state_staff_history_service,
 )
-from ..core.services.apeks_state_staff_positions_service import (
-    get_apeks_state_staff_positions_service,
+from ..core.services.apeks_db_state_staff_positions_service import (
+    get_apeks_db_state_staff_positions_service,
 )
-from ..core.services.apeks_state_staff_service import (
-    get_apeks_state_staff_service,
+from ..core.services.apeks_db_state_staff_service import (
+    get_apeks_db_state_staff_service,
     process_state_staff_data,
 )
-from ..core.services.apeks_state_vacancies_service import (
-    get_apeks_state_vacancies_service,
+from ..core.services.apeks_db_state_vacancies_service import (
+    get_apeks_db_state_vacancies_service,
+)
+from ..core.services.apeks_db_student_student_history_service import (
+    get_apeks_student_student_history_service,
+)
+from ..core.services.apeks_db_student_students_groups_service import (
+    get_apeks_student_students_groups_service,
+)
+from ..core.services.apeks_db_student_students_service import (
+    get_apeks_student_students_service,
+)
+from ..core.services.apeks_schedule_schedule_student_service import (
+    get_apeks_schedule_schedule_student_service,
+    staff_various_groups_data_filter,
 )
 from ..core.services.base_apeks_api_service import data_processor
-from ..core.services.db_staff_service import get_staff_stable_busy_types_service
+from ..core.services.db_staff_services import (
+    get_staff_allowed_faculty_service,
+    get_staff_stable_busy_types_service,
+    get_staff_various_busy_types_service,
+    get_staff_various_illness_types_service,
+)
 from ..core.services.staff_logs_document_service import get_staff_logs_crud_service
 from ..core.services.staff_stable_document_service import (
     get_staff_stable_document_service,
     DocumentStatusType,
 )
+
+
+@bp.route("/staff_data_edit", methods=["GET"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+def staff_data_edit():
+    data = {
+        "Причины отсутствия постоянного состава": url_for(".staff_stable_busy_types"),
+        "Факультеты для данных переменного состава": url_for(".staff_allowed_faculty"),
+        "Причины отсутствия переменного состава": url_for(".staff_various_busy_types"),
+        "Причины отсутствия переменного состава по болезни": url_for(
+            ".staff_various_illness_types"
+        ),
+    }
+    return render_template(
+        "staff/staff_data_info.html",
+        title="Редактировать информацию",
+        data=data,
+    )
+
+
+@dataclass
+class StaffDataGetView(View):
+    """View класс для просмотра списка записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+    @login_required
+    async def dispatch_request(self):
+        paginated_data = self.service.paginated()
+        return render_template(
+            self.template_name,
+            title=self.title,
+            paginated_data=paginated_data,
+            base_view_slug=self.base_view_slug,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types",
+    view_func=StaffDataGetView.as_view(
+        "staff_stable_busy_types",
+        title="Причины отсутствия постоянного состава",
+        template_name="staff/staff_data_types.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_busy_types",
+    view_func=StaffDataGetView.as_view(
+        "staff_various_busy_types",
+        title="Причины отсутствия переменного состава",
+        template_name="staff/staff_data_types.html",
+        service=get_staff_various_busy_types_service(),
+        base_view_slug="staff_various_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_illness_types",
+    view_func=StaffDataGetView.as_view(
+        "staff_various_illness_types",
+        title="Причины отсутствия переменного состава по болезни",
+        template_name="staff/staff_data_types.html",
+        service=get_staff_various_illness_types_service(),
+        base_view_slug="staff_various_illness_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_allowed_faculty",
+    view_func=StaffDataGetView.as_view(
+        "staff_allowed_faculty",
+        title="Факультеты для подачи строевой записки",
+        template_name="staff/staff_allowed_faculty.html",
+        service=get_staff_allowed_faculty_service(),
+        base_view_slug="staff_allowed_faculty",
+    ),
+)
+
+
+@dataclass
+class StaffDataAddView(View):
+    """View класс для добавления записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+    @login_required
+    async def dispatch_request(self):
+        form = StaffStableBusyTypesForm()
+        if request.method == "POST" and form.validate_on_submit():
+            self.service.create(
+                slug=request.form.get("slug"),
+                name=request.form.get("name"),
+                is_active=True if request.form.get("is_active") else False,
+            )
+            flash("Запись успешно добавлена", category="success")
+            return redirect(url_for(f".{self.base_view_slug}"))
+        return render_template(
+            "staff/staff_data_types_edit.html",
+            title=f'Добавить запись в "{self.title}"',
+            base_view_slug=self.base_view_slug,
+            slug_edit_disable=False,
+            form=form,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types_add",
+    view_func=StaffDataAddView.as_view(
+        "staff_stable_busy_types_add",
+        title="Причины отсутствия постоянного состава",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_busy_types_add",
+    view_func=StaffDataAddView.as_view(
+        "staff_various_busy_types_add",
+        title="Причины отсутствия переменного состава",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_various_busy_types_service(),
+        base_view_slug="staff_various_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_illness_types_add",
+    view_func=StaffDataAddView.as_view(
+        "staff_various_illness_types_add",
+        title="Причины отсутствия переменного состава по болезни",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_various_illness_types_service(),
+        base_view_slug="staff_various_illness_types",
+    ),
+)
+
+
+@dataclass
+class StaffDataEditView(View):
+    """View класс для изменения записей."""
+
+    template_name: str
+    title: str
+    service: DbRepository
+    methods = ["GET", "POST"]
+    base_view_slug: str
+
+    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+    @login_required
+    async def dispatch_request(self, id_: int):
+        obj = self.service.get(id=id_)
+        form = StaffStableBusyTypesForm(obj=obj)
+        if request.method == "POST" and form.validate_on_submit():
+            name = request.form.get("name")
+            self.service.update(
+                id_,
+                name=name,
+                is_active=True if request.form.get("is_active") else False,
+            )
+            flash(f"Данные {name} обновлены", category="success")
+            return redirect(url_for(f".{self.base_view_slug}"))
+
+        return render_template(
+            "staff/staff_data_types_edit.html",
+            title=f"Изменить - {obj.name.lower()}",
+            base_view_slug=self.base_view_slug,
+            slug_edit_disable=True,
+            form=form,
+        )
+
+
+bp.add_url_rule(
+    "/staff_stable_busy_types/<int:id_>",
+    view_func=StaffDataEditView.as_view(
+        "staff_stable_busy_types_edit",
+        title="Причина отсутствия постоянного состава",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_stable_busy_types_service(),
+        base_view_slug="staff_stable_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_busy_types/<int:id_>",
+    view_func=StaffDataEditView.as_view(
+        "staff_various_busy_types_edit",
+        title="Причина отсутствия переменного состава",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_various_busy_types_service(),
+        base_view_slug="staff_various_busy_types",
+    ),
+)
+
+bp.add_url_rule(
+    "/staff_various_illness_types/<int:id_>",
+    view_func=StaffDataEditView.as_view(
+        "staff_various_illness_types_edit",
+        title="Причина отсутствия переменного состава по болезни",
+        template_name="staff/staff_data_types_edit.html",
+        service=get_staff_various_illness_types_service(),
+        base_view_slug="staff_various_illness_types",
+    ),
+)
+
+
+@bp.route("/staff_allowed_faculty_add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+async def staff_allowed_faculty_add():
+    student_service = get_apeks_schedule_schedule_student_service()
+    apeks_groups_data = await student_service.get()
+    form = StaffAllowedFacultyAddForm()
+    form.apeks_id.choices = [
+        (faculty.get("id"), faculty.get("name"))
+        for faculty in apeks_groups_data["groups"].values()
+    ]
+    if request.method == "POST" and form.validate_on_submit():
+        faculty_service = get_staff_allowed_faculty_service()
+        faculty_dict = dict(form.apeks_id.choices)
+        apeks_id = int(request.form.get("apeks_id"))
+        name = faculty_dict.get(apeks_id)
+        faculty_service.create(
+            apeks_id=apeks_id,
+            name=name,
+            sort=request.form.get("sort"),
+        )
+        flash(
+            f"Запись {name} успешно добавлена",
+            category="success",
+        )
+        return redirect(url_for(".staff_allowed_faculty"))
+    return render_template(
+        "staff/staff_allowed_faculty_add.html",
+        active="staff",
+        form=form,
+    )
+
+
+@bp.route("/staff_allowed_faculty_edit/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+async def staff_allowed_faculty_edit(id_):
+    faculty_service = get_staff_allowed_faculty_service()
+    obj = faculty_service.get(id=id_)
+    form = StaffAllowedFacultyEditForm(obj=obj)
+    if request.method == "POST" and form.validate_on_submit():
+        faculty_service.update(
+            id_,
+            apeks_id=obj.apeks_id,
+            name=request.form.get("name"),
+            sort=request.form.get("sort"),
+        )
+        flash(
+            f"Запись {obj.name} успешно обновлена",
+            category="success",
+        )
+        return redirect(url_for(".staff_allowed_faculty"))
+    return render_template(
+        "staff/staff_allowed_faculty_edit.html",
+        active="staff",
+        form=form,
+    )
+
+
+@bp.route("/staff_allowed_faculty_delete/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+async def staff_allowed_faculty_delete(id_):
+    faculty_service = get_staff_allowed_faculty_service()
+    obj = faculty_service.get(id=id_)
+    form = ObjectDeleteForm()
+    if request.method == "POST" and form.validate_on_submit():
+        faculty_service.delete(obj.id)
+        flash(
+            f"Запись {obj.name} успешно удалена",
+            category="success",
+        )
+        return redirect(url_for(".staff_allowed_faculty"))
+    return render_template(
+        "staff/staff_allowed_faculty_delete.html",
+        active="staff",
+        obj_data=obj,
+        form=form,
+    )
 
 
 @bp.route("/staff_stable_info", methods=["GET", "POST"])
@@ -75,14 +398,14 @@ async def staff_stable_info():
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
 
     if current_date == dt.date.today().isoformat():
-        departments_service = get_apeks_state_departments_service()
+        departments_service = get_db_apeks_state_departments_service()
         departments = await departments_service.get_departments()
-        staff_history_service = get_apeks_state_staff_history_service()
+        staff_history_service = get_db_apeks_state_staff_history_service()
         staff_history = data_processor(
             await staff_history_service.get_staff_for_date(dt.date.today()),
             key="staff_id",
         )
-        state_vacancies_service = get_apeks_state_vacancies_service()
+        state_vacancies_service = get_apeks_db_state_vacancies_service()
         state_vacancies = data_processor(await state_vacancies_service.list())
         staff_data = process_apeks_stable_staff_data(
             departments,
@@ -97,10 +420,14 @@ async def staff_stable_info():
         }
         for dept_type in staff_data:
             for dept in staff_data[dept_type]:
-                for item_name in military_data:
-                    military_data[item_name] += staff_data[dept_type][dept].get(
-                        item_name, 0
-                    )
+                if all(
+                    isinstance(staff_data[dept_type][dept].get(item_name), int)
+                    for item_name in military_data
+                ):
+                    for item_name in military_data:
+                        military_data[item_name] += staff_data[dept_type][dept].get(
+                            item_name
+                        )
     else:
         military_data = None
 
@@ -169,7 +496,7 @@ async def staff_stable_report():
 @bp.route("/staff_stable_load", methods=["GET", "POST"])
 @login_required
 async def staff_stable_load():
-    form = StableStaffForm()
+    form = StaffLoadForm()
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
@@ -210,13 +537,13 @@ async def staff_stable_load():
             busy_types = {item.slug: item.name for item in busy_types_service.list()}
             filename = generate_stable_staff_report(current_data, busy_types)
             return redirect(url_for("main.get_file", filename=filename))
-    departments_service = get_apeks_state_departments_service()
+    departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments()
-    staff_history_service = get_apeks_state_staff_history_service()
+    staff_history_service = get_db_apeks_state_staff_history_service()
     staff_history = data_processor(
         await staff_history_service.get_staff_for_date(working_date), key="staff_id"
     )
-    state_vacancies_service = get_apeks_state_vacancies_service()
+    state_vacancies_service = get_apeks_db_state_vacancies_service()
     state_vacancies = data_processor(await state_vacancies_service.list())
     staff_data = process_apeks_stable_staff_data(
         departments, staff_history, current_data, state_vacancies
@@ -239,7 +566,7 @@ async def staff_stable_edit(department_id):
         if request.args.get("date")
         else dt.date.today()
     )
-    staff_history_service = get_apeks_state_staff_history_service()
+    staff_history_service = get_db_apeks_state_staff_history_service()
     staff_history = await staff_history_service.get_staff_for_date(
         working_date, department_id=department_id
     )
@@ -249,23 +576,25 @@ async def staff_stable_edit(department_id):
         for item in staff_history
         if item.get("vacancy_id") and item.get("value") == "1"
     }
-    departments_service = get_apeks_state_departments_service()
+    departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments()
     department_data = departments.get(department_id)
     department_name = department_data.get("short")
     department_type = department_data.get("type")
-    state_staff_service = get_apeks_state_staff_service()
+    state_staff_service = get_apeks_db_state_staff_service()
     state_staff = process_state_staff_data(
         await state_staff_service.get(id=staff_ids.keys())
     )
-    state_staff_positions_service = get_apeks_state_staff_positions_service()
+    state_staff_positions_service = get_apeks_db_state_staff_positions_service()
     state_staff_positions = data_processor(await state_staff_positions_service.list())
-    full_staff_data = process_full_staff_data(
+    full_staff_data = process_stable_staff_data(
         staff_ids, state_staff_positions, state_staff
     )
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = busy_types_service.list(is_active=1)
-    form = create_staff_edit_form(staff_data=full_staff_data, busy_types=busy_types)
+    form = create_staff_stable_edit_form(
+        staff_data=full_staff_data, busy_types=busy_types
+    )
     staff_stable_service = get_staff_stable_document_service()
     document_data = staff_stable_service.get({"date": working_date.isoformat()})
     if request.method == "POST" and form.validate_on_submit():
@@ -337,140 +666,3 @@ async def staff_stable_edit(department_id):
         staff_data=full_staff_data,
         status=document_data.get("status"),
     )
-
-
-@bp.route("/staff_data_edit", methods=["GET"])
-@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
-@login_required
-def staff_data_edit():
-    data = {
-        "Причины отсутствия постоянного состава": url_for(".staff_stable_busy_types"),
-    }
-    return render_template(
-        "staff/staff_data_edit.html",
-        title="Редактировать информацию",
-        data=data,
-    )
-
-
-@dataclass
-class StaffDataGetView(View):
-    """View класс для просмотра списка записей."""
-
-    template_name: str
-    title: str
-    service: DbRepository
-    methods = ["GET", "POST"]
-    base_view_slug: str
-
-    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
-    @login_required
-    async def dispatch_request(self):
-        paginated_data = self.service.paginated()
-        return render_template(
-            self.template_name,
-            title=self.title,
-            paginated_data=paginated_data,
-            base_view_slug=self.base_view_slug,
-        )
-
-
-bp.add_url_rule(
-    "/staff_stable_busy_types",
-    view_func=StaffDataGetView.as_view(
-        "staff_stable_busy_types",
-        title="Причины отсутствия постоянного состава",
-        template_name="staff/staff_busy_types.html",
-        service=get_staff_stable_busy_types_service(),
-        base_view_slug="staff_stable_busy_types",
-    ),
-)
-
-
-@dataclass
-class StaffDataAddView(View):
-    """View класс для добавления записей."""
-
-    template_name: str
-    title: str
-    service: DbRepository
-    methods = ["GET", "POST"]
-    base_view_slug: str
-
-    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
-    @login_required
-    async def dispatch_request(self):
-        form = StaffStableBusyTypesForm()
-        if request.method == "POST" and form.validate_on_submit():
-            self.service.create(
-                slug=request.form.get("slug"),
-                name=request.form.get("name"),
-                is_active=True if request.form.get("is_active") else False,
-            )
-            flash("Запись успешно добавлена", category="success")
-            return redirect(url_for(f".{self.base_view_slug}"))
-        return render_template(
-            "staff/staff_busy_types_edit.html",
-            title=f'Добавить запись в "{self.title}"',
-            base_view_slug=self.base_view_slug,
-            slug_edit_disable=False,
-            form=form,
-        )
-
-
-bp.add_url_rule(
-    "/staff_stable_busy_types_add",
-    view_func=StaffDataAddView.as_view(
-        "staff_stable_busy_types_add",
-        title="Причины отсутствия постоянного состава",
-        template_name="staff/staff_busy_types_edit.html",
-        service=get_staff_stable_busy_types_service(),
-        base_view_slug="staff_stable_busy_types",
-    ),
-)
-
-
-@dataclass
-class StaffDataEditView(View):
-    """View класс для изменения записей."""
-
-    template_name: str
-    title: str
-    service: DbRepository
-    methods = ["GET", "POST"]
-    base_view_slug: str
-
-    @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
-    @login_required
-    async def dispatch_request(self, id_: int):
-        obj = self.service.get(id=id_)
-        form = StaffStableBusyTypesForm(obj=obj)
-        if request.method == "POST" and form.validate_on_submit():
-            name = request.form.get("name")
-            self.service.update(
-                id_,
-                name=name,
-                is_active=True if request.form.get("is_active") else False,
-            )
-            flash(f"Данные {name} обновлены", category="success")
-            return redirect(url_for(f".{self.base_view_slug}"))
-
-        return render_template(
-            "staff/staff_busy_types_edit.html",
-            title=f"Изменить - {obj.name.lower()}",
-            base_view_slug=self.base_view_slug,
-            slug_edit_disable=True,
-            form=form,
-        )
-
-
-bp.add_url_rule(
-    "/staff_stable_busy_types/<int:id_>",
-    view_func=StaffDataEditView.as_view(
-        "staff_stable_busy_types_edit",
-        title="Причина отсутствия постоянного состава",
-        template_name="staff/staff_busy_types_edit.html",
-        service=get_staff_stable_busy_types_service(),
-        base_view_slug="staff_stable_busy_types",
-    ),
-)
