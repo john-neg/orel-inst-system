@@ -78,7 +78,7 @@ def create_staff_various_edit_form(
 
     # Добавляем людей
     for student in students_data:
-        label = f"staff_id_{student.get('id')}"
+        label = f"student_id_{student.get('id')}"
         field = SelectField(
             label="Местонахождение",
             coerce=str,

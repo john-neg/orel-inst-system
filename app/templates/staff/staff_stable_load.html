@@ -17,7 +17,7 @@
               {% for dept_type in staff_data %}
                 <thead>
                   <tr>
-                    <th class="text-center mb-1 text-uppercase" colspan="5" style="background: var(--bs-table-border-color);">{{ dept_type }}</th>
+                    <th class="table-dark text-center mb-1 text-uppercase" colspan="5">{{ dept_type }}</th>
                   </tr>
                 </thead>
                 <thead>
@@ -30,27 +30,27 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for dept_data in staff_data[dept_type] %}
+                  {% for dept_id, dept_data in staff_data[dept_type].items() %}
                     <tr>
-                      <td>{{ staff_data[dept_type][dept_data].get("name") }}</td>
-                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_total") }}</td>
-                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_stock") }}</td>
-                      <td class="text-center">{{ staff_data[dept_type][dept_data].get("staff_absence") }}</td>
+                      <td>{{ dept_data.get("name") }}</td>
+                      <td class="text-center">{{ dept_data.get("staff_total") }}</td>
+                      <td class="text-center">{{ dept_data.get("staff_stock") if dept_data.get("staff_stock") is not none else "нет данных" }}</td>
+                      <td class="text-center">{{ dept_data.get("staff_absence") if dept_data.get("staff_absence") is not none else "нет данных" }}</td>
                       <td class="text-center">
                         {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
-                          {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
+                          {% if dept_data.get("staff_absence") is none %}
                             <a class="btn btn-primary btn-sm" role="button"
-                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Добавить</a>
+                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_id, date=date) }}">Добавить</a>
                           {% else %}
                             <a class="btn btn-warning btn-sm" role="button"
-                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Изменить</a>
+                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_id, date=date) }}">Изменить</a>
                           {% endif %}
                         {% else %}
-                          {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}
+                          {% if dept_data.get("staff_absence") is none %}
                             <div class="fw-bold text text-danger">нет данных<div>
                           {% else %}
                             <a class="btn btn-success btn-sm" role="button"
-                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Просмотр</a>
+                               href="{{ url_for("staff.staff_stable_edit", department_id=dept_id, date=date) }}">Просмотр</a>
                           {% endif %}
                         {% endif %}
                       </td>

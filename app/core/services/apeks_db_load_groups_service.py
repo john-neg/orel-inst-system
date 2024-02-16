@@ -7,6 +7,18 @@ class ApeksLoadGroupsService(ApeksApiDbService):
     """
     Класс для CRUD операций модели LoadGroups.
 
+    """
+    pass
+
+
+def get_apeks_load_groups_service(
+        table: str = ApeksConfig.LOAD_GROUPS_TABLE,
+        repository: ApeksApiRepository = ApeksApiRepository(),
+        token: str = ApeksConfig.TOKEN,
+) -> ApeksLoadGroupsService:
+    """
+    Возвращает CRUD сервис для таблицы load_groups.
+
     Пример данных модели:
     {'id': '46',
     'name': '17з2пд',
@@ -22,13 +34,4 @@ class ApeksLoadGroupsService(ApeksApiDbService):
     'registration_ignore_limit': '0',
     'end_date': None}
     """
-    pass
-
-
-def get_apeks_load_groups_service(
-        table: str = ApeksConfig.LOAD_GROUPS_TABLE,
-        repository: ApeksApiRepository = ApeksApiRepository(),
-        token: str = ApeksConfig.TOKEN,
-) -> ApeksLoadGroupsService:
-    """Возвращает CRUD сервис для таблицы load_groups."""
     return ApeksLoadGroupsService(table=table, repository=repository, token=token)

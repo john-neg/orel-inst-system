@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 from config import ApeksConfig
 from .base_apeks_api_service import ApeksApiBaseService
-from ..db.staff_models import StaffAllowedFaculty
 from ..repository.apeks_api_repository import ApeksApiEndpoints, ApeksApiRepository
 
 
@@ -46,18 +45,6 @@ class ApeksScheduleScheduleStudentService(ApeksApiBaseService):
             f"staff_id: {str(group_id)}, month: {str(month)}, year: {str(year)}"
         )
         return response_data
-
-
-def staff_various_groups_data_filter(
-        groups_data: dict, allowed_faculty: list[StaffAllowedFaculty]
-):
-    """Фильтрует данные факультетов, отсутствующих в таблице StaffAllowedFaculty."""
-    faculties = [faculty.apeks_id for faculty in allowed_faculty]
-    if groups_data.get("groups"):
-        for group_id in list(groups_data["groups"]):
-            if int(group_id) not in faculties:
-                del groups_data["groups"][group_id]
-    return groups_data
 
 
 def get_apeks_schedule_schedule_student_service(

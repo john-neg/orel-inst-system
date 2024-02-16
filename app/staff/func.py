@@ -4,7 +4,15 @@ from typing import Any
 from flask import flash
 from pymongo.cursor import Cursor
 
+from app.core.db.staff_models import StaffAllowedFaculty
 from config import ApeksConfig
+
+
+def make_short_name(family_name: str, name: str, surname: str = None) -> str:
+    """Создает короткое имя формата Иванов И.И."""
+    name_letter = f"{name[0]}." if name else ''
+    surname_letter = f"{surname[0]}." if surname else ''
+    return f"{family_name} {name_letter}{surname_letter}"
 
 
 def process_apeks_stable_staff_data(
@@ -65,17 +73,15 @@ def process_apeks_stable_staff_data(
                     ]
                 )
             else:
-                dept_absence = dept_military_absence = "нет данных"
+                dept_absence = dept_military_absence = None
 
             dept_stock = (
-                dept_total - dept_absence
-                if isinstance(dept_absence, int)
-                else "нет данных"
+                dept_total - dept_absence if isinstance(dept_absence, int) else None
             )
             dept_military_stock = (
                 dept_military_total - dept_military_absence
                 if isinstance(dept_military_absence, int)
-                else "нет данных"
+                else None
             )
 
             type_data = staff_data[dept_type]
@@ -86,7 +92,7 @@ def process_apeks_stable_staff_data(
                 "staff_stock": dept_stock,
                 "staff_military_total": dept_military_total,
                 "staff_military_absence": dept_military_absence,
-                "staff_military_stock": dept_military_stock
+                "staff_military_stock": dept_military_stock,
             }
     return staff_data
 
@@ -125,7 +131,7 @@ def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, A
 def process_stable_staff_data(
     staff_ids: dict[str, Any],
     state_staff_positions: dict[str, Any],
-    state_staff: dict[str, Any]
+    state_staff: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """
     Формирует данные о личном составе с должностями и позициями сортировки.
@@ -225,3 +231,61 @@ def process_documents_range_by_staff_id(
             logging.error(message)
             flash(message, "danger")
     return dict(sorted(processed_data.items(), key=lambda x: x[1].get("name")))
+
+
+def staff_various_groups_data_filter(
+    groups_data: dict, allowed_faculty: list[StaffAllowedFaculty]
+) -> dict:
+    """
+    Обрабатывает данные факультетов. Фильтрует отсутствующие в таблице
+    StaffAllowedFaculty, удаляет архив данных о группа и заменяет название
+    факультета из базы данных.
+    """
+    groups_result = {}
+    if groups_data.get("groups"):
+        for faculty in allowed_faculty:
+            faculty_data = groups_data["groups"].get(str(faculty.apeks_id))
+            if faculty_data is not None:
+                if faculty_data.get("archive"):
+                    del faculty_data["archive"]
+                faculty_data["name"] = faculty.name
+                groups_result[faculty.apeks_id] = faculty_data
+    return groups_result
+
+
+def process_apeks_various_group_data(
+    groups_data: dict[str, Any],
+    document_data: dict[str, Any],
+) -> dict:
+    """
+    Добавляет информацию о наличии личного состава в данные о группах.
+
+    :param groups_data: данные о группах
+    :param document_data: данные документа на определенную дату
+    """
+
+    for faculty_data in groups_data.values():
+        if faculty_data.get("items"):
+            for course_data in faculty_data["items"].values():
+                if course_data.get("items"):
+                    for group_data in course_data["items"].values():
+                        group_id = group_data.get("id")
+                        group_data["student_stock"] = None
+                        group_data["student_absence"] = None
+                        if document_data["groups"].get(group_id):
+                            document_group = document_data["groups"][group_id]
+                            # group_data["student_total"] = document_group.get("total")
+                            group_data["student_absence"] = sum(
+                                len(absence)
+                                for absence in document_group["absence"].values()
+                            ) + sum(
+                                len(absence)
+                                for absence in document_group[
+                                    "absence_illness"
+                                ].values()
+                            )
+                            group_data["student_stock"] = (
+                                group_data["student_count"]
+                                - group_data["student_absence"]
+                            )
+    return groups_data

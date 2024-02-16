@@ -14,28 +14,28 @@
         <div class="col-md-10 col-xl-8">
           <div class="table-responsive">
             <table class="table table-sm mt-3">
-              {% if groups_data.get('groups') %}
+              {% if groups_data %}
                 <thead>
                   <tr>
-                    <th class="text-center mb-1 text-uppercase" colspan="5" style="background: var(--bs-table-border-color);">Факультеты</th>
+                    <th class="table-dark text-center mb-1 text-uppercase" colspan="5">Факультеты</th>
                   </tr>
                 </thead>
-                {% for dept_data in groups_data['groups'].values() %}
+                {% for dept_data in groups_data.values() %}
                   <thead>
                     <tr>
-                      <th class="text-center mb-1 text-uppercase" colspan="5" style="background: var(--bs-table-border-color);">{{ dept_data.get('name') }}</th>
+                      <th class="table-primary text-center mb-1 text-uppercase" colspan="5">{{ dept_data.get('name') }}</th>
                     </tr>
                   </thead>
                   <thead>
                     <tr>
-                      <th>Название</th>
+                      <th class="text-center">Название</th>
                       <th class="text-center">По списку</th>
                       <th class="text-center">В строю</th>
                       <th class="text-center">Отсутствуют</th>
                       <th class="text-center">Действия</th>
                     </tr>
                   </thead>
-                  {% for course_data in dept_data['items'].values() %}
+                  {% for course_number, course_data in dept_data['items'].items() %}
                     {% if dept_data['items']|length > 1 %}
                       <thead>
                         <tr>
@@ -45,30 +45,32 @@
                     {% endif %}
                     <tbody>
                     {% for group_id, group_data in course_data['items'].items() %}
-                      <tr>
-                        <td>{{ group_data.get("name") }}</td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center">
-{#                          {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}#}
-{#                            {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}#}
-                              <a class="btn btn-primary btn-sm" role="button"
-                                 href="{{ url_for("staff.staff_various_edit", group_id=group_id, date=date) }}">Добавить</a>
-{#                            {% else %}#}
-{#                              <a class="btn btn-warning btn-sm" role="button"#}
-{#                                 href="{{ url_for("staff.staff_various_edit", group_id=dept_data, date=date) }}">Изменить</a>#}
-{#                            {% endif %}#}
-{#                          {% else %}#}
-{#                            {% if staff_data[dept_type][dept_data].get("staff_absence") == "нет данных" %}#}
-{#                              <div class="fw-bold text text-danger">нет данных<div>#}
-{#                            {% else %}#}
-{#                              <a class="btn btn-success btn-sm" role="button"#}
-{#                                 href="{{ url_for("staff.staff_stable_edit", department_id=dept_data, date=date) }}">Просмотр</a>#}
-{#                            {% endif %}#}
-{#                          {% endif %}#}
-                        </td>
-                      </tr>
+                      {% if group_data.get("student_count") %}
+                        <tr>
+                          <td class="text-center">{{ group_data.get("name") }}</td>
+                          <td class="text-center">{{ group_data.get("student_count") if group_data.get("student_count") is not none else "нет данных"}}</td>
+                          <td class="text-center">{{ group_data.get("student_stock") if group_data.get("student_stock") is not none else "нет данных" }}</td>
+                          <td class="text-center">{{ group_data.get("student_absence") if group_data.get("student_absence") is not none else "нет данных" }}</td>
+                          <td class="text-center">
+                            {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
+                              {% if group_data.get("student_absence") is none %}
+                                <a class="btn btn-primary btn-sm" role="button"
+                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Добавить</a>
+                              {% else %}
+                                <a class="btn btn-warning btn-sm" role="button"
+                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Изменить</a>
+                              {% endif %}
+                            {% else %}
+                              {% if group_data.get("student_absence") is none %}
+                                <div class="fw-bold text text-danger">нет данных<div>
+                              {% else %}
+                                <a class="btn btn-success btn-sm" role="button"
+                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Просмотр</a>
+                              {% endif %}
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endif %}
                     {% endfor %}
                   {% endfor %}
                   </tbody>
@@ -81,18 +83,17 @@
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8 mt-3 mb-3">
           <div class="btn-group" role="group">
-{#          {% if has_permission(config.STAFF_CLOSE_DOCUMENT_PERMISSION) %}#}
-{#            {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}#}
-{#              {{ form.finish_edit(class="btn btn-danger fw-bold") }}#}
-{#            {% elif doc_status == config.STAFF_COMPLETED_STATUS %}#}
-{#              {{ form.enable_edit(class="btn btn-warning fw-bold") }}#}
-{#            {% endif %}#}
-{#          {% endif %}#}
+          {% if has_permission(config.STAFF_CLOSE_DOCUMENT_PERMISSION) %}
+            {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
+              {{ form.finish_edit(class="btn btn-danger fw-bold") }}
+            {% elif doc_status == config.STAFF_COMPLETED_STATUS %}
+              {{ form.enable_edit(class="btn btn-warning fw-bold") }}
+            {% endif %}
+          {% endif %}
             {{ form.make_report(class="btn btn-success fw-bold") }}
           </div>
         </div>
       </div>
     </div>
   </form>
-  {{ groups_data }}
 {% endblock %}

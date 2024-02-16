@@ -69,7 +69,7 @@
                 {% if has_permission(config.STAFF_REPORT_PERMISSION) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_stable_report') }}">Постоянный состав (отчет)</a>
                 {% endif %}
-{#                <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_various_load') }}">Переменный состав</a>#}
+                <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_various_load') }}">Переменный состав</a>
                 {% if has_permission(config.STAFF_BUSY_TYPES_EDIT_PERMISSION) %}
                   <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_data_edit') }}">Справочник</a>
                 {% endif %}

@@ -14,38 +14,42 @@ from ..repository.mongo_db_repository import MongoDbRepository
 
 
 @dataclass
-class StaffStableDocStructure:
-    """Класс структуры данных строевой записки постоянного состава."""
+class StaffVariousDocStructure:
+    """Класс структуры данных строевой записки переменного состава."""
 
     date: datetime.date
-    departments: dict[str, Any]
+    groups: dict[str, Any]
     status: DocumentStatusType
 
     def __dict__(self):
         return dict(
             date=self.date.isoformat(),
-            departments=self.departments,
+            groups=self.groups,
             status=self.status.value,
         )
 
 
 @dataclass
-class StaffStableDepartmentDocStructure:
+class StaffVariousGroupDocStructure:
     """
-    Класс структуры данных о подразделениях постоянного состава.
+    Класс структуры данных о группах переменного состава.
 
     Attributes
     ----------
     id: str
-        id подразделения в Апекс-ВУЗ
+        id группы в Апекс-ВУЗ
     name: str
-        Название подразделения
-    type: str
-        Тип подразделения
+        Название группы
+    faculty: str
+        Название факультета
+    course: str
+        Номер курса
     total: int
         Общее количество людей
     absence: dict
         Информация об отсутствии
+    absence_illness: dict
+        Информация об отсутствии по болезни
     user: str
         Имя пользователя системы
     updated: str
@@ -54,16 +58,18 @@ class StaffStableDepartmentDocStructure:
 
     id: str
     name: str
-    type: str
+    faculty: str
+    course: str
     total: int
     absence: dict
+    absence_illness: dict
     user: str
     updated: str
 
 
 @dataclass
-class StaffStableCRUDService(BaseMongoDbCrudService):
-    """Класс для CRUD операций модели StaffStable"""
+class StaffVariousCRUDService(BaseMongoDbCrudService):
+    """Класс для CRUD операций модели StaffVarious."""
 
     def change_status(
         self, _id: str | ObjectId, status: DocumentStatusType
@@ -78,23 +84,23 @@ class StaffStableCRUDService(BaseMongoDbCrudService):
 
     def make_blank_document(self, document_date: datetime.date) -> InsertOneResult:
         """Создает пустой документ с заданной датой."""
-        document = StaffStableDocStructure(
+        document = StaffVariousDocStructure(
             date=document_date,
-            departments=dict(),
+            groups=dict(),
             status=DocumentStatusType.IN_PROGRESS,
         )
         result_info = self.create(document.__dict__())
         logging.info(
-            f"Создан документ - строевая записка постоянного состава "
+            f"Создан документ - строевая записка переменного состава "
             f"за {document_date.isoformat()}. {result_info}"
         )
         return result_info
 
 
-def get_staff_stable_document_service(
+def get_staff_various_document_service(
     mongo_db: Database = get_mongo_db(),
-    collection_name: str = MongoDBSettings.STAFF_STABLE_COLLECTION,
-) -> StaffStableCRUDService:
-    return StaffStableCRUDService(
+    collection_name: str = MongoDBSettings.STAFF_VARIOUS_COLLECTION,
+) -> StaffVariousCRUDService:
+    return StaffVariousCRUDService(
         repository=MongoDbRepository(mongo_db, collection_name)
     )

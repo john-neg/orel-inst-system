@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from functools import singledispatchmethod
 from typing import Optional
 
@@ -6,6 +7,7 @@ from bson import ObjectId
 from pymongo.cursor import Cursor
 from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
+from config import MongoDBSettings
 from ..repository.mongo_db_repository import DocumentType, MongoDbRepository
 
 
@@ -37,3 +39,10 @@ class BaseMongoDbCrudService:
 
     def delete(self, query_filter, *args, **kwargs) -> DeleteResult:
         return self.repository.delete(query_filter, *args, **kwargs)
+
+
+class DocumentStatusType(str, Enum):
+    """Класс статусов документа строевой записки."""
+
+    IN_PROGRESS = MongoDBSettings.STAFF_IN_PROGRESS_STATUS
+    COMPLETED = MongoDBSettings.STAFF_COMPLETED_STATUS

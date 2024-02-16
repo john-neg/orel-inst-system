@@ -25,10 +25,10 @@
                 <tr>
                   <td hidden="hidden">{{ student.get('id') }}</td>
                   <td class="text-center">{{ num }}</td>
-                  <td class="text-center">{{ student.get('family_name') }} {{ student.get('name')[0] }}.{{ student.get('surname')[0] }}.</td>
+                  <td class="text-center">{{ student.get('short_name') }}</td>
                   <td class="text-center">
                     {% for item in form %}
-                      {% if item.label.field_id == 'staff_id_' + student.get('id') %}
+                      {% if item.label.field_id == 'student_id_' + student.get('id') %}
                         <div class="row mb-1">
                           <div class="col">
                             {{ item(class="form-select text-dark") }}
