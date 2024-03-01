@@ -46,3 +46,11 @@ class DocumentStatusType(str, Enum):
 
     IN_PROGRESS = MongoDBSettings.STAFF_IN_PROGRESS_STATUS
     COMPLETED = MongoDBSettings.STAFF_COMPLETED_STATUS
+
+
+class VariousStaffDaytimeType(str, Enum):
+    """Класс статусов документа строевой записки."""
+
+    MORNING = "morning"
+    DAY = "day"
+    EVENING = "evening"

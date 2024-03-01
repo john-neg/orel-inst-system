@@ -63,6 +63,7 @@ from ..core.services.apeks_schedule_schedule_student_service import (
     get_apeks_schedule_schedule_student_service,
 )
 from ..core.services.base_apeks_api_service import data_processor
+from ..core.services.base_mongo_db_crud_service import VariousStaffDaytimeType
 from ..core.services.db_staff_services import (
     get_staff_allowed_faculty_service,
     get_staff_stable_busy_types_service,
@@ -680,49 +681,68 @@ async def staff_stable_edit(department_id):
 @login_required
 async def staff_various_load():
     form = StaffLoadForm()
+
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
         else dt.date.today()
     )
-    staff_various_service = get_staff_various_document_service()
-    document_data = staff_various_service.get(
-        query_filter={"date": working_date.isoformat()}
-    )
-    if not document_data:
-        staff_various_service.make_blank_document(working_date)
-        document_data = staff_various_service.get(
-            query_filter={"date": working_date.isoformat()}
-        )
-    allowed_faculty_service = get_staff_allowed_faculty_service()
-    student_service = get_apeks_schedule_schedule_student_service()
-    groups_data = staff_various_groups_data_filter(
-        await student_service.get(), allowed_faculty_service.list()
-    )
 
-    groups_data = process_apeks_various_group_data(groups_data, document_data)
+    daytime = request.args.get("daytime")
+    if daytime:
+        try:
+            daytime = VariousStaffDaytimeType(request.args.get("daytime"))
+        except ValueError:
+            flash(f"Передан неверный параметр времени - {daytime}", category="danger")
+    else:
+        daytime = VariousStaffDaytimeType("morning")
 
-    if request.method == "POST" and form.validate_on_submit():
-        if request.form.get("finish_edit"):
-            result = staff_various_service.change_status(
-                _id=document_data.get("_id"),
-                status=DocumentStatusType.COMPLETED.value,
-            )
-            logging.info(
-                f"{current_user} запретил редактирование "
-                f"документа {working_date.isoformat()}: {result}"
-            )
-            return redirect(url_for("staff.staff_various_load"))
-        elif request.form.get("enable_edit"):
-            result = staff_various_service.change_status(
-                _id=document_data.get("_id"),
-                status=DocumentStatusType.IN_PROGRESS.value,
-            )
-            logging.info(
-                f"{current_user} разрешил редактирование "
-                f"документа {working_date.isoformat()}: {result}"
-            )
-            return redirect(url_for("staff.staff_various_load"))
+
+    groups_data = {}
+    document_data = {"status": DocumentStatusType.IN_PROGRESS}
+    # staff_various_service = get_staff_various_document_service()
+    # document_data = staff_various_service.get(
+    #     query_filter={"date": working_date.isoformat(), "daytime": daytime}
+    # )
+    #
+    # if not document_data:
+    #     staff_various_service.make_blank_document(working_date, daytime)
+    #     document_data = staff_various_service.get(
+    #         query_filter={"date": working_date.isoformat()}
+    #     )
+    #
+    # allowed_faculty_service = get_staff_allowed_faculty_service()
+    # student_service = get_apeks_schedule_schedule_student_service()
+    # groups_data = staff_various_groups_data_filter(
+    #     await student_service.get(), allowed_faculty_service.list()
+    # )
+
+    # groups_data = process_apeks_various_group_data(groups_data, document_data)
+
+    # if request.method == "POST" and form.validate_on_submit():
+    #     daytime = "evening"
+    #     if request.form.get("finish_edit"):
+    #         result = staff_various_service.change_status(
+    #             _id=document_data.get("_id"),
+    #             daytime=daytime,
+    #             status=DocumentStatusType.COMPLETED.value,
+    #         )
+    #         logging.info(
+    #             f"{current_user} запретил редактирование "
+    #             f"документа {working_date.isoformat()}: {result}"
+    #         )
+    #         return redirect(url_for("staff.staff_various_load"))
+    #     elif request.form.get("enable_edit"):
+    #         result = staff_various_service.change_status(
+    #             _id=document_data.get("_id"),
+    #             daytime=daytime,
+    #             status=DocumentStatusType.IN_PROGRESS.value,
+    #         )
+    #         logging.info(
+    #             f"{current_user} разрешил редактирование "
+    #             f"документа {working_date.isoformat()}: {result}"
+    #         )
+    #         return redirect(url_for("staff.staff_various_load"))
         # elif request.form.get("make_report"):
         #     busy_types = {item.slug: item.name for item in busy_types_service.list()}
         #     filename = generate_stable_staff_report(document_data, busy_types)
@@ -733,6 +753,7 @@ async def staff_various_load():
         active="staff",
         form=form,
         date=working_date,
+        daytime=daytime,
         groups_data=groups_data,
         doc_status=document_data.get("status"),
     )
@@ -770,7 +791,7 @@ async def staff_various_edit(group_id, course):
         for student in await student_history_service.get(
             student_id=group_students.keys(),
             type=ApeksConfig.STUDENT_HISTORY_RECORD_TYPES.keys(),
-
+            group_id=group_id,
         )
     ]
 
