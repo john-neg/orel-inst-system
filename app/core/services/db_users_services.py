@@ -56,8 +56,6 @@ def get_users_service(
 class UsersRolesCRUDService(DbRepository[UsersRoles]):
     """Класс для CRUD операций модели UsersRoles."""
 
-    pass
-
 
 def get_users_roles_service(
         model: type[UsersRoles] = UsersRoles,
@@ -71,8 +69,6 @@ def get_users_roles_service(
 
 class UsersPermissionsCRUDService(DbRepository[UsersPermissions]):
     """Класс для CRUD операций модели UsersPermissions."""
-
-    pass
 
 
 def get_users_permissions_service(

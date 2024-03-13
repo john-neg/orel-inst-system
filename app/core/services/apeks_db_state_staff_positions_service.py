@@ -22,8 +22,6 @@ class ApeksDbStateStaffPositionsService(ApeksApiDbService):
      'max_hours_classroom': None}
     """
 
-    pass
-
 
 def get_apeks_db_state_staff_positions_service(
     table: str = ApeksConfig.STATE_STAFF_POSITIONS_TABLE,

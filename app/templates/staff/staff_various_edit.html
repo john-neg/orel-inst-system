@@ -4,7 +4,7 @@
     <h3 class="text-center text-dark mb-1">
       {% block title %}Строевая записка{% endblock %}
     </h3>
-      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
+      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }} - {{ config.DAYTIME_NAME.get(daytime) }}</h4>
       <h4 class="fw-normal text-center text-dark mb-1">Группа - {{ group }}</h4>
   </div>
   <form method="post">
@@ -48,7 +48,7 @@
             {% if status == config.STAFF_IN_PROGRESS_STATUS %}
               <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
             {% endif %}
-            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load') }}">Назад</a>
+            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load', daytime=daytime) }}">Назад</a>
           </div>
         </div>
       </div>

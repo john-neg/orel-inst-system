@@ -21,7 +21,6 @@ class ApeksStudentStudentsService(ApeksApiDbService):
     'job_position_id': None,
     'external_id': '4703'}
     """
-    pass
 
 
 def get_apeks_student_students_service(

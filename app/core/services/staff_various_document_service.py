@@ -24,6 +24,8 @@ class StaffVariousGroupDocStructure:
         id группы в Апекс-ВУЗ
     name: str
         Название группы
+    type: str
+        Тип подразделения
     daytime: str
         Время суток
     faculty: str
@@ -44,6 +46,7 @@ class StaffVariousGroupDocStructure:
 
     id: str
     name: str
+    type: str
     daytime: VariousStaffDaytimeType
     faculty: str
     course: str
@@ -91,7 +94,7 @@ class StaffVariousCRUDService(BaseMongoDbCrudService):
         """Создает пустой документ с заданной датой."""
         document = StaffVariousDocStructure(
             date=document_date,
-            daytime=daytime,
+            daytime=daytime.value,
             groups=dict(),
             status=DocumentStatusType.IN_PROGRESS,
         )

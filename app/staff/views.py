@@ -681,13 +681,11 @@ async def staff_stable_edit(department_id):
 @login_required
 async def staff_various_load():
     form = StaffLoadForm()
-
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
         else dt.date.today()
     )
-
     daytime = request.args.get("daytime")
     if daytime:
         try:
@@ -695,54 +693,43 @@ async def staff_various_load():
         except ValueError:
             flash(f"Передан неверный параметр времени - {daytime}", category="danger")
     else:
-        daytime = VariousStaffDaytimeType("morning")
-
-
-    groups_data = {}
-    document_data = {"status": DocumentStatusType.IN_PROGRESS}
-    # staff_various_service = get_staff_various_document_service()
-    # document_data = staff_various_service.get(
-    #     query_filter={"date": working_date.isoformat(), "daytime": daytime}
-    # )
-    #
-    # if not document_data:
-    #     staff_various_service.make_blank_document(working_date, daytime)
-    #     document_data = staff_various_service.get(
-    #         query_filter={"date": working_date.isoformat()}
-    #     )
-    #
-    # allowed_faculty_service = get_staff_allowed_faculty_service()
-    # student_service = get_apeks_schedule_schedule_student_service()
-    # groups_data = staff_various_groups_data_filter(
-    #     await student_service.get(), allowed_faculty_service.list()
-    # )
-
-    # groups_data = process_apeks_various_group_data(groups_data, document_data)
-
-    # if request.method == "POST" and form.validate_on_submit():
-    #     daytime = "evening"
-    #     if request.form.get("finish_edit"):
-    #         result = staff_various_service.change_status(
-    #             _id=document_data.get("_id"),
-    #             daytime=daytime,
-    #             status=DocumentStatusType.COMPLETED.value,
-    #         )
-    #         logging.info(
-    #             f"{current_user} запретил редактирование "
-    #             f"документа {working_date.isoformat()}: {result}"
-    #         )
-    #         return redirect(url_for("staff.staff_various_load"))
-    #     elif request.form.get("enable_edit"):
-    #         result = staff_various_service.change_status(
-    #             _id=document_data.get("_id"),
-    #             daytime=daytime,
-    #             status=DocumentStatusType.IN_PROGRESS.value,
-    #         )
-    #         logging.info(
-    #             f"{current_user} разрешил редактирование "
-    #             f"документа {working_date.isoformat()}: {result}"
-    #         )
-    #         return redirect(url_for("staff.staff_various_load"))
+        daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_MORNING)
+    staff_various_service = get_staff_various_document_service()
+    document_data = staff_various_service.get(
+        query_filter={"date": working_date.isoformat(), "daytime": daytime}
+    )
+    if not document_data:
+        staff_various_service.make_blank_document(working_date, daytime)
+        document_data = staff_various_service.get(
+            query_filter={"date": working_date.isoformat()}
+        )
+    allowed_faculty_service = get_staff_allowed_faculty_service()
+    student_service = get_apeks_schedule_schedule_student_service()
+    groups_data = staff_various_groups_data_filter(
+        await student_service.get(), allowed_faculty_service.list()
+    )
+    groups_data = process_apeks_various_group_data(groups_data, document_data)
+    if request.method == "POST" and form.validate_on_submit():
+        if request.form.get("finish_edit"):
+            result = staff_various_service.change_status(
+                _id=document_data.get("_id"),
+                status=DocumentStatusType.COMPLETED.value,
+            )
+            logging.info(
+                f"{current_user} запретил редактирование "
+                f"документа {working_date.isoformat()}: {result}"
+            )
+            return redirect(url_for("staff.staff_various_load", daytime=daytime.value))
+        elif request.form.get("enable_edit"):
+            result = staff_various_service.change_status(
+                _id=document_data.get("_id"),
+                status=DocumentStatusType.IN_PROGRESS.value,
+            )
+            logging.info(
+                f"{current_user} разрешил редактирование "
+                f"документа {working_date.isoformat()}: {result}"
+            )
+            return redirect(url_for("staff.staff_various_load", daytime=daytime.value))
         # elif request.form.get("make_report"):
         #     busy_types = {item.slug: item.name for item in busy_types_service.list()}
         #     filename = generate_stable_staff_report(document_data, busy_types)
@@ -753,22 +740,28 @@ async def staff_various_load():
         active="staff",
         form=form,
         date=working_date,
-        daytime=daytime,
+        daytime=daytime.value,
         groups_data=groups_data,
         doc_status=document_data.get("status"),
     )
 
 
 @bp.route(
-    "/staff_various_edit/<string:group_id>/<string:course>", methods=["GET", "POST"]
+    "/staff_various_edit/<string:daytime>/<string:group_id>/<string:course>", methods=["GET", "POST"]
 )
 @login_required
-async def staff_various_edit(group_id, course):
+async def staff_various_edit(daytime, group_id, course):
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
         else dt.date.today()
     )
+
+    try:
+        daytime = VariousStaffDaytimeType(daytime)
+    except ValueError:
+        flash(f"Передан неверный параметр времени - {daytime}", category="danger")
+        return redirect(url_for("staff.staff_various_load"))
 
     group_service = get_apeks_load_groups_service()
     group_data = await group_service.get(id=group_id)
@@ -814,13 +807,15 @@ async def staff_various_edit(group_id, course):
     )
 
     staff_various_service = get_staff_various_document_service()
-    document_data = staff_various_service.get({"date": working_date.isoformat()})
+    document_data = staff_various_service.get({"date": working_date.isoformat(), "daytime": daytime})
 
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             dept_document = StaffVariousGroupDocStructure(
                 id=group_id,
                 name=group_data.get("name"),
+                type="Учебная группа",
+                daytime=daytime.value,
                 faculty=group_data.get("department_id"),
                 course=course,
                 total=len(students_data),
@@ -849,19 +844,19 @@ async def staff_various_edit(group_id, course):
                         logging.error(message)
             try:
                 staff_various_service.update(
-                    {"date": working_date.isoformat()},
+                    {"date": working_date.isoformat(), "daytime": daytime},
                     {"$set": {f"groups.{group_id}": dept_document.__dict__}},
                     upsert=True,
                 )
                 document_data = staff_various_service.get(
-                    {"date": working_date.isoformat()}
+                    {"date": working_date.isoformat(), "daytime": daytime}
                 )
                 dept_document.edit_document_id = document_data.get("_id", None)
                 staff_logs_service = get_staff_logs_crud_service()
                 staff_logs_service.create(dept_document.__dict__)
                 message = (
-                    f"Данные группы {group_data.get('name')} за "
-                    f"{working_date.isoformat()} успешно переданы"
+                    f"Данные группы {group_data.get('name')} за {working_date.isoformat()} "
+                    f'"{MongoDBSettings.DAYTIME_NAME.get(daytime)}" успешно переданы'
                 )
                 flash(message, category="success")
                 logging.info(message)
@@ -870,7 +865,8 @@ async def staff_various_edit(group_id, course):
                 flash(message, category="danger")
                 logging.error(message)
         else:
-            message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
+            message = (f'Данные за {working_date.isoformat()} '
+                       f'"{MongoDBSettings.DAYTIME_NAME.get(daytime)}" закрыты для редактирования')
             flash(message, category="danger")
 
     # Заполняем форму имеющимися данными
@@ -892,6 +888,7 @@ async def staff_various_edit(group_id, course):
         active="staff",
         form=form,
         date=working_date,
+        daytime=daytime.value,
         group=group_data.get("name"),
         students_data=enumerate(students_data, start=1),
         status=document_data.get("status"),

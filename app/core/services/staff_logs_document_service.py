@@ -12,8 +12,6 @@ from ..repository.mongo_db_repository import MongoDbRepository
 class StaffLogsCRUDService(BaseMongoDbCrudService):
     """Класс для CRUD операций записи логов."""
 
-    pass
-
 
 def get_staff_logs_crud_service(
     mongo_db: Database = get_mongo_db(),

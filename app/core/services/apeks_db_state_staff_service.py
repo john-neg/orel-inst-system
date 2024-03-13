@@ -29,8 +29,6 @@ class ApeksDbStateStaffService(ApeksApiDbService):
      'file_id': None}
     """
 
-    pass
-
 
 def process_state_staff_data(state_staff_data) -> dict:
     """

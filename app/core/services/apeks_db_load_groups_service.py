@@ -4,11 +4,7 @@ from ...core.services.base_apeks_api_service import ApeksApiDbService
 
 
 class ApeksLoadGroupsService(ApeksApiDbService):
-    """
-    Класс для CRUD операций модели LoadGroups.
-
-    """
-    pass
+    """Класс для CRUD операций модели LoadGroups."""
 
 
 def get_apeks_load_groups_service(

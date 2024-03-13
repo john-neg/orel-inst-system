@@ -18,8 +18,6 @@ class ApeksStudentStudentHistoryService(ApeksApiDbService):
     'group_id': '310'}
     """
 
-    pass
-
 
 def get_apeks_student_student_history_service(
     table: str = ApeksConfig.STUDENT_STUDENT_HISTORY_TABLE,

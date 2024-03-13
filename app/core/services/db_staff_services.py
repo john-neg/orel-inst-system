@@ -14,8 +14,6 @@ from ..repository.sqlalchemy_repository import DbRepository
 class StaffStableBusyTypesCRUDService(DbRepository[StaffStableBusyTypes]):
     """Класс для CRUD операций модели StaffStableBusyTypes"""
 
-    pass
-
 
 def get_staff_stable_busy_types_service(
     model: type[StaffStableBusyTypes] = StaffStableBusyTypes,
@@ -26,8 +24,6 @@ def get_staff_stable_busy_types_service(
 
 class StaffVariousBusyTypesCRUDService(DbRepository[StaffVariousBusyTypes]):
     """Класс для CRUD операций модели StaffVariousBusyTypes"""
-
-    pass
 
 
 def get_staff_various_busy_types_service(
@@ -40,8 +36,6 @@ def get_staff_various_busy_types_service(
 class StaffVariousIllnessTypesCRUDService(DbRepository[StaffVariousIllnessTypes]):
     """Класс для CRUD операций модели StaffVariousIllnessTypesCRUDService."""
 
-    pass
-
 
 def get_staff_various_illness_types_service(
     model: type[StaffVariousIllnessTypes] = StaffVariousIllnessTypes,
@@ -52,8 +46,6 @@ def get_staff_various_illness_types_service(
 
 class StaffAllowedFacultyCRUDService(DbRepository[StaffAllowedFaculty]):
     """Класс для CRUD операций модели StaffStableBusyTypes"""
-
-    pass
 
 
 def get_staff_allowed_faculty_service(
