@@ -127,9 +127,10 @@ class MongoDBSettings:
     DAYTIME_MORNING = "morning"
     DAYTIME_DAY = "day"
     DAYTIME_EVENING = "evening"
+    # Название времени
     DAYTIME_NAME = {
         DAYTIME_MORNING: "Утро (8:30)",
-        DAYTIME_DAY: "День (14:30)",
+        DAYTIME_DAY: "День (14:00)",
         DAYTIME_EVENING: "Вечер (21:30)",
     }
 

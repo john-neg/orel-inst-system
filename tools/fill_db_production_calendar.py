@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-sys.path.append('.')
+sys.path.append(".")
 
 from app.core.repository.sqlalchemy_repository import DbRepository
 from app.core.func.app_core import read_json_file
@@ -22,13 +22,8 @@ session = Session()
 
 FILE_DIR = os.path.join(BASEDIR, "tools", "production_calendar")
 
-holidays_service = DbRepository(
-    ProductionCalendarHolidays, db_session=session
-)
-working_service = DbRepository(
-    ProductionCalendarWorkingDays, db_session=session
-)
-
+holidays_service = DbRepository(ProductionCalendarHolidays, db_session=session)
+working_service = DbRepository(ProductionCalendarWorkingDays, db_session=session)
 holidays_data = read_json_file(os.path.join(FILE_DIR, "calendars.json"))
 
 for year in holidays_data:
