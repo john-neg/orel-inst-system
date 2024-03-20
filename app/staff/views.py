@@ -1,3 +1,4 @@
+import copy
 import datetime
 import datetime as dt
 import logging
@@ -408,7 +409,7 @@ async def staff_stable_info():
     )
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
 
-    if current_date == dt.date.today().isoformat():
+    if current_date == dt.date.today().isoformat() and staff_stable_document:
         departments_service = get_db_apeks_state_departments_service()
         departments = await departments_service.get_departments()
         staff_history_service = get_db_apeks_state_staff_history_service()
@@ -683,8 +684,6 @@ async def staff_stable_edit(department_id):
 @bp.route("/staff_various_load", methods=["GET", "POST"])
 @login_required
 async def staff_various_load():
-    report_data = ""
-
     form = StaffLoadForm()
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
@@ -704,7 +703,7 @@ async def staff_various_load():
         query_filter={"date": working_date.isoformat(), "daytime": daytime}
     )
     if not document_data:
-        staff_various_service.make_blank_document(working_date, daytime)
+        staff_various_service.make_blank_document(working_date)
         document_data = staff_various_service.get(
             query_filter={"date": working_date.isoformat()}
         )
@@ -756,7 +755,6 @@ async def staff_various_load():
         active="staff",
         form=form,
         date=working_date,
-        report=report_data,
         daytime=daytime.value,
         groups_data=groups_data,
         doc_status=document_data.get("status"),
@@ -774,13 +772,11 @@ async def staff_various_edit(daytime, group_id, course):
         if request.args.get("date")
         else dt.date.today()
     )
-
     try:
         daytime = VariousStaffDaytimeType(daytime)
     except ValueError:
         flash(f"Передан неверный параметр времени - {daytime}", category="danger")
         return redirect(url_for("staff.staff_various_load"))
-
     group_service = get_apeks_load_groups_service()
     group_data = await group_service.get(id=group_id)
     if group_data:
@@ -861,23 +857,33 @@ async def staff_various_edit(daytime, group_id, course):
                         flash(message, category="danger")
                         logging.error(message)
             try:
-                staff_various_service.update(
-                    {"date": working_date.isoformat(), "daytime": daytime},
-                    {"$set": {f"groups.{group_id}": dept_document.__dict__}},
-                    upsert=True,
-                )
-                document_data = staff_various_service.get(
-                    {"date": working_date.isoformat(), "daytime": daytime}
-                )
-                dept_document.edit_document_id = document_data.get("_id", None)
-                staff_logs_service = get_staff_logs_crud_service()
-                staff_logs_service.create(dept_document.__dict__)
-                message = (
-                    f"Данные группы {group_data.get('name')} за {working_date.isoformat()} "
-                    f'"{MongoDBSettings.DAYTIME_NAME.get(daytime)}" успешно переданы'
-                )
-                flash(message, category="success")
-                logging.info(message)
+                documents = [dept_document]
+                if request.form.get("switch_copy_day"):
+                    day_doc = copy.deepcopy(dept_document)
+                    day_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_DAY)
+                    documents.append(day_doc)
+                if request.form.get("switch_copy_evening"):
+                    evening_doc = copy.deepcopy(dept_document)
+                    evening_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_EVENING)
+                    documents.append(evening_doc)
+                for document in documents[::-1]:
+                    staff_various_service.update(
+                        {"date": working_date.isoformat(), "daytime": document.daytime},
+                        {"$set": {f"groups.{group_id}": document.__dict__}},
+                        upsert=True,
+                    )
+                    document_data = staff_various_service.get(
+                        {"date": working_date.isoformat(), "daytime": document.daytime}
+                    )
+                    document.edit_document_id = document_data.get("_id", None)
+                    staff_logs_service = get_staff_logs_crud_service()
+                    staff_logs_service.create(document.__dict__)
+                    message = (
+                        f"Данные группы {group_data.get('name')} за {working_date.isoformat()} "
+                        f'"{MongoDBSettings.DAYTIME_NAME.get(document.daytime)}" успешно переданы'
+                    )
+                    flash(message, category="success")
+                    logging.info(message)
             except PyMongoError as error:
                 message = f"Произошла ошибка записи данных: {error}"
                 flash(message, category="danger")

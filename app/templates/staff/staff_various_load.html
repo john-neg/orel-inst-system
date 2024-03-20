@@ -12,11 +12,11 @@
         <div class="col" style="text-align: center;">
             <div class="btn-group" role="group" style="text-align: center;">
               <a class="btn {% if daytime == "morning" %}btn-primary{% else %}btn-secondary{% endif %}"
-                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_MORNING) }}">{{ config.DAYTIME_NAME[config.DAYTIME_MORNING] }}</a>
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_MORNING, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_MORNING] }}</a>
               <a class="btn {% if daytime == "day" %}btn-primary{% else %}btn-secondary{% endif %}"
-                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_DAY) }}">{{ config.DAYTIME_NAME[config.DAYTIME_DAY] }}</a>
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_DAY, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_DAY] }}</a>
               <a class="btn {% if daytime == "evening" %}btn-primary{% else %}btn-secondary{% endif %}"
-                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_EVENING) }}">{{ config.DAYTIME_NAME[config.DAYTIME_EVENING] }}</a>
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_EVENING, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_EVENING] }}</a>
             </div>
         </div>
     </div>

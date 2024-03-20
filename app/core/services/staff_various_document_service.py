@@ -90,19 +90,22 @@ class StaffVariousCRUDService(BaseMongoDbCrudService):
             {"$set": {f"status": status}},
         )
 
-    def make_blank_document(self, document_date: datetime.date, daytime: VariousStaffDaytimeType) -> InsertOneResult:
+    def make_blank_document(self, document_date: datetime.date) -> list[InsertOneResult]:
         """Создает пустой документ с заданной датой."""
-        document = StaffVariousDocStructure(
-            date=document_date,
-            daytime=daytime.value,
-            groups=dict(),
-            status=DocumentStatusType.IN_PROGRESS,
-        )
-        result_info = self.create(document.__dict__())
-        logging.info(
-            f"Создан документ - строевая записка переменного состава "
-            f"за {document_date.isoformat()}. {result_info}"
-        )
+
+        result_info = []
+        for daytime in VariousStaffDaytimeType:
+            document = StaffVariousDocStructure(
+                date=document_date,
+                daytime=daytime.value,
+                groups=dict(),
+                status=DocumentStatusType.IN_PROGRESS,
+            )
+            result_info.append(self.create(document.__dict__()))
+            logging.info(
+                f"Создан документ - строевая записка переменного состава "
+                f"за {document_date.isoformat()}. {result_info}"
+            )
         return result_info
 
 

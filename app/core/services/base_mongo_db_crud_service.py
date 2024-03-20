@@ -49,7 +49,7 @@ class DocumentStatusType(str, Enum):
 
 
 class VariousStaffDaytimeType(str, Enum):
-    """Класс статусов документа строевой записки."""
+    """Класс значение времени для строевой записки переменного состава."""
 
     MORNING = MongoDBSettings.DAYTIME_MORNING
     DAY = MongoDBSettings.DAYTIME_DAY

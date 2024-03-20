@@ -20,9 +20,7 @@ class StaffForm(FlaskForm):
 class StaffReportForm(FlaskForm):
     """Форма для отчетов по наличию личного состава."""
 
-    document_start_date = DateField(
-        "Дата начала",
-    )
+    document_start_date = DateField("Дата начала")
     document_end_date = DateField("Дата окончания", default=datetime.date.today())
 
 
