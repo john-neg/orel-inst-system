@@ -44,24 +44,26 @@
               {% endfor %}
             </tbody>
           </table>
-          <div class="col mb-3">
-            {% if daytime in (config.DAYTIME_MORNING) %}
-              <div class="form-check form-switch">
-                <input id="flexSwitchCopyDay" class="form-check-input" type="checkbox" checked name="switch_copy_day" />
-                <label id="switch_copy_day_label" class="form-check-label" for="flexSwitchCopyDay">
-                  Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_DAY) }}<br />
-                </label>
-              </div>
-            {% endif %}
-            {% if daytime in (config.DAYTIME_MORNING, config.DAYTIME_DAY) %}
-              <div class="form-check form-switch">
-                <input id="flexSwitchCopyEvening" class="form-check-input" type="checkbox" name="switch_copy_evening" />
-                <label id="switch_copy_evening_label" class="form-check-label" for="flexSwitchCopyEvening">
-                  Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_EVENING) }}<br />
-                </label>
-              </div>
-            {% endif %}
-          </div>
+          {% if status == config.STAFF_IN_PROGRESS_STATUS %}
+            <div class="col mb-3">
+              {% if daytime in (config.DAYTIME_MORNING) %}
+                <div class="form-check form-switch">
+                  <input id="flexSwitchCopyDay" class="form-check-input" type="checkbox" checked name="switch_copy_day" />
+                  <label id="switch_copy_day_label" class="form-check-label" for="flexSwitchCopyDay">
+                    Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_DAY) }}<br />
+                  </label>
+                </div>
+              {% endif %}
+              {% if daytime in (config.DAYTIME_MORNING, config.DAYTIME_DAY) %}
+                <div class="form-check form-switch">
+                  <input id="flexSwitchCopyEvening" class="form-check-input" type="checkbox" name="switch_copy_evening" />
+                  <label id="switch_copy_evening_label" class="form-check-label" for="flexSwitchCopyEvening">
+                    Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_EVENING) }}<br />
+                  </label>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
           <div class="btn-group" role="group">
             {% if status == config.STAFF_IN_PROGRESS_STATUS %}
               <button class="btn btn-success fw-bold" type="submit">Сохранить</button>

@@ -13,7 +13,7 @@ from ..core.db.database import db
 class StaffForm(FlaskForm):
     """Форма для просмотра информации по строевой записке."""
 
-    document_date = DateField("Дата документа", default=datetime.date.today())
+    document_date = DateField("Дата документа", default=datetime.date.today)
     make_report = SubmitField("Сформировать отчет")
 
 
@@ -21,7 +21,7 @@ class StaffReportForm(FlaskForm):
     """Форма для отчетов по наличию личного состава."""
 
     document_start_date = DateField("Дата начала")
-    document_end_date = DateField("Дата окончания", default=datetime.date.today())
+    document_end_date = DateField("Дата окончания", default=datetime.date.today)
 
 
 class StaffLoadForm(FlaskForm):
