@@ -389,9 +389,9 @@ async def staff_allowed_faculty_delete(id_):
     )
 
 
-@bp.route("/staff_stable_info", methods=["GET", "POST"])
+@bp.route("/staff_info", methods=["GET", "POST"])
 @login_required
-async def staff_stable_info():
+async def staff_info():
     form = StaffForm()
     current_date = request.form.get("document_date") or dt.date.today().isoformat()
     staff_stable_service = get_staff_stable_document_service()
@@ -400,7 +400,7 @@ async def staff_stable_info():
     )
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
-    document_status = (
+    document_stable_status = (
         MongoDBSettings.STAFF_COLLECTION_STATUSES.get(
             staff_stable_document.get("status")
         )
@@ -419,7 +419,7 @@ async def staff_stable_info():
         )
         state_vacancies_service = get_apeks_db_state_vacancies_service()
         state_vacancies = data_processor(await state_vacancies_service.list())
-        staff_data = process_apeks_stable_staff_data(
+        stable_data = process_apeks_stable_staff_data(
             departments,
             staff_history,
             staff_stable_document,
@@ -430,14 +430,14 @@ async def staff_stable_info():
             "staff_military_absence": 0,
             "staff_military_stock": 0,
         }
-        for dept_type in staff_data:
-            for dept in staff_data[dept_type]:
+        for dept_type in stable_data:
+            for dept in stable_data[dept_type]:
                 if all(
-                    isinstance(staff_data[dept_type][dept].get(item_name), int)
+                    isinstance(stable_data[dept_type][dept].get(item_name), int)
                     for item_name in military_data
                 ):
                     for item_name in military_data:
-                        military_data[item_name] += staff_data[dept_type][dept].get(
+                        military_data[item_name] += stable_data[dept_type][dept].get(
                             item_name
                         )
     else:
@@ -448,14 +448,14 @@ async def staff_stable_info():
             filename = generate_stable_staff_report(staff_stable_document, busy_types)
             return redirect(url_for("main.get_file", filename=filename))
     return render_template(
-        "staff/staff_stable_info.html",
+        "staff/staff_info.html",
         active="staff",
         form=form,
         date=current_date,
         busy_types=busy_types,
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
-        document_status=document_status,
+        document_stable_status=document_stable_status,
         military_data=military_data,
     )
 
