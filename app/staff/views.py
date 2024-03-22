@@ -723,7 +723,7 @@ async def staff_various_load():
                 f"{current_user} запретил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load", daytime=daytime.value))
+            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
         elif request.form.get("enable_edit"):
             result = staff_various_service.change_status(
                 _id=document_data.get("_id"),
@@ -733,7 +733,7 @@ async def staff_various_load():
                 f"{current_user} разрешил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load", daytime=daytime.value))
+            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
         elif request.form.get("make_report"):
             busy_types_service = get_staff_various_busy_types_service()
             busy_types = {item.slug: item.name for item in busy_types_service.list()}
