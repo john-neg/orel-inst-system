@@ -7,6 +7,20 @@
       <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
       <h4 class="fw-normal text-center text-dark mb-1">Статус - {{ config.STAFF_COLLECTION_STATUSES[doc_status]|lower }}</h4>
   </div>
+  <div class="container">
+    <div class="row justify-content-center">
+        <div class="col" style="text-align: center;">
+            <div class="btn-group" role="group" style="text-align: center;">
+              <a class="btn {% if daytime == "morning" %}btn-primary{% else %}btn-secondary{% endif %}"
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_MORNING, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_MORNING] }}</a>
+              <a class="btn {% if daytime == "day" %}btn-primary{% else %}btn-secondary{% endif %}"
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_DAY, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_DAY] }}</a>
+              <a class="btn {% if daytime == "evening" %}btn-primary{% else %}btn-secondary{% endif %}"
+                 role="button" href="{{ url_for("staff.staff_various_load", daytime=config.DAYTIME_EVENING, date=date) }}">{{ config.DAYTIME_NAME[config.DAYTIME_EVENING] }}</a>
+            </div>
+        </div>
+    </div>
+</div>
   <form method="post">
     {{ form.hidden_tag() }}
     <div class="container">
@@ -55,17 +69,17 @@
                             {% if doc_status == config.STAFF_IN_PROGRESS_STATUS %}
                               {% if group_data.get("student_absence") is none %}
                                 <a class="btn btn-primary btn-sm" role="button"
-                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Добавить</a>
+                                   href="{{ url_for("staff.staff_various_edit", daytime=daytime, group_id=group_id, course=course_number, date=date) }}">Добавить</a>
                               {% else %}
                                 <a class="btn btn-warning btn-sm" role="button"
-                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Изменить</a>
+                                   href="{{ url_for("staff.staff_various_edit", daytime=daytime, group_id=group_id, course=course_number, date=date) }}">Изменить</a>
                               {% endif %}
                             {% else %}
                               {% if group_data.get("student_absence") is none %}
                                 <div class="fw-bold text text-danger">нет данных<div>
                               {% else %}
                                 <a class="btn btn-success btn-sm" role="button"
-                                   href="{{ url_for("staff.staff_various_edit", group_id=group_id, course=course_number, date=date) }}">Просмотр</a>
+                                   href="{{ url_for("staff.staff_various_edit", daytime=daytime, group_id=group_id, course=course_number, date=date) }}">Просмотр</a>
                               {% endif %}
                             {% endif %}
                           </td>

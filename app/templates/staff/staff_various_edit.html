@@ -4,7 +4,7 @@
     <h3 class="text-center text-dark mb-1">
       {% block title %}Строевая записка{% endblock %}
     </h3>
-      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }}</h4>
+      <h4 class="fw-bold text-center text-dark mb-1">{{ date.strftime("%d.%m.%Y") }} - {{ config.DAYTIME_NAME.get(daytime) }}</h4>
       <h4 class="fw-normal text-center text-dark mb-1">Группа - {{ group }}</h4>
   </div>
   <form method="post">
@@ -44,11 +44,31 @@
               {% endfor %}
             </tbody>
           </table>
+          {% if status == config.STAFF_IN_PROGRESS_STATUS %}
+            <div class="col mb-3">
+              {% if daytime in (config.DAYTIME_MORNING) %}
+                <div class="form-check form-switch">
+                  <input id="flexSwitchCopyDay" class="form-check-input" type="checkbox" checked name="switch_copy_day" />
+                  <label id="switch_copy_day_label" class="form-check-label" for="flexSwitchCopyDay">
+                    Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_DAY) }}<br />
+                  </label>
+                </div>
+              {% endif %}
+              {% if daytime in (config.DAYTIME_MORNING, config.DAYTIME_DAY) %}
+                <div class="form-check form-switch">
+                  <input id="flexSwitchCopyEvening" class="form-check-input" type="checkbox" name="switch_copy_evening" />
+                  <label id="switch_copy_evening_label" class="form-check-label" for="flexSwitchCopyEvening">
+                    Копировать на {{ config.DAYTIME_NAME.get(config.DAYTIME_EVENING) }}<br />
+                  </label>
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
           <div class="btn-group" role="group">
             {% if status == config.STAFF_IN_PROGRESS_STATUS %}
               <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
             {% endif %}
-            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load') }}">Назад</a>
+            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load', daytime=daytime) }}">Назад</a>
           </div>
         </div>
       </div>

@@ -15,8 +15,12 @@
           {{ form.apeks_id(class="form-select") }}
         </div>
         <div class="mb-2">
+          {{ form.short_name.label(class="text-dark") }}
+          {{ form.short_name(class="form-control") }}
+        </div>
+        <div class="mb-2">
           {{ form.sort.label(class="text-dark") }}
-          {{ form.sort(class="form-select") }}
+          {{ form.sort(class="form-control") }}
         </div>
         <div class="mb-4">
           {{ form.submit(class="btn btn-secondary border-0") }}

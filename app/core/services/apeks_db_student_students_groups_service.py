@@ -18,8 +18,6 @@ class ApeksStudentStudentsGroupsService(ApeksApiDbService):
     'status': '1'}
     """
 
-    pass
-
 
 def get_apeks_student_students_groups_service(
     table: str = ApeksConfig.STUDENT_STUDENTS_GROUPS_TABLE,

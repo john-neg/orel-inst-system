@@ -12,8 +12,6 @@ from ..repository.sqlalchemy_repository import DbRepository
 class ProductionCalendarHolidaysCRUDService(DbRepository[ProductionCalendarHolidays]):
     """Класс для CRUD операций для моделей ProductionCalendarHolidays."""
 
-    pass
-
 
 def get_productions_calendar_holidays_service(
     model: type[ProductionCalendarHolidays] = ProductionCalendarHolidays,
@@ -26,8 +24,6 @@ class ProductionCalendarWorkingDaysCRUDService(
     DbRepository[ProductionCalendarWorkingDays]
 ):
     """Класс для CRUD операций для модели ProductionCalendarWorkingDays."""
-
-    pass
 
 
 def get_productions_calendar_working_days_service(

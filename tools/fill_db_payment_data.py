@@ -4,7 +4,7 @@ import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-sys.path.append('.')
+sys.path.append(".")
 
 from app.core.repository.sqlalchemy_repository import DbRepository
 from app.tools.payment.func import make_slug
@@ -20,7 +20,8 @@ from app.core.db.payment_models import (
     PaymentIncrease,
     PaymentMatchRateIncrease,
     PaymentPensionDutyCoefficient,
-    PaymentGlobalCoefficient, PaymentDocuments,
+    PaymentGlobalCoefficient,
+    PaymentDocuments,
 )
 from config import FlaskConfig, BASEDIR
 
@@ -34,7 +35,6 @@ FILE_DIR = os.path.join(BASEDIR, "tools", "data_payment")
 
 # Заполняем данные о нормативных документах
 doc_service = DbRepository(PaymentDocuments, db_session=session)
-
 documents_data = read_json_file(os.path.join(FILE_DIR, "documents_data.json"))
 for data in documents_data:
     doc_service.create(name=documents_data[data].get("name"))
@@ -43,7 +43,6 @@ for data in documents_data:
 # Заполняем данные об окладах
 rate_service = DbRepository(PaymentRates, db_session=session)
 rate_val_service = DbRepository(PaymentRatesValues, db_session=session)
-
 rate_data = read_json_file(os.path.join(FILE_DIR, "rate_data.json"))
 for rate in rate_data:
     current_rate = rate_service.create(
@@ -60,14 +59,13 @@ for rate in rate_data:
                 value=value,
                 rate_id=current_rate.id,
                 description=rate_data[rate]["data"][record].get("description"),
-                document_id=rate_data[rate]["data"][record].get('document_id'),
+                document_id=rate_data[rate]["data"][record].get("document_id"),
             )
 
 
 # Заполняем данные о надбавках
 addon_service = DbRepository(PaymentAddons, db_session=session)
 addon_values_service = DbRepository(PaymentAddonsValues, db_session=session)
-
 addons_data = read_json_file(os.path.join(FILE_DIR, "addons_data.json"))
 for data in addons_data:
     addon = addon_service.create(
@@ -98,7 +96,6 @@ for data in addons_data:
 
 # Заполняем данные о фиксированных надбавках
 single_add_service = DbRepository(PaymentSingleAddons, db_session=session)
-
 single_addons_data = read_json_file(os.path.join(FILE_DIR, "single_addons_data.json"))
 for data in single_addons_data:
     single_add = single_add_service.create(
@@ -125,7 +122,6 @@ for data in single_addons_data:
 
 # Заполняем данные об индексациях
 increase_service = DbRepository(PaymentIncrease, db_session=session)
-
 increase_data = read_json_file(os.path.join(FILE_DIR, "increase_data.json"))
 for data in increase_data:
     increase = increase_service.create(
@@ -146,7 +142,6 @@ for data in increase_data:
 
 # Заполняем данные о коэффициенте выслуги для расчета пенсии
 pension_duty_service = DbRepository(PaymentPensionDutyCoefficient, db_session=session)
-
 pension_duty_data = read_json_file(os.path.join(FILE_DIR, "pension_duty_data.json"))
 for data in pension_duty_data:
     pension_duty_service.create(
@@ -158,7 +153,6 @@ for data in pension_duty_data:
 
 # Заполняем данные о глобальных коэффициентах, изменяющих общую выплату
 global_service = DbRepository(PaymentGlobalCoefficient, db_session=session)
-
 global_coefficient_data = read_json_file(
     os.path.join(FILE_DIR, "global_coefficient_data.json")
 )

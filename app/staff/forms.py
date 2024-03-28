@@ -13,17 +13,15 @@ from ..core.db.database import db
 class StaffForm(FlaskForm):
     """Форма для просмотра информации по строевой записке."""
 
-    document_date = DateField("Дата документа", default=datetime.date.today())
+    document_date = DateField("Дата документа", default=datetime.date.today)
     make_report = SubmitField("Сформировать отчет")
 
 
 class StaffReportForm(FlaskForm):
     """Форма для отчетов по наличию личного состава."""
 
-    document_start_date = DateField(
-        "Дата начала",
-    )
-    document_end_date = DateField("Дата окончания", default=datetime.date.today())
+    document_start_date = DateField("Дата начала")
+    document_end_date = DateField("Дата окончания", default=datetime.date.today)
 
 
 class StaffLoadForm(FlaskForm):
@@ -59,7 +57,6 @@ def create_staff_stable_edit_form(
             validators=[DataRequired()],
         )
         setattr(StaffEditForm, label, field)
-
     return StaffEditForm(**kwargs)
 
 
@@ -85,16 +82,15 @@ def create_staff_various_edit_form(
             choices={
                 "Местонахождение": [
                     ("0", "В строю"),
-                    *[(item.slug, item.name) for item in busy_types]
+                    *[(item.slug, item.name) for item in busy_types],
                 ],
                 "Отсутствие по болезни": [
                     *[(item.slug, item.name) for item in illness_types]
-                ]
+                ],
             },
             validators=[DataRequired()],
         )
         setattr(StaffEditForm, label, field)
-
     return StaffEditForm(**kwargs)
 
 
@@ -120,10 +116,8 @@ class StaffStableBusyTypesForm(FlaskForm):
 class StaffAllowedFacultyAddForm(FlaskForm):
     """Класс формы добавления факультета для строевой записки переменного состава."""
 
-    apeks_id = SelectField(
-        "Факультет",
-        coerce=int,
-        validators=[DataRequired()])
+    apeks_id = SelectField("Факультет", coerce=int, validators=[DataRequired()])
+    short_name = StringField("Сокращенное название", validators=[DataRequired()])
     sort = IntegerField("Порядок сортировки", validators=[DataRequired()])
     submit = SubmitField("Добавить")
 
@@ -135,5 +129,6 @@ class StaffAllowedFacultyEditForm(FlaskForm):
 
     apeks_id = IntegerField("Апекс_id", validators=[DataRequired()])
     name = StringField("Название", validators=[DataRequired()])
+    short_name = StringField("Сокращенное название", validators=[DataRequired()])
     sort = IntegerField("Порядок сортировки", validators=[DataRequired()])
     submit = SubmitField("Сохранить")

@@ -70,7 +70,7 @@
                 <i class="fas fa-user-friends"></i><span>Строевая записка</span>
               </a>
               <div class="dropdown-menu text-center py-0">
-                <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_stable_info') }}">Общая информация</a>
+                <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_info') }}">Общая информация</a>
 
                 <a class="dropdown-item text-center py-1" href="{{ url_for('staff.staff_stable_load') }}">Постоянный состав</a>
                 {% if has_permission(config.STAFF_REPORT_PERMISSION) %}

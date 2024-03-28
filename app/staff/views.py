@@ -1,3 +1,4 @@
+import copy
 import datetime
 import datetime as dt
 import logging
@@ -22,13 +23,17 @@ from .forms import (
     create_staff_various_edit_form,
 )
 from .func import (
-    make_short_name, process_apeks_stable_staff_data,
-    process_apeks_various_group_data, process_stable_staff_data,
+    make_short_name,
+    process_apeks_stable_staff_data,
+    process_apeks_various_group_data,
+    process_stable_staff_data,
     process_document_stable_staff_data,
     process_documents_range_by_busy_type,
-    process_documents_range_by_staff_id, staff_various_groups_data_filter,
+    process_documents_range_by_staff_id,
+    staff_various_groups_data_filter,
 )
 from .stable_staff_report import generate_stable_staff_report
+from .various_staff_report import generate_various_staff_report, get_various_report_data
 from ..auth.func import permission_required
 from ..core.db.auth_models import Users
 from ..core.forms import ObjectDeleteForm
@@ -63,6 +68,7 @@ from ..core.services.apeks_schedule_schedule_student_service import (
     get_apeks_schedule_schedule_student_service,
 )
 from ..core.services.base_apeks_api_service import data_processor
+from ..core.services.base_mongo_db_crud_service import VariousStaffDaytimeType
 from ..core.services.db_staff_services import (
     get_staff_allowed_faculty_service,
     get_staff_stable_busy_types_service,
@@ -319,6 +325,7 @@ async def staff_allowed_faculty_add():
         faculty_service.create(
             apeks_id=apeks_id,
             name=name,
+            short_name=request.form.get("short_name"),
             sort=request.form.get("sort"),
         )
         flash(
@@ -345,6 +352,7 @@ async def staff_allowed_faculty_edit(id_):
             id_,
             apeks_id=obj.apeks_id,
             name=request.form.get("name"),
+            short_name=request.form.get("short_name"),
             sort=request.form.get("sort"),
         )
         flash(
@@ -381,9 +389,9 @@ async def staff_allowed_faculty_delete(id_):
     )
 
 
-@bp.route("/staff_stable_info", methods=["GET", "POST"])
+@bp.route("/staff_info", methods=["GET", "POST"])
 @login_required
-async def staff_stable_info():
+async def staff_info():
     form = StaffForm()
     current_date = request.form.get("document_date") or dt.date.today().isoformat()
     staff_stable_service = get_staff_stable_document_service()
@@ -392,7 +400,7 @@ async def staff_stable_info():
     )
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
-    document_status = (
+    document_stable_status = (
         MongoDBSettings.STAFF_COLLECTION_STATUSES.get(
             staff_stable_document.get("status")
         )
@@ -401,7 +409,7 @@ async def staff_stable_info():
     )
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
 
-    if current_date == dt.date.today().isoformat():
+    if current_date == dt.date.today().isoformat() and staff_stable_document:
         departments_service = get_db_apeks_state_departments_service()
         departments = await departments_service.get_departments()
         staff_history_service = get_db_apeks_state_staff_history_service()
@@ -411,7 +419,7 @@ async def staff_stable_info():
         )
         state_vacancies_service = get_apeks_db_state_vacancies_service()
         state_vacancies = data_processor(await state_vacancies_service.list())
-        staff_data = process_apeks_stable_staff_data(
+        stable_data = process_apeks_stable_staff_data(
             departments,
             staff_history,
             staff_stable_document,
@@ -422,14 +430,14 @@ async def staff_stable_info():
             "staff_military_absence": 0,
             "staff_military_stock": 0,
         }
-        for dept_type in staff_data:
-            for dept in staff_data[dept_type]:
+        for dept_type in stable_data:
+            for dept in stable_data[dept_type]:
                 if all(
-                    isinstance(staff_data[dept_type][dept].get(item_name), int)
+                    isinstance(stable_data[dept_type][dept].get(item_name), int)
                     for item_name in military_data
                 ):
                     for item_name in military_data:
-                        military_data[item_name] += staff_data[dept_type][dept].get(
+                        military_data[item_name] += stable_data[dept_type][dept].get(
                             item_name
                         )
     else:
@@ -440,14 +448,14 @@ async def staff_stable_info():
             filename = generate_stable_staff_report(staff_stable_document, busy_types)
             return redirect(url_for("main.get_file", filename=filename))
     return render_template(
-        "staff/staff_stable_info.html",
+        "staff/staff_info.html",
         active="staff",
         form=form,
         date=current_date,
         busy_types=busy_types,
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
-        document_status=document_status,
+        document_stable_status=document_stable_status,
         military_data=military_data,
     )
 
@@ -475,13 +483,10 @@ async def staff_stable_report():
         staff_data = process_documents_range_by_staff_id(staff_stable_documents)
         form.document_start_date.data = datetime.date.fromisoformat(document_start_date)
         form.document_end_date.data = datetime.date.fromisoformat(document_end_date)
-
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
-
     busy_type = request.args.get("busy_type")
     staff_id = request.args.get("staff_id")
-
     return render_template(
         "staff/staff_stable_report.html",
         active="staff",
@@ -685,9 +690,17 @@ async def staff_various_load():
         if request.args.get("date")
         else dt.date.today()
     )
+    daytime = request.args.get("daytime")
+    if daytime:
+        try:
+            daytime = VariousStaffDaytimeType(request.args.get("daytime"))
+        except ValueError:
+            flash(f"Передан неверный параметр времени - {daytime}", category="danger")
+    else:
+        daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_MORNING)
     staff_various_service = get_staff_various_document_service()
     document_data = staff_various_service.get(
-        query_filter={"date": working_date.isoformat()}
+        query_filter={"date": working_date.isoformat(), "daytime": daytime}
     )
     if not document_data:
         staff_various_service.make_blank_document(working_date)
@@ -699,9 +712,7 @@ async def staff_various_load():
     groups_data = staff_various_groups_data_filter(
         await student_service.get(), allowed_faculty_service.list()
     )
-
     groups_data = process_apeks_various_group_data(groups_data, document_data)
-
     if request.method == "POST" and form.validate_on_submit():
         if request.form.get("finish_edit"):
             result = staff_various_service.change_status(
@@ -712,7 +723,7 @@ async def staff_various_load():
                 f"{current_user} запретил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load"))
+            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
         elif request.form.get("enable_edit"):
             result = staff_various_service.change_status(
                 _id=document_data.get("_id"),
@@ -722,85 +733,102 @@ async def staff_various_load():
                 f"{current_user} разрешил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load"))
-        # elif request.form.get("make_report"):
-        #     busy_types = {item.slug: item.name for item in busy_types_service.list()}
-        #     filename = generate_stable_staff_report(document_data, busy_types)
-        #     return redirect(url_for("main.get_file", filename=filename))
+            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
+        elif request.form.get("make_report"):
+            busy_types_service = get_staff_various_busy_types_service()
+            busy_types = {item.slug: item.name for item in busy_types_service.list()}
+            illness_types_service = get_staff_various_illness_types_service()
+            illness_types = {
+                item.slug: item.name for item in illness_types_service.list()
+            }
+            faculty_data = {
+                item.short_name: item.sort for item in allowed_faculty_service.list()
+            }
+            report_data = get_various_report_data(document_data, daytime, faculty_data)
+            filename = generate_various_staff_report(
+                report_data, busy_types, illness_types
+            )
+            return redirect(url_for("main.get_file", filename=filename))
 
     return render_template(
         "staff/staff_various_load.html",
         active="staff",
         form=form,
         date=working_date,
+        daytime=daytime.value,
         groups_data=groups_data,
         doc_status=document_data.get("status"),
     )
 
 
 @bp.route(
-    "/staff_various_edit/<string:group_id>/<string:course>", methods=["GET", "POST"]
+    "/staff_various_edit/<string:daytime>/<string:group_id>/<string:course>",
+    methods=["GET", "POST"],
 )
 @login_required
-async def staff_various_edit(group_id, course):
+async def staff_various_edit(daytime, group_id, course):
     working_date = (
         dt.date.fromisoformat(request.args.get("date"))
         if request.args.get("date")
         else dt.date.today()
     )
-
+    try:
+        daytime = VariousStaffDaytimeType(daytime)
+    except ValueError:
+        flash(f"Передан неверный параметр времени - {daytime}", category="danger")
+        return redirect(url_for("staff.staff_various_load"))
     group_service = get_apeks_load_groups_service()
     group_data = await group_service.get(id=group_id)
     if group_data:
         group_data = group_data[-1]
-
     students_group_service = get_apeks_student_students_groups_service()
     group_students = data_processor(
         await students_group_service.get(group_id=group_id),
         key="student_id",
     )
-
     students_service = get_apeks_student_students_service()
     students_data = await students_service.get(id=group_students)
     students_data = sorted(students_data, key=lambda x: x.get("family_name"))
-
     student_history_service = get_apeks_student_student_history_service()
     fired_students = [
         student.get("student_id")
         for student in await student_history_service.get(
             student_id=group_students.keys(),
             type=ApeksConfig.STUDENT_HISTORY_RECORD_TYPES.keys(),
-
+            group_id=group_id,
         )
     ]
-
     students_data = [
         student for student in students_data if student.get("id") not in fired_students
     ]
     for student in students_data:
         student["short_name"] = make_short_name(
-            student.get('family_name'), student.get('name'), student.get('surname')
+            student.get("family_name"), student.get("name"), student.get("surname")
         )
 
     busy_types_service = get_staff_various_busy_types_service()
     busy_types = busy_types_service.list(is_active=1)
-
     illness_types_service = get_staff_various_illness_types_service()
     illness_types = illness_types_service.list(is_active=1)
-
+    faculty_service = get_staff_allowed_faculty_service()
+    faculty = faculty_service.get(apeks_id=group_data.get("department_id"))
+    faculty_name = faculty.short_name if faculty else group_data.get("department_id")
     form = create_staff_various_edit_form(
         students_data=students_data, busy_types=busy_types, illness_types=illness_types
     )
-
     staff_various_service = get_staff_various_document_service()
-    document_data = staff_various_service.get({"date": working_date.isoformat()})
+    document_data = staff_various_service.get(
+        {"date": working_date.isoformat(), "daytime": daytime}
+    )
 
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             dept_document = StaffVariousGroupDocStructure(
                 id=group_id,
                 name=group_data.get("name"),
-                faculty=group_data.get("department_id"),
+                type="Учебная группа",
+                daytime=daytime.value,
+                faculty=faculty_name,
                 course=course,
                 total=len(students_data),
                 absence={item.slug: {} for item in busy_types},
@@ -817,39 +845,54 @@ async def staff_various_edit(group_id, course):
                 student_absence = request.form.get(f"student_id_{_id}")
                 if student_absence != "0":
                     if student_absence in dept_document.absence:
-                        dept_document.absence[student_absence][_id] = student.get("short_name")
-                    elif student_absence in dept_document.absence_illness:
-                        dept_document.absence_illness[student_absence][_id] = student.get("short_name")
-                    else:
-                        message = (
-                            f"Форма вернула неизвестное местонахождение: {student_absence}"
+                        dept_document.absence[student_absence][_id] = student.get(
+                            "short_name"
                         )
+                    elif student_absence in dept_document.absence_illness:
+                        dept_document.absence_illness[student_absence][_id] = (
+                            student.get("short_name")
+                        )
+                    else:
+                        message = f"Форма вернула неизвестное местонахождение: {student_absence}"
                         flash(message, category="danger")
                         logging.error(message)
             try:
-                staff_various_service.update(
-                    {"date": working_date.isoformat()},
-                    {"$set": {f"groups.{group_id}": dept_document.__dict__}},
-                    upsert=True,
-                )
-                document_data = staff_various_service.get(
-                    {"date": working_date.isoformat()}
-                )
-                dept_document.edit_document_id = document_data.get("_id", None)
-                staff_logs_service = get_staff_logs_crud_service()
-                staff_logs_service.create(dept_document.__dict__)
-                message = (
-                    f"Данные группы {group_data.get('name')} за "
-                    f"{working_date.isoformat()} успешно переданы"
-                )
-                flash(message, category="success")
-                logging.info(message)
+                documents = [dept_document]
+                if request.form.get("switch_copy_day"):
+                    day_doc = copy.deepcopy(dept_document)
+                    day_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_DAY)
+                    documents.append(day_doc)
+                if request.form.get("switch_copy_evening"):
+                    evening_doc = copy.deepcopy(dept_document)
+                    evening_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_EVENING)
+                    documents.append(evening_doc)
+                for document in documents[::-1]:
+                    staff_various_service.update(
+                        {"date": working_date.isoformat(), "daytime": document.daytime},
+                        {"$set": {f"groups.{group_id}": document.__dict__}},
+                        upsert=True,
+                    )
+                    document_data = staff_various_service.get(
+                        {"date": working_date.isoformat(), "daytime": document.daytime}
+                    )
+                    document.edit_document_id = document_data.get("_id", None)
+                    staff_logs_service = get_staff_logs_crud_service()
+                    staff_logs_service.create(document.__dict__)
+                    message = (
+                        f"Данные группы {group_data.get('name')} за {working_date.isoformat()} "
+                        f'"{MongoDBSettings.DAYTIME_NAME.get(document.daytime)}" успешно переданы'
+                    )
+                    flash(message, category="success")
+                    logging.info(message)
             except PyMongoError as error:
                 message = f"Произошла ошибка записи данных: {error}"
                 flash(message, category="danger")
                 logging.error(message)
         else:
-            message = f"Данные за {working_date.isoformat()} закрыты для редактирования"
+            message = (
+                f"Данные за {working_date.isoformat()} "
+                f'"{MongoDBSettings.DAYTIME_NAME.get(daytime)}" закрыты для редактирования'
+            )
             flash(message, category="danger")
 
     # Заполняем форму имеющимися данными
@@ -871,6 +914,7 @@ async def staff_various_edit(group_id, course):
         active="staff",
         form=form,
         date=working_date,
+        daytime=daytime.value,
         group=group_data.get("name"),
         students_data=enumerate(students_data, start=1),
         status=document_data.get("status"),

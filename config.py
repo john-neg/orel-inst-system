@@ -123,6 +123,17 @@ class MongoDBSettings:
         STAFF_COMPLETED_STATUS: "Сформирован"
     }
 
+    # Время подачи строевой записки
+    DAYTIME_MORNING = "morning"
+    DAYTIME_DAY = "day"
+    DAYTIME_EVENING = "evening"
+    # Название времени
+    DAYTIME_NAME = {
+        DAYTIME_MORNING: "Утро (8:30)",
+        DAYTIME_DAY: "День (14:00)",
+        DAYTIME_EVENING: "Вечер (21:30)",
+    }
+
 
 class LoggerConfig(object):
     """Logger Configuration."""

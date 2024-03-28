@@ -18,8 +18,6 @@ class ApeksDbStateVacanciesService(ApeksApiDbService):
      'value': '1'}
     """
 
-    pass
-
 
 def get_apeks_db_state_vacancies_service(
     table: str = ApeksConfig.STATE_VACANCIES_TABLE,

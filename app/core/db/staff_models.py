@@ -38,4 +38,5 @@ class StaffAllowedFaculty(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     apeks_id: Mapped[int] = mapped_column(Integer, unique=True)
     name: Mapped[str] = mapped_column(String)
+    short_name: Mapped[str] = mapped_column(String)
     sort: Mapped[int] = mapped_column(Integer)
