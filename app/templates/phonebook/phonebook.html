@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <h3 class="text-center text-dark mb-1">
+            {% block title %}Телефонный справочник{% endblock %}
+        </h3>
+    </div>
+    <form method="get">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-xl-8">
+                    <div class="mb-2">
+                        <input id="phonebook_search" class="form-control" type="search" placeholder="Поиск..."/>
+                    </div>
+                </div>
+                <script type="text/javascript" src="{{ url_for('static', filename='js/phonebook_scripts.js') }}"></script>
+                <div id="phonebook_list" class="accordion">
+                    <!-- place for phonebook -->
+                </div>
+                <div><br /></div>
+                <div class="alert alert-danger" role="alert" style="visibility: hidden" id="error-msg">
+                    <!-- place for error messages -->
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

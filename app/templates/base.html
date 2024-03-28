@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Nunito.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome-all.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Features-Cards.css') }}">
+    <script src="{{ url_for('static', filename='jQuery/jquery.min.js') }}"></script>
   </head>
   <body id="page-top">
     <div id="wrapper">
@@ -37,6 +38,12 @@
             <li class="nav-item">
               <a class="nav-link py-2" href="/"><i class="fas fa-home"></i>
                 <span>Главная</span>
+              </a>
+            </li>
+            <!-- телефонный справочник -->
+            <li class="nav-item text-start">
+              <a class="nav-link py-2" href="{{ url_for('phonebook.phonebook') }}">
+                <i class="fas fa-phone"></i><span>Телефонный справочник</span>
               </a>
             </li>
             <!-- Расписание -->
