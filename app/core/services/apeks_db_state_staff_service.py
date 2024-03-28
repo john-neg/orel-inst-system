@@ -55,6 +55,7 @@ def process_state_staff_data(state_staff_data) -> dict:
             "full": f"{family_name} {first_name} {second_name}",
             "short": f"{family_name} {first_name[0]}.{second_name[0]}.",
             "user_id": staff.get("user_id"),
+            "special_rank_id": staff.get("special_rank_id")
         }
     logging.debug("Информация о преподавателях успешно передана")
     return staff_dict

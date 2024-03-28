@@ -132,6 +132,7 @@ def process_stable_staff_data(
     staff_ids: dict[str, Any],
     state_staff_positions: dict[str, Any],
     state_staff: dict[str, Any],
+    state_special_ranks: dict[str, Any] = None
 ) -> list[dict[str, Any]]:
     """
     Формирует данные о личном составе с должностями и позициями сортировки.
@@ -147,12 +148,19 @@ def process_stable_staff_data(
         position_id = staff_hist.get("position_id")
         position_data = state_staff_positions.get(position_id)
         staff_data = state_staff.get(staff_id)
+        rank = None
+        if state_special_ranks:
+            rank_id = staff_data.get('special_rank_id')
+            rank = state_special_ranks.get(rank_id)
         full_staff_data.append(
             {
                 "staff_id": staff_id,
+                "full_name": staff_data.get("full"),
                 "name": staff_data.get("short"),
                 "position": position_data.get("name"),
+                "department_id": staff_hist.get("department_id"),
                 "sort": position_data.get("sort"),
+                "rank": rank.get('name') if rank else None
             }
         )
     full_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)
