@@ -14,7 +14,8 @@ from ..core.services.staff_various_document_service import StaffVariousGroupDocS
 Filename: TypeAlias = str
 
 
-def get_various_report_data(document: dict, daytime: str, faculty_names: dict):
+def get_various_report_data(document: dict, faculty_names: dict):
+    daytime = document.get("daytime")
     result = {
         "date": document.get("date"),
         "daytime": MongoDBSettings.DAYTIME_NAME.get(

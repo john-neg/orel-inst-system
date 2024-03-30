@@ -104,7 +104,8 @@
               {{ form.enable_edit(class="btn btn-warning fw-bold") }}
             {% endif %}
           {% endif %}
-            {{ form.make_report(class="btn btn-success fw-bold") }}
+            <a class="btn btn-success fw-bold" role="button"
+               href="{{ url_for('staff.staff_various_file_report', date=date, daytime=daytime) }}">Сформировать отчет</a>
           </div>
         </div>
       </div>

@@ -124,9 +124,9 @@ class MongoDBSettings:
     }
 
     # Время подачи строевой записки
-    DAYTIME_MORNING = "morning"
-    DAYTIME_DAY = "day"
-    DAYTIME_EVENING = "evening"
+    DAYTIME_MORNING: str = "morning"
+    DAYTIME_DAY: str = "day"
+    DAYTIME_EVENING: str = "evening"
     # Название времени
     DAYTIME_NAME = {
         DAYTIME_MORNING: "Утро (8:30)",

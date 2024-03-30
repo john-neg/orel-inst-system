@@ -26,6 +26,7 @@ from .func import (
     make_short_name,
     process_apeks_stable_staff_data,
     process_apeks_various_group_data,
+    process_document_various_staff_data,
     process_stable_staff_data,
     process_document_stable_staff_data,
     process_documents_range_by_busy_type,
@@ -398,8 +399,10 @@ async def staff_info():
     staff_stable_document = staff_stable_service.get(
         query_filter={"date": current_date}
     )
-    busy_types_service = get_staff_stable_busy_types_service()
-    busy_types = {item.slug: item.name for item in busy_types_service.list()}
+    stable_busy_types_service = get_staff_stable_busy_types_service()
+    stable_busy_types = {
+        item.slug: item.name for item in stable_busy_types_service.list()
+    }
     document_stable_status = (
         MongoDBSettings.STAFF_COLLECTION_STATUSES.get(
             staff_stable_document.get("status")
@@ -408,7 +411,6 @@ async def staff_info():
         else None
     )
     staff_stable_data = process_document_stable_staff_data(staff_stable_document)
-
     if current_date == dt.date.today().isoformat() and staff_stable_document:
         departments_service = get_db_apeks_state_departments_service()
         departments = await departments_service.get_departments()
@@ -442,22 +444,40 @@ async def staff_info():
                         )
     else:
         military_data = None
-
-    if request.method == "POST" and form.validate_on_submit():
-        if request.form.get("make_report"):
-            filename = generate_stable_staff_report(staff_stable_document, busy_types)
-            return redirect(url_for("main.get_file", filename=filename))
+    staff_various_service = get_staff_various_document_service()
+    various_documents = {
+        daytime.value: process_document_various_staff_data(
+            staff_various_service.get(
+                query_filter={"date": current_date, "daytime": daytime}
+            )
+        )
+        for daytime in VariousStaffDaytimeType
+    }
     return render_template(
         "staff/staff_info.html",
         active="staff",
         form=form,
         date=current_date,
-        busy_types=busy_types,
+        stable_busy_types=stable_busy_types,
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
         document_stable_status=document_stable_status,
+        various_documents=various_documents,
         military_data=military_data,
     )
+
+
+@bp.route("/staff_stable_file_report/<string:date>", methods=["GET"])
+@login_required
+async def staff_stable_file_report(date):
+    staff_stable_service = get_staff_stable_document_service()
+    document_data = staff_stable_service.get(
+        query_filter={"date": date}
+    )
+    stable_busy_types_service = get_staff_stable_busy_types_service()
+    busy_types = {item.slug: item.name for item in stable_busy_types_service.list()}
+    filename = generate_stable_staff_report(document_data, busy_types)
+    return redirect(url_for("main.get_file", filename=filename))
 
 
 @bp.route("/staff_stable_report", methods=["GET"])
@@ -512,7 +532,6 @@ async def staff_stable_load():
         else dt.date.today()
     )
     staff_stable_service = get_staff_stable_document_service()
-    busy_types_service = get_staff_stable_busy_types_service()
     document_data = staff_stable_service.get(
         query_filter={"date": working_date.isoformat()}
     )
@@ -542,10 +561,6 @@ async def staff_stable_load():
                 f"документа {working_date.isoformat()}: {result}"
             )
             return redirect(url_for("staff.staff_stable_load"))
-        elif request.form.get("make_report"):
-            busy_types = {item.slug: item.name for item in busy_types_service.list()}
-            filename = generate_stable_staff_report(document_data, busy_types)
-            return redirect(url_for("main.get_file", filename=filename))
     departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments()
     staff_history_service = get_db_apeks_state_staff_history_service()
@@ -723,7 +738,11 @@ async def staff_various_load():
                 f"{current_user} запретил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
+            return redirect(
+                url_for(
+                    "staff.staff_various_load", date=working_date, daytime=daytime.value
+                )
+            )
         elif request.form.get("enable_edit"):
             result = staff_various_service.change_status(
                 _id=document_data.get("_id"),
@@ -733,23 +752,11 @@ async def staff_various_load():
                 f"{current_user} разрешил редактирование "
                 f"документа {working_date.isoformat()}: {result}"
             )
-            return redirect(url_for("staff.staff_various_load", date=working_date, daytime=daytime.value))
-        elif request.form.get("make_report"):
-            busy_types_service = get_staff_various_busy_types_service()
-            busy_types = {item.slug: item.name for item in busy_types_service.list()}
-            illness_types_service = get_staff_various_illness_types_service()
-            illness_types = {
-                item.slug: item.name for item in illness_types_service.list()
-            }
-            faculty_data = {
-                item.short_name: item.sort for item in allowed_faculty_service.list()
-            }
-            report_data = get_various_report_data(document_data, daytime, faculty_data)
-            filename = generate_various_staff_report(
-                report_data, busy_types, illness_types
+            return redirect(
+                url_for(
+                    "staff.staff_various_load", date=working_date, daytime=daytime.value
+                )
             )
-            return redirect(url_for("main.get_file", filename=filename))
-
     return render_template(
         "staff/staff_various_load.html",
         active="staff",
@@ -860,11 +867,15 @@ async def staff_various_edit(daytime, group_id, course):
                 documents = [dept_document]
                 if request.form.get("switch_copy_day"):
                     day_doc = copy.deepcopy(dept_document)
-                    day_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_DAY)
+                    day_doc.daytime = VariousStaffDaytimeType(
+                        MongoDBSettings.DAYTIME_DAY
+                    )
                     documents.append(day_doc)
                 if request.form.get("switch_copy_evening"):
                     evening_doc = copy.deepcopy(dept_document)
-                    evening_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_EVENING)
+                    evening_doc.daytime = VariousStaffDaytimeType(
+                        MongoDBSettings.DAYTIME_EVENING
+                    )
                     documents.append(evening_doc)
                 for document in documents[::-1]:
                     staff_various_service.update(
@@ -919,3 +930,30 @@ async def staff_various_edit(daytime, group_id, course):
         students_data=enumerate(students_data, start=1),
         status=document_data.get("status"),
     )
+
+
+@bp.route(
+    "/staff_various_file_report/<string:date>/<string:daytime>",
+    methods=["GET"],
+)
+@login_required
+async def staff_various_file_report(date, daytime):
+    staff_various_service = get_staff_various_document_service()
+    document_data = staff_various_service.get(
+        query_filter={"date": date, "daytime": daytime}
+    )
+    allowed_faculty_service = get_staff_allowed_faculty_service()
+    busy_types_service = get_staff_various_busy_types_service()
+    busy_types = {item.slug: item.name for item in busy_types_service.list()}
+    illness_types_service = get_staff_various_illness_types_service()
+    illness_types = {
+        item.slug: item.name for item in illness_types_service.list()
+    }
+    faculty_data = {
+        item.short_name: item.sort for item in allowed_faculty_service.list()
+    }
+    report_data = get_various_report_data(document_data, faculty_data)
+    filename = generate_various_staff_report(
+        report_data, busy_types, illness_types
+    )
+    return redirect(url_for("main.get_file", filename=filename))

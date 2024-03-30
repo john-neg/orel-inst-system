@@ -5,8 +5,10 @@ from flask import Response
 from flask_login import FlaskLoginClient
 import pytest
 import pytest_asyncio
-from sqlalchemy import StaticPool
-from sqlalchemy.ext.asyncio import create_async_engine
+from flask_sqlalchemy.session import Session
+from sqlalchemy import StaticPool, create_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 from werkzeug.test import TestResponse
 
 from app import create_app
@@ -58,7 +60,7 @@ def async_client(app) -> AsyncTestClient:
     return AsyncTestClient(app, Response, True)
 
 
-class AuthActions():
+class AuthActions:
     def __init__(self, client, username='TestUser', password='TestPass'):
         self.client = client
         self.username = username
@@ -66,7 +68,7 @@ class AuthActions():
 
     def create(self):
         with self.client.application.app_context():
-            permissions = Per
+            # permissions = Permission
             test_user = Users(username=self.username, password=self.password)
             test_user.save()
 
@@ -88,23 +90,17 @@ def auth(async_client):
 
 
 @pytest.fixture(scope="function")
-async def test_session() -> Session:
-    async_engine = create_async_engine(
+def test_session() -> Session:
+    engine = create_engine(
         "sqlite://",
         poolclass=StaticPool,
         future=True,
     )
-    async_session = sessionmaker(
-        async_engine,
-        class_=AsyncSession,
+    session = sessionmaker(
+        engine,
+        class_=Session,
         expire_on_commit=False,
     )
 
-    async with async_session() as session:
-        async with async_engine.begin() as connection:
-            await connection.run_sync(SQLModel.metadata.create_all)
-
-        yield session
-
-    async with async_engine.begin() as connection:
-        await connection.run_sync(SQLModel.metadata.drop_all)
+    with session() as session:
+        session.create_all()

@@ -289,3 +289,33 @@ def process_apeks_various_group_data(
                                 - group_data["student_absence"]
                             )
     return groups_data
+
+
+def process_document_various_staff_data(various_document_data: dict) -> dict[str, Any]:
+    """Обрабатывает данные документа - строевой записки переменного состава."""
+
+    if not various_document_data:
+        return {}
+    staff_data = {
+        "daytime": various_document_data.get("daytime"),
+        "status": various_document_data.get("status"),
+        "staff_total": 0,
+        "staff_stock": 0,
+        "staff_absence": 0,
+        "absence_types": {},
+    }
+    for group in various_document_data["groups"].values():
+
+        staff_data["staff_total"] += group["total"]
+        for absence in group["absence"]:
+            value = len(group["absence"][absence])
+            staff_data["absence_types"].setdefault(absence, 0)
+            staff_data["absence_types"][absence] += value
+            staff_data["staff_absence"] += value
+        staff_data["absence_types"]["illness"] = 0
+        for illness in group["absence_illness"]:
+            value = len(group["absence_illness"][illness])
+            staff_data["absence_types"]["illness"] += value
+            staff_data["staff_absence"] += value
+    staff_data["staff_stock"] = staff_data["staff_total"] - staff_data["staff_absence"]
+    return staff_data

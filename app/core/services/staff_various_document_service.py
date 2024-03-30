@@ -8,7 +8,11 @@ from pymongo.database import Database
 from pymongo.results import InsertOneResult, UpdateResult
 
 from config import MongoDBSettings
-from .base_mongo_db_crud_service import BaseMongoDbCrudService, DocumentStatusType, VariousStaffDaytimeType
+from .base_mongo_db_crud_service import (
+    BaseMongoDbCrudService,
+    DocumentStatusType,
+    VariousStaffDaytimeType,
+)
 from ..db.mongo_db import get_mongo_db
 from ..repository.mongo_db_repository import MongoDbRepository
 
@@ -90,7 +94,9 @@ class StaffVariousCRUDService(BaseMongoDbCrudService):
             {"$set": {f"status": status}},
         )
 
-    def make_blank_document(self, document_date: datetime.date) -> list[InsertOneResult]:
+    def make_blank_document(
+        self, document_date: datetime.date
+    ) -> list[InsertOneResult]:
         """Создает пустой документ с заданной датой."""
 
         result_info = []

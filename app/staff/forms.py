@@ -14,7 +14,6 @@ class StaffForm(FlaskForm):
     """Форма для просмотра информации по строевой записке."""
 
     document_date = DateField("Дата документа", default=datetime.date.today)
-    make_report = SubmitField("Сформировать отчет")
 
 
 class StaffReportForm(FlaskForm):
@@ -29,7 +28,6 @@ class StaffLoadForm(FlaskForm):
 
     finish_edit = SubmitField("Завершить редактирование")
     enable_edit = SubmitField("Разрешить редактирование")
-    make_report = SubmitField("Сформировать отчет")
 
 
 def create_staff_stable_edit_form(

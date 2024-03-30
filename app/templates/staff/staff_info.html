@@ -101,7 +101,7 @@
                       <tbody>
                         {% for absence in staff_stable_data.get("absence_types") %}
                           <tr>
-                            <td>{{ busy_types.get(absence) }}</td>
+                            <td>{{ stable_busy_types.get(absence) }}</td>
                             <td>{{ staff_stable_data["absence_types"][absence] }}</td>
                           </tr>
                         {% endfor %}
@@ -111,6 +111,12 @@
                 </div>
               </div>
             {% endif %}
+            <div class="row justify-content-center">
+              <div class="col-md-10 col-xl-8 mb-2">
+                <a class="btn btn-primary fw-bold" role="button"
+                   href="{{ url_for('staff.staff_stable_file_report', date=date) }}">Сформировать отчет</a>
+            </div>
+          </div>
           {% endif %}
         {% else %}
           <div class="row justify-content-center">
@@ -132,52 +138,53 @@
                 <thead>
                   <tr>
                     <th></th>
-                    <th class="text-center">
-                      {{ config.DAYTIME_NAME.get(config.DAYTIME_MORNING) }}<span>&nbsp;</span>
-                      <span>
-                        <a href="{{ url_for('staff.staff_various_load', date=date, daytime=config.DAYTIME_MORNING) }}" target="_blank">
-                          <i class="fas fa-check-circle text-success"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th class="text-center">
-                      {{ config.DAYTIME_NAME.get(config.DAYTIME_DAY) }}<span>&nbsp;</span>
-                      <span>
-                        <a href="{{ url_for('staff.staff_various_load', date=date, daytime=config.DAYTIME_DAY) }}" target="_blank">
-                          <i class="fas fa-minus-circle text-warning"></i>
-                        </a>
-                      </span>
-                    </th>
-                    <th class="text-center">
-                      {{ config.DAYTIME_NAME.get(config.DAYTIME_EVENING) }}<span>&nbsp;</span>
-                      <span>
-                        <a href="{{ url_for('staff.staff_various_load', date=date, daytime=config.DAYTIME_EVENING) }}" target="_blank">
-                          <i class="fas fa-minus-circle text-warning"></i>
-                        </a>
-                      </span>
-                    </th>
+                    {% for daytime in config.DAYTIME_NAME %}
+                      <th class="text-center">
+                        {{ config.DAYTIME_NAME.get(daytime) }}<span> </span>
+                        <span>
+                          <a href="{{ url_for('staff.staff_various_load', date=date, daytime=daytime) }}" target="_blank">
+                            {% if various_documents[daytime].get("status") == config.STAFF_COMPLETED_STATUS %}
+                              <i class="fas fa-check-circle text-success" title="Сформирован"></i>
+                            {% elif various_documents[daytime].get("status") == config.STAFF_IN_PROGRESS_STATUS %}
+                              <i class="fas fa-minus-circle text-warning" title="Заполняется"></i>
+                            {% else %}
+                              <i class="fas fa-times-circle text-danger" title="Нет данных"></i>
+                            {% endif %}
+                          </a>
+                        </span>
+                      </th>
+                    {% endfor %}
                   </tr>
                 </thead>
-{#                <tbody>#}
-{#                  <tr>#}
-{#                    <td>По списку</td>#}
-{#                    <td class="text-center">456</td>#}
-{#                    <td class="text-center">456</td>#}
-{#                    <td class="text-center">456</td>#}
-{#                  </tr>#}
-{#                  <tr>#}
-{#                    <td>В строю</td>#}
-{#                    <td class="text-center">345</td>#}
-{#                    <td class="text-center">234</td>#}
-{#                    <td class="text-center">100</td>#}
-{#                  </tr>#}
-{#                  <tr>#}
-{#                    <td>Отсутствуют</td>#}
-{#                    <td class="text-center">123</td>#}
-{#                    <td class="text-center">345</td>#}
-{#                    <td class="text-center">356</td>#}
-{#                  </tr>#}
-{#                </tbody>#}
+                <tbody>
+                  <tr>
+                    <td>По списку</td>
+                    {% for daytime in config.DAYTIME_NAME %}
+                      <td class="text-center">{{ various_documents[daytime].get("staff_total", "Нет данных") }}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>В строю</td>
+                    {% for daytime in config.DAYTIME_NAME %}
+                      <td class="text-center">{{ various_documents[daytime].get("staff_stock", "Нет данных") }}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Отсутствуют</td>
+                    {% for daytime in config.DAYTIME_NAME %}
+                      <td class="text-center">{{ various_documents[daytime].get("staff_absence", "Нет данных") }}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Отчет</td>
+                    {% for daytime in config.DAYTIME_NAME %}
+                      <td class="text-center">
+                        <a class="btn btn-primary btn-sm fw-bold" role="button"
+                           href="{{ url_for('staff.staff_various_file_report', date=date, daytime=daytime) }}">Отчет</a>
+                      </td>
+                    {% endfor %}
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -226,7 +233,7 @@
                           {% for absence in department.get("absence") %}
                             {% if department["absence"][absence] %}
                               <tr>
-                                <td class="text-center">{{ busy_types.get(absence) }}</td>
+                                <td class="text-center">{{ stable_busy_types.get(absence) }}</td>
                                 <td class="text-center">{{ department["absence"][absence].values()|count }}</td>
                                 <td class="text-center">{{ ', '.join(department["absence"][absence].values()) }}</td>
                               </tr>
@@ -238,11 +245,6 @@
                   {% endfor %}
                 </table>
               </div>
-            </div>
-          </div>
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mb-2">
-              {{ form.make_report(class="btn btn-primary fw-bold") }}
             </div>
           </div>
         {% endif %}
