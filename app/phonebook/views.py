@@ -1,6 +1,6 @@
 import asyncio
 
-from . import bp_phbook, bp_phbook_get_data
+from . import phonebook_bp
 from flask import render_template, request, jsonify
 
 import datetime as dt
@@ -399,7 +399,7 @@ async def get(dep_id: int | str) -> dict:
     return response
 
 
-@bp_phbook_get_data.route('/phonebook/get_data', methods=['GET'])
+@phonebook_bp.route('/phonebook/get_data', methods=['GET'])
 async def get_data():
     if request.method == 'GET':
         data_get = request.args.get('get')
@@ -413,6 +413,6 @@ async def get_data():
     return None
 
 
-@bp_phbook.route("/phonebook", methods=["GET"])
+@phonebook_bp.route("/phonebook", methods=["GET"])
 async def phonebook():
     return render_template("phonebook/phonebook.html")

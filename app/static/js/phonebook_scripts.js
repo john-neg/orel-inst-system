@@ -72,10 +72,10 @@ buildAccordionLeaf = (place_id, item_data) => {  // строим лист (сп�
                     '<td align="left" valign="center" width="15%" style="border-right: solid 1px #DEE2E6">' +
                         item_data.surname + '<br>' + item_data.name + ' ' + item_data.patronymic +
                     '</td>' +
-                    '<td align="center" valign="center" width="10%" style="border-right: solid 1px #DEE2E6">' +
+                    '<td align="center" valign="center" width="15%" style="border-right: solid 1px #DEE2E6">' +
                         item_data.rank +
                     '</td>' +
-                    '<td align="center" valign="center" width="10%" style="border-right: solid 1px #DEE2E6">' +
+                    '<td align="center" valign="center" width="5%" style="border-right: solid 1px #DEE2E6">' +
                         item_data.extension.map((el) => el = el + '<br>').join('') +
                     '</td>' +
                     '<td align="center" valign="center" width="10%">' +
