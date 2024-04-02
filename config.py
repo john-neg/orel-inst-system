@@ -220,6 +220,7 @@ class ApeksConfig(object):
         "system_reports": "system_reports",
         "system_settings": "system_settings",
         "system_users": "system_users",
+        "state_staff_field_data": "state_staff_field_data",
     }
 
     # Типы записей в таблице student_student_history означающие исключение из группы

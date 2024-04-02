@@ -30,6 +30,7 @@ from .reports import bp as reports_bp
 from .schedule import bp as schedule_bp
 from .staff import bp as staff_bp
 from .tools import bp as tools_bp
+from .phonebook import bp_phbook, bp_phbook_get_data
 
 
 def check_tokens() -> bool:
@@ -79,6 +80,8 @@ def register_blueprints(app):
     app.register_blueprint(programs_bp, url_prefix="/programs")
     app.register_blueprint(library_bp)
     app.register_blueprint(tools_bp, url_prefix="/tools")
+    app.register_blueprint(bp_phbook)
+    app.register_blueprint(bp_phbook_get_data)
 
 
 def add_functions_to_templates():
