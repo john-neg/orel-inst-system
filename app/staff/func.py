@@ -291,7 +291,7 @@ def process_apeks_various_group_data(
     return groups_data
 
 
-def process_document_various_staff_data(various_document_data: dict) -> dict[str, Any]:
+def process_document_various_staff_data(various_document_data: dict, faculty_names: dict) -> dict[str, Any]:
     """Обрабатывает данные документа - строевой записки переменного состава."""
 
     if not various_document_data:
@@ -299,23 +299,44 @@ def process_document_various_staff_data(various_document_data: dict) -> dict[str
     staff_data = {
         "daytime": various_document_data.get("daytime"),
         "status": various_document_data.get("status"),
-        "staff_total": 0,
-        "staff_stock": 0,
-        "staff_absence": 0,
-        "absence_types": {},
+        "total": 0,
+        "stock": 0,
+        "absence": 0,
+        "faculty_data": {}
     }
     for group in various_document_data["groups"].values():
-
-        staff_data["staff_total"] += group["total"]
-        for absence in group["absence"]:
-            value = len(group["absence"][absence])
-            staff_data["absence_types"].setdefault(absence, 0)
-            staff_data["absence_types"][absence] += value
-            staff_data["staff_absence"] += value
-        staff_data["absence_types"]["illness"] = 0
+        faculty = group["faculty"]
+        if faculty not in staff_data["faculty_data"]:
+            staff_data["faculty_data"][faculty] = {
+                "total": 0, "stock": 0, "absence": 0, "absence_types": {}
+            }
+        faculty_data = staff_data["faculty_data"][faculty]
+        faculty_data["total"] += group["total"]
+        for absence_type in group["absence"]:
+            value = len(group["absence"][absence_type])
+            faculty_data["absence_types"].setdefault(absence_type, 0)
+            faculty_data["absence_types"][absence_type] += value
+            faculty_data["absence"] += value
+        faculty_data["absence_types"].setdefault("illness", 0)
         for illness in group["absence_illness"]:
             value = len(group["absence_illness"][illness])
-            staff_data["absence_types"]["illness"] += value
-            staff_data["staff_absence"] += value
-    staff_data["staff_stock"] = staff_data["staff_total"] - staff_data["staff_absence"]
+            faculty_data["absence_types"]["illness"] += value
+            faculty_data["absence"] += value
+        faculty_data["stock"] = faculty_data["total"] - faculty_data["absence"]
+
+    def sort_faculty(faculty_name):
+        if faculty_name in faculty_names:
+            return faculty_names[faculty_name]
+        return max(faculty_names.values()) + 1
+
+    staff_data["faculty_data"] = {
+        faculty: staff_data["faculty_data"][faculty]
+        for faculty in sorted(staff_data["faculty_data"], key=sort_faculty)
+    }
+
+    for faculty in staff_data["faculty_data"]:
+        staff_data["total"] += staff_data["faculty_data"][faculty]["total"]
+        staff_data["stock"] += staff_data["faculty_data"][faculty]["stock"]
+        staff_data["absence"] += staff_data["faculty_data"][faculty]["absence"]
+
     return staff_data

@@ -445,14 +445,24 @@ async def staff_info():
     else:
         military_data = None
     staff_various_service = get_staff_various_document_service()
-    various_documents = {
-        daytime.value: process_document_various_staff_data(
+    allowed_faculty_service = get_staff_allowed_faculty_service()
+    faculties_data = {
+        item.short_name: item.sort for item in allowed_faculty_service.list()
+    }
+
+    # Данные для таблицы по переменному составу
+    various_data = {"total": {}}
+    for daytime in VariousStaffDaytimeType:
+        data = process_document_various_staff_data(
             staff_various_service.get(
                 query_filter={"date": current_date, "daytime": daytime}
-            )
+            ), faculties_data
         )
-        for daytime in VariousStaffDaytimeType
-    }
+        various_data["total"][daytime.value] = data
+        for faculty, faculty_data in data.get("faculty_data", {}).items():
+            various_data.setdefault(faculty, {})
+            various_data[faculty][daytime.value] = faculty_data
+
     return render_template(
         "staff/staff_info.html",
         active="staff",
@@ -462,7 +472,7 @@ async def staff_info():
         department_types=ApeksConfig.DEPT_TYPES.values(),
         staff_stable_data=staff_stable_data,
         document_stable_status=document_stable_status,
-        various_documents=various_documents,
+        various_data=various_data,
         military_data=military_data,
     )
 

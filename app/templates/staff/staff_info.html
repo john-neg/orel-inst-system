@@ -137,15 +137,15 @@
               <table class="table table-sm">
                 <thead>
                   <tr>
-                    <th></th>
+                    <th class="table-primary"></th>
                     {% for daytime in config.DAYTIME_NAME %}
-                      <th class="text-center">
+                      <th class="text-center table-primary">
                         {{ config.DAYTIME_NAME.get(daytime) }}<span> </span>
                         <span>
                           <a href="{{ url_for('staff.staff_various_load', date=date, daytime=daytime) }}" target="_blank">
-                            {% if various_documents[daytime].get("status") == config.STAFF_COMPLETED_STATUS %}
+                            {% if various_data["total"][daytime].get("status") == config.STAFF_COMPLETED_STATUS %}
                               <i class="fas fa-check-circle text-success" title="Сформирован"></i>
-                            {% elif various_documents[daytime].get("status") == config.STAFF_IN_PROGRESS_STATUS %}
+                            {% elif various_data["total"][daytime].get("status") == config.STAFF_IN_PROGRESS_STATUS %}
                               <i class="fas fa-minus-circle text-warning" title="Заполняется"></i>
                             {% else %}
                               <i class="fas fa-times-circle text-danger" title="Нет данных"></i>
@@ -158,29 +158,61 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>По списку</td>
+                    <td class="table-secondary"><b>По списку</b></td>
                     {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center">{{ various_documents[daytime].get("staff_total", "Нет данных") }}</td>
+                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("total", "Нет данных") }}</b></td>
                     {% endfor %}
                   </tr>
+                  {% for faculty, faculty_data in various_data.items() %}
+                    {% if faculty != "total" %}
+                      <tr>
+                        <td>{{ faculty }}</td>
+                        {% for daytime in config.DAYTIME_NAME %}
+                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("total", "Нет данных") }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
                   <tr>
-                    <td>В строю</td>
+                    <td class="table-secondary"><b>В строю</b></td>
                     {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center">{{ various_documents[daytime].get("staff_stock", "Нет данных") }}</td>
+                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("stock", "Нет данных") }}</b></td>
                     {% endfor %}
                   </tr>
+                  {% for faculty, faculty_data in various_data.items() %}
+                    {% if faculty != "total" %}
+                      <tr>
+                        <td>{{ faculty }}</td>
+                        {% for daytime in config.DAYTIME_NAME %}
+                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("stock", "Нет данных") }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
                   <tr>
-                    <td>Отсутствуют</td>
+                    <td class="table-secondary"><b>Отсутствуют</b></td>
                     {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center">{{ various_documents[daytime].get("staff_absence", "Нет данных") }}</td>
+                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("absence", "Нет данных") }}</b></td>
                     {% endfor %}
                   </tr>
+                  {% for faculty, faculty_data in various_data.items() %}
+                    {% if faculty != "total" %}
+                      <tr>
+                        <td>{{ faculty }}</td>
+                        {% for daytime in config.DAYTIME_NAME %}
+                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("absence", "Нет данных") }}</td>
+                        {% endfor %}
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
                   <tr>
-                    <td>Отчет</td>
+                    <td class="table-primary"><b>Отчет</b></td>
                     {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center">
+                      <td class="text-center table-primary">
+                      {% if various_data["total"][daytime].get("status") %}
                         <a class="btn btn-primary btn-sm fw-bold" role="button"
                            href="{{ url_for('staff.staff_various_file_report', date=date, daytime=daytime) }}">Отчет</a>
+                      {% endif %}
                       </td>
                     {% endfor %}
                   </tr>
