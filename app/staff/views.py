@@ -901,7 +901,7 @@ async def staff_various_edit(daytime, group_id, course):
                     MongoDBSettings.DAYTIME_EVENING
                 )
                 documents.append(evening_doc)
-
+            group_students = data_processor(students_data)
             try:
                 for document in documents[::-1]:
                     staff_various_service.update(
@@ -930,7 +930,7 @@ async def staff_various_edit(daytime, group_id, course):
                             "lesson_time_id"
                         ) in ApeksConfig.DAYTIME_LESSONS_IDS.get(document.daytime):
                             lesson_actions = await lesson_skips_processor(
-                                lesson, document, busy_types
+                                lesson, document, busy_types, group_students
                             )
                             message = (
                                 "Сведения об отсутствующих по дисциплине "

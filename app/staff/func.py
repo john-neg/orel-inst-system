@@ -153,6 +153,7 @@ def process_stable_staff_data(
     :param staff_ids: данные таблицы staff_history
     :param state_staff_positions: данные таблицы state_staff_positions
     :param state_staff: данные таблицы state_staff
+    :param state_special_ranks: данные таблицы state_special_ranks
     :return: list({"staff_id": "staff_id", "name": "short",
                    "position": "name", "sort": "sort"})
     """
@@ -411,6 +412,7 @@ async def lesson_skips_processor(
     lesson: dict,
     document: StaffVariousGroupDocStructure,
     busy_types: list[StaffVariousBusyTypes],
+    group_students: dict
 ):
     """Обрабатывает пропуски занятия и редактирует электронный журнал."""
 
@@ -438,7 +440,7 @@ async def lesson_skips_processor(
         student_id = mark.get("student_id")
         skip_reason_id = mark.get("skip_reason_id")
         user_id = mark.get("user_id")
-        if user_id == str(ApeksConfig.BASE_USER_ID):
+        if user_id == str(ApeksConfig.BASE_USER_ID) and student_id in group_students:
             if student_id not in students_skips:
                 delete_count = await student_marks_service.delete(
                     journal_lesson_id=journal_lesson_id,
