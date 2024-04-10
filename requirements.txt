@@ -1,6 +1,6 @@
 alembic==1.13.1
 asgiref==3.8.1
-Flask==3.0.2
+Flask==3.0.3
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 openpyxl==3.1.2
@@ -17,6 +17,6 @@ SQLAlchemy==2.0.29
 Flask-SQLAlchemy==3.1.1
 WTForms==3.1.2
 WTForms-SQLAlchemy==0.4.1
-Werkzeug==3.0.1
+Werkzeug==3.0.2
 ldap3~=2.9.1
-pymongo==4.6.2
+pymongo==4.6.3

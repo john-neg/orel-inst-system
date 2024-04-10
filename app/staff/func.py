@@ -1,17 +1,30 @@
+import datetime
 import logging
 from typing import Any
 
 from flask import flash
 from pymongo.cursor import Cursor
 
-from app.core.db.staff_models import StaffAllowedFaculty
 from config import ApeksConfig
+from ..core.db.staff_models import StaffAllowedFaculty, StaffVariousBusyTypes
+from ..core.services.apeks_db_student_marks_service import get_apeks_db_student_marks_service
+from ..core.services.apeks_db_student_student_history_service import (
+    get_apeks_db_student_student_history_service,
+)
+from ..core.services.apeks_db_student_students_groups_service import (
+    get_apeks_db_student_students_groups_service,
+)
+from ..core.services.apeks_db_student_students_service import (
+    get_apeks_db_student_students_service,
+)
+from ..core.services.base_apeks_api_service import data_processor
+from ..core.services.staff_various_document_service import StaffVariousGroupDocStructure
 
 
 def make_short_name(family_name: str, name: str, surname: str = None) -> str:
     """Создает короткое имя формата Иванов И.И."""
-    name_letter = f"{name[0]}." if name else ''
-    surname_letter = f"{surname[0]}." if surname else ''
+    name_letter = f"{name[0]}." if name else ""
+    surname_letter = f"{surname[0]}." if surname else ""
     return f"{family_name} {name_letter}{surname_letter}"
 
 
@@ -132,7 +145,7 @@ def process_stable_staff_data(
     staff_ids: dict[str, Any],
     state_staff_positions: dict[str, Any],
     state_staff: dict[str, Any],
-    state_special_ranks: dict[str, Any] = None
+    state_special_ranks: dict[str, Any] = None,
 ) -> list[dict[str, Any]]:
     """
     Формирует данные о личном составе с должностями и позициями сортировки.
@@ -150,7 +163,7 @@ def process_stable_staff_data(
         staff_data = state_staff.get(staff_id)
         rank = None
         if state_special_ranks:
-            rank_id = staff_data.get('special_rank_id')
+            rank_id = staff_data.get("special_rank_id")
             rank = state_special_ranks.get(rank_id)
         full_staff_data.append(
             {
@@ -160,7 +173,7 @@ def process_stable_staff_data(
                 "position": position_data.get("name"),
                 "department_id": staff_hist.get("department_id"),
                 "sort": position_data.get("sort"),
-                "rank": rank.get('name') if rank else None
+                "rank": rank.get("name") if rank else None,
             }
         )
     full_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)
@@ -241,6 +254,45 @@ def process_documents_range_by_staff_id(
     return dict(sorted(processed_data.items(), key=lambda x: x[1].get("name")))
 
 
+async def get_students_data(group_id: str | int) -> list:
+    """
+    Возвращает список студентов учебной группы.
+
+    :param group_id: Идентификатор группы
+    :returns: [{'id': '797', 'family_name': 'Фамилия ', 'name': 'Имя',
+                'surname': 'Отчество', 'sex': 'F', 'birthday': '2003-12-09',
+                'user_id': '188', 'special_rank_id': '1', 'file_id': None,
+                'employer_id': '3', 'job_position_id': '1',
+                'external_id': '', 'short_name': 'Фамилия И.О.'}]
+    """
+
+    students_group_service = get_apeks_db_student_students_groups_service()
+    group_students = data_processor(
+        await students_group_service.get(group_id=group_id),
+        key="student_id",
+    )
+    students_service = get_apeks_db_student_students_service()
+    students_data = await students_service.get(id=group_students)
+    students_data = sorted(students_data, key=lambda x: x.get("family_name"))
+    student_history_service = get_apeks_db_student_student_history_service()
+    fired_students = [
+        student.get("student_id")
+        for student in await student_history_service.get(
+            student_id=group_students.keys(),
+            type=ApeksConfig.STUDENT_HISTORY_RECORD_TYPES.keys(),
+            group_id=group_id,
+        )
+    ]
+    students_data = [
+        student for student in students_data if student.get("id") not in fired_students
+    ]
+    for student in students_data:
+        student["short_name"] = make_short_name(
+            student.get("family_name"), student.get("name"), student.get("surname")
+        )
+    return students_data
+
+
 def staff_various_groups_data_filter(
     groups_data: dict, allowed_faculty: list[StaffAllowedFaculty]
 ) -> dict:
@@ -299,7 +351,9 @@ def process_apeks_various_group_data(
     return groups_data
 
 
-def process_document_various_staff_data(various_document_data: dict, faculty_names: dict) -> dict[str, Any]:
+def process_document_various_staff_data(
+    various_document_data: dict, faculty_names: dict
+) -> dict[str, Any]:
     """Обрабатывает данные документа - строевой записки переменного состава."""
 
     if not various_document_data:
@@ -310,13 +364,16 @@ def process_document_various_staff_data(various_document_data: dict, faculty_nam
         "total": 0,
         "stock": 0,
         "absence": 0,
-        "faculty_data": {}
+        "faculty_data": {},
     }
     for group in various_document_data["groups"].values():
         faculty = group["faculty"]
         if faculty not in staff_data["faculty_data"]:
             staff_data["faculty_data"][faculty] = {
-                "total": 0, "stock": 0, "absence": 0, "absence_types": {}
+                "total": 0,
+                "stock": 0,
+                "absence": 0,
+                "absence_types": {},
             }
         faculty_data = staff_data["faculty_data"][faculty]
         faculty_data["total"] += group["total"]
@@ -348,3 +405,70 @@ def process_document_various_staff_data(various_document_data: dict, faculty_nam
         staff_data["absence"] += staff_data["faculty_data"][faculty]["absence"]
 
     return staff_data
+
+
+async def lesson_skips_processor(
+    lesson: dict,
+    document: StaffVariousGroupDocStructure,
+    busy_types: list[StaffVariousBusyTypes],
+):
+    """Обрабатывает пропуски занятия и редактирует электронный журнал."""
+
+    student_marks_service = get_apeks_db_student_marks_service()
+    journal_lesson_id = lesson.get("journal_lesson_id")
+    lesson_marks = await student_marks_service.get(journal_lesson_id=journal_lesson_id)
+    lesson_actions = {
+        "name": lesson.get("discipline"),
+        "add": 0,
+        "edit": 0,
+        "delete": 0,
+    }
+    busy_data = {busy.slug: busy.match for busy in busy_types}
+
+    students_skips = {}
+    for absence in document.absence:
+        for student in document.absence[absence]:
+            if busy_data.get(absence):
+                students_skips[student] = str(busy_data.get(absence))
+    for illness in document.absence_illness:
+        for student in document.absence_illness[illness]:
+            students_skips[student] = str(ApeksConfig.ILLNESS_SKIP_ID)
+
+    for mark in lesson_marks:
+        student_id = mark.get("student_id")
+        skip_reason_id = mark.get("skip_reason_id")
+        user_id = mark.get("user_id")
+        if user_id == str(ApeksConfig.BASE_USER_ID):
+            if student_id not in students_skips:
+                delete_count = await student_marks_service.delete(
+                    journal_lesson_id=journal_lesson_id,
+                    student_id=student_id,
+                    user_id=user_id,
+                )
+                lesson_actions["delete"] += delete_count
+            elif students_skips[student_id] != skip_reason_id:
+                filters = {
+                    "journal_lesson_id": journal_lesson_id,
+                    "student_id": student_id,
+                    "user_id": user_id,
+                }
+                fields = {
+                    "skip_reason_id": students_skips[student_id],
+                    "datetime": datetime.datetime.now(),
+                }
+                edit_count = await student_marks_service.update(filters, fields)
+                lesson_actions["edit"] += edit_count
+        if student_id in students_skips:
+            del students_skips[student_id]
+
+    for student_id, skip_reason_id in students_skips.items():
+        add_count = await student_marks_service.create(
+            journal_lesson_id=journal_lesson_id,
+            mark_type_id="1",
+            student_id=student_id,
+            skip_reason_id=skip_reason_id,
+            user_id=ApeksConfig.BASE_USER_ID,
+            datetime=datetime.datetime.now(),
+        )
+        lesson_actions["add"] += add_count
+    return lesson_actions

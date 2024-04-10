@@ -3,7 +3,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 from ...core.services.base_apeks_api_service import ApeksApiDbService
 
 
-class ApeksStudentStudentsGroupsService(ApeksApiDbService):
+class ApeksDbStudentStudentsGroupsService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StudentStudentsGroups.
 
@@ -19,12 +19,12 @@ class ApeksStudentStudentsGroupsService(ApeksApiDbService):
     """
 
 
-def get_apeks_student_students_groups_service(
+def get_apeks_db_student_students_groups_service(
     table: str = ApeksConfig.STUDENT_STUDENTS_GROUPS_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStudentStudentsGroupsService:
+) -> ApeksDbStudentStudentsGroupsService:
     """Возвращает CRUD сервис для таблицы student_students_groups."""
-    return ApeksStudentStudentsGroupsService(
+    return ApeksDbStudentStudentsGroupsService(
         table=table, repository=repository, token=token
     )

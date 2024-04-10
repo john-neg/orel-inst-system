@@ -8,7 +8,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 @dataclass
 class ApeksDbStateSpecialRanksService(ApeksApiDbService):
     """
-    Класс для CRUID операций модели StateSpecialRanks
+    Класс для CRUD операций модели StateSpecialRanks
 
     Пример модели:
     {'id': '1',
@@ -16,11 +16,9 @@ class ApeksDbStateSpecialRanksService(ApeksApiDbService):
      'name_short': 'sm. rnk.'}
     """
 
-    pass
-
 
 def get_apeks_db_state_special_ranks_service(
-        table: str = ApeksConfig.TABLES.get('state_special_ranks'),
+        table: str = ApeksConfig.STATE_SPECIAL_RANKS,
         repository: ApeksApiRepository = ApeksApiRepository(),
         token: str = ApeksConfig.TOKEN
 ) -> ApeksDbStateSpecialRanksService:

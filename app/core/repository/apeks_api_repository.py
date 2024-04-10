@@ -31,7 +31,7 @@ class ApeksApiRepository(AbstractApiRepository):
         """Декоратор для проверки корректности запросов к API Апекс-ВУЗ"""
 
         @functools.wraps(method)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs) -> dict:
             self, *_ = args
             message = f"{self.__class__.__name__}.{method.__name__} - "
             try:
@@ -79,7 +79,7 @@ class ApeksApiRepository(AbstractApiRepository):
         return wrapper
 
     @request_handler
-    async def get(self, endpoint: ApeksApiEndpoints, params: dict) -> httpx.Response:
+    async def get(self, endpoint: ApeksApiEndpoints, params: dict):
         async with httpx.AsyncClient(transport=transport) as client:
             response = await client.get(endpoint, params=params)
         return response

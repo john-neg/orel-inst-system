@@ -20,6 +20,7 @@ class StaffVariousBusyTypes(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     slug: Mapped[str] = mapped_column(String(32), unique=True)
     name: Mapped[str] = mapped_column(String)
+    match: Mapped[int] = mapped_column(Integer, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 

@@ -111,6 +111,26 @@ class StaffStableBusyTypesForm(FlaskForm):
     submit = SubmitField("Сохранить")
 
 
+class StaffVariousBusyTypesForm(FlaskForm):
+    """Класс формы причин отсутствия переменного состава."""
+
+    slug = StringField(
+        "Код",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w_-]+",
+                message="Допускаются только маленькие буквы "
+                "латинского алфавита, цифры и подчеркивания",
+            ),
+        ],
+    )
+    name = StringField("Название", validators=[DataRequired()])
+    match = SelectField("Вид отсутствия в Апекс-ВУЗ", coerce=int, validators=[])
+    is_active = BooleanField("Действует")
+    submit = SubmitField("Сохранить")
+
+
 class StaffAllowedFacultyAddForm(FlaskForm):
     """Класс формы добавления факультета для строевой записки переменного состава."""
 

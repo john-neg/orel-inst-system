@@ -35,16 +35,24 @@ class ApeksApiBaseService(AbstractApiRepository):
         return response_data
 
     async def post(self, params: dict, data: dict):
-        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод POST")
+        raise ApeksApiException(
+            f"API АпексВУЗ '{self.endpoint}' не поддерживает метод POST"
+        )
 
     async def put(self, params: dict, data: dict):
-        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PUT")
+        raise ApeksApiException(
+            f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PUT"
+        )
 
     async def patch(self, params: dict, data: dict):
-        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PATCH")
+        raise ApeksApiException(
+            f"API АпексВУЗ '{self.endpoint}' не поддерживает метод PATCH"
+        )
 
     async def delete(self, params: dict):
-        raise ApeksApiException(f"API АпексВУЗ '{self.endpoint}' не поддерживает метод DELETE")
+        raise ApeksApiException(
+            f"API АпексВУЗ '{self.endpoint}' не поддерживает метод DELETE"
+        )
 
 
 @dataclass
@@ -96,8 +104,7 @@ class ApeksApiDbService(AbstractDBRepository):
             data[f"fields[{db_field}]"] = str(db_value)
         response_data = await self.repository.post(endpoint, params, data)
         logging.debug(
-            f"Выполнен POST (CREATE) к таблице {self.table}. "
-            f"Поля - {fields}"
+            f"Выполнен POST (CREATE) к таблице {self.table}. " f"Поля - {fields}"
         )
         return response_data
 
@@ -140,8 +147,7 @@ class ApeksApiDbService(AbstractDBRepository):
                 raise ApeksApiException(message)
         response_data = await self.repository.delete(endpoint, params)
         logging.debug(
-            f"Выполнен DELETE запрос к таблице '{self.table}'. "
-            f"Фильтры - {filters}"
+            f"Выполнен DELETE запрос к таблице '{self.table}'. " f"Фильтры - {filters}"
         )
         return response_data
 

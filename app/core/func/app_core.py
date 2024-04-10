@@ -1,6 +1,8 @@
 import datetime
 import json
 import logging
+from datetime import datetime, timedelta
+from functools import lru_cache, wraps
 
 from openpyxl import Workbook
 
@@ -83,3 +85,20 @@ def read_json_file(file_path: str) -> dict:
     """Читает файл формата json."""
     with open(file_path, encoding="utf-8") as file:
         return json.loads(file.read())
+
+
+def timed_lru_cache(seconds: int, maxsize: int = 128):
+    def wrapper_cache(func):
+        func = lru_cache(maxsize=maxsize)(func)
+        func.lifetime = timedelta(seconds=seconds)
+        func.expiration = datetime.utcnow() + func.lifetime
+
+        @wraps(func)
+        def wrapped_func(*args, **kwargs):
+            if datetime.utcnow() >= func.expiration:
+                func.cache_clear()
+                func.expiration = datetime.utcnow() + func.lifetime
+
+            return func(*args, **kwargs)
+        return wrapped_func
+    return wrapper_cache

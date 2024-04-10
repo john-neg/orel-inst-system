@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from datetime import date
 
 from config import ApeksConfig
 from .base_apeks_api_service import ApeksApiBaseService
@@ -31,7 +32,7 @@ class ApeksScheduleScheduleStudentService(ApeksApiBaseService):
         group_id: str | int | None = None,
         month: str | int | None = None,
         year: str | int | None = None,
-    ):
+    ) -> dict:
         params = {"token": self.token}
         if group_id is not None:
             params["group_id"] = str(group_id)
@@ -45,6 +46,17 @@ class ApeksScheduleScheduleStudentService(ApeksApiBaseService):
             f"staff_id: {str(group_id)}, month: {str(month)}, year: {str(year)}"
         )
         return response_data
+
+    async def get_day_lessons(self, group_id: str | int, lessons_date: date) -> list:
+        lessons = await self.get(group_id, lessons_date.month, lessons_date.year)
+        day_lessons = []
+        if "lessons" in lessons:
+            for lesson in lessons["lessons"]:
+                if lesson.get("journal_lesson_id") and lesson.get(
+                    "date"
+                ) == lessons_date.strftime("%d.%m.%Y"):
+                    day_lessons.append(lesson)
+        return day_lessons
 
 
 def get_apeks_schedule_schedule_student_service(

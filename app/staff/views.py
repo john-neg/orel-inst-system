@@ -16,6 +16,7 @@ from .forms import (
     StaffAllowedFacultyAddForm,
     StaffAllowedFacultyEditForm,
     StaffLoadForm,
+    StaffVariousBusyTypesForm,
     create_staff_stable_edit_form,
     StaffForm,
     StaffReportForm,
@@ -23,7 +24,8 @@ from .forms import (
     create_staff_various_edit_form,
 )
 from .func import (
-    make_short_name,
+    get_students_data,
+    lesson_skips_processor,
     process_apeks_stable_staff_data,
     process_apeks_various_group_data,
     process_document_various_staff_data,
@@ -56,14 +58,8 @@ from ..core.services.apeks_db_state_staff_service import (
 from ..core.services.apeks_db_state_vacancies_service import (
     get_apeks_db_state_vacancies_service,
 )
-from ..core.services.apeks_db_student_student_history_service import (
-    get_apeks_student_student_history_service,
-)
-from ..core.services.apeks_db_student_students_groups_service import (
-    get_apeks_student_students_groups_service,
-)
-from ..core.services.apeks_db_student_students_service import (
-    get_apeks_student_students_service,
+from ..core.services.apeks_db_student_skip_reasons_service import (
+    get_apeks_db_student_skip_reasons_service,
 )
 from ..core.services.apeks_schedule_schedule_student_service import (
     get_apeks_schedule_schedule_student_service,
@@ -145,7 +141,7 @@ bp.add_url_rule(
     view_func=StaffDataGetView.as_view(
         "staff_various_busy_types",
         title="Причины отсутствия переменного состава",
-        template_name="staff/staff_data_types.html",
+        template_name="staff/staff_various_busy_types.html",
         service=get_staff_various_busy_types_service(),
         base_view_slug="staff_various_busy_types",
     ),
@@ -197,7 +193,7 @@ class StaffDataAddView(View):
             flash("Запись успешно добавлена", category="success")
             return redirect(url_for(f".{self.base_view_slug}"))
         return render_template(
-            "staff/staff_data_types_edit.html",
+            self.template_name,
             title=f'Добавить запись в "{self.title}"',
             base_view_slug=self.base_view_slug,
             slug_edit_disable=False,
@@ -213,17 +209,6 @@ bp.add_url_rule(
         template_name="staff/staff_data_types_edit.html",
         service=get_staff_stable_busy_types_service(),
         base_view_slug="staff_stable_busy_types",
-    ),
-)
-
-bp.add_url_rule(
-    "/staff_various_busy_types_add",
-    view_func=StaffDataAddView.as_view(
-        "staff_various_busy_types_add",
-        title="Причины отсутствия переменного состава",
-        template_name="staff/staff_data_types_edit.html",
-        service=get_staff_various_busy_types_service(),
-        base_view_slug="staff_various_busy_types",
     ),
 )
 
@@ -265,7 +250,7 @@ class StaffDataEditView(View):
             return redirect(url_for(f".{self.base_view_slug}"))
 
         return render_template(
-            "staff/staff_data_types_edit.html",
+            self.template_name,
             title=f"Изменить - {obj.name.lower()}",
             base_view_slug=self.base_view_slug,
             slug_edit_disable=True,
@@ -285,17 +270,6 @@ bp.add_url_rule(
 )
 
 bp.add_url_rule(
-    "/staff_various_busy_types/<int:id_>",
-    view_func=StaffDataEditView.as_view(
-        "staff_various_busy_types_edit",
-        title="Причина отсутствия переменного состава",
-        template_name="staff/staff_data_types_edit.html",
-        service=get_staff_various_busy_types_service(),
-        base_view_slug="staff_various_busy_types",
-    ),
-)
-
-bp.add_url_rule(
     "/staff_various_illness_types/<int:id_>",
     view_func=StaffDataEditView.as_view(
         "staff_various_illness_types_edit",
@@ -305,6 +279,70 @@ bp.add_url_rule(
         base_view_slug="staff_various_illness_types",
     ),
 )
+
+
+@bp.route("/staff_various_busy_types_add", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+async def staff_various_busy_types_add():
+    busy_types_service = get_staff_various_busy_types_service()
+    skip_reasons_service = get_apeks_db_student_skip_reasons_service()
+    form = StaffVariousBusyTypesForm()
+    form.match.choices = [("0", "-----")] + [
+        (busy_type.get("id"), busy_type.get("name"))
+        for busy_type in await skip_reasons_service.get()
+    ]
+    if request.method == "POST" and form.validate_on_submit():
+        name = request.form.get("name")
+        busy_types_service.create(
+            slug=request.form.get("slug"),
+            name=name,
+            match=request.form.get("match"),
+            is_active=True if request.form.get("is_active") else False,
+        )
+        flash(
+            f"Запись {name} успешно добавлена",
+            category="success",
+        )
+        return redirect(url_for(".staff_various_busy_types"))
+    return render_template(
+        "staff/staff_various_busy_types_edit.html",
+        active="staff",
+        slug_edit_disable=False,
+        form=form,
+    )
+
+
+@bp.route("/staff_various_busy_types_edit/<int:id_>", methods=["GET", "POST"])
+@permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
+@login_required
+async def staff_various_busy_types_edit(id_):
+    busy_types_service = get_staff_various_busy_types_service()
+    skip_reasons_service = get_apeks_db_student_skip_reasons_service()
+    obj = busy_types_service.get(id=id_)
+    form = StaffVariousBusyTypesForm(obj=obj)
+    form.match.choices = [("0", "-----")] + [
+        (busy_type.get("id"), busy_type.get("name"))
+        for busy_type in await skip_reasons_service.get()
+    ]
+    if request.method == "POST" and form.validate_on_submit():
+        busy_types_service.update(
+            id_,
+            name=obj.name,
+            match=request.form.get("match", None),
+            is_active=True if request.form.get("is_active") else False,
+        )
+        flash(
+            f"Запись {obj.name} успешно обновлена",
+            category="success",
+        )
+        return redirect(url_for(".staff_various_busy_types"))
+    return render_template(
+        "staff/staff_various_busy_types_edit.html",
+        active="staff",
+        slug_edit_disable=True,
+        form=form,
+    )
 
 
 @bp.route("/staff_allowed_faculty_add", methods=["GET", "POST"])
@@ -456,7 +494,8 @@ async def staff_info():
         data = process_document_various_staff_data(
             staff_various_service.get(
                 query_filter={"date": current_date, "daytime": daytime}
-            ), faculties_data
+            ),
+            faculties_data,
         )
         various_data["total"][daytime.value] = data
         for faculty, faculty_data in data.get("faculty_data", {}).items():
@@ -481,9 +520,7 @@ async def staff_info():
 @login_required
 async def staff_stable_file_report(date):
     staff_stable_service = get_staff_stable_document_service()
-    document_data = staff_stable_service.get(
-        query_filter={"date": date}
-    )
+    document_data = staff_stable_service.get(query_filter={"date": date})
     stable_busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in stable_busy_types_service.list()}
     filename = generate_stable_staff_report(document_data, busy_types)
@@ -750,7 +787,9 @@ async def staff_various_load():
             )
             return redirect(
                 url_for(
-                    "staff.staff_various_load", date=working_date, daytime=daytime.value
+                    "staff.staff_various_load",
+                    date=working_date,
+                    daytime=daytime.value,
                 )
             )
         elif request.form.get("enable_edit"):
@@ -764,7 +803,9 @@ async def staff_various_load():
             )
             return redirect(
                 url_for(
-                    "staff.staff_various_load", date=working_date, daytime=daytime.value
+                    "staff.staff_various_load",
+                    date=working_date,
+                    daytime=daytime.value,
                 )
             )
     return render_template(
@@ -798,31 +839,7 @@ async def staff_various_edit(daytime, group_id, course):
     group_data = await group_service.get(id=group_id)
     if group_data:
         group_data = group_data[-1]
-    students_group_service = get_apeks_student_students_groups_service()
-    group_students = data_processor(
-        await students_group_service.get(group_id=group_id),
-        key="student_id",
-    )
-    students_service = get_apeks_student_students_service()
-    students_data = await students_service.get(id=group_students)
-    students_data = sorted(students_data, key=lambda x: x.get("family_name"))
-    student_history_service = get_apeks_student_student_history_service()
-    fired_students = [
-        student.get("student_id")
-        for student in await student_history_service.get(
-            student_id=group_students.keys(),
-            type=ApeksConfig.STUDENT_HISTORY_RECORD_TYPES.keys(),
-            group_id=group_id,
-        )
-    ]
-    students_data = [
-        student for student in students_data if student.get("id") not in fired_students
-    ]
-    for student in students_data:
-        student["short_name"] = make_short_name(
-            student.get("family_name"), student.get("name"), student.get("surname")
-        )
-
+    students_data = await get_students_data(group_id)
     busy_types_service = get_staff_various_busy_types_service()
     busy_types = busy_types_service.list(is_active=1)
     illness_types_service = get_staff_various_illness_types_service()
@@ -837,7 +854,6 @@ async def staff_various_edit(daytime, group_id, course):
     document_data = staff_various_service.get(
         {"date": working_date.isoformat(), "daytime": daytime}
     )
-
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             dept_document = StaffVariousGroupDocStructure(
@@ -873,20 +889,20 @@ async def staff_various_edit(daytime, group_id, course):
                         message = f"Форма вернула неизвестное местонахождение: {student_absence}"
                         flash(message, category="danger")
                         logging.error(message)
+
+            documents = [dept_document]
+            if request.form.get("switch_copy_day"):
+                day_doc = copy.deepcopy(dept_document)
+                day_doc.daytime = VariousStaffDaytimeType(MongoDBSettings.DAYTIME_DAY)
+                documents.append(day_doc)
+            if request.form.get("switch_copy_evening"):
+                evening_doc = copy.deepcopy(dept_document)
+                evening_doc.daytime = VariousStaffDaytimeType(
+                    MongoDBSettings.DAYTIME_EVENING
+                )
+                documents.append(evening_doc)
+
             try:
-                documents = [dept_document]
-                if request.form.get("switch_copy_day"):
-                    day_doc = copy.deepcopy(dept_document)
-                    day_doc.daytime = VariousStaffDaytimeType(
-                        MongoDBSettings.DAYTIME_DAY
-                    )
-                    documents.append(day_doc)
-                if request.form.get("switch_copy_evening"):
-                    evening_doc = copy.deepcopy(dept_document)
-                    evening_doc.daytime = VariousStaffDaytimeType(
-                        MongoDBSettings.DAYTIME_EVENING
-                    )
-                    documents.append(evening_doc)
                 for document in documents[::-1]:
                     staff_various_service.update(
                         {"date": working_date.isoformat(), "daytime": document.daytime},
@@ -905,6 +921,28 @@ async def staff_various_edit(daytime, group_id, course):
                     )
                     flash(message, category="success")
                     logging.info(message)
+                    lessons_service = get_apeks_schedule_schedule_student_service()
+                    lessons = await lessons_service.get_day_lessons(
+                        group_id, working_date
+                    )
+                    for lesson in lessons:
+                        if lesson.get("class_type_id") and lesson.get(
+                            "lesson_time_id"
+                        ) in ApeksConfig.DAYTIME_LESSONS_IDS.get(document.daytime):
+                            lesson_actions = await lesson_skips_processor(
+                                lesson, document, busy_types
+                            )
+                            message = (
+                                "Сведения об отсутствующих по дисциплине "
+                                f"\"{lesson_actions.get('name')}\" внесены "
+                                f"в электронный журнал. Добавлено: "
+                                f"{lesson_actions.get('add')}, Изменено: "
+                                f"{lesson_actions.get('edit')}, Удалено: "
+                                f"{lesson_actions.get('delete')}."
+                            )
+                            logging.info(message, lesson_actions)
+                            flash(message, category="success")
+
             except PyMongoError as error:
                 message = f"Произошла ошибка записи данных: {error}"
                 flash(message, category="danger")
@@ -956,14 +994,10 @@ async def staff_various_file_report(date, daytime):
     busy_types_service = get_staff_various_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
     illness_types_service = get_staff_various_illness_types_service()
-    illness_types = {
-        item.slug: item.name for item in illness_types_service.list()
-    }
+    illness_types = {item.slug: item.name for item in illness_types_service.list()}
     faculty_data = {
         item.short_name: item.sort for item in allowed_faculty_service.list()
     }
     report_data = get_various_report_data(document_data, faculty_data)
-    filename = generate_various_staff_report(
-        report_data, busy_types, illness_types
-    )
+    filename = generate_various_staff_report(report_data, busy_types, illness_types)
     return redirect(url_for("main.get_file", filename=filename))

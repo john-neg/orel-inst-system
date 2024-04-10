@@ -3,7 +3,7 @@ from ...core.services.base_apeks_api_service import ApeksApiDbService
 from config import ApeksConfig
 
 
-class ApeksStudentStudentHistoryService(ApeksApiDbService):
+class ApeksDbStudentStudentHistoryService(ApeksApiDbService):
     """
     Класс для CRUD операций модели StudentStudentHistory.
 
@@ -19,12 +19,12 @@ class ApeksStudentStudentHistoryService(ApeksApiDbService):
     """
 
 
-def get_apeks_student_student_history_service(
+def get_apeks_db_student_student_history_service(
     table: str = ApeksConfig.STUDENT_STUDENT_HISTORY_TABLE,
     repository: ApeksApiRepository = ApeksApiRepository(),
     token: str = ApeksConfig.TOKEN,
-) -> ApeksStudentStudentHistoryService:
+) -> ApeksDbStudentStudentHistoryService:
     """Возвращает CRUD сервис для таблицы student_student_history."""
-    return ApeksStudentStudentHistoryService(
+    return ApeksDbStudentStudentHistoryService(
         table=table, repository=repository, token=token
     )

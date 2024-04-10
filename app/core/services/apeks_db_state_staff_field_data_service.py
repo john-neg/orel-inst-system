@@ -8,7 +8,7 @@ from ..repository.apeks_api_repository import ApeksApiRepository
 @dataclass
 class ApeksDbStateStaffFieldDataService(ApeksApiDbService):
     """
-    Класс для CRUID операций модели StateStaffFieldData
+    Класс для CRUD операций модели StateStaffFieldData
 
     Пример данных модели:
     {'id': '43',
@@ -17,15 +17,13 @@ class ApeksDbStateStaffFieldDataService(ApeksApiDbService):
      'data': '518, 41 45 47'}
     """
 
-    pass
-
 
 def get_apeks_db_state_staff_field_data_service(
-        table: str = ApeksConfig.TABLES.get('state_staff_field_data'),
+        table: str = ApeksConfig.STATE_STAFF_FIELD_DATA,
         repository: ApeksApiRepository = ApeksApiRepository(),
         token: str = ApeksConfig.TOKEN
 ) -> ApeksDbStateStaffFieldDataService:
-    """ Возвращает CRUID сервис для таблицы state_staff_field_data"""
+    """ Возвращает CRUD сервис для таблицы state_staff_field_data"""
     return ApeksDbStateStaffFieldDataService(
         table=table, repository=repository, token=token
     )

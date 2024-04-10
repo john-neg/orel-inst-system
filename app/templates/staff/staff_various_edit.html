@@ -68,7 +68,7 @@
             {% if status == config.STAFF_IN_PROGRESS_STATUS %}
               <button class="btn btn-success fw-bold" type="submit">Сохранить</button>
             {% endif %}
-            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load', daytime=daytime) }}">Назад</a>
+            <a class="btn btn-warning fw-bold" role="button" href="{{ url_for('staff.staff_various_load', date=date, daytime=daytime) }}">Назад</a>
           </div>
         </div>
       </div>

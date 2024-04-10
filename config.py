@@ -173,10 +173,14 @@ class ApeksConfig(object):
     # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
     LOAD_GROUPS_TABLE = "load_groups"
     STATE_DEPARTMENTS_TABLE = "state_departments"
+    STATE_SPECIAL_RANKS = "state_special_ranks"
+    STATE_STAFF_FIELD_DATA = "state_staff_field_data"
     STATE_STAFF_HISTORY_TABLE = "state_staff_history"
     STATE_STAFF_POSITIONS_TABLE = "state_staff_positions"
     STATE_STAFF_TABLE = "state_staff"
     STATE_VACANCIES_TABLE = "state_vacancies"
+    STUDENT_MARKS_TABLE = "student_marks"
+    STUDENT_SKIP_REASONS = "student_skip_reasons"
     STUDENT_STUDENTS_GROUPS_TABLE = "student_students_groups"
     STUDENT_STUDENTS_TABLE = "student_students"
     STUDENT_STUDENT_HISTORY_TABLE = "student_student_history"
@@ -220,7 +224,6 @@ class ApeksConfig(object):
         "system_reports": "system_reports",
         "system_settings": "system_settings",
         "system_users": "system_users",
-        "state_staff_field_data": "state_staff_field_data",
     }
 
     # Типы записей в таблице student_student_history означающие исключение из группы
@@ -232,6 +235,19 @@ class ApeksConfig(object):
         12: "Перевод на ускоренное обучение",
         14: "Перевод на другую образовательную программу"
     }
+
+    # id отвлечения по болезни
+    ILLNESS_SKIP_ID = 2
+
+    # ID времени начала занятий
+    DAYTIME_LESSONS_IDS = {
+        MongoDBSettings.DAYTIME_MORNING: [1, 2, 3],
+        MongoDBSettings.DAYTIME_DAY: [5, 6, 7],
+        MongoDBSettings.DAYTIME_EVENING: [],
+    }
+
+    # ID пользователя для автоматического выставления пропусков занятий
+    BASE_USER_ID = 1
 
     MONTH_DICT = {
         1: "январь",
