@@ -1,4 +1,4 @@
-import datetime
+# import datetime
 import json
 import logging
 from datetime import datetime, timedelta
@@ -71,13 +71,11 @@ def xlsx_normalize(worksheet: Workbook.active, replace: dict) -> Workbook.active
         worksheet: Workbook.active
             измененный лист
     """
-    print(datetime.datetime.now())
     for row in range(1, worksheet.max_row + 1):
         for col in range(1, worksheet.max_column + 1):
             for key, val in replace.items():
                 cell_data = str(worksheet.cell(row, col).value).strip()
                 worksheet.cell(row, col).value = cell_data.replace(key, val)
-    print(datetime.datetime.now())
     return worksheet
 
 
