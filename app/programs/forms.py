@@ -21,6 +21,7 @@ class ProgramFieldsForm(FlaskForm):
         coerce=str,
         choices=[
             ("name", "Название программы"),
+            ("date_create", "Дата создания"),
             ("department_data", "Дата и протокол заседания кафедры"),
             ("reviewers_ext", "Рецензенты"),
             ("purposes", "Цели дисциплины"),
