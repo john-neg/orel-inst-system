@@ -50,7 +50,6 @@ class Departments:
 
     departments: list = field(default_factory=list)
 
-
     async def update(self):
         state_departments_service = get_db_apeks_state_departments_service()
         deps = await state_departments_service.get()
