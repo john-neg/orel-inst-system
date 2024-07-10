@@ -28,6 +28,8 @@ holidays_data = read_json_file(os.path.join(FILE_DIR, "calendars.json"))
 
 for year in holidays_data:
     for holiday in holidays_data[year].get("holidays"):
-        holidays_service.create(date=datetime.fromisoformat(holiday))
+        if not holidays_service.get(date=holiday):
+            holidays_service.create(date=datetime.fromisoformat(holiday))
     for working in holidays_data[year].get("working"):
-        working_service.create(date=datetime.fromisoformat(working))
+        if not working_service.get(date=working):
+            working_service.create(date=datetime.fromisoformat(working))
