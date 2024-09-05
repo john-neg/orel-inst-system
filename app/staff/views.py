@@ -328,7 +328,7 @@ async def staff_various_busy_types_edit(id_):
     if request.method == "POST" and form.validate_on_submit():
         busy_types_service.update(
             id_,
-            name=obj.name,
+            name=request.form.get("name"),
             match=request.form.get("match", None),
             is_active=True if request.form.get("is_active") else False,
         )

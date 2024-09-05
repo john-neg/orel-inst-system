@@ -2,7 +2,7 @@ import logging
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from ldap3.core.exceptions import LDAPSocketOpenError, LDAPSocketReceiveError
+from ldap3.core.exceptions import LDAPSessionTerminatedByServerError, LDAPSocketOpenError, LDAPSocketReceiveError
 
 from config import FlaskConfig, PermissionsConfig
 from . import bp
@@ -62,6 +62,10 @@ def login():
                         message = f"Обновлен пароль пользователя: {username}"
                         flash(message, category="info")
                         logging.info(message)
+            except LDAPSessionTerminatedByServerError:
+                message = "Ошибка связи с сервером авторизации"
+                flash(message, category="warning")
+                logging.info(message)
             except (LDAPSocketOpenError, LDAPSocketReceiveError):
                 message = "Нет связи с сервером авторизации"
                 flash(message, category="warning")
