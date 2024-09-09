@@ -147,10 +147,11 @@ async def plan_competencies_data_cleanup(
         work_programs_data = await get_work_programs_data(
             curriculum_discipline_id=[*plan_disciplines]
         )
-        wp_resp = await work_programs_competencies_del(
-            work_program_id=[*work_programs_data]
-        )
-        message.append(f"в рабочих программах - {wp_resp.get('data')},")
+        if work_programs_data:
+            wp_resp = await work_programs_competencies_del(
+                work_program_id=[*work_programs_data]
+            )
+            message.append(f"в рабочих программах - {wp_resp.get('data')},")
     if relations:
         disc_resp = await plan_disciplines_competencies_del(
             curriculum_discipline_id=[*plan_disciplines]
