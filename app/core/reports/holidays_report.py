@@ -7,9 +7,9 @@ from openpyxl.workbook import Workbook
 from config import ApeksConfig as Apeks, FlaskConfig
 from ..classes.EducationStaff import EducationStaff
 from ..func.api_get import api_get_db_table, check_api_db_response, get_lessons
-from ..func.organization import get_departments
 from ..func.staff import get_state_staff
 from ..reports.ExcelStyles import ExcelStyle
+from ..services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 
 
 def is_holiday(
@@ -44,6 +44,8 @@ async def generate_holidays_report(
         staff = lessons_staff.setdefault(lesson_id, [])
         staff.append(lesson.get("staff_id"))
 
+    departments_service = get_db_apeks_state_departments_service()
+
     all_staff = EducationStaff(
         year,
         month_start,
@@ -55,7 +57,7 @@ async def generate_holidays_report(
         state_staff_positions=await check_api_db_response(
             await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
         ),
-        departments=await get_departments(department_filter="kafedra"),
+        departments=await departments_service.get_departments(department_filter="kafedra"),
     )
 
     schedule_lessons = await check_api_db_response(

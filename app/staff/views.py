@@ -730,7 +730,14 @@ async def staff_stable_edit(department_id):
             if items:
                 for _id in items:
                     attr = getattr(form, f"staff_id_{_id}")
-                    attr.data = absence
+                    if not attr:
+                        message = (
+                            f"В подразделении по состоянию на {working_date} "
+                            f"отсутствует сотрудник c идентификатором {_id}."
+                        )
+                        flash(message, category="danger")
+                    else:
+                        attr.data = absence
 
     return render_template(
         "staff/staff_stable_edit.html",

@@ -22,7 +22,7 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
      'branch_id': None},
     """
 
-    async def get_departments(self, department_filter=None) -> dict:
+    async def get_departments(self, department_filter: str = None, branch_id: str | int | None = None) -> dict:
         """
         Получение информации о подразделениях.
 
@@ -45,17 +45,18 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
         groups_by_type = {}
         departments_groups = {}
         for dept in state_departments:
-            if dept.get("type"):
-                if dept.get("contains_staff") == "0":
-                    dept_type = ApeksConfig.DEPT_TYPES[dept.get("type")]
+            if ApeksConfig.BRANCH_ID == dept.get('branch_id'):
+                if dept.get("type"):
+                    if dept.get("contains_staff") == "0":
+                        dept_type = ApeksConfig.DEPT_TYPES[dept.get("type")]
+                    else:
+                        dept_type = "Иные"
+                    group_type = groups_by_type.setdefault(dept_type, [])
+                    group_type.append(dept.get("id"))
                 else:
-                    dept_type = "Иные"
-                group_type = groups_by_type.setdefault(dept_type, [])
-                group_type.append(dept.get("id"))
-            else:
-                parent_id = dept.get("parent_id") or "Other"
-                group = departments_groups.setdefault(parent_id, [])
-                group.append(dept)
+                    parent_id = dept.get("parent_id") or "Other"
+                    group = departments_groups.setdefault(parent_id, [])
+                    group.append(dept)
 
         if departments_groups.get("Other"):
             groups_by_type["Иные"] = ["Other"]

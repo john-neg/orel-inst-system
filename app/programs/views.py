@@ -38,7 +38,6 @@ from ..core.func.education_plan import (
     get_plan_education_specialties,
 )
 from ..core.func.organization import (
-    get_departments,
     get_organization_chief_info,
     get_organization_name,
 )
@@ -55,6 +54,7 @@ from ..core.func.work_program import (
     work_programs_dates_update,
 )
 from ..core.reports.program_title_pages import generate_program_title_pages
+from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 
 
 class ProgramsChoosePlanView(View):
@@ -130,7 +130,8 @@ bp.add_url_rule(
 @bp.route("/dept_check", methods=["GET", "POST"])
 async def dept_check():
     form = DepartmentProgramCheck()
-    departments = await get_departments(department_filter="kafedra")
+    departments_service = get_db_apeks_state_departments_service()
+    departments = await departments_service.get_departments(department_filter="kafedra")
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
     specialities = await get_plan_education_specialties()
     form.edu_spec.choices = list(specialities.items())
@@ -519,6 +520,7 @@ async def program_data(plan_id):
                 status=1,
             )
         elif request.form.get("create_program"):
+            departments_service = get_db_apeks_state_departments_service()
             staff = EducationStaff(
                 year=datetime.today().year,
                 month_start=datetime.today().month,
@@ -532,7 +534,7 @@ async def program_data(plan_id):
                 state_staff_positions=await check_api_db_response(
                     await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
                 ),
-                departments=await get_departments(department_filter="kafedra"),
+                departments=await departments_service.get_departments(department_filter="kafedra"),
             )
             for disc_id in plan.non_exist:
                 dept_id = plan.plan_curriculum_disciplines[disc_id].get("department_id")

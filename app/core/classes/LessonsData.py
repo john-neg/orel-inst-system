@@ -381,11 +381,10 @@ class LessonsData:
         # Для проф подготовки и ДПО нагрузка считается фактически (не по людям)
         if stud_type == "prof_pod" or stud_type == "dpo":
             return contr_less.get("hours")
-        elif stud_type == "adj" and (
-            contr_less.get("control_type_id") == Apeks.CONTROL_TYPE_ID.get("final_att")
-            or contr_less.get("control_type_id")
-            == Apeks.CONTROL_TYPE_ID.get("kandidat_exam")
-        ):
+        elif stud_type == "adj" and contr_less.get("control_type_id") in [
+            Apeks.CONTROL_TYPE_ID.get("final_att"),
+            Apeks.CONTROL_TYPE_ID.get("kandidat_exam",)
+        ]:
             value = people_count * Apeks.ADJ_KF
             return Apeks.ADJ_KF_MAX if value > Apeks.ADJ_KF_MAX else value
         elif cont_type == "zachet":

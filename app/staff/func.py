@@ -7,7 +7,9 @@ from pymongo.cursor import Cursor
 
 from config import ApeksConfig
 from ..core.db.staff_models import StaffAllowedFaculty, StaffVariousBusyTypes
-from ..core.services.apeks_db_student_marks_service import get_apeks_db_student_marks_service
+from ..core.services.apeks_db_student_marks_service import (
+    get_apeks_db_student_marks_service,
+)
 from ..core.services.apeks_db_student_student_history_service import (
     get_apeks_db_student_student_history_service,
 )
@@ -48,9 +50,9 @@ def process_apeks_stable_staff_data(
     """
     for staff_id, staff_data in staff_history.items():
         dept_id = staff_data.get("department_id")
-        dept_data = departments[dept_id]
+        dept_data = departments.get(dept_id)
         vacancy_id = staff_data.get("vacancy_id")
-        if vacancy_id:
+        if vacancy_id and dept_data:
             vacancy = state_vacancies.get(vacancy_id)
             vacancy_value = staff_data.get("value")
             staff_data["has_rank"] = vacancy.get("has_rank")
@@ -82,7 +84,8 @@ def process_apeks_stable_staff_data(
                     [
                         staff_id
                         for staff_id in dept_absence_staff_ids
-                        if staff_history[staff_id].get("has_rank") == "1"
+                        if staff_history.get(staff_id)
+                        and staff_history[staff_id].get("has_rank") == "1"
                     ]
                 )
             else:
@@ -412,7 +415,7 @@ async def lesson_skips_processor(
     lesson: dict,
     document: StaffVariousGroupDocStructure,
     busy_types: list[StaffVariousBusyTypes],
-    group_students: dict
+    group_students: dict,
 ):
     """Обрабатывает пропуски занятия и редактирует электронный журнал."""
 

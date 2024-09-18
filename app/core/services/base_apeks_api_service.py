@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from types import NoneType
 from typing import Any
 
 from ..exceptions import ApeksApiException

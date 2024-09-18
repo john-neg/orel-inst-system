@@ -16,15 +16,16 @@ from ..core.func.api_get import (
 )
 from ..core.func.app_core import data_processor
 from ..core.func.education_plan import get_plan_disciplines
-from ..core.func.organization import get_departments
 from ..core.func.staff import get_state_staff
 from ..core.reports.schedule_ical import generate_schedule_ical
 from ..core.reports.schedule_xlsx import generate_schedule_xlsx
+from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
 async def schedule():
-    departments = await get_departments(department_filter="kafedra")
+    departments_service = get_db_apeks_state_departments_service()
+    departments = await departments_service.get_departments(department_filter="kafedra")
     year = date.today().year
     month = date.today().month
     form = CalendarForm()
