@@ -3,6 +3,7 @@ import logging
 
 from config import ApeksConfig as Apeks
 from .api_get import api_get_db_table, check_api_db_response
+from ..services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 
 
 async def get_organization_name(
@@ -64,3 +65,10 @@ async def get_organization_chief_info(
             chief_data["name_short"] = f"{name[1][0]}.{name[2][0]}. {name[0]}"
         logging.debug(f"Передана информация о руководителе")
         return chief_data
+
+async def get_departments(department_filter):
+    """Временная функция для получения списка подразделений."""
+    departments_service = get_db_apeks_state_departments_service()
+    departments = await departments_service.get_departments(department_filter=department_filter)
+    return {int(dept_id): value for dept_id, value in departments.items()}
+

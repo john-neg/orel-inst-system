@@ -38,7 +38,7 @@ from ..core.func.education_plan import (
     get_plan_education_specialties,
 )
 from ..core.func.organization import (
-    get_organization_chief_info,
+    get_departments, get_organization_chief_info,
     get_organization_name,
 )
 from ..core.func.staff import get_rank_name, get_state_staff
@@ -534,7 +534,7 @@ async def program_data(plan_id):
                 state_staff_positions=await check_api_db_response(
                     await api_get_db_table(Apeks.TABLES.get("state_staff_positions"))
                 ),
-                departments=await departments_service.get_departments(department_filter="kafedra"),
+                departments=await get_departments(department_filter="kafedra"),
             )
             for disc_id in plan.non_exist:
                 dept_id = plan.plan_curriculum_disciplines[disc_id].get("department_id")

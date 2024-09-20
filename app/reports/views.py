@@ -20,6 +20,7 @@ from ..core.db.reports_models import (
 )
 from ..core.forms import ObjectDeleteForm
 from ..core.func.api_get import check_api_db_response, api_get_db_table, get_lessons
+from ..core.func.organization import get_departments
 from ..core.func.staff import get_state_staff
 from ..core.reports.holidays_report import generate_holidays_report
 from ..core.reports.load_report import generate_load_report
@@ -87,7 +88,7 @@ async def load_report_export(year, month_start, month_end, department_id):
         state_staff_positions=await check_api_db_response(
             await api_get_db_table(ApeksConfig.TABLES.get("state_staff_positions"))
         ),
-        departments=await departments_service.get_departments(department_filter="kafedra"),
+        departments=await get_departments(department_filter="kafedra"),
     )
     department_staff = staff.department_staff(department_id)
     load = LoadReportProcessor(
