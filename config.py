@@ -149,7 +149,7 @@ class ApeksConfig(object):
     """Конфигурация для работы с API АпексВУЗ"""
 
     # Код филиала
-    BRANCH_ID = None
+    BRANCH_ID = os.getenv("BRANCH_ID", None)
 
     # Данные для запросов по API к АпексВУЗ
     URL = os.getenv("APEKS_URL")
