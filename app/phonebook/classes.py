@@ -1,6 +1,7 @@
 import datetime as dt
 from dataclasses import dataclass, field
 
+from config import ApeksConfig
 from ..core.services.apeks_db_state_departments_service import (
     get_db_apeks_state_departments_service,
 )
@@ -52,11 +53,10 @@ class Departments:
 
     async def update(self):
         state_departments_service = get_db_apeks_state_departments_service()
-        deps = await state_departments_service.get()
-        self.departments = []
+        departments = await state_departments_service.get()
         self.departments = [
             {"id": dep["id"], "title": dep["name"], "parent_id": dep["parent_id"]}
-            for dep in deps
+            for dep in departments if dep.get("branch_id") == ApeksConfig.BRANCH_ID
         ]
 
     async def get_all(self) -> list:
@@ -66,18 +66,18 @@ class Departments:
 
     async def get_children(self, dep_id: int | str) -> list | None:
         dep_id = None if dep_id == "0" else dep_id
-        deps = await self.get_all()
+        departments = await self.get_all()
         return [
             {"id": dep["id"], "title": dep["title"]}
-            for dep in deps
+            for dep in departments
             if dep["parent_id"] == dep_id
         ]
 
     async def get_department(self, dep_id) -> dict | None:
         if dep_id == "0":
             return {"id": "0", "title": "root", "parent_id": "0"}
-        deps = await self.get_all()
-        for dep in deps:
+        departments = await self.get_all()
+        for dep in departments:
             if dep["id"] == dep_id:
                 return dep
         return None
