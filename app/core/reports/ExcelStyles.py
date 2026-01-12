@@ -1,5 +1,5 @@
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
-
+from openpyxl.worksheet.worksheet import Worksheet
 
 class ExcelStyle(object):
     """Стили оформления для экспортируемых файлов Excel."""
@@ -48,3 +48,46 @@ class ExcelStyle(object):
     BaseBold.alignment = Alignment(wrap_text=True)
 
     GreyFill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    DarkFill = PatternFill(start_color="888888", end_color="888888", fill_type="solid")
+    
+    def set_border(ws: Worksheet, cells: str):
+        """
+        Обвести группу ячеек толстой линией.
+
+        Parameters
+        ----------
+            ws
+                рабочий лист книги Excel на котором произовдися операция
+            cells
+                координаты верхнего левого и павого нижнего углов группы ячеек,
+                которые необходимо обвести толстой линией
+                в формате "A1:C3"
+        """
+
+        rows = ws[cells]
+        for row in rows:
+            row[0].border = Border(
+                left=ExcelStyle.ThickBorder,
+                right=row[0].border.right,
+                top=row[0].border.top,
+                bottom=row[0].border.bottom
+            )
+            row[-1].border = Border(
+                left=row[-1].border.left,
+                right=ExcelStyle.ThickBorder,
+                top=row[-1].border.top,
+                bottom=row[-1].border.bottom
+            )
+        for col_top, col_bot in zip(rows[0], rows[-1]):
+            col_top.border = Border(
+                left=col_top.border.left,
+                right=col_top.border.right,
+                top=ExcelStyle.ThickBorder,
+                bottom=col_top.border.bottom,
+            )
+            col_bot.border = Border(
+                left=col_bot.border.left,
+                right=col_bot.border.right,
+                top=col_bot.border.top,
+                bottom=ExcelStyle.ThickBorder,
+            )

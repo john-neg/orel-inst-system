@@ -24,6 +24,8 @@ from .forms import (
     create_staff_various_edit_form,
 )
 from .func import (
+    get_branches,
+    get_departments_by_branches,
     get_students_data,
     lesson_skips_processor,
     process_apeks_stable_staff_data,
@@ -37,7 +39,7 @@ from .func import (
 )
 from .stable_staff_report import generate_stable_staff_report
 from .various_staff_report import generate_various_staff_report, get_various_report_data
-from ..auth.func import permission_required
+from ..auth.func import permission_required, has_permission
 from ..core.db.auth_models import Users
 from ..core.forms import ObjectDeleteForm
 from ..core.repository.sqlalchemy_repository import DbRepository
@@ -82,6 +84,9 @@ from ..core.services.staff_various_document_service import (
     StaffVariousGroupDocStructure,
     get_staff_various_document_service,
 )
+
+from ..core.services.apeks_db_system_branches import get_apeks_db_system_branches_service
+from ..core.services.apeks_db_system_settings import get_apeks_db_system_settings_service
 
 
 @bp.route("/staff_data_edit", methods=["GET"])
@@ -361,11 +366,15 @@ async def staff_allowed_faculty_add():
         faculty_dict = dict(form.apeks_id.choices)
         apeks_id = int(request.form.get("apeks_id"))
         name = faculty_dict.get(apeks_id)
+        branch_id = '1'
+        if not apeks_groups_data['groups'][str(apeks_id)]['branch_id']:
+            branch_id = '0'
         faculty_service.create(
             apeks_id=apeks_id,
             name=name,
             short_name=request.form.get("short_name"),
             sort=request.form.get("sort"),
+            branch_id=branch_id
         )
         flash(
             f"Запись {name} успешно добавлена",
@@ -448,10 +457,30 @@ async def staff_info():
         if staff_stable_document
         else None
     )
-    staff_stable_data = process_document_stable_staff_data(staff_stable_document)
+    departments_service = get_db_apeks_state_departments_service()
+    departments = {}
+    # TODO говнокод, можно улучшить
+    # к какому филиалу есть доступ у пользователя
+    if has_permission(PermissionsConfig.USER_HEAD_OFFICE_PERMISSION):
+        departments.update(await departments_service.get_departments(branch_id='0'))
+    if has_permission(PermissionsConfig.USER_BRANCH_OFFICE_1_PERMISSION):
+        departments.update(await departments_service.get_departments(branch_id='1'))
+    branches = await get_branches()
+    staff_stable_data_by_branches = {}
+    if staff_stable_document:
+        staff_stable_document_by_branches = {}
+        for dept, dept_data in staff_stable_document['departments'].items():
+            if departments.get(dept):
+                if staff_stable_document_by_branches.get(departments[dept]['branch_id']):
+                    staff_stable_document_by_branches[departments[dept]['branch_id']]['departments'][dept] = dept_data
+                else:
+                    staff_stable_document_by_branches.setdefault(departments[dept]['branch_id'], {'departments': {}})
+                    staff_stable_document_by_branches[departments[dept]['branch_id']]['departments'][dept] = dept_data
+        for branch in branches:
+            if staff_stable_document_by_branches.get(branch):
+                staff_stable_data_by_branches[branch] = process_document_stable_staff_data(staff_stable_document_by_branches[branch])
+    military_data = {}
     if current_date == dt.date.today().isoformat() and staff_stable_document:
-        departments_service = get_db_apeks_state_departments_service()
-        departments = await departments_service.get_departments()
         staff_history_service = get_db_apeks_state_staff_history_service()
         staff_history = data_processor(
             await staff_history_service.get_staff_for_date(dt.date.today()),
@@ -464,43 +493,53 @@ async def staff_info():
             staff_history,
             staff_stable_document,
             state_vacancies,
+            branches
         )
-        military_data = {
-            "staff_military_total": 0,
-            "staff_military_absence": 0,
-            "staff_military_stock": 0,
-        }
-        for dept_type in stable_data:
-            for dept in stable_data[dept_type]:
-                if all(
-                    isinstance(stable_data[dept_type][dept].get(item_name), int)
-                    for item_name in military_data
-                ):
-                    for item_name in military_data:
-                        military_data[item_name] += stable_data[dept_type][dept].get(
-                            item_name
-                        )
+        for branch in branches:
+            military_data.setdefault(branch, {
+                "staff_military_total": 0,
+                "staff_military_absence": 0,
+                "staff_military_stock": 0,
+            })
+            for dept_type in stable_data[branches[branch]]:
+                for dept in stable_data[branches[branch]][dept_type]:
+                    if all(
+                        isinstance(stable_data[branches[branch]][dept_type][dept].get(item_name), int)
+                        for item_name in military_data[branch]
+                    ):
+                        for item_name in military_data[branch]:
+                            military_data[branch][item_name] += stable_data[branches[branch]][dept_type][dept].get(
+                                item_name
+                            )
     else:
-        military_data = None
+        for branch in branches:
+            military_data.setdefault(branch, None)
+    # Данные для таблицы по переменному составу
     staff_various_service = get_staff_various_document_service()
     allowed_faculty_service = get_staff_allowed_faculty_service()
     faculties_data = {
-        item.short_name: item.sort for item in allowed_faculty_service.list()
+        item.short_name: [item.sort, item.branch_id, item.apeks_id] for item in allowed_faculty_service.list()
     }
-
-    # Данные для таблицы по переменному составу
     various_data = {"total": {}}
+    group_service = get_apeks_load_groups_service()
+    groups = await group_service.list()
     for daytime in VariousStaffDaytimeType:
         data = process_document_various_staff_data(
             staff_various_service.get(
                 query_filter={"date": current_date, "daytime": daytime}
             ),
+            groups,
             faculties_data,
+            branches,
+            departments
         )
         various_data["total"][daytime.value] = data
-        for faculty, faculty_data in data.get("faculty_data", {}).items():
-            various_data.setdefault(faculty, {})
-            various_data[faculty][daytime.value] = faculty_data
+        if data:
+            for branch in branches:
+                various_data.setdefault(branch, {})
+                for faculty, faculty_data in data.get(branch).get("faculty_data", {}).items():
+                    various_data.get(branch).setdefault(faculty, {})
+                    various_data[branch][faculty][daytime.value] = faculty_data
 
     return render_template(
         "staff/staff_info.html",
@@ -509,10 +548,11 @@ async def staff_info():
         date=current_date,
         stable_busy_types=stable_busy_types,
         department_types=ApeksConfig.DEPT_TYPES.values(),
-        staff_stable_data=staff_stable_data,
-        document_stable_status=document_stable_status,
-        various_data=various_data,
-        military_data=military_data,
+        staff_stable_data_by_branches=staff_stable_data_by_branches,  # инфа по постоянному составу есть поле branch_id
+        document_stable_status=document_stable_status,  # статус документа - редактируется/завершен
+        various_data=various_data,  # инфа по переменному составу
+        military_data=military_data,  # TODO инфа под ярлыками надо поправить, пишет 0
+        branches=branches
     )
 
 
@@ -521,9 +561,11 @@ async def staff_info():
 async def staff_stable_file_report(date):
     staff_stable_service = get_staff_stable_document_service()
     document_data = staff_stable_service.get(query_filter={"date": date})
+    branches = await get_branches()
+    departments = await get_departments_by_branches()
     stable_busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in stable_busy_types_service.list()}
-    filename = generate_stable_staff_report(document_data, busy_types)
+    filename = generate_stable_staff_report(document_data, busy_types, branches, departments)
     return redirect(url_for("main.get_file", filename=filename))
 
 
@@ -533,6 +575,8 @@ async def staff_stable_file_report(date):
 async def staff_stable_report():
     form = StaffReportForm()
     busy_data, staff_data, total_docs = None, None, None
+    branches = await get_branches()
+    departments = await get_departments_by_branches()
     document_start_date = request.args.get("document_start_date")
     document_end_date = request.args.get("document_end_date")
     if document_start_date and document_end_date:
@@ -546,14 +590,19 @@ async def staff_stable_report():
             )
         )
         total_docs = len(staff_stable_documents)
-        busy_data = process_documents_range_by_busy_type(staff_stable_documents)
-        staff_data = process_documents_range_by_staff_id(staff_stable_documents)
+        # разбивка по причинам отсутствия (причина, кто и сколько отсутствовал)
+        # {'illness': {'129': {'count': 5, 'name': 'Шалимова О.Н.'}, '438': {'count': 5, 'name': 'Тимахович В.И.'}, ...
+        busy_data = process_documents_range_by_busy_type(staff_stable_documents, departments, branches)
+        # разбивка по сотрудникам (кто по каким причинам и сколько отсутствовал)
+        # {'543': {'absence': {'rest_time': 1}, 'total': 1, 'name': 'Абрамов А.В.'}, '354': {'absence': {'illness': 2}, 'total': 2, 'name': 'Аленичева С.В.'}, ...
+        staff_data = process_documents_range_by_staff_id(staff_stable_documents, departments, branches)
         form.document_start_date.data = datetime.date.fromisoformat(document_start_date)
         form.document_end_date.data = datetime.date.fromisoformat(document_end_date)
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = {item.slug: item.name for item in busy_types_service.list()}
-    busy_type = request.args.get("busy_type")
-    staff_id = request.args.get("staff_id")
+    busy_type = request.args.get("busy_type")  # причина отсутствия по которой хотим посмотреть статистику
+    staff_id = request.args.get("staff_id")  # id сотрудника по которому хотим посмотреть инфу
+    branch = request.args.get("branch")  # филиал
     return render_template(
         "staff/staff_stable_report.html",
         active="staff",
@@ -563,7 +612,9 @@ async def staff_stable_report():
         busy_data=busy_data,
         busy_types=busy_types,
         busy_type=busy_type,
+        branches=branches,
         staff_data=staff_data,
+        branch=branch,
         staff_id=staff_id,
         total_docs=total_docs,
     )
@@ -608,16 +659,16 @@ async def staff_stable_load():
                 f"документа {working_date.isoformat()}: {result}"
             )
             return redirect(url_for("staff.staff_stable_load"))
-    departments_service = get_db_apeks_state_departments_service()
-    departments = await departments_service.get_departments()
     staff_history_service = get_db_apeks_state_staff_history_service()
     staff_history = data_processor(
         await staff_history_service.get_staff_for_date(working_date), key="staff_id"
     )
     state_vacancies_service = get_apeks_db_state_vacancies_service()
     state_vacancies = data_processor(await state_vacancies_service.list())
+    branches = await get_branches()
+    departments = await get_departments_by_branches()
     staff_data = process_apeks_stable_staff_data(
-        departments, staff_history, document_data, state_vacancies
+        departments, staff_history, document_data, state_vacancies, branches
     )
     return render_template(
         "staff/staff_stable_load.html",
@@ -647,8 +698,7 @@ async def staff_stable_edit(department_id):
         for item in staff_history
         if item.get("vacancy_id") and item.get("value") == "1"
     }
-    departments_service = get_db_apeks_state_departments_service()
-    departments = await departments_service.get_departments()
+    departments = await get_departments_by_branches()
     department_data = departments.get(department_id)
     department_name = department_data.get("short")
     department_type = department_data.get("type")
@@ -815,6 +865,7 @@ async def staff_various_load():
                     daytime=daytime.value,
                 )
             )
+    branches = await get_branches()
     return render_template(
         "staff/staff_various_load.html",
         active="staff",
@@ -822,6 +873,7 @@ async def staff_various_load():
         date=working_date,
         daytime=daytime.value,
         groups_data=groups_data,
+        branches=branches,
         doc_status=document_data.get("status"),
     )
 
@@ -1003,8 +1055,9 @@ async def staff_various_file_report(date, daytime):
     illness_types_service = get_staff_various_illness_types_service()
     illness_types = {item.slug: item.name for item in illness_types_service.list()}
     faculty_data = {
-        item.short_name: item.sort for item in allowed_faculty_service.list()
+        item.short_name: [item.sort, item.branch_id] for item in allowed_faculty_service.list()
     }
     report_data = get_various_report_data(document_data, faculty_data)
-    filename = generate_various_staff_report(report_data, busy_types, illness_types)
+    branches = await get_branches()
+    filename = generate_various_staff_report(report_data, busy_types, illness_types, branches)
     return redirect(url_for("main.get_file", filename=filename))

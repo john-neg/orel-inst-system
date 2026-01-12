@@ -79,11 +79,11 @@ def generate_schedule_ical(
                 f"{Apeks.URL}/student/journal/view?group_id={group_id}"
                 f"&lesson_id={lesson_id}",
             )
-        alarm = Alarm()
-        alarm.add("action", "DISPLAY")
-        alarm.add("description", "Напоминание")
-        alarm.add("trigger", timedelta(minutes=-30))
-        event.add_component(alarm)
+        # alarm = Alarm()
+        # alarm.add("action", "DISPLAY")
+        # alarm.add("description", "Напоминание")
+        # alarm.add("trigger", timedelta(minutes=-30))
+        # event.add_component(alarm)
         cal.add_component(event)
 
     month_name = Apeks.MONTH_DICT.get(int(schedule.month))

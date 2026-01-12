@@ -4,10 +4,10 @@ from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from ldap3.core.exceptions import LDAPSessionTerminatedByServerError, LDAPSocketOpenError, LDAPSocketReceiveError
 
-from config import FlaskConfig, PermissionsConfig
+from config import FlaskConfig, PermissionsConfig, ApeksConfig
 from . import bp
 from .forms import UserEditForm, UserLoginForm, UserRegisterForm, create_roles_form
-from .func import permission_required
+from .func import permission_required, has_permission
 from .ldap_data import get_user_data
 from ..core.extensions import login_manager
 from ..core.forms import ObjectDeleteForm
@@ -39,12 +39,11 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = users_service.get(username=username)
-
+        user = users_service.get(username=username)  # проверяем есть ли пользователь в локальной базе
         if FlaskConfig.LDAP_AUTH:
             try:
-                name, ldap_groups = get_user_data(username, password)
-                if not user and ldap_groups:
+                name, ldap_groups = get_user_data(username, password)  # пытаемся получить данные пользователя из ldap
+                if not user and ldap_groups:  # если польз. нет в локальной базе, но есть в ldap создаем в базе нового
                     user_role = users_roles_service.get(
                         slug=PermissionsConfig.ROLE_USER
                     )
@@ -56,8 +55,9 @@ def login():
                     message = f"Создан новый пользователь: {username}"
                     flash(message, category="info")
                     logging.info(message)
-                elif user and ldap_groups:
+                elif user and ldap_groups:  # если пользователь есть и в базе и в ldap
                     if not users_service.check_password(user.password_hash, password):
+                        # если пароль в ldap и в базе не совпадают обновляем пароль в базе
                         user = users_service.update_user(user.id, password=password)
                         message = f"Обновлен пароль пользователя: {username}"
                         flash(message, category="info")
@@ -71,7 +71,7 @@ def login():
                 flash(message, category="warning")
                 logging.info(message)
 
-        if user is None or not users_service.check_password(
+        if user is None or not users_service.check_password(  # если пользователь не найден или пароль не верный
             user.password_hash, password
         ):
             error = "Неверный логин или пароль"

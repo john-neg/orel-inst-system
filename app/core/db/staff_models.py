@@ -41,3 +41,5 @@ class StaffAllowedFaculty(db.Model):
     name: Mapped[str] = mapped_column(String)
     short_name: Mapped[str] = mapped_column(String)
     sort: Mapped[int] = mapped_column(Integer)
+    branch_id: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    

@@ -1,7 +1,6 @@
 import datetime as dt
 from dataclasses import dataclass, field
 
-from config import ApeksConfig
 from ..core.services.apeks_db_state_departments_service import (
     get_db_apeks_state_departments_service,
 )
@@ -54,9 +53,18 @@ class Departments:
     async def update(self):
         state_departments_service = get_db_apeks_state_departments_service()
         departments = await state_departments_service.get()
+
+        # TODO проработать вопрос отображения сразу двух справочников
+        # branch_id = None
+        # if has_permission(PermissionsConfig.USER_HEAD_OFFICE_PERMISSION):
+        #     branch_id = None
+        # if has_permission(PermissionsConfig.USER_BRANCH_OFFICE_1_PERMISSION):
+        #     branch_id = '1'
+        branch_id = None
+
         self.departments = [
             {"id": dep["id"], "title": dep["name"], "parent_id": dep["parent_id"]}
-            for dep in departments if dep.get("branch_id") == ApeksConfig.BRANCH_ID
+            for dep in departments if dep.get("branch_id") == branch_id
         ]
 
     async def get_all(self) -> list:

@@ -67,6 +67,8 @@ class PermissionsConfig:
     STAFF_CLOSE_DOCUMENT_PERMISSION: str = "staff_close_document"
     STAFF_REPORT_PERMISSION: str = "staff_report"
     USERS_EDIT_PERMISSION: str = "users_edit"
+    USER_HEAD_OFFICE_PERMISSION: str = "user_head_office"
+    USER_BRANCH_OFFICE_1_PERMISSION: str = "user_branch_office_1"
     PERMISSION_DESCRIPTIONS = {
         LIBRARY_LOAD_INFO_SYSTEMS_PERMISSION: "Обеспечение - загрузка баз данных и инф.-справ. систем",
         LIBRARY_LOAD_INTERNET_LINKS_PERMISSION: "Обеспечение - загрузка интернет ресурсов в рабочие программы",
@@ -82,6 +84,8 @@ class PermissionsConfig:
         STAFF_CLOSE_DOCUMENT_PERMISSION: "Строевая записка - установка разрешения/запрета на редактирование документа",
         STAFF_REPORT_PERMISSION: "Строевая записка - просмотр отчетов",
         USERS_EDIT_PERMISSION: "Пользователи - права и редактирование",
+        USER_HEAD_OFFICE_PERMISSION: "Пользователь головной организации",
+        USER_BRANCH_OFFICE_1_PERMISSION: "Пользователь филиала",
     }
 
 
@@ -149,7 +153,7 @@ class ApeksConfig(object):
     """Конфигурация для работы с API АпексВУЗ"""
 
     # Код филиала
-    BRANCH_ID = os.getenv("BRANCH_ID") if os.getenv("BRANCH_ID", "").isdecimal() else None
+    # BRANCH_ID = os.getenv("BRANCH_ID") if os.getenv("BRANCH_ID", "").isdecimal() else None
 
     # Данные для запросов по API к АпексВУЗ
     URL = os.getenv("APEKS_URL")
@@ -176,6 +180,7 @@ class ApeksConfig(object):
     # Таблицы базы данных Апекс-ВУЗ, используемые в приложении
     LOAD_GROUPS_TABLE = "load_groups"
     STATE_DEPARTMENTS_TABLE = "state_departments"
+    STATE_DEPARTMENTS_TYPES_TABLE = "state_departments_types"
     STATE_SPECIAL_RANKS = "state_special_ranks"
     STATE_STAFF_FIELD_DATA = "state_staff_field_data"
     STATE_STAFF_HISTORY_TABLE = "state_staff_history"
@@ -187,6 +192,8 @@ class ApeksConfig(object):
     STUDENT_STUDENTS_GROUPS_TABLE = "student_students_groups"
     STUDENT_STUDENTS_TABLE = "student_students"
     STUDENT_STUDENT_HISTORY_TABLE = "student_student_history"
+    SYSTEM_BRANCHES_TABLE = 'system_branches'
+    SYSTEM_SETTINGS_TABLE = 'system_settings'
 
     TABLES = {
         "load_groups": "load_groups",

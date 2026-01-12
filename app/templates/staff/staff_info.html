@@ -7,279 +7,387 @@
   </div>
   <form method="post">
     {{ form.hidden_tag() }}
-      <div class="container">
-        <div class="row justify-content-center mb-3">
-          <div class="col-md-7 col-xl-4">
-            {{ form.document_date(class="form-control form-control-lg", onchange="form.submit()") }}
-          </div>
+    <div class="container">
+      <div class="row justify-content-center mb-3">
+        <div class="col-md-7 col-xl-4">
+          {{ form.document_date(class="form-control form-control-lg", onchange="form.submit()") }}
         </div>
-        <!-- Постоянный состав -->
+      </div>
+      <!-- Постоянный состав -->
+      <div class="row justify-content-center">
+        <div class="col" style="height: 28.0469px;">
+          <h4 class="text-center text-black">Постоянный состав</h4>
+        </div>
+      </div>
+      {% if (document_stable_status) %}
         <div class="row justify-content-center">
-          <div class="col" style="height: 28.0469px;">
-            <h4 class="text-center text-black">Постоянный состав</h4>
+          <div class="col" style="height: 24px;">
+            <p class="text-center">
+            Статус документа - <b>{{ document_stable_status }}</b>
+            <a href="{{ url_for('staff.staff_stable_load', date=date) }}" target="_blank">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+            </p>
           </div>
         </div>
-        {% if document_stable_status %}
-          <div class="row justify-content-center">
-            <div class="col" style="height: 24px;">
-              <p class="text-center">
-              Статус документа - <b>{{ document_stable_status }}</b>
-              <a href="{{ url_for('staff.staff_stable_load', date=date) }}" target="_blank">
-                <i class="fas fa-external-link-alt"></i>
-              </a>
-              </p>
-            </div>
-          </div>
-          {% if staff_stable_data.get("departments_by_type") %}
-            <div class="row justify-content-center">
-              <div class="col-md-10 col-xl-8">
-                <div class="row row-cols-1 row-cols-sm-3 justify-content-center">
-                  <div class="col text-center">
-                    <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
-                      <div class="bs-icon-md bs-icon-circle bs-icon-primary text-center d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-vcard-fill text-center">
-                          <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm9 1.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 0-.5.5M9 8a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4A.5.5 0 0 0 9 8m1 2.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5m-1 2C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 0 2 13h6.96c.026-.163.04-.33.04-.5M7 6a2 2 0 1 0-4 0 2 2 0 0 0 4 0"></path>
-                        </svg>
-                      </div>
-                      <div class="text-center px-3">
-                        <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data.get("staff_total") }}</h4>
-                        {% if military_data %}
-                          <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get("staff_military_total") }} атт)</h4>
-                        {% endif %}
-                        <p class="text-center text-dark mb-0">По списку</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col text-center">
-                    <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
-                      <div class="bs-icon-md bs-icon-circle bs-icon-primary text-center d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-fill-up text-center">
-                          <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 0 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.708l1.5-1.5a.5.5 0 0 1 .708 0M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
-                          <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4"></path>
-                        </svg>
-                      </div>
-                      <div class="text-center px-3">
-                        <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data.get("staff_stock") }}</h4>
-                        {% if military_data %}
-                          <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get("staff_military_stock") }} атт)</h4>
-                        {% endif %}
-                        <p class="text-center text-dark mb-0">В строю</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col text-center">
-                    <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
-                      <div class="bs-icon-md bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-fill-dash">
-                          <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M11 12h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1m0-7a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
-                          <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4"></path>
-                        </svg>
-                      </div>
-                      <div class="px-3">
-                        <h4 class="fw-bold text-dark mb-0">{{ staff_stable_data.get("staff_absence") }}</h4>
-                        {% if military_data %}
-                          <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get("staff_military_absence") }} атт)</h4>
-                        {% endif %}
-                        <p class="text-dark mb-0">Отсутствуют</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% if staff_stable_data.get("staff_absence") %}
-              <div class="row justify-content-center">
-                <div class="col-md-10 col-xl-8">
-                  <div class="table-responsive">
-                    <table class="table table-sm">
-                      <thead>
-                        <tr>
-                          <th>Причины отсутствия</th>
-                          <th>Кол-во</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for absence in staff_stable_data.get("absence_types") %}
-                          <tr>
-                            <td>{{ stable_busy_types.get(absence) }}</td>
-                            <td>{{ staff_stable_data["absence_types"][absence] }}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+        {% if staff_stable_data_by_branches|length != 0 %}
+          {% set ns = namespace(count_branches = 0) %}
+          {% for branch in branches %}
+            {% if staff_stable_data_by_branches.get(branch) and staff_stable_data_by_branches.get(branch).get("departments_by_type") %}
+              {% set ns.count_branches = ns.count_branches + 1%}
             {% endif %}
-            <div class="row justify-content-center">
-              <div class="col-md-10 col-xl-8 mb-2">
-                <a class="btn btn-primary fw-bold" role="button"
-                   href="{{ url_for('staff.staff_stable_file_report', date=date) }}">Сформировать отчет</a>
-            </div>
-          </div>
+          {% endfor%}
+          {% if ns.count_branches > 1 %}
+            {% set wide_tables = True%}
+          {% else %}
+            {% set wide_tables = False%}
+            {% set show_branches_for_various_staff = True %}
           {% endif %}
-        {% else %}
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8 mt-3">
-              <h5 class="text-center text-black">Нет данных</h5>
+          <div class="body:container-fluid text-center">
+            <div class="row align-items-start">
+              {% for branch in branches %}
+                {%if staff_stable_data_by_branches.get(branch) %}
+                  <div class="col">
+                    <div class="row justify-content-center">
+                      <div class="col" style="height: 48.0469px;">
+                        <h5 class="text-center text-black">{{ branches.get(branch) }}</h5>
+                      </div>
+                    </div>
+                    {% if staff_stable_data_by_branches.get(branch).get("departments_by_type") %}
+                      <div class="row justify-content-center">
+                        {% if wide_tables %}
+                          <div class="col-md-10 col-xl-12">
+                        {% else %}
+                          <div class="col-md-10 col-xl-8">
+                        {% endif %}
+                          <div class="row row-cols-1 row-cols-sm-3 justify-content-center">
+                            <div class="col text-center">
+                              <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                                <div class="bs-icon-md bs-icon-circle bs-icon-primary text-center d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-vcard-fill text-center">
+                                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm9 1.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 0-.5.5M9 8a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4A.5.5 0 0 0 9 8m1 2.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5m-1 2C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 0 2 13h6.96c.026-.163.04-.33.04-.5M7 6a2 2 0 1 0-4 0 2 2 0 0 0 4 0"></path>
+                                  </svg>
+                                </div>
+                                <div class="text-center px-3">
+                                  <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data_by_branches.get(branch).get("staff_total") }}</h4>
+                                    {% if military_data.get(branch) %}
+                                      <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get(branch).get("staff_military_total") }} атт)</h4>
+                                    {% endif %}
+                                  <p class="text-center text-dark mb-0">По списку</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col text-center">
+                              <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                                <div class="bs-icon-md bs-icon-circle bs-icon-primary text-center d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-fill-up text-center">
+                                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 0 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.708l1.5-1.5a.5.5 0 0 1 .708 0M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
+                                    <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4"></path>
+                                  </svg>
+                                </div>
+                                <div class="text-center px-3">
+                                  <h4 class="fw-bold text-center text-dark mb-0">{{ staff_stable_data_by_branches.get(branch).get("staff_stock") }}</h4>
+                                    {% if military_data.get(branch) %}
+                                      <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get(branch).get("staff_military_stock") }} атт)</h4>
+                                    {% endif %}
+                                  <p class="text-center text-dark mb-0">В строю</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col text-center">
+                              <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                                <div class="bs-icon-md bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-person-fill-dash">
+                                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M11 12h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1m0-7a3 3 0 1 1-6 0 3 3 0 0 1 6 0"></path>
+                                    <path d="M2 13c0 1 1 1 1 1h5.256A4.493 4.493 0 0 1 8 12.5a4.49 4.49 0 0 1 1.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4"></path>
+                                  </svg>
+                                </div>
+                                <div class="px-3">
+                                  <h4 class="fw-bold text-dark mb-0">{{ staff_stable_data_by_branches.get(branch).get("staff_absence") }}</h4>
+                                    {% if military_data.get(branch) %}
+                                      <h4 class="fw-bold text-center text-primary mb-0">({{ military_data.get(branch).get("staff_military_absence") }} атт)</h4>
+                                    {% endif %}
+                                  <p class="text-dark mb-0">Отсутствуют</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {% if staff_stable_data_by_branches.get(branch).get("staff_absence") %}
+                        <div class="row justify-content-center">
+                          {% if wide_tables %}
+                            <div class="col-md-10 col-xl-12">
+                          {% else %}
+                            <div class="col-md-10 col-xl-8">
+                          {% endif %}
+                            <div class="table-responsive">
+                              <table class="table table-sm text-start">
+                                <thead>
+                                  <tr>
+                                    <th>Причины отсутствия</th>
+                                    <th>Кол-во</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for absence in staff_stable_data_by_branches.get(branch).get("absence_types") %}
+                                    <tr>
+                                      <td>{{ stable_busy_types.get(absence) }}</td>
+                                      <td>{{ staff_stable_data_by_branches.get(branch).get("absence_types").get(absence) }}</td>
+                                    </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
             </div>
           </div>
+          <div class="row justify-content-center">
+            {% if wide_tables %}
+              <div class="col-md-10 col-xl-12 mb-2">
+            {% else %}
+              <div class="col-md-10 col-xl-8 mb-2">
+            {% endif %}
+              <a class="btn btn-primary fw-bold" role="button"
+                href="{{ url_for('staff.staff_stable_file_report', date=date) }}">Сформировать отчет</a>
+            </div>
+          </div>
+        {% else %}
+          {% set show_branches_for_various_staff = True %}
         {% endif %}
-        <!-- Переменный состав -->
+      {% else %}
+        <div class="row justify-content-center">
+          <div class="col-md-10 col-xl-8 mt-3">
+            <h5 class="text-center text-black">Нет данных</h5>
+            {% set show_branches_for_various_staff = True %}
+          </div>
+        </div>
+      {% endif %}
+      <!-- Переменный состав -->
+      <div class="row justify-content-center">
+        <div class="col">
+          <h4 class="text-center text-black">Переменный состав</h4>
+        </div>
+      </div>
+      <div class="body:container-fluid text-center">
+        <div class="row align-items-start">
+          {% for branch in branches %}
+            <div class="col">
+              {% if show_branches_for_various_staff %}
+                <div class="row justify-content-center">
+                  <div class="col" style="height: 48.0469px;">
+                    <h5 class="text-center text-black">{{ branches[branch]}}</h5>
+                  </div>
+                </div>
+              {% endif %}
+              <div class="row justify-content-center">
+                  <div class="col-md-10 col-xl-12">
+                    <div class="table-responsive">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th class="table-primary"></th>
+                            {% for daytime in config.DAYTIME_NAME %}
+                              <th class="text-center table-primary">
+                                {{ config.DAYTIME_NAME.get(daytime) }}<span> </span>
+                                <span>
+                                  <a href="{{ url_for('staff.staff_various_load', date=date, daytime=daytime) }}" target="_blank">
+                                    {% if various_data["total"][daytime].get(branch) %}
+                                      {% if various_data["total"][daytime][branch].get("status") == config.STAFF_COMPLETED_STATUS %}
+                                        <i class="fas fa-check-circle text-success" title="Сформирован"></i>
+                                      {% elif various_data["total"][daytime][branch].get("status") == config.STAFF_IN_PROGRESS_STATUS %}
+                                        <i class="fas fa-minus-circle text-warning" title="Заполняется"></i>
+                                      {% else %}
+                                        <i class="fas fa-times-circle text-danger" title="Нет данных"></i>
+                                      {% endif %}
+                                    {% else %}
+                                      <i class="fas fa-times-circle text-danger" title="Нет данных"></i>
+                                    {% endif %}
+                                  </a>
+                                </span>
+                              </th>
+                            {% endfor %}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="table-secondary text-start"><b>По списку</b></td>
+                            {% for daytime in config.DAYTIME_NAME %}
+                              {% if various_data["total"][daytime].get(branch) %}
+                                {% if various_data["total"][daytime].get(branch).get("faculty_data") %}
+                                  <td class="text-center table-secondary"><b>{{ various_data["total"][daytime][branch].get("total", "Нет данных") }}</b></td>
+                                {% else %}
+                                  <td class="text-center table-secondary"><b>Нет данных</b></td>
+                                {% endif %}
+                              {% else %}
+                                <td class="text-center table-secondary"><b>Нет данных</b></td>
+                              {% endif%}
+                            {% endfor %}
+                          </tr>
+                          {% if various_data[branch]|length > 0 %}
+                            {% for faculty, faculty_data in various_data[branch].items() %}
+                              <tr>
+                                <td class="text-start">{{ faculty }}</td>
+                                {% for daytime in config.DAYTIME_NAME %}
+                                  <td class="text-center">{{ faculty_data.get(daytime, {}).get("total", "Нет данных") }}</td>
+                                {% endfor %}
+                              </tr>
+                            {% endfor %}
+                          {% endif %}
+                          <tr>
+                            <td class="table-secondary text-start"><b>В строю</b></td>
+                            {% for daytime in config.DAYTIME_NAME %}
+                              {% if various_data["total"][daytime].get(branch) %}
+                                {% if various_data["total"][daytime].get(branch).get("faculty_data") %}
+                                  <td class="text-center table-secondary"><b>{{ various_data["total"][daytime][branch].get("stock", "Нет данных") }}</b></td>
+                                {% else %}
+                                  <td class="text-center table-secondary"><b>Нет данных</b></td>
+                                {% endif %}
+                              {% else %}
+                                <td class="text-center table-secondary"><b>Нет данных</b></td>
+                              {% endif%}
+                            {% endfor %}
+                          </tr>
+                          {% if various_data[branch]|length > 0 %}
+                            {% for faculty, faculty_data in various_data[branch].items() %}
+                              <tr>
+                                <td class="text-start">{{ faculty }}</td>
+                                {% for daytime in config.DAYTIME_NAME %}
+                                  {% if various_data["total"][daytime].get(branch) %}
+                                    <td class="text-center">{{ faculty_data.get(daytime, {}).get("stock", "Нет данных") }}</td>
+                                  {% else %}
+                                    <td class="text-center table-secondary"><b>Нет данных</b></td>
+                                  {% endif%}
+                                {% endfor %}
+                              </tr>
+                            {% endfor %}
+                          {% endif %}
+                          <tr>
+                            <td class="table-secondary text-start"><b>Отсутствуют</b></td>
+                            {% for daytime in config.DAYTIME_NAME %}
+                              {% if various_data["total"][daytime].get(branch) %}
+                                {% if various_data["total"][daytime].get(branch).get("faculty_data") %}
+                                  <td class="text-center table-secondary"><b>{{ various_data["total"][daytime][branch].get("absence", "Нет данных") }}</b></td>
+                                {% else %}
+                                  <td class="text-center table-secondary"><b>Нет данных</b></td>
+                                {% endif %}
+                              {% else %}
+                                <td class="text-center table-secondary"><b>Нет данных</b></td>
+                              {% endif%}
+                            {% endfor %}
+                          </tr>
+                          {% if various_data[branch]|length > 0 %}
+                            {% for faculty, faculty_data in various_data[branch].items() %}
+                              <tr>
+                                <td class="text-start">{{ faculty }}</td>
+                                {% for daytime in config.DAYTIME_NAME %}
+                                  <td class="text-center">{{ faculty_data.get(daytime, {}).get("absence", "Нет данных") }}</td>
+                                {% endfor %}
+                              </tr>
+                            {% endfor %}
+                          {% endif %}
+                          <tr>
+                            <td class="table-primary text-start"><b>Отчет</b></td>
+                            {% for daytime in config.DAYTIME_NAME %}
+                              <td class="text-center table-primary">
+                              {% if various_data["total"][daytime].get(branch) %}  
+                                {% if various_data["total"][daytime][branch].get("status") %}
+                                  <a class="btn btn-primary btn-sm fw-bold" role="button"
+                                    href="{{ url_for('staff.staff_various_file_report', date=date, daytime=daytime) }}">Отчет</a>
+                                {% endif %}
+                              {% endif %}
+                              </td>
+                            {% endfor %}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <!-- Постоянный состав: подразделения -->
+      {% if document_stable_status and staff_stable_data_by_branches|length != 0 %}
         <div class="row justify-content-center">
           <div class="col">
-            <h4 class="text-center text-black">Переменный состав</h4>
+            <h4 class="text-center text-black">Сведения по подразделениям</h4>
           </div>
         </div>
         <div class="row justify-content-center">
           <div class="col-md-10 col-xl-8">
             <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th class="table-primary"></th>
-                    {% for daytime in config.DAYTIME_NAME %}
-                      <th class="text-center table-primary">
-                        {{ config.DAYTIME_NAME.get(daytime) }}<span> </span>
-                        <span>
-                          <a href="{{ url_for('staff.staff_various_load', date=date, daytime=daytime) }}" target="_blank">
-                            {% if various_data["total"][daytime].get("status") == config.STAFF_COMPLETED_STATUS %}
-                              <i class="fas fa-check-circle text-success" title="Сформирован"></i>
-                            {% elif various_data["total"][daytime].get("status") == config.STAFF_IN_PROGRESS_STATUS %}
-                              <i class="fas fa-minus-circle text-warning" title="Заполняется"></i>
-                            {% else %}
-                              <i class="fas fa-times-circle text-danger" title="Нет данных"></i>
-                            {% endif %}
-                          </a>
-                        </span>
-                      </th>
-                    {% endfor %}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="table-secondary"><b>По списку</b></td>
-                    {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("total", "Нет данных") }}</b></td>
-                    {% endfor %}
-                  </tr>
-                  {% for faculty, faculty_data in various_data.items() %}
-                    {% if faculty != "total" %}
+              <table class="table table-sm table-bordered">
+                {% for branch in branches %}
+                  {% if staff_stable_data_by_branches.get(branch) %}
+                    <thead>
                       <tr>
-                        <td>{{ faculty }}</td>
-                        {% for daytime in config.DAYTIME_NAME %}
-                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("total", "Нет данных") }}</td>
-                        {% endfor %}
+                        <th class="table-dark text-uppercase text-center" colspan="3">{{ branches[branch] }}</th>
                       </tr>
+                    </thead>
+                    {% if staff_stable_data_by_branches[branch].get("departments_by_type") %}
+                      {% for department_type in department_types %}
+                        <thead>
+                          <tr>
+                            <th class="table-primary text-uppercase text-center" colspan="3">{{ department_type }}</th>
+                          </tr>
+                        </thead>
+                        {% if staff_stable_data_by_branches[branch]["departments_by_type"].get(department_type) %}
+                          {% for department in staff_stable_data_by_branches[branch]["departments_by_type"].get(department_type) %}
+                            <thead>
+                              <tr>
+                                <th class="table-secondary text-center" colspan="3">{{ department.get("name") }}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="fw-bold text-center">По списку</td>
+                                <td class="fw-bold text-center">{{ department.get("total") }}</td>
+                                <td class="text-center"></td>
+                              </tr>
+                              <tr>
+                                <td class="fw-bold text-center">В строю</td>
+                                <td class="fw-bold text-center">{{ department.get("total") - department.get("total_absence") }}</td>
+                                <td class="text-center"></td>
+                              </tr>
+                              <tr>
+                                <td class="fw-bold text-center">Отсутствуют</td>
+                                <td class="fw-bold text-center">{{ department.get("total_absence") }}</td>
+                                <td class="text-center"></td>
+                              </tr>
+                              {% for absence in department.get("absence") %}
+                                {% if department["absence"][absence] %}
+                                  <tr>
+                                    <td class="text-center">{{ stable_busy_types.get(absence) }}</td>
+                                    <td class="text-center">{{ department["absence"][absence].values()|count }}</td>
+                                    <td class="text-center">{{ ', '.join(department["absence"][absence].values()) }}</td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            </tbody>
+                          {% endfor %}
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <div class="row justify-content-center">
+                        <div class="col-md-10 col-xl-8 mt-3">
+                          <h5 class="text-center text-black">Нет данных</h5>
+                        </div>
+                      </div>
                     {% endif %}
-                  {% endfor %}
-                  <tr>
-                    <td class="table-secondary"><b>В строю</b></td>
-                    {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("stock", "Нет данных") }}</b></td>
-                    {% endfor %}
-                  </tr>
-                  {% for faculty, faculty_data in various_data.items() %}
-                    {% if faculty != "total" %}
-                      <tr>
-                        <td>{{ faculty }}</td>
-                        {% for daytime in config.DAYTIME_NAME %}
-                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("stock", "Нет данных") }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endif %}
-                  {% endfor %}
-                  <tr>
-                    <td class="table-secondary"><b>Отсутствуют</b></td>
-                    {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center table-secondary"><b>{{ various_data["total"][daytime].get("absence", "Нет данных") }}</b></td>
-                    {% endfor %}
-                  </tr>
-                  {% for faculty, faculty_data in various_data.items() %}
-                    {% if faculty != "total" %}
-                      <tr>
-                        <td>{{ faculty }}</td>
-                        {% for daytime in config.DAYTIME_NAME %}
-                          <td class="text-center">{{ faculty_data.get(daytime, {}).get("absence", "Нет данных") }}</td>
-                        {% endfor %}
-                      </tr>
-                    {% endif %}
-                  {% endfor %}
-                  <tr>
-                    <td class="table-primary"><b>Отчет</b></td>
-                    {% for daytime in config.DAYTIME_NAME %}
-                      <td class="text-center table-primary">
-                      {% if various_data["total"][daytime].get("status") %}
-                        <a class="btn btn-primary btn-sm fw-bold" role="button"
-                           href="{{ url_for('staff.staff_various_file_report', date=date, daytime=daytime) }}">Отчет</a>
-                      {% endif %}
-                      </td>
-                    {% endfor %}
-                  </tr>
-                </tbody>
+                  {% endif %}
+                {% endfor %}
               </table>
             </div>
           </div>
         </div>
-      <!-- Постоянный состав: подразделения -->
-      {% if document_stable_status %}
-        {% if staff_stable_data.get("departments_by_type") %}
-          <div class="row justify-content-center">
-            <div class="col">
-              <h4 class="text-center text-black">Сведения по подразделениям</h4>
-            </div>
-          </div>
-          <div class="row justify-content-center">
-            <div class="col-md-10 col-xl-8">
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered">
-                  {% for department_type in department_types %}
-                    <thead>
-                      <tr>
-                        <th class="table-dark text-uppercase text-center" colspan="3">{{ department_type }}</th>
-                      </tr>
-                    </thead>
-                    {% if staff_stable_data["departments_by_type"].get(department_type) %}
-                      {% for department in staff_stable_data["departments_by_type"].get(department_type) %}
-                        <thead>
-                          <tr>
-                            <th class="table-primary text-center" colspan="3">{{ department.get("name") }}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="fw-bold text-center">По списку</td>
-                            <td class="fw-bold text-center">{{ department.get("total") }}</td>
-                            <td class="text-center"></td>
-                          </tr>
-                          <tr>
-                            <td class="fw-bold text-center">В строю</td>
-                            <td class="fw-bold text-center">{{ department.get("total") - department.get("total_absence") }}</td>
-                            <td class="text-center"></td>
-                          </tr>
-                          <tr>
-                            <td class="fw-bold text-center">Отсутствуют</td>
-                            <td class="fw-bold text-center">{{ department.get("total_absence") }}</td>
-                            <td class="text-center"></td>
-                          </tr>
-                          {% for absence in department.get("absence") %}
-                            {% if department["absence"][absence] %}
-                              <tr>
-                                <td class="text-center">{{ stable_busy_types.get(absence) }}</td>
-                                <td class="text-center">{{ department["absence"][absence].values()|count }}</td>
-                                <td class="text-center">{{ ', '.join(department["absence"][absence].values()) }}</td>
-                              </tr>
-                            {% endif %}
-                          {% endfor %}
-                        </tbody>
-                      {% endfor %}
-                    {% endif %}
-                  {% endfor %}
-                </table>
-              </div>
-            </div>
-          </div>
-        {% endif %}
       {% endif %}
     </div>
   </form>
