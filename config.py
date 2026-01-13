@@ -194,6 +194,7 @@ class ApeksConfig(object):
     STUDENT_STUDENT_HISTORY_TABLE = "student_student_history"
     SYSTEM_BRANCHES_TABLE = 'system_branches'
     SYSTEM_SETTINGS_TABLE = 'system_settings'
+    PLAN_DISCIPLINES = 'plan_disciplines'
 
     TABLES = {
         "load_groups": "load_groups",

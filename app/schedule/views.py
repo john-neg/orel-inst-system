@@ -20,6 +20,7 @@ from ..core.func.staff import get_state_staff
 from ..core.reports.schedule_ical import generate_schedule_ical
 from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
+from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -109,6 +110,15 @@ async def schedule():
 async def disc_group_shced():
     departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments(department_filter="kafedra")
+    disciplines_service = get_apeks_db_plan_disciplines_service()
+    
+    disciplines = await disciplines_service.get_disciplines(12)
+    logging.info('----------------------------------------------')
+    for i in disciplines:
+        logging.info(i)
+    logging.info('----------------------------------------------')
+
+
     form = DisciplineForm()
     form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
 
