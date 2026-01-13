@@ -5,7 +5,7 @@ from flask import flash, redirect, render_template, request, url_for
 
 from config import ApeksConfig as Apeks
 from . import bp
-from .forms import CalendarForm
+from .forms import CalendarForm, DisciplineForm
 from ..core.classes.EducationStaff import EducationStaff
 from ..core.classes.ScheduleLessonsStaff import ScheduleLessonsStaff
 from ..core.func.api_get import (
@@ -107,4 +107,10 @@ async def schedule():
 
 @bp.route("/disc_group_shced", methods=["GET", "POST"])
 async def disc_group_shced():
-    return("Hello, World!!!")
+    departments_service = get_db_apeks_state_departments_service()
+    departments = await departments_service.get_departments(department_filter="kafedra")
+    form = DisciplineForm()
+    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
+
+
+    return render_template("schedule/disc_group_shced.html", active = "schedult", form=form)

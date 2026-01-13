@@ -22,3 +22,9 @@ class CalendarForm(ChooseDepartment):
     staff = SelectField("Преподаватель", coerce=int, validators=[DataRequired()])
     ical_exp = SubmitField("Экспорт в iCal")
     xlsx_exp = SubmitField("Экспорт в Excel")
+
+
+class DisciplineForm(ChooseDepartment):
+    """ Форма для вывода расписания дисциплины для группы"""
+
+    pass
