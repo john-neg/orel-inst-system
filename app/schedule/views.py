@@ -103,3 +103,8 @@ async def schedule():
             department=department,
         )
     return render_template("schedule/schedule.html", active="schedule", form=form)
+
+
+@bp.route("/disc_group_shced", methods=["GET", "POST"])
+async def disc_group_shced():
+    return("Hello, World!!!")
