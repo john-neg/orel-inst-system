@@ -21,6 +21,7 @@ from ..core.reports.schedule_ical import generate_schedule_ical
 from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
+from ..core.services.apeks_schedule_schedule_student_service import get_apeks_schedule_schedule_student_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -106,21 +107,34 @@ async def schedule():
     return render_template("schedule/schedule.html", active="schedule", form=form)
 
 
-@bp.route("/disc_group_shced", methods=["GET", "POST"])
+@bp.route('/disc_group_shced', methods=['GET', 'POST'])
 async def disc_group_shced():
     departments_service = get_db_apeks_state_departments_service()
-    departments = await departments_service.get_departments(department_filter="kafedra")
-    disciplines_service = get_apeks_db_plan_disciplines_service()
-    
-    disciplines = await disciplines_service.get_disciplines(12)
-    logging.info('----------------------------------------------')
-    for i in disciplines:
-        logging.info(i)
-    logging.info('----------------------------------------------')
-
+    departments = await departments_service.get_departments(department_filter='kafedra')
 
     form = DisciplineForm()
-    form.department.choices = [(k, v.get("full")) for k, v in departments.items()]
+    form.department.choices = [(k, v.get('full')) for k, v in departments.items()]
 
 
-    return render_template("schedule/disc_group_shced.html", active = "schedult", form=form)
+    # lessons_service = get_apeks_schedule_schedule_student_service()
+    # lessons = await lessons_service.get(group_id, month, year)
+
+
+
+    if request.method == 'POST':
+        department = request.form.get('department')
+        disciplines_service = get_apeks_db_plan_disciplines_service()
+        disciplines = await disciplines_service.get_disciplines(department)
+
+        # logging.info('----------------------------------------------')
+        # for i in disciplines:
+        #     logging.info(i)
+        # logging.info('----------------------------------------------')
+        form.discipline.choices = [(d.get('id'), d.get('name_short')) for d in disciplines]
+
+
+        return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department)
+
+
+
+    return render_template('schedule/disc_group_shced.html', active='schedult', form=form)

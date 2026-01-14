@@ -27,4 +27,8 @@ class CalendarForm(ChooseDepartment):
 class DisciplineForm(ChooseDepartment):
     """ Форма для вывода расписания дисциплины для группы"""
 
-    pass
+    discipline = SelectField(
+        "Дисциплина",
+        coerce=int,
+        validators=[DataRequired()]
+    )
