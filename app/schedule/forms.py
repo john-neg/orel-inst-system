@@ -1,5 +1,7 @@
+from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 from wtforms.validators import DataRequired
+from wtforms.widgets.core import html_params
 
 from config import ApeksConfig as Apeks
 from ..core.forms import ChooseDepartment
@@ -24,11 +26,21 @@ class CalendarForm(ChooseDepartment):
     xlsx_exp = SubmitField("Экспорт в Excel")
 
 
-class DisciplineForm(ChooseDepartment):
+class DisciplineForm(FlaskForm):
     """ Форма для вывода расписания дисциплины для группы"""
 
+    department = SelectField(
+        "Кафедра:",
+        choices = [('0', '-- выберите кафедру --')],
+        coerce = int,
+        validators = [DataRequired()],
+        render_kw = {'onchange': 'this.form.submit()'}
+    )
+    # dept_choose = SubmitField("Выбор")
+
     discipline = SelectField(
-        "Дисциплина",
+        "Дисциплина:",
         coerce=int,
-        validators=[DataRequired()]
+        validators=[DataRequired()],
+        render_kw = {'onchange': 'this.form.submit()'}
     )

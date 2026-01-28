@@ -14,14 +14,21 @@
             {{ form.department.label(class="text-dark") }}
             {{ form.department(class="form-select") }}
           </div>
-          <div class="mb-3">
-            {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }}
-          </div>
+          <!-- <div class="mb-3">
+            {# {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }} #}
+          </div> -->
           {% if department %}
           <div class="mb-2">
             {{ form.discipline.label(class="text-dark") }}
             {{ form.discipline(class="form-select") }}
           </div>
+          {% if discipline %}
+          <div class="mb-2">
+            <p>
+              alert('выбрана дисциплина с id = {{ discipline }}')
+            </p>
+          </div>
+          {% endif %}
 
           <!-- <div class="row mb-4">
             <div class="col-md-3">

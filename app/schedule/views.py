@@ -109,31 +109,66 @@ async def schedule():
 
 @bp.route('/disc_group_shced', methods=['GET', 'POST'])
 async def disc_group_shced():
+    # список кафедр
     departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments(department_filter='kafedra')
-
+    
+    # форма вывода расписания дисциплины для группы
     form = DisciplineForm()
-    form.department.choices = [(k, v.get('full')) for k, v in departments.items()]
+
+    # заполняем выпадающий список кафедр
+    form.department.choices.extend([(k, v.get('full'), {}) for k, v in departments.items()])
+    
 
 
     # lessons_service = get_apeks_schedule_schedule_student_service()
-    # lessons = await lessons_service.get(group_id, month, year)
-
+    # # lessons = await lessons_service.get(group_id, month, year)
+    # lessons = await lessons_service.get(group_id=506)
+    # logging.info('------------------------------------------------------------')
+    # logging.info(lessons)
+    # logging.info('------------------------------------------------------------')
 
 
     if request.method == 'POST':
+
+        # получаем из формы выбранную кафедру
         department = request.form.get('department')
-        disciplines_service = get_apeks_db_plan_disciplines_service()
-        disciplines = await disciplines_service.get_disciplines(department)
-
-        # logging.info('----------------------------------------------')
-        # for i in disciplines:
-        #     logging.info(i)
-        # logging.info('----------------------------------------------')
-        form.discipline.choices = [(d.get('id'), d.get('name_short')) for d in disciplines]
+        discipline = request.form.get('discipline')
 
 
-        return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department)
+        if department:
+            if department != '0':  # если кафедра выбрана
+                # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                # logging.info(department)
+                # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+                # получаем список дисциплин на кафедре
+                disciplines_service = get_apeks_db_plan_disciplines_service()
+                disciplines = await disciplines_service.get_disciplines(department)
+
+                # logging.info('----------------------------------------------')
+                # for i in disciplines:
+                #     logging.info(i)
+                # logging.info('----------------------------------------------')
+
+                # заполняем выпадающий список дисциплин кафедры
+                form.discipline.choices = [('0', '-- выберите дисциплину --')]
+                form.discipline.choices.extend([(d.get('id'), d.get('name_short')) for d in disciplines])
+
+                if discipline:
+                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                    logging.info(discipline)
+                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                    
+
+                    return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline)
+
+
+
+
+                return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department)
+            
+
 
 
 
