@@ -22,6 +22,7 @@ from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
 from ..core.services.apeks_schedule_schedule_student_service import get_apeks_schedule_schedule_student_service
+from ..core.services.apeks_db_plan_curriculum_disciplines_service import get_apeks_db_plan_curriculum_disciplines_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -156,9 +157,14 @@ async def disc_group_shced():
                 form.discipline.choices.extend([(d.get('id'), d.get('name_short')) for d in disciplines])
 
                 if discipline:
-                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                    logging.info(discipline)
-                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                    curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
+                    education_plan_ids = await curriculum_disciplines_service.get_education_plan_ids_for_discipline(discipline)
+                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                    # logging.info(education_plan_ids)
+                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+
+
                     
 
                     return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline)
