@@ -10,13 +10,16 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 col-xl-8">
+          <div class="row mb-4">
+            <div class="col-md-3">
+              {{ form.year.label(class="text-dark") }}
+              {{ form.year(class="form-select") }}
+            </div>
+          </div>
           <div class="mb-2">
             {{ form.department.label(class="text-dark") }}
             {{ form.department(class="form-select") }}
           </div>
-          <!-- <div class="mb-3">
-            {# {{ form.dept_choose(class="btn btn-secondary", style="background: var(--bs-gray-dark);") }} #}
-          </div> -->
           {% if department %}
           <div class="mb-2">
             {{ form.discipline.label(class="text-dark") }}
@@ -24,11 +27,33 @@
           </div>
           {% if discipline %}
           <div class="mb-2">
-            <p>
-              выбрана дисциплина с id = {{ discipline }}
-            </p>
+            {{ form.group.label(class="text-dark") }}
+            {{ form.group(class="form-select") }}
           </div>
           {% endif %}
+
+          {% if group %}
+            <div class="mb-2">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">Дата занятия</th>
+                    <th scope="col">Время занятия</th>
+                    <th scope="col">Тема занятия</th>
+                    <th scope="col">Вид занятия</th>
+                    <th scope="col">Аудитория</th>
+                    <th scope="col">Преподаватель</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+
+
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+
 
           <!-- <div class="row mb-4">
             <div class="col-md-3">

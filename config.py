@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import timedelta
+from datetime import timedelta, date
 
 import pytz
 from dotenv import load_dotenv
@@ -279,6 +279,10 @@ class ApeksConfig(object):
         11: "ноябрь",
         12: "декабрь",
     }
+
+    # Начало и конец учебного года
+    START_ACADEMIC_YEAR = date(2000, 9, 1)
+    END_ACADEMIC_YEAR = date(2001, 8, 31)
 
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3

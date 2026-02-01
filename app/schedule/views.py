@@ -22,8 +22,8 @@ from ..core.reports.schedule_ical import generate_schedule_ical
 from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
-from ..core.services.apeks_db_plan_curriculum_disciplines_service import get_apeks_db_plan_curriculum_disciplines_service
-from .. core.services.apeks_db_schedule_day_schedule_lessons_service import get_apeks_db_schedule_day_schedule_lessons_service
+from ..core.services.apeks_db_schedule_day_schedule_lessons_service import get_apeks_db_schedule_day_schedule_lessons_service
+from ..core.services.apeks_db_load_groups_service import get_apeks_load_groups_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -120,14 +120,24 @@ async def disc_group_shced():
 
     # заполняем выпадающий список кафедр
     form.department.choices.extend([(k, v.get('full'), {}) for k, v in departments.items()])
-    
+
+    # определяем начался ли новый учебный год в этом году или нет
+    current_date = date.today()
+    current_month_day = (current_date.month, current_date.day)
+    start_academic_year_month_day = (Apeks.START_ACADEMIC_YEAR.month, Apeks.START_ACADEMIC_YEAR.day)
+    if current_month_day < start_academic_year_month_day:
+        year = current_date.year - 1
+    else:
+        year = current_date.year
+
+    # заполняем список с годами за которые будет отображаться расписание
+    form.year.choices = [year, year - 1, year - 2]
+    # form.year.data = year
 
     if request.method == 'POST':
-
         # получаем из формы выбранную кафедру
         department = request.form.get('department')
         discipline = request.form.get('discipline')
-
 
         if department:
             if department != '0':  # если кафедра выбрана
@@ -135,23 +145,45 @@ async def disc_group_shced():
                 # получаем список дисциплин на кафедре
                 disciplines_service = get_apeks_db_plan_disciplines_service()
                 disciplines = await disciplines_service.get_disciplines(department)
-
                 # заполняем выпадающий список дисциплин кафедры
                 form.discipline.choices = [('0', '-- выберите дисциплину --')]
                 form.discipline.choices.extend([(d.get('id'), d.get('name_short')) for d in disciplines])
 
                 if discipline:
+                    if discipline != '0':
 
-                    schedule_day_schedule_lessons_service = get_apeks_db_schedule_day_schedule_lessons_service()
-                    groups = await schedule_day_schedule_lessons_service.get_groups_studyng_discipline_for_period(
-                        discipline,
-                        datetime.strptime('2025-09-01', '%Y-%m-%d').date(),
-                        datetime.strptime('2026-07-31', '%Y-%m-%d').date()
-                    )
+                        # получаем список пар в выбранном учебном году для выбранной дисциплины
+                        year = int(request.form.get('year'))
+                        schedule_day_schedule_lessons_service = get_apeks_db_schedule_day_schedule_lessons_service()
+                        group_ids = await schedule_day_schedule_lessons_service.get_groups_studyng_discipline_for_period(
+                            discipline,
+                            datetime.strptime(f'{year}-{Apeks.START_ACADEMIC_YEAR.month}-{Apeks.START_ACADEMIC_YEAR.day}', '%Y-%m-%d').date(),
+                            datetime.strptime(f'{year + 1}-{Apeks.END_ACADEMIC_YEAR.month}-{Apeks.END_ACADEMIC_YEAR.day}', '%Y-%m-%d').date()
+                        )
+                        # получаем список имен групп и сортируем их
+                        load_groups_service = get_apeks_load_groups_service()
+                        groups = []
+                        for group_id in group_ids:
+                            group_name = await load_groups_service.get(id=group_id)
+                            groups.append({'id': group_id, 'name': group_name[0]['name']})
 
-                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                    logging.info(groups)
-                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                        groups = sorted(groups, key=lambda item: item['name'])
+                        form.group.choices.extend([(group.get('id'), group.get('name')) for group in groups])
+
+                        group = request.form.get('group')
+                        # если выбрали группу
+                        if group:
+
+                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            logging.info(group)
+                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+
+
+                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, group=group)
+
+
+
 
 
                     # получаем список id учебных планов для выбранной дисциплины

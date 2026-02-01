@@ -58,14 +58,14 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
             'table': self.table,
             'filter': lessons_filter,
         }
-
         logging.debug(
             'Переданы параметры для запроса \'get_schedule_day_schedule_lessons\': '
             f'{params['filter']}'
         )
+        lessons = await self.repository.get(endpoint, params)
+        group_ids = list(set([lesson['group_id'] for lesson in lessons]))
 
-
-        return await self.repository.get(endpoint, params)
+        return group_ids
 
 
 

@@ -27,19 +27,34 @@ class CalendarForm(ChooseDepartment):
 
 
 class DisciplineForm(FlaskForm):
-    """ Форма для вывода расписания дисциплины для группы"""
+    '''Форма для вывода расписания дисциплины для группы.'''
+
+    year = SelectField(
+        "Год:",
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw={'onchange': 'this.form.submit()'}
+    )
 
     department = SelectField(
-        "Кафедра:",
-        choices = [('0', '-- выберите кафедру --')],
-        coerce = int,
-        validators = [DataRequired()],
-        render_kw = {'onchange': 'this.form.submit()'}
+        'Кафедра:',
+        choices=[('0', '-- выберите кафедру --')],
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw={'onchange': 'this.form.submit()'}
     )
-    # dept_choose = SubmitField("Выбор")
 
     discipline = SelectField(
-        "Дисциплина:",
+        'Дисциплина:',
+        choices=[('0', '-- выберите дисциплину --')],
+        coerce=int,
+        validators=[DataRequired()],
+        render_kw = {'onchange': 'this.form.submit()'}
+    )
+
+    group = SelectField(
+        'Группа:',
+        choices=[('0', '-- выберите группу --')],
         coerce=int,
         validators=[DataRequired()],
         render_kw = {'onchange': 'this.form.submit()'}
