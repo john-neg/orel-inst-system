@@ -158,6 +158,8 @@ class ApeksConfig(object):
     # Данные для запросов по API к АпексВУЗ
     URL = os.getenv("APEKS_URL")
     TOKEN = os.getenv("APEKS_TOKEN")
+    # проверять ли сертификат АпексВУЗ? (для работы с тестовым сервером)
+    VERIFY_CERT = os.getenv('APEKS_VERIFY_CERT', 'true').lower() not in ('0', 'false', 'no', 'off')
 
     # Точки доступа к данным АпексВУЗ
     DB_GET_ENDPOINT = f"{URL}/api/call/system-database/get"
