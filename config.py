@@ -196,6 +196,7 @@ class ApeksConfig(object):
     SYSTEM_SETTINGS_TABLE = 'system_settings'
     PLAN_DISCIPLINES = 'plan_disciplines'
     PLAN_CURRICULUM_DISCIPLINES = 'plan_curriculum_disciplines'
+    SCHEDULE_DAY_SCHEDULE_LESSONS = 'schedule_day_schedule_lessons'
 
 
     TABLES = {

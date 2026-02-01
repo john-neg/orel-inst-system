@@ -1,5 +1,6 @@
 from datetime import date
 import logging
+from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 
@@ -21,8 +22,8 @@ from ..core.reports.schedule_ical import generate_schedule_ical
 from ..core.reports.schedule_xlsx import generate_schedule_xlsx
 from ..core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
 from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
-from ..core.services.apeks_schedule_schedule_student_service import get_apeks_schedule_schedule_student_service
 from ..core.services.apeks_db_plan_curriculum_disciplines_service import get_apeks_db_plan_curriculum_disciplines_service
+from .. core.services.apeks_db_schedule_day_schedule_lessons_service import get_apeks_db_schedule_day_schedule_lessons_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -121,15 +122,6 @@ async def disc_group_shced():
     form.department.choices.extend([(k, v.get('full'), {}) for k, v in departments.items()])
     
 
-
-    # lessons_service = get_apeks_schedule_schedule_student_service()
-    # # lessons = await lessons_service.get(group_id, month, year)
-    # lessons = await lessons_service.get(group_id=506)
-    # logging.info('------------------------------------------------------------')
-    # logging.info(lessons)
-    # logging.info('------------------------------------------------------------')
-
-
     if request.method == 'POST':
 
         # получаем из формы выбранную кафедру
@@ -139,31 +131,49 @@ async def disc_group_shced():
 
         if department:
             if department != '0':  # если кафедра выбрана
-                # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                # logging.info(department)
-                # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
                 # получаем список дисциплин на кафедре
                 disciplines_service = get_apeks_db_plan_disciplines_service()
                 disciplines = await disciplines_service.get_disciplines(department)
-
-                # logging.info('----------------------------------------------')
-                # for i in disciplines:
-                #     logging.info(i)
-                # logging.info('----------------------------------------------')
 
                 # заполняем выпадающий список дисциплин кафедры
                 form.discipline.choices = [('0', '-- выберите дисциплину --')]
                 form.discipline.choices.extend([(d.get('id'), d.get('name_short')) for d in disciplines])
 
                 if discipline:
-                    curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
-                    education_plan_ids = await curriculum_disciplines_service.get_education_plan_ids_for_discipline(discipline)
+
+                    schedule_day_schedule_lessons_service = get_apeks_db_schedule_day_schedule_lessons_service()
+                    groups = await schedule_day_schedule_lessons_service.get_groups_studyng_discipline_for_period(
+                        discipline,
+                        datetime.strptime('2025-09-01', '%Y-%m-%d').date(),
+                        datetime.strptime('2026-07-31', '%Y-%m-%d').date()
+                    )
+
+                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                    logging.info(groups)
+                    logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+
+                    # получаем список id учебных планов для выбранной дисциплины
+                    # curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
+                    # education_plan_ids = await curriculum_disciplines_service.get_education_plan_ids_for_discipline(discipline)
+
+                    # получаем список групп у которых была выбранная дисциплина
+                    # load_groups_service = get_apeks_load_groups_service()
+                    # groups = []
+                    # for education_plan_id in education_plan_ids:
+                    #     group = await load_groups_service.get(education_plan_id=education_plan_id)
+                    #     groups.extend(group)
+                    # groups = [{item['id']: item['name']} for item in groups]
                     # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                    # logging.info(education_plan_ids)
+                    # logging.info(groups)
                     # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
 
+                    # lessons_service = get_apeks_schedule_schedule_student_service()
+                    # # lessons = await lessons_service.get(group_id, month, year)
+                    # # lessons = await lessons_service.get(group_id=506)
+                    # lessons = await lessons_service.get(year=2026, group_id=506)
 
                     
 
