@@ -30,6 +30,8 @@ from ..core.services.apeks_db_state_special_ranks_service import get_apeks_db_st
 from ..core.services.apeks_db_schedule_day_schedule_lessons_classrooms_service import get_apeks_db_schedule_day_schedule_lessons_classrooms_service
 from ..core.services.apeks_db_schedule_classrooms import get_apeks_db_schedule_classrooms_service
 from ..core.services.apeks_db_schedule_buildings import get_apeks_db_schedule_buildings_service
+from ..core.services.apeks_db_plan_class_types_service import get_apeks_db_plan_class_types_service
+from ..core.services.apeks_db_plan_control_types_service import get_apeks_db_plan_control_types_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -200,6 +202,12 @@ async def disc_group_shced():
                             # получаем список зданий (корпусов)
                             schedule_buildings_service = get_apeks_db_schedule_buildings_service()
                             schedule_buildings = await schedule_buildings_service.list()
+                            # получаем список типов занятий
+                            plan_class_types_service = get_apeks_db_plan_class_types_service()
+                            plan_class_types = await plan_class_types_service.list()
+                            # получаем список видов контрольных занятий
+                            plan_control_types_service = get_apeks_db_plan_control_types_service()
+                            plan_control_types = await plan_control_types_service.list()
 
                             schedule = []
                             for lesson in lessons:  # просматриваем все пары
@@ -215,9 +223,14 @@ async def disc_group_shced():
                                     for employee in staff:
                                         for rank in state_special_ranks:
                                             if employee['special_rank_id'] == rank['id']:
-                                                employee['special_rank_id'] = rank['name_short']
-                                    # TODO: сделать сортировку по званиям преподавателей
-                                    
+                                                employee['special_rank_id'] = rank
+                                    # сортировка по званиям преподавателей
+                                    staff = sorted(
+                                        staff,
+                                        key=lambda item: (item.get('special_rank_id') or {}).get('sort', '0'),
+                                        reverse=True
+                                    )
+
                                     classrooms = []
                                     # ищем аудитории в которых проходит пара
                                     for lesson_classroom in schedule_day_schedule_lessons_classrooms:
@@ -230,7 +243,26 @@ async def disc_group_shced():
                                         for building in schedule_buildings:
                                             if classroom['building_id'] == building['id']:
                                                 classroom['building_id'] = building['name_short']
-                                    # TODO: сделать сортировку по букве корпуса и номеру кабинета
+                                    # сортировка по букве корпуса и номеру кабинета
+                                    classrooms = sorted(classrooms, key=lambda item: (item['building_id'], item['name']))
+                                    
+                                    discipline_name = ''
+                                    for d in disciplines:
+                                        if discipline == d['id']:
+                                            discipline_name = d['name']
+
+                                    # определяем вид занятия
+                                    class_type = ''
+                                    if lesson['class_type_id']:
+                                        for t in plan_class_types:
+                                            if t['id'] == lesson['class_type_id']:
+                                                class_type = t['name_short']
+                                    else:
+                                        for t in plan_control_types:
+                                            if t['id'] == lesson['control_type_id']:
+                                                class_type = t['name_short']
+                                                lesson['topic_code'] = ''
+                                                lesson['topic_name'] = discipline_name
 
 
                                     schedule_lesson = {
@@ -238,16 +270,16 @@ async def disc_group_shced():
                                         'time': '',
                                         'topic_code': lesson['topic_code'],
                                         'topic_name': lesson['topic_name'],
-                                        'class_type': '',
+                                        'class_type': class_type,
                                         'classrooms': classrooms,
                                         'staff': staff
                                     }
                                     schedule.append(schedule_lesson)
 
 
-                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                            logging.info(schedule)
-                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            # logging.info(schedule)
+                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
                             
                             schedule = sorted(schedule, key=lambda item: item['date'])
 

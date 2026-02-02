@@ -203,6 +203,8 @@ class ApeksConfig(object):
     SCHEDULE_DAY_SCHEDULE_LESSONS_CLASSROOMS = 'schedule_day_schedule_lessons_classrooms'
     SCHEDULE_CLASSROOMS = 'schedule_classrooms'
     SCHEDULE_BUILDINGS = 'schedule_buildings'
+    PLAN_CLASS_TYPES = 'plan_class_types'
+    PLAN_CONTROL_TYPES = 'plan_control_types'
 
 
     TABLES = {

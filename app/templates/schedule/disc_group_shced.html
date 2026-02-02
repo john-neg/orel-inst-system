@@ -60,7 +60,7 @@
                       </td>
                       <td>
                         {% for employee in lesson['staff'] %}
-                          {{ employee['special_rank_id'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
+                          {{ employee['special_rank_id']['name_short'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
                         {% endfor %}
                       </td>
 
