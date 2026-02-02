@@ -27,19 +27,19 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
     }
     """
 
-    async def get_groups_studyng_discipline_for_period(
+    async def get_discipline_lessons_for_period(
         self,
         discipline_id: int | str,
         start_date: date,
         end_date: date,
     ) -> list:
         """
-        Возвращает id групп изучающих заданную дисциплину за указанный период.
+        Возвращает расписание занятий по выбранной дисциплине за заданный период.
 
         Parameters
         ----------
             discipline_id: int
-                id дисциплины для которой необходимо получить id групп
+                id дисциплины для которой необходимо расписание
             start_date: date
                 начало периода
             end_date: date
@@ -48,7 +48,7 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
         Returns
         -------
             list
-                список id учебных групп
+                расписание
         """
 
         endpoint = ApeksApiEndpoints.DB_GET_ENDPOINT
@@ -63,9 +63,8 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
             f'{params['filter']}'
         )
         lessons = await self.repository.get(endpoint, params)
-        group_ids = list(set([lesson['group_id'] for lesson in lessons]))
 
-        return group_ids
+        return lessons
 
 
 

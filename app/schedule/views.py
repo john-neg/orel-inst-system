@@ -155,11 +155,14 @@ async def disc_group_shced():
                         # получаем список пар в выбранном учебном году для выбранной дисциплины
                         year = int(request.form.get('year'))
                         schedule_day_schedule_lessons_service = get_apeks_db_schedule_day_schedule_lessons_service()
-                        group_ids = await schedule_day_schedule_lessons_service.get_groups_studyng_discipline_for_period(
+                        
+                        lessons = await schedule_day_schedule_lessons_service.get_discipline_lessons_for_period(
                             discipline,
                             datetime.strptime(f'{year}-{Apeks.START_ACADEMIC_YEAR.month}-{Apeks.START_ACADEMIC_YEAR.day}', '%Y-%m-%d').date(),
                             datetime.strptime(f'{year + 1}-{Apeks.END_ACADEMIC_YEAR.month}-{Apeks.END_ACADEMIC_YEAR.day}', '%Y-%m-%d').date()
                         )
+                        group_ids = list(set([lesson['group_id'] for lesson in lessons]))
+
                         # получаем список имен групп и сортируем их
                         load_groups_service = get_apeks_load_groups_service()
                         groups = []
