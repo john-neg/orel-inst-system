@@ -32,7 +32,7 @@
           </div>
           {% endif %}
 
-          {% if group %}
+          {% if schedule %}
             <div class="mb-2">
 
               <table class="table table-bordered">
@@ -47,6 +47,17 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {% for lesson in schedule %}
+                    <tr>
+                      <td>{{ lesson['date'] }}</td>
+                      <td>{{ lesson['time'] }}</td>
+                      <td>{{ lesson['topic_code'] }} {{ lesson['topic_name'] }}</td>
+                      <td>{{ lesson['class_type'] }}</td>
+                      <td>{{ lesson['class_room'] }}</td>
+                      <td>{{ lesson['staff'] }}</td>
+
+                    </tr>
+                  {% endfor %}
                   
 
                 </tbody>

@@ -177,13 +177,28 @@ async def disc_group_shced():
                         # если выбрали группу
                         if group:
 
-                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                            logging.info(group)
-                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            schedule = []
+                            for lesson in lessons:
+                                if group == lesson['group_id']:
+                                    schedule_lesson = {
+                                        'date': lesson['date'],
+                                        'time': '',
+                                        'topic_code': lesson['topic_code'],
+                                        'topic_name': lesson['topic_name'],
+                                        'class_type': '',
+                                        'class_room': '',
+                                        'staff': ''
+                                    }
+                                    schedule.append(schedule_lesson)
+
+                            schedule = sorted(schedule, key=lambda item: item['date'])
+
+                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            # logging.info(schedule)
+                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
 
-
-                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, group=group)
+                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule)
 
 
 
