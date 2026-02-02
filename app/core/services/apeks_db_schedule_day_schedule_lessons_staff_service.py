@@ -1,11 +1,9 @@
 import logging
 from dataclasses import dataclass
-from datetime import date
 
 from config import ApeksConfig
 from .base_apeks_api_service import ApeksApiDbService
-from ..repository.apeks_api_repository import ApeksApiRepository, ApeksApiEndpoints
-from ..services.apeks_db_state_staff_service import get_apeks_db_state_staff_service
+from ..repository.apeks_api_repository import ApeksApiRepository
 
 
 @dataclass

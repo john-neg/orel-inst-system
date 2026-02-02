@@ -200,6 +200,9 @@ class ApeksConfig(object):
     PLAN_CURRICULUM_DISCIPLINES = 'plan_curriculum_disciplines'
     SCHEDULE_DAY_SCHEDULE_LESSONS = 'schedule_day_schedule_lessons'
     SCHEDULE_DAY_SCHEDULE_LESSONS_STAFF = 'schedule_day_schedule_lessons_staff'
+    SCHEDULE_DAY_SCHEDULE_LESSONS_CLASSROOMS = 'schedule_day_schedule_lessons_classrooms'
+    SCHEDULE_CLASSROOMS = 'schedule_classrooms'
+    SCHEDULE_BUILDINGS = 'schedule_buildings'
 
 
     TABLES = {

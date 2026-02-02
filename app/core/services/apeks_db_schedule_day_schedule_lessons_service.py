@@ -67,9 +67,6 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
         return lessons
 
 
-
-
-
 def get_apeks_db_schedule_day_schedule_lessons_service(
         table: str = ApeksConfig.SCHEDULE_DAY_SCHEDULE_LESSONS,
         repository: ApeksApiRepository = ApeksApiRepository(),

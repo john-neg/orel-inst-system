@@ -27,6 +27,9 @@ from ..core.services.apeks_db_load_groups_service import get_apeks_load_groups_s
 from ..core.services.apeks_db_schedule_day_schedule_lessons_staff_service import get_apeks_db_schedule_day_schedule_lessons_staff_service
 from ..core.services.apeks_db_state_staff_service import get_apeks_db_state_staff_service
 from ..core.services.apeks_db_state_special_ranks_service import get_apeks_db_state_special_ranks_service
+from ..core.services.apeks_db_schedule_day_schedule_lessons_classrooms_service import get_apeks_db_schedule_day_schedule_lessons_classrooms_service
+from ..core.services.apeks_db_schedule_classrooms import get_apeks_db_schedule_classrooms_service
+from ..core.services.apeks_db_schedule_buildings import get_apeks_db_schedule_buildings_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -186,8 +189,17 @@ async def disc_group_shced():
                             state_staff_service = get_apeks_db_state_staff_service()
                             state_staff = await state_staff_service.list()
                             # получаем список званий
-                            state_sepecial_ranks_service = get_apeks_db_state_special_ranks_service()
-                            state_special_ranks = await state_sepecial_ranks_service.list()
+                            state_special_ranks_service = get_apeks_db_state_special_ranks_service()
+                            state_special_ranks = await state_special_ranks_service.list()
+                            # получаем список сопоставляющий пару и аудиторию
+                            schedule_day_schedule_lessons_classrooms_service = get_apeks_db_schedule_day_schedule_lessons_classrooms_service()
+                            schedule_day_schedule_lessons_classrooms = await schedule_day_schedule_lessons_classrooms_service.list()
+                            # получаем список аудиторий
+                            schedule_classrooms_service = get_apeks_db_schedule_classrooms_service()
+                            schedule_classrooms = await schedule_classrooms_service.list()
+                            # получаем список зданий (корпусов)
+                            schedule_buildings_service = get_apeks_db_schedule_buildings_service()
+                            schedule_buildings = await schedule_buildings_service.list()
 
                             schedule = []
                             for lesson in lessons:  # просматриваем все пары
@@ -204,12 +216,21 @@ async def disc_group_shced():
                                         for rank in state_special_ranks:
                                             if employee['special_rank_id'] == rank['id']:
                                                 employee['special_rank_id'] = rank['name_short']
-
-                                                
-
-                                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                                    # logging.info(state_special_ranks)
-                                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                                    # TODO: сделать сортировку по званиям преподавателей
+                                    
+                                    classrooms = []
+                                    # ищем аудитории в которых проходит пара
+                                    for lesson_classroom in schedule_day_schedule_lessons_classrooms:
+                                        if lesson_classroom['lesson_id'] == lesson['id']:
+                                            for classroom in schedule_classrooms:
+                                                if classroom['id'] == lesson_classroom['classroom_id']:
+                                                    classrooms.append(classroom)
+                                    # ищем корпуса в которых находится аудитории
+                                    for classroom in classrooms:
+                                        for building in schedule_buildings:
+                                            if classroom['building_id'] == building['id']:
+                                                classroom['building_id'] = building['name_short']
+                                    # TODO: сделать сортировку по букве корпуса и номеру кабинета
 
 
                                     schedule_lesson = {
@@ -218,11 +239,16 @@ async def disc_group_shced():
                                         'topic_code': lesson['topic_code'],
                                         'topic_name': lesson['topic_name'],
                                         'class_type': '',
-                                        'class_room': '',
+                                        'classrooms': classrooms,
                                         'staff': staff
                                     }
                                     schedule.append(schedule_lesson)
 
+
+                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            logging.info(schedule)
+                            logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                            
                             schedule = sorted(schedule, key=lambda item: item['date'])
 
                             return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule)
