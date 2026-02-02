@@ -205,6 +205,7 @@ class ApeksConfig(object):
     SCHEDULE_BUILDINGS = 'schedule_buildings'
     PLAN_CLASS_TYPES = 'plan_class_types'
     PLAN_CONTROL_TYPES = 'plan_control_types'
+    SCHEDULE_LESSON_TIMES = 'schedule_lesson_times'
 
 
     TABLES = {

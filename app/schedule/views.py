@@ -32,6 +32,7 @@ from ..core.services.apeks_db_schedule_classrooms import get_apeks_db_schedule_c
 from ..core.services.apeks_db_schedule_buildings import get_apeks_db_schedule_buildings_service
 from ..core.services.apeks_db_plan_class_types_service import get_apeks_db_plan_class_types_service
 from ..core.services.apeks_db_plan_control_types_service import get_apeks_db_plan_control_types_service
+from ..core.services.apeks_db_schedule_lesson_times import get_apeks_db_schedule_lesson_times_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -208,6 +209,9 @@ async def disc_group_shced():
                             # получаем список видов контрольных занятий
                             plan_control_types_service = get_apeks_db_plan_control_types_service()
                             plan_control_types = await plan_control_types_service.list()
+                            # получаем список времени пар
+                            schedule_lesson_times_service = get_apeks_db_schedule_lesson_times_service()
+                            schedule_lesson_times = await schedule_lesson_times_service.list()
 
                             schedule = []
                             for lesson in lessons:  # просматриваем все пары
@@ -264,10 +268,15 @@ async def disc_group_shced():
                                                 lesson['topic_code'] = ''
                                                 lesson['topic_name'] = discipline_name
 
+                                    # определяем время пары
+                                    time = ''
+                                    for schedule_lesson_time in schedule_lesson_times:
+                                        if lesson['lesson_time_id'] == schedule_lesson_time['id']:
+                                            time = f'{schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
 
                                     schedule_lesson = {
                                         'date': lesson['date'],
-                                        'time': '',
+                                        'time': time,
                                         'topic_code': lesson['topic_code'],
                                         'topic_name': lesson['topic_name'],
                                         'class_type': class_type,
