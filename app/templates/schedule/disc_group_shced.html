@@ -54,7 +54,11 @@
                       <td>{{ lesson['topic_code'] }} {{ lesson['topic_name'] }}</td>
                       <td>{{ lesson['class_type'] }}</td>
                       <td>{{ lesson['class_room'] }}</td>
-                      <td>{{ lesson['staff'] }}</td>
+                      <td>
+                        {% for employee in lesson['staff'] %}
+                          {{ employee['special_rank_id'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
+                        {% endfor %}
+                      </td>
 
                     </tr>
                   {% endfor %}

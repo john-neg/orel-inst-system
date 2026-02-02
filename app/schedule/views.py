@@ -24,6 +24,9 @@ from ..core.services.apeks_db_state_departments_service import get_db_apeks_stat
 from ..core.services.apeks_db_plan_disciplines_service import get_apeks_db_plan_disciplines_service
 from ..core.services.apeks_db_schedule_day_schedule_lessons_service import get_apeks_db_schedule_day_schedule_lessons_service
 from ..core.services.apeks_db_load_groups_service import get_apeks_load_groups_service
+from ..core.services.apeks_db_schedule_day_schedule_lessons_staff_service import get_apeks_db_schedule_day_schedule_lessons_staff_service
+from ..core.services.apeks_db_state_staff_service import get_apeks_db_state_staff_service
+from ..core.services.apeks_db_state_special_ranks_service import get_apeks_db_state_special_ranks_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -163,13 +166,12 @@ async def disc_group_shced():
                         )
                         group_ids = list(set([lesson['group_id'] for lesson in lessons]))
 
-                        # получаем список имен групп и сортируем их
+                        # получаем список имен групп, сортируем их и добавляем в выпадающий список
                         load_groups_service = get_apeks_load_groups_service()
                         groups = []
                         for group_id in group_ids:
                             group_name = await load_groups_service.get(id=group_id)
                             groups.append({'id': group_id, 'name': group_name[0]['name']})
-
                         groups = sorted(groups, key=lambda item: item['name'])
                         form.group.choices.extend([(group.get('id'), group.get('name')) for group in groups])
 
@@ -177,9 +179,39 @@ async def disc_group_shced():
                         # если выбрали группу
                         if group:
 
+                            # получаем список сопоставляющий пару и преподавателя
+                            schedule_day_schedule_lessons_staff_service = get_apeks_db_schedule_day_schedule_lessons_staff_service()
+                            schedule_day_schedule_lessons_staff = await schedule_day_schedule_lessons_staff_service.list()
+                            # получаем список преподавателей
+                            state_staff_service = get_apeks_db_state_staff_service()
+                            state_staff = await state_staff_service.list()
+                            # получаем список званий
+                            state_sepecial_ranks_service = get_apeks_db_state_special_ranks_service()
+                            state_special_ranks = await state_sepecial_ranks_service.list()
+
                             schedule = []
-                            for lesson in lessons:
-                                if group == lesson['group_id']:
+                            for lesson in lessons:  # просматриваем все пары
+                                if group == lesson['group_id']:  # если пара у группы, которая выбрана
+                                    staff = []
+                                    # ищем преподавателей ведущих пару
+                                    for lesson_staff in schedule_day_schedule_lessons_staff:
+                                        if lesson_staff['lesson_id'] == lesson['id']:
+                                            for employee in state_staff:
+                                                if employee['id'] == lesson_staff['staff_id']:
+                                                    staff.append(employee)
+                                    # ищем звания преподавателей
+                                    for employee in staff:
+                                        for rank in state_special_ranks:
+                                            if employee['special_rank_id'] == rank['id']:
+                                                employee['special_rank_id'] = rank['name_short']
+
+                                                
+
+                                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                                    # logging.info(state_special_ranks)
+                                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+
                                     schedule_lesson = {
                                         'date': lesson['date'],
                                         'time': '',
@@ -187,55 +219,16 @@ async def disc_group_shced():
                                         'topic_name': lesson['topic_name'],
                                         'class_type': '',
                                         'class_room': '',
-                                        'staff': ''
+                                        'staff': staff
                                     }
                                     schedule.append(schedule_lesson)
 
                             schedule = sorted(schedule, key=lambda item: item['date'])
 
-                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                            # logging.info(schedule)
-                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-
-
                             return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule)
-
-
-
-
-
-                    # получаем список id учебных планов для выбранной дисциплины
-                    # curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
-                    # education_plan_ids = await curriculum_disciplines_service.get_education_plan_ids_for_discipline(discipline)
-
-                    # получаем список групп у которых была выбранная дисциплина
-                    # load_groups_service = get_apeks_load_groups_service()
-                    # groups = []
-                    # for education_plan_id in education_plan_ids:
-                    #     group = await load_groups_service.get(education_plan_id=education_plan_id)
-                    #     groups.extend(group)
-                    # groups = [{item['id']: item['name']} for item in groups]
-                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                    # logging.info(groups)
-                    # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-
-
-                    # lessons_service = get_apeks_schedule_schedule_student_service()
-                    # # lessons = await lessons_service.get(group_id, month, year)
-                    # # lessons = await lessons_service.get(group_id=506)
-                    # lessons = await lessons_service.get(year=2026, group_id=506)
-
-                    
 
                     return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline)
 
-
-
-
                 return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department)
-            
-
-
-
 
     return render_template('schedule/disc_group_shced.html', active='schedult', form=form)
