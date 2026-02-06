@@ -146,11 +146,9 @@ async def disc_group_shced():
     if request.method == 'POST':
         # получаем из формы выбранную кафедру
         department = request.form.get('department')
-        discipline = request.form.get('discipline')
-
+        # если кафедра выбрана
         if department:
-            if department != '0':  # если кафедра выбрана
-
+            if department != '0':
                 # получаем список дисциплин на кафедре
                 disciplines_service = get_apeks_db_plan_disciplines_service()
                 disciplines = await disciplines_service.get_disciplines(department)
@@ -158,33 +156,37 @@ async def disc_group_shced():
                 form.discipline.choices = [('0', '-- выберите дисциплину --')]
                 form.discipline.choices.extend([(d.get('id'), d.get('name_short')) for d in disciplines])
 
+                # получаем из формы выбранную дисциплину
+                discipline = request.form.get('discipline')
+                # если дисциплина выбрана
                 if discipline:
                     if discipline != '0':
-
                         # получаем список пар в выбранном учебном году для выбранной дисциплины
                         year = int(request.form.get('year'))
                         schedule_day_schedule_lessons_service = get_apeks_db_schedule_day_schedule_lessons_service()
-                        
                         lessons = await schedule_day_schedule_lessons_service.get_discipline_lessons_for_period(
                             discipline,
                             datetime.strptime(f'{year}-{Apeks.START_ACADEMIC_YEAR.month}-{Apeks.START_ACADEMIC_YEAR.day}', '%Y-%m-%d').date(),
                             datetime.strptime(f'{year + 1}-{Apeks.END_ACADEMIC_YEAR.month}-{Apeks.END_ACADEMIC_YEAR.day}', '%Y-%m-%d').date()
                         )
                         group_ids = list(set([lesson['group_id'] for lesson in lessons]))
-
                         # получаем список имен групп, сортируем их и добавляем в выпадающий список
                         load_groups_service = get_apeks_load_groups_service()
+                        load_groups = await load_groups_service.list()
                         groups = []
                         for group_id in group_ids:
-                            group_name = await load_groups_service.get(id=group_id)
-                            groups.append({'id': group_id, 'name': group_name[0]['name']})
+                            group_name = ''
+                            for group in load_groups:
+                                if group_id == group['id']:
+                                    group_name = group['name']
+                            groups.append({'id': group_id, 'name': group_name})
                         groups = sorted(groups, key=lambda item: item['name'])
                         form.group.choices.extend([(group.get('id'), group.get('name')) for group in groups])
 
+                        # получаем из формы выбранную группу
                         group = request.form.get('group')
-                        # если выбрали группу
+                        # если группа выбрана
                         if group:
-
                             # получаем список сопоставляющий пару и преподавателя
                             schedule_day_schedule_lessons_staff_service = get_apeks_db_schedule_day_schedule_lessons_staff_service()
                             schedule_day_schedule_lessons_staff = await schedule_day_schedule_lessons_staff_service.list()
@@ -214,8 +216,11 @@ async def disc_group_shced():
                             schedule_lesson_times = await schedule_lesson_times_service.list()
 
                             schedule = []
-                            for lesson in lessons:  # просматриваем все пары
-                                if group == lesson['group_id']:  # если пара у группы, которая выбрана
+                            # просматриваем все пары
+                            for lesson in lessons:
+                                # если пара у группы, которая выбрана
+                                if group == lesson['group_id']:
+
                                     staff = []
                                     # ищем преподавателей ведущих пару
                                     for lesson_staff in schedule_day_schedule_lessons_staff:
@@ -250,12 +255,13 @@ async def disc_group_shced():
                                     # сортировка по букве корпуса и номеру кабинета
                                     classrooms = sorted(classrooms, key=lambda item: (item['building_id'], item['name']))
                                     
+                                    # имя выбранной дисциплины для отображении в таблице в полях экзаменов и зачетов
                                     discipline_name = ''
                                     for d in disciplines:
                                         if discipline == d['id']:
                                             discipline_name = d['name']
 
-                                    # определяем вид занятия
+                                    # определяем вид занятия (экзамен/зачет и т.п.)
                                     class_type = ''
                                     if lesson['class_type_id']:
                                         for t in plan_class_types:
@@ -272,8 +278,9 @@ async def disc_group_shced():
                                     time = ''
                                     for schedule_lesson_time in schedule_lesson_times:
                                         if lesson['lesson_time_id'] == schedule_lesson_time['id']:
-                                            time = f'{schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
+                                            time = f'{'08' if schedule_lesson_time['hour_from'] == '8' else schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
 
+                                    # собираем данные о паре в один словарь
                                     schedule_lesson = {
                                         'date': lesson['date'],
                                         'time': time,
@@ -281,16 +288,34 @@ async def disc_group_shced():
                                         'topic_name': lesson['topic_name'],
                                         'class_type': class_type,
                                         'classrooms': classrooms,
-                                        'staff': staff
+                                        'staff': staff,
+                                        'passed': datetime.strptime(lesson['date'], '%Y-%m-%d').date() < current_date,
+                                        'jointed': lesson['join_with_next']
                                     }
                                     schedule.append(schedule_lesson)
 
-
-                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                            # logging.info(schedule)
-                            # logging.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
                             
-                            schedule = sorted(schedule, key=lambda item: item['date'])
+                            schedule = sorted(schedule, key=lambda item: (item['date'], item['time']))
+
+                            # помечает пары которые идут совместно для их отображения в расписании
+                            for item in schedule:
+                                if item['jointed'] == '0' or item['jointed'] is None:
+                                    item['jointed'] = '0'
+                            i = 0
+                            while i < len(schedule):
+                                if schedule[i]['jointed'] == '1':
+                                    schedule[i]['jointed'] = 'top'
+                                    i += 1
+                                    while schedule[i]['jointed'] != '0' and i < len(schedule):
+                                        schedule[i]['jointed'] = 'middle'
+                                        i += 1
+                                    schedule[i]['jointed'] = 'bottom'
+                                else:
+                                    i += 1
+
+
+
+
 
                             return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule)
 

@@ -1,108 +1,98 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="container-fluid">
-    <h3 class="text-center text-dark mb-1">
-      {% block title %}Расписание дисциплины для группы{% endblock %}
-    </h3>
-  </div>
-  <form method="post">
-    {{ form.hidden_tag() }}
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-10 col-xl-8">
-          <div class="row mb-4">
-            <div class="col-md-3">
-              {{ form.year.label(class="text-dark") }}
-              {{ form.year(class="form-select") }}
-            </div>
-          </div>
-          <div class="mb-2">
-            {{ form.department.label(class="text-dark") }}
-            {{ form.department(class="form-select") }}
-          </div>
-          {% if department %}
-          <div class="mb-2">
-            {{ form.discipline.label(class="text-dark") }}
-            {{ form.discipline(class="form-select") }}
-          </div>
-          {% if discipline %}
-          <div class="mb-2">
-            {{ form.group.label(class="text-dark") }}
-            {{ form.group(class="form-select") }}
-          </div>
-          {% endif %}
-
-          {% if schedule %}
-            <div class="mb-2">
-
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th scope="col">Дата занятия</th>
-                    <th scope="col">Время занятия</th>
-                    <th scope="col-2">Тема занятия</th>
-                    <th scope="col">Вид занятия</th>
-                    <th scope="col">Аудитория</th>
-                    <th scope="col">Преподаватель</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for lesson in schedule %}
-                    <tr>
-                      <td>{{ lesson['date'] }}</td>
-                      <td>{{ lesson['time'] }}</td>
-                      <td>{{ lesson['topic_code'] }} {{ lesson['topic_name'] }}</td>
-                      <td>{{ lesson['class_type'] }}</td>
-                      <td>
-                        {% for classroom in lesson['classrooms'] %}
-                          {{ classroom['building_id'] }}-{{ classroom['name'] }}<br>
-                        {% endfor %}
-                      </td>
-                      <td>
-                        {% for employee in lesson['staff'] %}
-                          {{ employee['special_rank_id']['name_short'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
-                        {% endfor %}
-                      </td>
-
-                    </tr>
-                  {% endfor %}
-                  
-
-                </tbody>
-              </table>
-
-              
-            </div>
-          {% endif %}
-
-
-          <!-- <div class="row mb-4">
-            <div class="col-md-3">
-              {# {{ form.year.label(class="text-dark") }} #}
-              {# {{ form.year(class="form-select") }} #}
-            </div>
-            <div class="col-md-3">
-              {# {{ form.month.label(class="text-dark") }} #}
-              {# {{ form.month(class="form-select") }} #}
-            </div>
-            <div class="col-md-6">
-              {# {{ form.staff.label(class="text-dark") }} #}
-              {# {{ form.staff(class="form-select") }} #}
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="col-md-6 text-center">
-              {# {{ form.ical_exp(class="btn btn-danger", style="width: 100%;border-style: none;") }} #}
-              <small class="form-text">(для загрузки в календарь)</small>
-            </div>
-            <div class="col-md-6 text-center">
-              {# {{ form.xlsx_exp(class="btn btn-primary", style="background: #008751;width: 100%;border-style: none;") }} #}
-              <small class="form-text">(список для работы и печати)</small>
-            </div>
-          </div> -->
-          {% endif %}
-        </div>
-      </div>
+    <style type="text/css">
+        tr.top td {
+          border-top: 3px solid black;
+          border-left: 3px solid black;
+          border-right: 3px solid black;
+          border-bottom: 1px solid black;
+        }
+        tr.bottom td {
+            border-bottom: 3px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-top: 1px solid black;
+        }
+        tr.middle td {
+            border-bottom: 1px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-top: 1px solid black;
+        }
+    </style>
+    <div class="container-fluid">
+        <h3 class="text-center text-dark mb-1">
+            {% block title %}Расписание дисциплины для группы{% endblock %}
+        </h3>
     </div>
-  </form>
+
+    <form method="post">
+    {{ form.hidden_tag() }}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-4">
+                    <div class="col-md-4 mb-2">
+                        {{ form.year.label(class="text-dark") }}
+                        {{ form.year(class="form-select") }}
+                    </div>
+                    <div class="mb-2">
+                        {{ form.department.label(class="text-dark") }}
+                        {{ form.department(class="form-select") }}
+                    </div>
+                    {% if department %}
+                    <div class="mb-2">
+                        {{ form.discipline.label(class="text-dark") }}
+                        {{ form.discipline(class="form-select") }}
+                    </div>
+                    {% endif %}
+                    {% if discipline %}
+                    <div class="mb-2">
+                        {{ form.group.label(class="text-dark") }}
+                        {{ form.group(class="form-select") }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="row">
+            {% if schedule %}
+                <div class="col">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr class="table-primary" style="border: 1px solid black;">
+                                <th scope="col">Дата занятия</th>
+                                <th scope="col">Время занятия</th>
+                                <th scope="col-2">Тема занятия</th>
+                                <th scope="col">Вид занятия</th>
+                                <th scope="col">Аудитория</th>
+                                <th scope="col">Преподаватель</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in schedule %}
+                            <tr class="{% if lesson['passed'] %}table-secondary{% endif %} {{ lesson['jointed']}}" style="border: 1px solid black;">
+                                <td>{{ lesson['date'] }}</td>
+                                <td>{{ lesson['time'] }}</td>
+                                <td>{{ lesson['topic_code'] }} {{ lesson['topic_name'] }}</td>
+                                <td>{{ lesson['class_type'] }}</td>
+                                <td>
+                                    {% for classroom in lesson['classrooms'] %}
+                                        {{ classroom['building_id'] }}-{{ classroom['name'] }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for employee in lesson['staff'] %}
+                                        {{ employee['special_rank_id']['name_short'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            </div>
+        </div>
+    </form>
 {% endblock %}
