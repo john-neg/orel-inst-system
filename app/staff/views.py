@@ -85,9 +85,6 @@ from ..core.services.staff_various_document_service import (
     get_staff_various_document_service,
 )
 
-from ..core.services.apeks_db_system_branches import get_apeks_db_system_branches_service
-from ..core.services.apeks_db_system_settings import get_apeks_db_system_settings_service
-
 
 @bp.route("/staff_data_edit", methods=["GET"])
 @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)

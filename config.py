@@ -206,6 +206,7 @@ class ApeksConfig(object):
     PLAN_CLASS_TYPES = 'plan_class_types'
     PLAN_CONTROL_TYPES = 'plan_control_types'
     SCHEDULE_LESSON_TIMES = 'schedule_lesson_times'
+    STUDENT_JOURNAL_LESSONS_SUPERFLOW_GROUPS = 'student_journal_lessons_superflow_groups'
 
 
     TABLES = {

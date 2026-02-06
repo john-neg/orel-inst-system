@@ -28,11 +28,12 @@ from ..core.services.apeks_db_schedule_day_schedule_lessons_staff_service import
 from ..core.services.apeks_db_state_staff_service import get_apeks_db_state_staff_service
 from ..core.services.apeks_db_state_special_ranks_service import get_apeks_db_state_special_ranks_service
 from ..core.services.apeks_db_schedule_day_schedule_lessons_classrooms_service import get_apeks_db_schedule_day_schedule_lessons_classrooms_service
-from ..core.services.apeks_db_schedule_classrooms import get_apeks_db_schedule_classrooms_service
-from ..core.services.apeks_db_schedule_buildings import get_apeks_db_schedule_buildings_service
+from ..core.services.apeks_db_schedule_classrooms_service import get_apeks_db_schedule_classrooms_service
+from ..core.services.apeks_db_schedule_buildings_service import get_apeks_db_schedule_buildings_service
 from ..core.services.apeks_db_plan_class_types_service import get_apeks_db_plan_class_types_service
 from ..core.services.apeks_db_plan_control_types_service import get_apeks_db_plan_control_types_service
-from ..core.services.apeks_db_schedule_lesson_times import get_apeks_db_schedule_lesson_times_service
+from ..core.services.apeks_db_schedule_lesson_times_service import get_apeks_db_schedule_lesson_times_service
+from ..core.services.apeks_db_student_journal_lessons_superflow_groups_service import get_apeks_db_student_journal_lessons_superflow_groups_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
