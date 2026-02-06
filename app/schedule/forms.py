@@ -57,5 +57,6 @@ class DisciplineForm(FlaskForm):
         choices=[('0', '-- выберите группу --')],
         coerce=int,
         validators=[DataRequired()],
-        render_kw = {'onchange': 'this.form.submit()'}
+        render_kw = {'onchange': 'this.form.submit()'},
+        id='group_selector'
     )

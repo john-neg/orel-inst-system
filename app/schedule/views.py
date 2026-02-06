@@ -282,6 +282,7 @@ async def disc_group_shced():
 
                                     # собираем данные о паре в один словарь
                                     schedule_lesson = {
+                                        'id': lesson['journal_lesson_id'],
                                         'date': lesson['date'],
                                         'time': time,
                                         'topic_code': lesson['topic_code'],
@@ -290,7 +291,7 @@ async def disc_group_shced():
                                         'classrooms': classrooms,
                                         'staff': staff,
                                         'passed': datetime.strptime(lesson['date'], '%Y-%m-%d').date() < current_date,
-                                        'jointed': lesson['join_with_next']
+                                        'jointed': lesson['join_with_next'],
                                     }
                                     schedule.append(schedule_lesson)
 
@@ -317,10 +318,10 @@ async def disc_group_shced():
 
 
 
-                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule)
+                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule, apeks_url=Apeks.URL, group_id=group)
 
-                    return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline)
+                    return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, apeks_url=Apeks.URL)
 
-                return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department)
+                return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, apeks_url=Apeks.URL)
 
-    return render_template('schedule/disc_group_shced.html', active='schedult', form=form)
+    return render_template('schedule/disc_group_shced.html', active='schedult', form=form, apeks_url=Apeks.URL)

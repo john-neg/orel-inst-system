@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+
     <style type="text/css">
         tr.top td {
           border-top: 3px solid black;
@@ -20,6 +21,7 @@
             border-top: 1px solid black;
         }
     </style>
+
     <div class="container-fluid">
         <h3 class="text-center text-dark mb-1">
             {% block title %}Расписание дисциплины для группы{% endblock %}
@@ -58,7 +60,7 @@
             <div class="row">
             {% if schedule %}
                 <div class="col">
-                    <table class="table table-bordered table-hover">
+                    <table class="table table-bordered">
                         <thead>
                             <tr class="table-primary" style="border: 1px solid black;">
                                 <th scope="col">Дата занятия</th>
@@ -71,10 +73,20 @@
                         </thead>
                         <tbody>
                             {% for lesson in schedule %}
-                            <tr class="{% if lesson['passed'] %}table-secondary{% endif %} {{ lesson['jointed']}}" style="border: 1px solid black;">
+                            <tr
+                                class="{% if lesson['passed'] %}table-secondary{% endif %} {{ lesson['jointed']}}"
+                                style="border: 1px solid black;"
+                            >
                                 <td>{{ lesson['date'] }}</td>
                                 <td>{{ lesson['time'] }}</td>
-                                <td>{{ lesson['topic_code'] }} {{ lesson['topic_name'] }}</td>
+                                <td>
+                                    <a
+                                        href="{{ apeks_url }}/student/journal/view?group_id={{ group_id }}&lesson_id={{ lesson['id'] }}"
+                                        style="text-decoration:none; color: #1e88e5"
+                                    >
+                                        {{ lesson['topic_code'] }} {{ lesson['topic_name'] }}
+                                    </a>
+                                </td>
                                 <td>{{ lesson['class_type'] }}</td>
                                 <td>
                                     {% for classroom in lesson['classrooms'] %}
