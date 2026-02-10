@@ -20,6 +20,9 @@
             border-right: 3px solid black;
             border-top: 1px solid black;
         }
+        td.shaded {
+            background-color: #ccd4db;
+        }
     </style>
 
     <div class="container-fluid">
@@ -74,12 +77,12 @@
                         <tbody>
                             {% for lesson in schedule %}
                             <tr
-                                class="{% if lesson['passed'] %}table-secondary{% endif %} {{ lesson['jointed']}}"
+                                class="{{ lesson['jointed']}}"
                                 style="border: 1px solid black;"
                             >
-                                <td>{{ lesson['date'] }}</td>
-                                <td>{{ lesson['time'] }}</td>
-                                <td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['date'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['time'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
                                     <a
                                         href="{{ apeks_url }}/student/journal/view?group_id={{ group_id }}&lesson_id={{ lesson['id'] }}"
                                         style="text-decoration:none; color: #1e88e5"
@@ -87,13 +90,13 @@
                                         {{ lesson['topic_code'] }} {{ lesson['topic_name'] }}
                                     </a>
                                 </td>
-                                <td>{{ lesson['class_type'] }}</td>
-                                <td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['class_type'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
                                     {% for classroom in lesson['classrooms'] %}
                                         {{ classroom['building_id'] }}-{{ classroom['name'] }}<br>
                                     {% endfor %}
                                 </td>
-                                <td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
                                     {% for employee in lesson['staff'] %}
                                         {{ employee['special_rank_id']['name_short'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
                                     {% endfor %}

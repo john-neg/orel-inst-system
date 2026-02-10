@@ -33,7 +33,7 @@ from ..core.services.apeks_db_schedule_buildings_service import get_apeks_db_sch
 from ..core.services.apeks_db_plan_class_types_service import get_apeks_db_plan_class_types_service
 from ..core.services.apeks_db_plan_control_types_service import get_apeks_db_plan_control_types_service
 from ..core.services.apeks_db_schedule_lesson_times_service import get_apeks_db_schedule_lesson_times_service
-from ..core.services.apeks_db_student_journal_lessons_superflow_groups_service import get_apeks_db_student_journal_lessons_superflow_groups_service
+from ..core.services.apeks_db_schedule_day_schedule_lessons_superflow_groups_service import get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -215,7 +215,16 @@ async def disc_group_shced():
                             # получаем список времени пар
                             schedule_lesson_times_service = get_apeks_db_schedule_lesson_times_service()
                             schedule_lesson_times = await schedule_lesson_times_service.list()
-
+                            # получаем список занятий на которых происходило прикрепление группы (на паре две и более группы)
+                            schedule_day_schedule_lessons_superflow_groups_service = get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service()
+                            schedule_day_schedule_lessons_superflow_groups = await schedule_day_schedule_lessons_superflow_groups_service.list()
+                            # получаем список пар в которых стоит другая группа, но выбранная группа тоже прикреплена к этой паре
+                            for schedule_day_schedule_lessons_superflow_group in schedule_day_schedule_lessons_superflow_groups:
+                                if schedule_day_schedule_lessons_superflow_group['group_id'] == group:
+                                    for lesson in lessons:
+                                        if schedule_day_schedule_lessons_superflow_group['lesson_id'] == lesson['id'] and \
+                                            lesson['discipline_id'] == discipline:
+                                            lesson['group_id'] = group
                             schedule = []
                             # просматриваем все пары
                             for lesson in lessons:
