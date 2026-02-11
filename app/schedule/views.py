@@ -34,6 +34,8 @@ from ..core.services.apeks_db_plan_class_types_service import get_apeks_db_plan_
 from ..core.services.apeks_db_plan_control_types_service import get_apeks_db_plan_control_types_service
 from ..core.services.apeks_db_schedule_lesson_times_service import get_apeks_db_schedule_lesson_times_service
 from ..core.services.apeks_db_schedule_day_schedule_lessons_superflow_groups_service import get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service
+from ..core.services.apeks_db_plan_curriculum_disciplines_service import get_apeks_db_plan_curriculum_disciplines_service
+from ..core.services.apeks_db_mm_work_programs_service import get_apeks_db_mm_work_programs_service
 
 
 @bp.route("/schedule", methods=["GET", "POST"])
@@ -180,7 +182,8 @@ async def disc_group_shced():
                             for group in load_groups:
                                 if group_id == group['id']:
                                     group_name = group['name']
-                            groups.append({'id': group_id, 'name': group_name})
+                                    education_plan_id = group['education_plan_id']
+                            groups.append({'id': group_id, 'name': group_name, 'education_plan_id': education_plan_id})
                         groups = sorted(groups, key=lambda item: item['name'])
                         form.group.choices.extend([(group.get('id'), group.get('name')) for group in groups])
 
@@ -324,14 +327,45 @@ async def disc_group_shced():
                                 else:
                                     i += 1
 
+                            # находим в списке групп выбранную группу
+                            selected_group = next((gp for gp in groups if gp.get('id') == group), None)
+                            # получаем для этой группы и выбранной дисциплины id учебного плана
+                            apeks_db_plan_curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
+                            apeks_db_plan_curriculum_disciplines = await apeks_db_plan_curriculum_disciplines_service.get(discipline_id=discipline, education_plan_id=selected_group['education_plan_id'])
+                            curriculum_discipline_id = apeks_db_plan_curriculum_disciplines[0]['id']
+                            # получаем id рабочей программы для отображения ссылок на страницы Апекса
+                            apeks_db_mm_work_programs_service = get_apeks_db_mm_work_programs_service()
+                            apeks_db_mm_work_programs = await apeks_db_mm_work_programs_service.get(curriculum_discipline_id=curriculum_discipline_id)
+                            work_program_id = apeks_db_mm_work_programs[0]['id']
 
+                            return render_template(
+                                'schedule/disc_group_shced.html',
+                                active='schedule',
+                                form=form,
+                                department=department,
+                                discipline=discipline,
+                                schedule=schedule,
+                                apeks_url=Apeks.URL,
+                                group_id=group,
+                                curriculum_discipline_id=curriculum_discipline_id,
+                                work_program_id=work_program_id
+                            )
 
+                    return render_template(
+                        'schedule/disc_group_shced.html',
+                        active='schedule',
+                        form=form,
+                        department=department,
+                        discipline=discipline,
+                        apeks_url=Apeks.URL
+                    )
 
-
-                            return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, schedule=schedule, apeks_url=Apeks.URL, group_id=group)
-
-                    return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, discipline=discipline, apeks_url=Apeks.URL)
-
-                return render_template('schedule/disc_group_shced.html', active='schedule', form=form, department=department, apeks_url=Apeks.URL)
+                return render_template(
+                    'schedule/disc_group_shced.html',
+                    active='schedule',
+                    form=form,
+                    department=department,
+                    apeks_url=Apeks.URL
+                )
 
     return render_template('schedule/disc_group_shced.html', active='schedult', form=form, apeks_url=Apeks.URL)

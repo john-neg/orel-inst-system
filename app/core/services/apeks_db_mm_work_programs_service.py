@@ -21,7 +21,7 @@ class ApeksDbMMWorkProgramsService(ApeksApiDbService):
 
 
 def get_apeks_db_mm_work_programs_service(
-        table: str = ApeksConfig.MM_WORK_PROGRAMS,
+        table: str = ApeksConfig.MM_WORK_PROGRAMS_TABLE,
         repository: ApeksApiRepository = ApeksApiRepository(),
         token: str = ApeksConfig.TOKEN
 ) -> ApeksDbMMWorkProgramsService:

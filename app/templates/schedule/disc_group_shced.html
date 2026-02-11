@@ -3,10 +3,10 @@
 
     <style type="text/css">
         tr.top td {
-          border-top: 3px solid black;
-          border-left: 3px solid black;
-          border-right: 3px solid black;
-          border-bottom: 1px solid black;
+            border-top: 3px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-bottom: 1px solid black;
         }
         tr.bottom td {
             border-bottom: 3px solid black;
@@ -57,11 +57,25 @@
                         {{ form.group(class="form-select") }}
                     </div>
                     {% endif %}
+                    {% if schedule %}
+                    <div class="row mb-2">
+                        <div class="col-md-6 text-center">
+                            <a href="{{ apeks_url }}/mm/materials/{{ curriculum_discipline_id }}/index">
+                                <button class="btn btn-primary" type="button">Методические материалы</button>
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <a href="{{ apeks_url }}/mm/materials/view-wp?id={{ curriculum_discipline_id }}&work_program_id={{ work_program_id }}">
+                                <button class="btn btn-primary" type="button">Рабочая программа</button>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="col"></div>
             </div>
             <div class="row">
-            {% if schedule %}
+                {% if schedule %}
                 <div class="col">
                     <table class="table table-bordered">
                         <thead>
@@ -76,10 +90,7 @@
                         </thead>
                         <tbody>
                             {% for lesson in schedule %}
-                            <tr
-                                class="{{ lesson['jointed']}}"
-                                style="border: 1px solid black;"
-                            >
+                            <tr class="{{ lesson['jointed']}}" style="border: 1px solid black;">
                                 <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['date'] }}</td>
                                 <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['time'] }}</td>
                                 <td {% if lesson['passed'] %}class="shaded"{% endif %}>
@@ -106,7 +117,7 @@
                         </tbody>
                     </table>
                 </div>
-            {% endif %}
+                {% endif %}
             </div>
         </div>
     </form>
