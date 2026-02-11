@@ -319,13 +319,19 @@ async def disc_group_shced():
                             while i < len(schedule):
                                 if schedule[i]['jointed'] == '1':
                                     schedule[i]['jointed'] = 'top'
-                                    i += 1
-                                    while schedule[i]['jointed'] != '0' and i < len(schedule):
-                                        schedule[i]['jointed'] = 'middle'
-                                        i += 1
-                                    schedule[i]['jointed'] = 'bottom'
-                                else:
-                                    i += 1
+                                    topic_code = schedule[i]['topic_code']
+                                    j = i + 1
+                                    while j < len(schedule):
+                                        if schedule[j]['topic_code'] == topic_code:
+                                            if schedule[j]['jointed'] == '0':
+                                                schedule[j]['jointed'] = 'bottom'
+                                                break
+                                            elif schedule[j]['jointed'] == '1':
+                                                schedule[j]['jointed'] = 'middle'
+                                                j += 1
+                                        else:
+                                            j += 1
+                                i += 1
 
                             # находим в списке групп выбранную группу
                             selected_group = next((gp for gp in groups if gp.get('id') == group), None)
