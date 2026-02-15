@@ -25,13 +25,52 @@
         }
     </style>
 
+    <script>
+        function changeYear() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            const discipline = document.getElementById("discipline")
+            if (discipline != null) {
+                discipline.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeDepartment() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            const discipline = document.getElementById("discipline")
+            if (discipline != null) {
+                discipline.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeDiscipline() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeGroup() {
+            document.theForm.submit();
+        }
+        
+    </script>
+
     <div class="container-fluid">
         <h3 class="text-center text-dark mb-1">
             {% block title %}Расписание дисциплины для группы{% endblock %}
         </h3>
     </div>
 
-    <form method="post">
+    <form method="post" name="theForm">
     {{ form.hidden_tag() }}
         <div class="container-fluid">
             <div class="row">
@@ -45,18 +84,14 @@
                         {{ form.department.label(class="text-dark") }}
                         {{ form.department(class="form-select") }}
                     </div>
-                    {% if department %}
                     <div class="mb-2">
                         {{ form.discipline.label(class="text-dark") }}
                         {{ form.discipline(class="form-select") }}
                     </div>
-                    {% endif %}
-                    {% if discipline %}
                     <div class="mb-2">
                         {{ form.group.label(class="text-dark") }}
                         {{ form.group(class="form-select") }}
                     </div>
-                    {% endif %}
                     {% if schedule %}
                     <div class="row mb-2">
                         <div class="col-md-6 text-center">

@@ -191,171 +191,172 @@ async def disc_group_shced():
                         group = request.form.get('group')
                         # если группа выбрана
                         if group:
-                            # получаем список сопоставляющий пару и преподавателя
-                            schedule_day_schedule_lessons_staff_service = get_apeks_db_schedule_day_schedule_lessons_staff_service()
-                            schedule_day_schedule_lessons_staff = await schedule_day_schedule_lessons_staff_service.list()
-                            # получаем список преподавателей
-                            state_staff_service = get_apeks_db_state_staff_service()
-                            state_staff = await state_staff_service.list()
-                            # получаем список званий
-                            state_special_ranks_service = get_apeks_db_state_special_ranks_service()
-                            state_special_ranks = await state_special_ranks_service.list()
-                            # получаем список сопоставляющий пару и аудиторию
-                            schedule_day_schedule_lessons_classrooms_service = get_apeks_db_schedule_day_schedule_lessons_classrooms_service()
-                            schedule_day_schedule_lessons_classrooms = await schedule_day_schedule_lessons_classrooms_service.list()
-                            # получаем список аудиторий
-                            schedule_classrooms_service = get_apeks_db_schedule_classrooms_service()
-                            schedule_classrooms = await schedule_classrooms_service.list()
-                            # получаем список зданий (корпусов)
-                            schedule_buildings_service = get_apeks_db_schedule_buildings_service()
-                            schedule_buildings = await schedule_buildings_service.list()
-                            # получаем список типов занятий
-                            plan_class_types_service = get_apeks_db_plan_class_types_service()
-                            plan_class_types = await plan_class_types_service.list()
-                            # получаем список видов контрольных занятий
-                            plan_control_types_service = get_apeks_db_plan_control_types_service()
-                            plan_control_types = await plan_control_types_service.list()
-                            # получаем список времени пар
-                            schedule_lesson_times_service = get_apeks_db_schedule_lesson_times_service()
-                            schedule_lesson_times = await schedule_lesson_times_service.list()
-                            # получаем список занятий на которых происходило прикрепление группы (на паре две и более группы)
-                            schedule_day_schedule_lessons_superflow_groups_service = get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service()
-                            schedule_day_schedule_lessons_superflow_groups = await schedule_day_schedule_lessons_superflow_groups_service.list()
-                            # получаем список пар в которых стоит другая группа, но выбранная группа тоже прикреплена к этой паре
-                            for schedule_day_schedule_lessons_superflow_group in schedule_day_schedule_lessons_superflow_groups:
-                                if schedule_day_schedule_lessons_superflow_group['group_id'] == group:
-                                    for lesson in lessons:
-                                        if schedule_day_schedule_lessons_superflow_group['lesson_id'] == lesson['id'] and \
-                                            lesson['discipline_id'] == discipline:
-                                            lesson['group_id'] = group
-                            schedule = []
-                            # просматриваем все пары
-                            for lesson in lessons:
-                                # если пара у группы, которая выбрана
-                                if group == lesson['group_id']:
+                            if group != '0':
+                                # получаем список сопоставляющий пару и преподавателя
+                                schedule_day_schedule_lessons_staff_service = get_apeks_db_schedule_day_schedule_lessons_staff_service()
+                                schedule_day_schedule_lessons_staff = await schedule_day_schedule_lessons_staff_service.list()
+                                # получаем список преподавателей
+                                state_staff_service = get_apeks_db_state_staff_service()
+                                state_staff = await state_staff_service.list()
+                                # получаем список званий
+                                state_special_ranks_service = get_apeks_db_state_special_ranks_service()
+                                state_special_ranks = await state_special_ranks_service.list()
+                                # получаем список сопоставляющий пару и аудиторию
+                                schedule_day_schedule_lessons_classrooms_service = get_apeks_db_schedule_day_schedule_lessons_classrooms_service()
+                                schedule_day_schedule_lessons_classrooms = await schedule_day_schedule_lessons_classrooms_service.list()
+                                # получаем список аудиторий
+                                schedule_classrooms_service = get_apeks_db_schedule_classrooms_service()
+                                schedule_classrooms = await schedule_classrooms_service.list()
+                                # получаем список зданий (корпусов)
+                                schedule_buildings_service = get_apeks_db_schedule_buildings_service()
+                                schedule_buildings = await schedule_buildings_service.list()
+                                # получаем список типов занятий
+                                plan_class_types_service = get_apeks_db_plan_class_types_service()
+                                plan_class_types = await plan_class_types_service.list()
+                                # получаем список видов контрольных занятий
+                                plan_control_types_service = get_apeks_db_plan_control_types_service()
+                                plan_control_types = await plan_control_types_service.list()
+                                # получаем список времени пар
+                                schedule_lesson_times_service = get_apeks_db_schedule_lesson_times_service()
+                                schedule_lesson_times = await schedule_lesson_times_service.list()
+                                # получаем список занятий на которых происходило прикрепление группы (на паре две и более группы)
+                                schedule_day_schedule_lessons_superflow_groups_service = get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service()
+                                schedule_day_schedule_lessons_superflow_groups = await schedule_day_schedule_lessons_superflow_groups_service.list()
+                                # получаем список пар в которых стоит другая группа, но выбранная группа тоже прикреплена к этой паре
+                                for schedule_day_schedule_lessons_superflow_group in schedule_day_schedule_lessons_superflow_groups:
+                                    if schedule_day_schedule_lessons_superflow_group['group_id'] == group:
+                                        for lesson in lessons:
+                                            if schedule_day_schedule_lessons_superflow_group['lesson_id'] == lesson['id'] and \
+                                                lesson['discipline_id'] == discipline:
+                                                lesson['group_id'] = group
+                                schedule = []
+                                # просматриваем все пары
+                                for lesson in lessons:
+                                    # если пара у группы, которая выбрана
+                                    if group == lesson['group_id']:
 
-                                    staff = []
-                                    # ищем преподавателей ведущих пару
-                                    for lesson_staff in schedule_day_schedule_lessons_staff:
-                                        if lesson_staff['lesson_id'] == lesson['id']:
-                                            for employee in state_staff:
-                                                if employee['id'] == lesson_staff['staff_id']:
-                                                    staff.append(employee)
-                                    # ищем звания преподавателей
-                                    for employee in staff:
-                                        for rank in state_special_ranks:
-                                            if employee['special_rank_id'] == rank['id']:
-                                                employee['special_rank_id'] = rank
-                                    # сортировка по званиям преподавателей
-                                    staff = sorted(
-                                        staff,
-                                        key=lambda item: (item.get('special_rank_id') or {}).get('sort', '0'),
-                                        reverse=True
-                                    )
+                                        staff = []
+                                        # ищем преподавателей ведущих пару
+                                        for lesson_staff in schedule_day_schedule_lessons_staff:
+                                            if lesson_staff['lesson_id'] == lesson['id']:
+                                                for employee in state_staff:
+                                                    if employee['id'] == lesson_staff['staff_id']:
+                                                        staff.append(employee)
+                                        # ищем звания преподавателей
+                                        for employee in staff:
+                                            for rank in state_special_ranks:
+                                                if employee['special_rank_id'] == rank['id']:
+                                                    employee['special_rank_id'] = rank
+                                        # сортировка по званиям преподавателей
+                                        staff = sorted(
+                                            staff,
+                                            key=lambda item: (item.get('special_rank_id') or {}).get('sort', '0'),
+                                            reverse=True
+                                        )
 
-                                    classrooms = []
-                                    # ищем аудитории в которых проходит пара
-                                    for lesson_classroom in schedule_day_schedule_lessons_classrooms:
-                                        if lesson_classroom['lesson_id'] == lesson['id']:
-                                            for classroom in schedule_classrooms:
-                                                if classroom['id'] == lesson_classroom['classroom_id']:
-                                                    classrooms.append(classroom)
-                                    # ищем корпуса в которых находится аудитории
-                                    for classroom in classrooms:
-                                        for building in schedule_buildings:
-                                            if classroom['building_id'] == building['id']:
-                                                classroom['building_id'] = building['name_short']
-                                    # сортировка по букве корпуса и номеру кабинета
-                                    classrooms = sorted(classrooms, key=lambda item: (item['building_id'], item['name']))
-                                    
-                                    # имя выбранной дисциплины для отображении в таблице в полях экзаменов и зачетов
-                                    discipline_name = ''
-                                    for d in disciplines:
-                                        if discipline == d['id']:
-                                            discipline_name = d['name']
+                                        classrooms = []
+                                        # ищем аудитории в которых проходит пара
+                                        for lesson_classroom in schedule_day_schedule_lessons_classrooms:
+                                            if lesson_classroom['lesson_id'] == lesson['id']:
+                                                for classroom in schedule_classrooms:
+                                                    if classroom['id'] == lesson_classroom['classroom_id']:
+                                                        classrooms.append(classroom)
+                                        # ищем корпуса в которых находится аудитории
+                                        for classroom in classrooms:
+                                            for building in schedule_buildings:
+                                                if classroom['building_id'] == building['id']:
+                                                    classroom['building_id'] = building['name_short']
+                                        # сортировка по букве корпуса и номеру кабинета
+                                        classrooms = sorted(classrooms, key=lambda item: (item['building_id'], item['name']))
+                                        
+                                        # имя выбранной дисциплины для отображении в таблице в полях экзаменов и зачетов
+                                        discipline_name = ''
+                                        for d in disciplines:
+                                            if discipline == d['id']:
+                                                discipline_name = d['name']
 
-                                    # определяем вид занятия (экзамен/зачет и т.п.)
-                                    class_type = ''
-                                    if lesson['class_type_id']:
-                                        for t in plan_class_types:
-                                            if t['id'] == lesson['class_type_id']:
-                                                class_type = t['name_short']
-                                    else:
-                                        for t in plan_control_types:
-                                            if t['id'] == lesson['control_type_id']:
-                                                class_type = t['name_short']
-                                                lesson['topic_code'] = ''
-                                                lesson['topic_name'] = discipline_name
-
-                                    # определяем время пары
-                                    time = ''
-                                    for schedule_lesson_time in schedule_lesson_times:
-                                        if lesson['lesson_time_id'] == schedule_lesson_time['id']:
-                                            time = f'{'08' if schedule_lesson_time['hour_from'] == '8' else schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
-
-                                    # собираем данные о паре в один словарь
-                                    schedule_lesson = {
-                                        'id': lesson['journal_lesson_id'],
-                                        'date': lesson['date'],
-                                        'time': time,
-                                        'topic_code': lesson['topic_code'],
-                                        'topic_name': lesson['topic_name'],
-                                        'class_type': class_type,
-                                        'classrooms': classrooms,
-                                        'staff': staff,
-                                        'passed': datetime.strptime(lesson['date'], '%Y-%m-%d').date() < current_date,
-                                        'jointed': lesson['join_with_next'],
-                                    }
-                                    schedule.append(schedule_lesson)
-
-                            
-                            schedule = sorted(schedule, key=lambda item: (item['date'], item['time']))
-
-                            # помечает пары которые идут совместно для их отображения в расписании
-                            for item in schedule:
-                                if item['jointed'] == '0' or item['jointed'] is None:
-                                    item['jointed'] = '0'
-                            i = 0
-                            while i < len(schedule):
-                                if schedule[i]['jointed'] == '1':
-                                    schedule[i]['jointed'] = 'top'
-                                    topic_code = schedule[i]['topic_code']
-                                    j = i + 1
-                                    while j < len(schedule):
-                                        if schedule[j]['topic_code'] == topic_code:
-                                            if schedule[j]['jointed'] == '0':
-                                                schedule[j]['jointed'] = 'bottom'
-                                                break
-                                            elif schedule[j]['jointed'] == '1':
-                                                schedule[j]['jointed'] = 'middle'
-                                                j += 1
+                                        # определяем вид занятия (экзамен/зачет и т.п.)
+                                        class_type = ''
+                                        if lesson['class_type_id']:
+                                            for t in plan_class_types:
+                                                if t['id'] == lesson['class_type_id']:
+                                                    class_type = t['name_short']
                                         else:
-                                            j += 1
-                                i += 1
+                                            for t in plan_control_types:
+                                                if t['id'] == lesson['control_type_id']:
+                                                    class_type = t['name_short']
+                                                    lesson['topic_code'] = ''
+                                                    lesson['topic_name'] = discipline_name
 
-                            # находим в списке групп выбранную группу
-                            selected_group = next((gp for gp in groups if gp.get('id') == group), None)
-                            # получаем для этой группы и выбранной дисциплины id учебного плана
-                            apeks_db_plan_curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
-                            apeks_db_plan_curriculum_disciplines = await apeks_db_plan_curriculum_disciplines_service.get(discipline_id=discipline, education_plan_id=selected_group['education_plan_id'])
-                            curriculum_discipline_id = apeks_db_plan_curriculum_disciplines[0]['id']
-                            # получаем id рабочей программы для отображения ссылок на страницы Апекса
-                            apeks_db_mm_work_programs_service = get_apeks_db_mm_work_programs_service()
-                            apeks_db_mm_work_programs = await apeks_db_mm_work_programs_service.get(curriculum_discipline_id=curriculum_discipline_id)
-                            work_program_id = apeks_db_mm_work_programs[0]['id']
+                                        # определяем время пары
+                                        time = ''
+                                        for schedule_lesson_time in schedule_lesson_times:
+                                            if lesson['lesson_time_id'] == schedule_lesson_time['id']:
+                                                time = f'{'08' if schedule_lesson_time['hour_from'] == '8' else schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
 
-                            return render_template(
-                                'schedule/disc_group_shced.html',
-                                active='schedule',
-                                form=form,
-                                department=department,
-                                discipline=discipline,
-                                schedule=schedule,
-                                apeks_url=Apeks.URL,
-                                group_id=group,
-                                curriculum_discipline_id=curriculum_discipline_id,
-                                work_program_id=work_program_id
-                            )
+                                        # собираем данные о паре в один словарь
+                                        schedule_lesson = {
+                                            'id': lesson['journal_lesson_id'],
+                                            'date': lesson['date'],
+                                            'time': time,
+                                            'topic_code': lesson['topic_code'],
+                                            'topic_name': lesson['topic_name'],
+                                            'class_type': class_type,
+                                            'classrooms': classrooms,
+                                            'staff': staff,
+                                            'passed': datetime.strptime(lesson['date'], '%Y-%m-%d').date() < current_date,
+                                            'jointed': lesson['join_with_next'],
+                                        }
+                                        schedule.append(schedule_lesson)
+
+                                
+                                schedule = sorted(schedule, key=lambda item: (item['date'], item['time']))
+
+                                # помечает пары которые идут совместно для их отображения в расписании
+                                for item in schedule:
+                                    if item['jointed'] == '0' or item['jointed'] is None:
+                                        item['jointed'] = '0'
+                                i = 0
+                                while i < len(schedule):
+                                    if schedule[i]['jointed'] == '1':
+                                        schedule[i]['jointed'] = 'top'
+                                        topic_code = schedule[i]['topic_code']
+                                        j = i + 1
+                                        while j < len(schedule):
+                                            if schedule[j]['topic_code'] == topic_code:
+                                                if schedule[j]['jointed'] == '0':
+                                                    schedule[j]['jointed'] = 'bottom'
+                                                    break
+                                                elif schedule[j]['jointed'] == '1':
+                                                    schedule[j]['jointed'] = 'middle'
+                                                    j += 1
+                                            else:
+                                                j += 1
+                                    i += 1
+
+                                # находим в списке групп выбранную группу
+                                selected_group = next((gp for gp in groups if gp.get('id') == group), None)
+                                # получаем для этой группы и выбранной дисциплины id учебного плана
+                                apeks_db_plan_curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
+                                apeks_db_plan_curriculum_disciplines = await apeks_db_plan_curriculum_disciplines_service.get(discipline_id=discipline, education_plan_id=selected_group['education_plan_id'])
+                                curriculum_discipline_id = apeks_db_plan_curriculum_disciplines[0]['id']
+                                # получаем id рабочей программы для отображения ссылок на страницы Апекса
+                                apeks_db_mm_work_programs_service = get_apeks_db_mm_work_programs_service()
+                                apeks_db_mm_work_programs = await apeks_db_mm_work_programs_service.get(curriculum_discipline_id=curriculum_discipline_id)
+                                work_program_id = apeks_db_mm_work_programs[0]['id']
+
+                                return render_template(
+                                    'schedule/disc_group_shced.html',
+                                    active='schedule',
+                                    form=form,
+                                    department=department,
+                                    discipline=discipline,
+                                    schedule=schedule,
+                                    apeks_url=Apeks.URL,
+                                    group_id=group,
+                                    curriculum_discipline_id=curriculum_discipline_id,
+                                    work_program_id=work_program_id
+                                )
 
                     return render_template(
                         'schedule/disc_group_shced.html',

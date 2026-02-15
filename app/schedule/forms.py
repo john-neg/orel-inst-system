@@ -33,7 +33,7 @@ class DisciplineForm(FlaskForm):
         "Год:",
         coerce=int,
         validators=[DataRequired()],
-        render_kw={'onchange': 'this.form.submit()'}
+        render_kw={'onchange': 'changeYear()'}
     )
 
     department = SelectField(
@@ -41,7 +41,7 @@ class DisciplineForm(FlaskForm):
         choices=[('0', '-- выберите кафедру --')],
         coerce=int,
         validators=[DataRequired()],
-        render_kw={'onchange': 'this.form.submit()'}
+        render_kw={'onchange': 'changeDepartment()'}
     )
 
     discipline = SelectField(
@@ -49,7 +49,7 @@ class DisciplineForm(FlaskForm):
         choices=[('0', '-- выберите дисциплину --')],
         coerce=int,
         validators=[DataRequired()],
-        render_kw = {'onchange': 'this.form.submit()'}
+        render_kw = {'onchange': 'changeDiscipline()'}
     )
 
     group = SelectField(
@@ -57,6 +57,6 @@ class DisciplineForm(FlaskForm):
         choices=[('0', '-- выберите группу --')],
         coerce=int,
         validators=[DataRequired()],
-        render_kw = {'onchange': 'this.form.submit()'},
+        render_kw = {'onchange': 'changeGroup()'},
         id='group_selector'
     )
