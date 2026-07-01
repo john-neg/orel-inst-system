@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from config import ApeksConfig
 from .base_apeks_api_service import ApeksApiDbService
@@ -30,7 +31,7 @@ class ApeksDbStateStaffService(ApeksApiDbService):
     """
 
 
-def process_state_staff_data(state_staff_data) -> dict:
+def process_state_staff_data(state_staff_data: list[dict[Any, Any]]) -> dict:
     """
     Получение имен работников из числа постоянного состава.
 
@@ -53,7 +54,7 @@ def process_state_staff_data(state_staff_data) -> dict:
         second_name = staff.get("surname", " ")
         staff_dict[staff.get("id")] = {
             "full": f"{family_name} {first_name} {second_name}",
-            "short": f"{family_name} {first_name[0]}.{second_name[0]}.",
+            "short": f"{family_name} {first_name[0] + "." if first_name else""}.{second_name[0] + "." if second_name else ""}",
             "user_id": staff.get("user_id"),
             "special_rank_id": staff.get("special_rank_id")
         }
