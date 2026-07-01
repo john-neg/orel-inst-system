@@ -2,7 +2,7 @@ name: orel-inst-app
 services:
   mongo:
     image: mongo:latest
-    restart: always
+    restart: unless-stopped
     volumes:
       - mongo_data:/data/db
       - mongo_config:/data/configdb
@@ -11,11 +11,19 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - service_network
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     ports:
       - 8081:8081
     environment:
@@ -25,30 +33,30 @@ services:
       ME_CONFIG_BASICAUTH: false
     networks:
       - service_network
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - service_network
   web:
     build:
-      context: ../.
+      context: ..
       dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     env_file:
       - ../.env
     ports:
       - "8000:8000"
     volumes:
       - app_data:/app/db
-    entrypoint: >
-          sh -c "
-            echo 'Applying migrations' &&
-            alembic upgrade head &&
-            echo 'Filling database...' &&
-            python3 tools/fill_db_base_users_data.py &&
-            python3 tools/fill_db_payment_data.py &&
-            python3 tools/fill_db_production_calendar.py &&
-            python3 tools/fill_db_staff_data.py
-            echo 'Creating Collections' &&
-            python3 tools/create_mongo_db_collections.py &&
-            echo 'Starting project...' &&
-            gunicorn --bind=0.0.0.0 --timeout=200 wsgi:app
-          "
     environment:
       DATABASE_URL: sqlite:////app/db/app.db
       MONGO_DB_USER: root
@@ -57,17 +65,6 @@ services:
       MONGO_DB_NAME: organization_staff
       MONGO_DB_AUTH_SOURCE: admin
       MONGO_DB_AUTH_MECHANISM: DEFAULT
-    networks:
-      - service_network
-    restart: always
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - web
     networks:
       - service_network
 volumes:

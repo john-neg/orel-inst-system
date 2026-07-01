@@ -35,7 +35,11 @@ cd infra
 ```
 
 ```sh
-docker compose up
+docker compose up -d
+```
+В случае изменения python кода, только проект, а не все сервисы:
+```sh
+docker compose up -d --build web
 ```
 
 ### Локальная установка
@@ -155,6 +159,24 @@ pip install -r requirements.txt
 pip install gunicorn
 ```
 
+### Вместо Venv и PIP использовать UV
+установка UV и проверка установки UV:
+``` sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv --version
+```
+скачать зависимости и запустить проект:
+```sh
+cd apeks-vuz-extension
+uv run run.py
+```
+остановить проект
+установить gunicorn:
+```sh
+uv tool install gunicorn
+uv tool run gunicorn --version
+```
+
 #### Database
 
 Создание автомиграций базы данных
@@ -193,6 +215,8 @@ Group=www-data
 WorkingDirectory=/var/www/apeks-vuz-extension
 Environment="PATH=/var/www/apeks-vuz-extension/venv/bin"
 ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
+# для UV предыдущие две строки заменить на
+ExecStart=uv tool run gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
 
 [Install]
 WantedBy=multi-user.target
