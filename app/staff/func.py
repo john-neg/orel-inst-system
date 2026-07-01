@@ -7,7 +7,7 @@ from pymongo.cursor import Cursor
 
 from app.auth.func import has_permission
 from app.core.services.apeks_db_state_departments_service import get_db_apeks_state_departments_service
-from app.core.services.apeks_db_system_branches import get_apeks_db_system_branches_service
+from app.core.services.apeks_db_system_branches_service import get_apeks_db_system_branches_service
 from app.core.services.apeks_db_system_settings import get_apeks_db_system_settings_service
 from config import ApeksConfig, PermissionsConfig
 from ..core.db.staff_models import StaffAllowedFaculty, StaffVariousBusyTypes

@@ -4,12 +4,12 @@ from calendar import monthrange
 from datetime import date
 from json import JSONDecodeError
 
-import httpx
+import httpx, ssl
 
 from ...core.exceptions import ApeksApiException
 from config import ApeksConfig as Apeks
 
-transport = httpx.AsyncHTTPTransport(retries=3)
+transport = httpx.AsyncHTTPTransport(retries=3, verify=Apeks.VERIFY_CERT)
 
 
 def api_get_request_handler(func):

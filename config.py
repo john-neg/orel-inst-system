@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import timedelta
+from datetime import timedelta, date
 
 import pytz
 from dotenv import load_dotenv
@@ -158,6 +158,8 @@ class ApeksConfig(object):
     # Данные для запросов по API к АпексВУЗ
     URL = os.getenv("APEKS_URL")
     TOKEN = os.getenv("APEKS_TOKEN")
+    # проверять ли сертификат АпексВУЗ? (для работы с тестовым сервером)
+    VERIFY_CERT = os.getenv('APEKS_VERIFY_CERT', 'true').lower() not in ('0', 'false', 'no', 'off')
 
     # Точки доступа к данным АпексВУЗ
     DB_GET_ENDPOINT = f"{URL}/api/call/system-database/get"
@@ -194,6 +196,19 @@ class ApeksConfig(object):
     STUDENT_STUDENT_HISTORY_TABLE = "student_student_history"
     SYSTEM_BRANCHES_TABLE = 'system_branches'
     SYSTEM_SETTINGS_TABLE = 'system_settings'
+    PLAN_DISCIPLINES = 'plan_disciplines'
+    PLAN_CURRICULUM_DISCIPLINES = 'plan_curriculum_disciplines'
+    SCHEDULE_DAY_SCHEDULE_LESSONS = 'schedule_day_schedule_lessons'
+    SCHEDULE_DAY_SCHEDULE_LESSONS_STAFF = 'schedule_day_schedule_lessons_staff'
+    SCHEDULE_DAY_SCHEDULE_LESSONS_CLASSROOMS = 'schedule_day_schedule_lessons_classrooms'
+    SCHEDULE_CLASSROOMS = 'schedule_classrooms'
+    SCHEDULE_BUILDINGS = 'schedule_buildings'
+    PLAN_CLASS_TYPES = 'plan_class_types'
+    PLAN_CONTROL_TYPES = 'plan_control_types'
+    SCHEDULE_LESSON_TIMES = 'schedule_lesson_times'
+    SCHEDULE_DAY_SCHEDULE_LESSONS_SUPERFLOW_GROUPS = 'schedule_day_schedule_lessons_superflow_groups'
+    MM_WORK_PROGRAMS_TABLE = 'mm_work_programs'
+
 
     TABLES = {
         "load_groups": "load_groups",
@@ -273,6 +288,10 @@ class ApeksConfig(object):
         11: "ноябрь",
         12: "декабрь",
     }
+
+    # Начало и конец учебного года
+    START_ACADEMIC_YEAR = date(2000, 9, 1)
+    END_ACADEMIC_YEAR = date(2001, 8, 31)
 
     # Код уровня изучаемой дисциплины в таблице 'plan_disciplines'
     DISC_LEVEL = 3

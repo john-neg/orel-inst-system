@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <style type="text/css">
+        tr.top td {
+            border-top: 3px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-bottom: 1px solid black;
+        }
+        tr.bottom td {
+            border-bottom: 3px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-top: 1px solid black;
+        }
+        tr.middle td {
+            border-bottom: 1px solid black;
+            border-left: 3px solid black;
+            border-right: 3px solid black;
+            border-top: 1px solid black;
+        }
+        td.shaded {
+            background-color: #ccd4db;
+        }
+    </style>
+
+    <script>
+        function changeYear() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            const discipline = document.getElementById("discipline")
+            if (discipline != null) {
+                discipline.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeDepartment() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            const discipline = document.getElementById("discipline")
+            if (discipline != null) {
+                discipline.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeDiscipline() {
+            const group = document.getElementById("group_selector")
+            if (group != null) {
+                group.selectedIndex = 0;
+            }
+            document.theForm.submit();
+        }
+
+        function changeGroup() {
+            document.theForm.submit();
+        }
+        
+    </script>
+
+    <div class="container-fluid">
+        <h3 class="text-center text-dark mb-1">
+            {% block title %}Расписание дисциплины для группы{% endblock %}
+        </h3>
+    </div>
+
+    <form method="post" name="theForm">
+    {{ form.hidden_tag() }}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-4">
+                    <div class="col-md-4 mb-2">
+                        {{ form.year.label(class="text-dark") }}
+                        {{ form.year(class="form-select") }}
+                    </div>
+                    <div class="mb-2">
+                        {{ form.department.label(class="text-dark") }}
+                        {{ form.department(class="form-select") }}
+                    </div>
+                    <div class="mb-2">
+                        {{ form.discipline.label(class="text-dark") }}
+                        {{ form.discipline(class="form-select") }}
+                    </div>
+                    <div class="mb-2">
+                        {{ form.group.label(class="text-dark") }}
+                        {{ form.group(class="form-select") }}
+                    </div>
+                    {% if schedule %}
+                    <div class="row mb-2">
+                        <div class="col-md-6 text-center">
+                            <a href="{{ apeks_url }}/mm/materials/{{ curriculum_discipline_id }}/index">
+                                <button class="btn btn-primary" type="button">Методические материалы</button>
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <a href="{{ apeks_url }}/mm/materials/view-wp?id={{ curriculum_discipline_id }}&work_program_id={{ work_program_id }}">
+                                <button class="btn btn-primary" type="button">Рабочая программа</button>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="row">
+                {% if schedule %}
+                <div class="col">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr class="table-primary" style="border: 1px solid black;">
+                                <th scope="col">Дата занятия</th>
+                                <th scope="col">Время занятия</th>
+                                <th scope="col-2">Тема занятия</th>
+                                <th scope="col">Вид занятия</th>
+                                <th scope="col">Аудитория</th>
+                                <th scope="col">Преподаватель</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in schedule %}
+                            <tr class="{{ lesson['jointed']}}" style="border: 1px solid black;">
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['date'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['time'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
+                                    <a
+                                        href="{{ apeks_url }}/student/journal/view?group_id={{ group_id }}&lesson_id={{ lesson['id'] }}"
+                                        style="text-decoration:none; color: #1e88e5"
+                                    >
+                                        {{ lesson['topic_code'] }} {{ lesson['topic_name'] }}
+                                    </a>
+                                </td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>{{ lesson['class_type'] }}</td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
+                                    {% for classroom in lesson['classrooms'] %}
+                                        {{ classroom['building_id'] }}-{{ classroom['name'] }}<br>
+                                    {% endfor %}
+                                </td>
+                                <td {% if lesson['passed'] %}class="shaded"{% endif %}>
+                                    {% for employee in lesson['staff'] %}
+                                        {{ employee['special_rank_id']['name_short'] }} {{ employee['family_name'] }} {{ employee['name'][0] }}.{{ employee['surname'][0] }}.<br>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -9,7 +9,7 @@ from config import ApeksConfig
 from .abstract_repository import AbstractApiRepository
 from ..exceptions import ApeksApiException
 
-transport = httpx.AsyncHTTPTransport(retries=3)
+transport = httpx.AsyncHTTPTransport(retries=3, verify=ApeksConfig.VERIFY_CERT)
 
 
 class ApeksApiEndpoints(str, Enum):
@@ -88,7 +88,7 @@ class ApeksApiRepository(AbstractApiRepository):
     async def post(
         self, endpoint: ApeksApiEndpoints, params: dict, data: dict
     ) -> httpx.Response:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=ApeksConfig.VERIFY_CERT) as client:
             response = await client.post(endpoint, params=params, data=data)
         return response
 
@@ -100,6 +100,6 @@ class ApeksApiRepository(AbstractApiRepository):
 
     @request_handler
     async def delete(self, endpoint: ApeksApiEndpoints, params: dict) -> httpx.Response:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=ApeksConfig.VERIFY_CERT) as client:
             response = await client.delete(endpoint, params=params)
         return response

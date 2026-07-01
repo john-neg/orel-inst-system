@@ -14,7 +14,7 @@ def api_post_request_handler(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs) -> dict:
         endpoint, params, data = await func(*args, **kwargs)
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=Apeks.VERIFY_CERT) as client:
             try:
                 response = await client.post(endpoint, params=params, data=data)
                 response.raise_for_status()
