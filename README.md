@@ -3,12 +3,17 @@
 ## Возможности:
 
 1. Модули для работы с системой автоматизации учебного процесса Апекс-ВУЗ:
-   - **Расписание** - выгрузка расписания преподавателя (iCal, xlsx).
-   - **Нагрузка** - формирование отчета о нагрузке за месяц / семестр.
+   - **Телефонный справочник** - телефонный справочник с поиском.
+   - **Расписание**
+     - **Экспорт расписания** - выгрузка расписания преподавателя (iCal, xlsx).
+     - **Расписания дисциплины** - формирование расписания учебной дисциплины для группы.
+   - **Отчеты**
+     - **Нагрузка по кафедре** - формирование отчета о нагрузке за месяц / семестр.
+     - **Занятость в выходные**
    - **Учебные планы** - работа с компетенциями и их индикаторами.
-   - **Программы** - проверка заполнения полей рабочих программ.
+   - **Рабочие программы** - проверка заполнения полей рабочих программ.
    - **Обеспечение** - загрузка обеспечивающих материалов в рабочие программы.
-2. Система учета личного состава
+2. Система учета личного состава - **"Строевая записка"**
 3. Система расчета денежного содержания
 
 ![Title Screen](https://github.com/john-neg/orel-inst-system/assets/25820535/198e43a7-30ca-48fd-b9fa-044336524113)
@@ -16,7 +21,7 @@
 ## Tech
 Python >= 3.10, Flask, SQLAlchemy, MongoDB, Docker
 
-## Инструкция по установке (Ubuntu 22.04)
+## Инструкция по установке (Ubuntu 26.04)
 
 ### Создаем файл с ключами доступа
 
@@ -37,7 +42,7 @@ cd infra
 ```sh
 docker compose up -d
 ```
-В случае изменения python кода, только проект, а не все сервисы:
+В случае изменения python кода, перезапуск только информационной системы, а не всех сервисов, обеспечивающих ее работу:
 ```sh
 docker compose up -d --build web
 ```
@@ -98,102 +103,47 @@ sudo apt install git
 ```
 
 ```sh
-ssh-keygen -t ed25519 -C git-account-e-mail
-```
-
-```sh
-eval `ssh-agent -s`
-```
-
-```sh
-ssh-add ~/.ssh/id_ed25519
-```
-
-Добавляем ключ из файла id_ed25519.pub в аккаунт на GitHub
-
-```sh
 cd /var/www
 ```
 
 ```sh
-git init
+git clone https://github.com/john-neg/orel-inst-system.git
 ```
 
 ```sh
-git clone git@github.com:git-account-name/apeks-vuz-extension.git
+cd orel-inst-system
 ```
 
-### Venv
-
-```sh
-cd apeks-vuz-extension
-```
-
-```sh
-sudo apt install python3.10-venv
-```
-
-```sh
-python3 -m venv venv
-```
-
-```sh
-source venv/bin/activate
-```
-
-### PIP
-
-```sh
-python -m pip install --upgrade pip
-```
-
-```sh
-pip install wheel
-```
-
-```sh
-pip install -r requirements.txt
-```
-
-```sh
-pip install gunicorn
-```
-
-### Вместо Venv и PIP использовать UV
-установка UV и проверка установки UV:
+### UV
+установка UV и проверка установки:
 ``` sh
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv --version
 ```
-скачать зависимости и запустить проект:
+скачать и установить зависимости:
 ```sh
-cd apeks-vuz-extension
-uv run run.py
+uv sync
 ```
-остановить проект
-установить gunicorn:
+проверить работоспособность необходимых для работы и установки утилит:
 ```sh
-uv tool install gunicorn
-uv tool run gunicorn --version
+uv run gunicorn --version
+uv run alembic --version
 ```
 
 #### Database
 
 Создание автомиграций базы данных
 ```sh
-python alembic revision --autogenerate -m "Added some tables"
+uv run alembic revision --autogenerate -m "Added some tables"
+```
+Выдаст ошибку, это нормально.
+
+```sh
+uv run alembic upgrade head
 ```
 
 ```sh
-alembic upgrade head
-```
-
-```sh
-python /tools/fill_db_base_users_data.py
-```
-
-```sh
-deactivate
+uv run ./tools/fill_db_base_users_data.py
 ```
 
 ### Настройка системы
@@ -206,17 +156,14 @@ sudo nano /etc/systemd/system/apeks.service
 (количество workers соответствует количеству cpu)
 ```
 [Unit]
-Description=Gunicorn instance to serve apeks-vuz-extension
+Description=Gunicorn instance to serve orel-inst-system
 After=network.target
 
 [Service]
 User=www-user
 Group=www-data
-WorkingDirectory=/var/www/apeks-vuz-extension
-Environment="PATH=/var/www/apeks-vuz-extension/venv/bin"
-ExecStart=/var/www/apeks-vuz-extension/venv/bin/gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
-# для UV предыдущие две строки заменить на
-ExecStart=uv tool run gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
+WorkingDirectory=/var/www/orel-inst-system
+ExecStart=/var/www/.local/bin/uv run gunicorn --workers 2 --timeout 200 --bind unix:apeks.sock -m 007 wsgi:app
 
 [Install]
 WantedBy=multi-user.target
@@ -277,7 +224,7 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/var/www/apeks-vuz-extension/apeks.sock;
+        proxy_pass http://unix:/var/www/orel-inst-system/apeks.sock;
     }
 }
 ```
@@ -298,7 +245,7 @@ proxy_read_timeout      180;
 ```
 
 ```sh
-sudo ln -s /etc/nginx/sites-available/apeks /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/{sites-available/apeks,sites-enabled}
 ```
 
 Удаляем default из /etc/nginx/sites-enabled
