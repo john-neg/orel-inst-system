@@ -305,7 +305,7 @@ async def disc_group_shced():
                                         time = ''
                                         for schedule_lesson_time in schedule_lesson_times:
                                             if lesson['lesson_time_id'] == schedule_lesson_time['id']:
-                                                time = f'{'08' if schedule_lesson_time['hour_from'] == '8' else schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}'
+                                                time = f"{'08' if schedule_lesson_time['hour_from'] == '8' else schedule_lesson_time['hour_from']}:{schedule_lesson_time['minute_from']} - {schedule_lesson_time['hour_to']}:{schedule_lesson_time['minute_to']}"
 
                                         # собираем данные о паре в один словарь
                                         schedule_lesson = {
