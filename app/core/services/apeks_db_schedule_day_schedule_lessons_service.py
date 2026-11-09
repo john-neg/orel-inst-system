@@ -60,7 +60,7 @@ class ApeksDbScheduleDayScheduleLessonsService(ApeksApiDbService):
         }
         logging.debug(
             'Переданы параметры для запроса \'get_schedule_day_schedule_lessons\': '
-            f'{params['filter']}'
+            f"{params['filter']}"
         )
         lessons = await self.repository.get(endpoint, params)
 
