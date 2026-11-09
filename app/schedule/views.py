@@ -1,6 +1,7 @@
 from datetime import date
 import logging
 from datetime import datetime
+from pprint import pprint
 
 from flask import flash, redirect, render_template, request, url_for
 
@@ -126,7 +127,8 @@ async def disc_group_shced():
     # список кафедр
     departments_service = get_db_apeks_state_departments_service()
     departments = await departments_service.get_departments(department_filter='kafedra')
-    
+
+
     # форма вывода расписания дисциплины для группы
     form = DisciplineForm()
 
@@ -190,6 +192,7 @@ async def disc_group_shced():
                         # получаем из формы выбранную группу
                         group = request.form.get('group')
                         # если группа выбрана
+
                         if group:
                             if group != '0':
                                 # получаем список сопоставляющий пару и преподавателя
@@ -222,6 +225,8 @@ async def disc_group_shced():
                                 # получаем список занятий на которых происходило прикрепление группы (на паре две и более группы)
                                 schedule_day_schedule_lessons_superflow_groups_service = get_apeks_db_schedule_day_schedule_lessons_superflow_groups_service()
                                 schedule_day_schedule_lessons_superflow_groups = await schedule_day_schedule_lessons_superflow_groups_service.list()
+
+
                                 # получаем список пар в которых стоит другая группа, но выбранная группа тоже прикреплена к этой паре
                                 for schedule_day_schedule_lessons_superflow_group in schedule_day_schedule_lessons_superflow_groups:
                                     if schedule_day_schedule_lessons_superflow_group['group_id'] == group:
@@ -230,10 +235,12 @@ async def disc_group_shced():
                                                 lesson['discipline_id'] == discipline:
                                                 lesson['group_id'] = group
                                 schedule = []
+
                                 # просматриваем все пары
                                 for lesson in lessons:
                                     # если пара у группы, которая выбрана
-                                    if group == lesson['group_id']:
+
+                                    if str(group) == str(lesson['group_id']):
 
                                         staff = []
                                         # ищем преподавателей ведущих пару
@@ -242,19 +249,23 @@ async def disc_group_shced():
                                                 for employee in state_staff:
                                                     if employee['id'] == lesson_staff['staff_id']:
                                                         staff.append(employee)
+
                                         # ищем звания преподавателей
                                         for employee in staff:
                                             for rank in state_special_ranks:
                                                 if employee['special_rank_id'] == rank['id']:
                                                     employee['special_rank_id'] = rank
+
                                         # сортировка по званиям преподавателей
                                         staff = sorted(
                                             staff,
-                                            key=lambda item: (item.get('special_rank_id') or {}).get('sort', '0'),
+                                            key=lambda item: (item.get('special_rank_id') or {}).get('sort', 0),
                                             reverse=True
                                         )
 
                                         classrooms = []
+
+
                                         # ищем аудитории в которых проходит пара
                                         for lesson_classroom in schedule_day_schedule_lessons_classrooms:
                                             if lesson_classroom['lesson_id'] == lesson['id']:
@@ -262,11 +273,13 @@ async def disc_group_shced():
                                                     if classroom['id'] == lesson_classroom['classroom_id']:
                                                         classrooms.append(classroom)
                                         # ищем корпуса в которых находится аудитории
+
                                         for classroom in classrooms:
                                             for building in schedule_buildings:
                                                 if classroom['building_id'] == building['id']:
                                                     classroom['building_id'] = building['name_short']
                                         # сортировка по букве корпуса и номеру кабинета
+
                                         classrooms = sorted(classrooms, key=lambda item: (item['building_id'], item['name']))
                                         
                                         # имя выбранной дисциплины для отображении в таблице в полях экзаменов и зачетов
@@ -307,9 +320,11 @@ async def disc_group_shced():
                                             'passed': datetime.strptime(lesson['date'], '%Y-%m-%d').date() < current_date,
                                             'jointed': lesson['join_with_next'],
                                         }
+
                                         schedule.append(schedule_lesson)
 
-                                
+
+
                                 schedule = sorted(schedule, key=lambda item: (item['date'], item['time']))
 
                                 # помечает пары которые идут совместно для их отображения в расписании
@@ -335,8 +350,8 @@ async def disc_group_shced():
                                     i += 1
 
                                 # находим в списке групп выбранную группу
-                                selected_group = next((gp for gp in groups if gp.get('id') == group), None)
-                                # получаем для этой группы и выбранной дисциплины id учебного плана
+                                selected_group = next((gp for gp in groups if gp.get('id') == int(group)), None)
+                               # получаем для этой группы и выбранной дисциплины id учебного плана
                                 apeks_db_plan_curriculum_disciplines_service = get_apeks_db_plan_curriculum_disciplines_service()
                                 apeks_db_plan_curriculum_disciplines = await apeks_db_plan_curriculum_disciplines_service.get(discipline_id=discipline, education_plan_id=selected_group['education_plan_id'])
                                 curriculum_discipline_id = apeks_db_plan_curriculum_disciplines[0]['id']

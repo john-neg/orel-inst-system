@@ -54,20 +54,25 @@ def process_apeks_stable_staff_data(
               "staff_military_stock": value}}}
     """
     for staff_id, staff_data in staff_history.items():
-        dept_id = staff_data.get("department_id")
+        dept_id = str(staff_data.get("department_id"))
         dept_data = departments.get(dept_id)
         vacancy_id = staff_data.get("vacancy_id")
+
         if vacancy_id and dept_data:
             vacancy = state_vacancies.get(vacancy_id)
-            vacancy_value = staff_data.get("value")
-            staff_data["has_rank"] = vacancy.get("has_rank")
+            vacancy_value = str(staff_data.get("value"))
+            staff_data["has_rank"] = str(vacancy.get("has_rank"))
             if vacancy_value == "1":
                 dept_staff_ids = dept_data.setdefault("dept_staff_ids", {})
                 dept_staff_ids[staff_id] = {"has_rank": vacancy.get("has_rank")}
+
     staff_data = {key: {} for key in ApeksConfig.DEPT_TYPES.values()}
+
+
     for dept in sorted(departments, key=lambda d: departments[d].get("short")):
         dept_data = departments[dept]
         dept_type = dept_data.get("type")
+
         if dept_type in staff_data:
             dept_document_data = staff_document_data["departments"].get(dept)
             dept_total = len(dept_data.get("dept_staff_ids", {}))
@@ -76,9 +81,11 @@ def process_apeks_stable_staff_data(
                 [
                     item
                     for item in dept_data.get("dept_staff_ids", {}).values()
-                    if item and item.get("has_rank") == "1"
+                    if item and str(item.get("has_rank")) == "1"
                 ]
             )
+
+
             if dept_document_data:
                 dept_absence_staff_ids = [
                     staff_id
@@ -105,8 +112,8 @@ def process_apeks_stable_staff_data(
                 if isinstance(dept_military_absence, int)
                 else None
             )
-
             type_data = staff_data[dept_type]
+
             type_data[dept] = {
                 "name": dept_data.get("short"),
                 "staff_total": dept_total,
@@ -120,15 +127,25 @@ def process_apeks_stable_staff_data(
     # TODO далее следует говнокод, который преобразует старую структуру данных с одним подразделением
     # в структуру, содержащую филиалы:
     result = {}
+
     for depts_by_types in staff_data:
+
         for item in staff_data[depts_by_types]:
+
             if not result.get(branches[staff_data[depts_by_types][item].get('branch_id')]):
                 result[branches[staff_data[depts_by_types][item].get('branch_id')]] = {}
+
             if not result[branches[staff_data[depts_by_types][item].get('branch_id')]].get(depts_by_types):
                 result[branches[staff_data[depts_by_types][item].get('branch_id')]][depts_by_types] = {}
+
             result[branches[staff_data[depts_by_types][item].get('branch_id')]][depts_by_types][item] = staff_data[depts_by_types][item]
+
     staff_data = result
+
+
+
     return staff_data
+    #return result
 
 
 def process_document_stable_staff_data(staff_document_data: dict) -> dict[str, Any]:
@@ -178,6 +195,7 @@ def process_stable_staff_data(
     :return: list({"staff_id": "staff_id", "name": "short",
                    "position": "name", "sort": "sort"})
     """
+
     full_staff_data = []
     for staff_id, staff_hist in staff_ids.items():
         position_id = staff_hist.get("position_id")
@@ -189,13 +207,13 @@ def process_stable_staff_data(
             rank = state_special_ranks.get(rank_id)
         full_staff_data.append(
             {
-                "staff_id": staff_id,
-                "full_name": staff_data.get("full"),
-                "name": staff_data.get("short"),
-                "position": position_data.get("name"),
-                "department_id": staff_hist.get("department_id"),
-                "sort": position_data.get("sort"),
-                "rank": rank.get("name") if rank else None,
+                "staff_id": str(staff_id),
+                "full_name": str(staff_data.get("full")),
+                "name": str(staff_data.get("short")),
+                "position": str(position_data.get("name")),
+                "department_id": str(staff_hist.get("department_id")),
+                "sort": str(position_data.get("sort")),
+                "rank": str(rank.get("name")) if rank else None,
             }
         )
     full_staff_data.sort(key=lambda x: int(x["sort"]), reverse=True)
@@ -340,7 +358,7 @@ def staff_various_groups_data_filter(
     """
     groups_result = {}
     if groups_data.get("groups"):
-        for faculty in allowed_faculty:
+         for faculty in allowed_faculty:
             faculty_data = groups_data["groups"].get(str(faculty.apeks_id))
             # заменяем None в banch_id на 0:
             if not groups_data["groups"].get(str(faculty.apeks_id))['branch_id']:
@@ -349,7 +367,7 @@ def staff_various_groups_data_filter(
                 if faculty_data.get("archive"):
                     del faculty_data["archive"]
                 faculty_data["name"] = faculty.name
-                groups_result[faculty.apeks_id] = faculty_data
+                groups_result[str(faculty.apeks_id)] = faculty_data
     return groups_result
 
 
@@ -369,7 +387,7 @@ def process_apeks_various_group_data(
             for course_data in faculty_data["items"].values():
                 if course_data.get("items"):
                     for group_data in course_data["items"].values():
-                        group_id = group_data.get("id")
+                        group_id = str(group_data.get("id"))
                         group_data["student_stock"] = None
                         group_data["student_absence"] = None
                         if document_data["groups"].get(group_id):
@@ -569,6 +587,6 @@ async def get_branches():
         system_branches_service = get_apeks_db_system_branches_service()
         raw_branches = await system_branches_service.get()
         for branch in raw_branches:
-            branches[branch['id']] = branch['name']
+            branches[str(branch['id'])] = branch['name']
     return branches
 

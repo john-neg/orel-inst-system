@@ -627,9 +627,11 @@ async def staff_stable_load():
         else dt.date.today()
     )
     staff_stable_service = get_staff_stable_document_service()
+
     document_data = staff_stable_service.get(
         query_filter={"date": working_date.isoformat()}
     )
+
     if not document_data:
         staff_stable_service.make_blank_document(working_date)
         document_data = staff_stable_service.get(
@@ -664,9 +666,11 @@ async def staff_stable_load():
     state_vacancies = data_processor(await state_vacancies_service.list())
     branches = await get_branches()
     departments = await get_departments_by_branches()
+
     staff_data = process_apeks_stable_staff_data(
         departments, staff_history, document_data, state_vacancies, branches
     )
+
     return render_template(
         "staff/staff_stable_load.html",
         active="staff",
@@ -689,12 +693,14 @@ async def staff_stable_edit(department_id):
     staff_history = await staff_history_service.get_staff_for_date(
         working_date, department_id=department_id
     )
+
     # Отбираем тех кто стоит на должности со ставкой 1
     staff_ids = {
         item.get("staff_id"): item
         for item in staff_history
-        if item.get("vacancy_id") and item.get("value") == "1"
+        if item.get("vacancy_id") and str(item.get("value")) == "1"
     }
+
     departments = await get_departments_by_branches()
     department_data = departments.get(department_id)
     department_name = department_data.get("short")
@@ -708,6 +714,8 @@ async def staff_stable_edit(department_id):
     full_staff_data = process_stable_staff_data(
         staff_ids, state_staff_positions, state_staff
     )
+
+
     busy_types_service = get_staff_stable_busy_types_service()
     busy_types = busy_types_service.list(is_active=1)
     form = create_staff_stable_edit_form(
@@ -715,12 +723,13 @@ async def staff_stable_edit(department_id):
     )
     staff_stable_service = get_staff_stable_document_service()
     document_data = staff_stable_service.get({"date": working_date.isoformat()})
+
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
             dept_document = StaffStableDepartmentDocStructure(
-                id=department_id,
-                name=department_name,
-                type=department_type,
+                id=str(department_id),
+                name=str(department_name),
+                type=str(department_type),
                 total=len(staff_ids),
                 absence={item.slug: {} for item in busy_types},
                 user=(
@@ -731,9 +740,10 @@ async def staff_stable_edit(department_id):
                 updated=dt.datetime.now().isoformat(),
             )
             for _id in staff_ids:
+                _id=str(_id)
                 staff_absence = request.form.get(f"staff_id_{_id}")
                 if staff_absence != "0" and staff_absence in dept_document.absence:
-                    dept_document.absence[staff_absence][_id] = state_staff[_id].get(
+                    dept_document.absence[staff_absence][_id] = state_staff[int(_id)].get(
                         "short"
                     )
                 elif (
@@ -771,7 +781,10 @@ async def staff_stable_edit(department_id):
             flash(message, category="danger")
 
     # Заполняем форму имеющимися данными
+
     current_dept_data = document_data["departments"].get(department_id)
+
+
     if current_dept_data:
         for absence, items in current_dept_data["absence"].items():
             if items:
@@ -863,6 +876,7 @@ async def staff_various_load():
                 )
             )
     branches = await get_branches()
+
     return render_template(
         "staff/staff_various_load.html",
         active="staff",
@@ -886,6 +900,7 @@ async def staff_various_edit(daytime, group_id, course):
         if request.args.get("date")
         else dt.date.today()
     )
+
     try:
         daytime = VariousStaffDaytimeType(daytime)
     except ValueError:
@@ -912,6 +927,11 @@ async def staff_various_edit(daytime, group_id, course):
     )
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
+
+            #students_data = [
+            #   {k: (str(v) if v is not None else None) for k, v in record.items()}
+            #   for record in students_data
+            #]
             dept_document = StaffVariousGroupDocStructure(
                 id=group_id,
                 name=group_data.get("name"),
@@ -930,7 +950,7 @@ async def staff_various_edit(daytime, group_id, course):
                 updated=dt.datetime.now().isoformat(),
             )
             for student in students_data:
-                _id = student.get("id")
+                _id = str(student.get("id"))
                 student_absence = request.form.get(f"student_id_{_id}")
                 if student_absence != "0":
                     if student_absence in dept_document.absence:
@@ -1024,6 +1044,12 @@ async def staff_various_edit(daytime, group_id, course):
                     attr = getattr(form, f"student_id_{_id}")
                     attr.data = illness
 
+    students_data = [
+        {k: (str(v) if v is not None else None) for k, v in record.items()}
+        for record in students_data
+    ]
+
+
     return render_template(
         "staff/staff_various_edit.html",
         active="staff",
@@ -1054,7 +1080,9 @@ async def staff_various_file_report(date, daytime):
     faculty_data = {
         item.short_name: [item.sort, item.branch_id] for item in allowed_faculty_service.list()
     }
+
     report_data = get_various_report_data(document_data, faculty_data)
     branches = await get_branches()
+
     filename = generate_various_staff_report(report_data, busy_types, illness_types, branches)
     return redirect(url_for("main.get_file", filename=filename))

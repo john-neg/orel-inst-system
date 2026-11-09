@@ -43,6 +43,7 @@ def create_staff_stable_edit_form(
         submit = SubmitField("Сохранить")
 
     # Добавляем людей
+
     for staff in staff_data:
         label = f"staff_id_{staff.get('staff_id')}"
         field = SelectField(
