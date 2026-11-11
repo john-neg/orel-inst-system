@@ -85,7 +85,6 @@ from ..core.services.staff_various_document_service import (
     get_staff_various_document_service,
 )
 
-
 @bp.route("/staff_data_edit", methods=["GET"])
 @permission_required(PermissionsConfig.STAFF_BUSY_TYPES_EDIT_PERMISSION)
 @login_required
@@ -927,11 +926,6 @@ async def staff_various_edit(daytime, group_id, course):
     )
     if request.method == "POST" and form.validate_on_submit():
         if document_data.get("status") == MongoDBSettings.STAFF_IN_PROGRESS_STATUS:
-
-            #students_data = [
-            #   {k: (str(v) if v is not None else None) for k, v in record.items()}
-            #   for record in students_data
-            #]
             dept_document = StaffVariousGroupDocStructure(
                 id=group_id,
                 name=group_data.get("name"),
@@ -952,7 +946,11 @@ async def staff_various_edit(daytime, group_id, course):
             for student in students_data:
                 _id = str(student.get("id"))
                 student_absence = request.form.get(f"student_id_{_id}")
+                print("STD: 1 ",student_absence)
                 if student_absence != "0":
+                    print("STD: 2 ", type(student_absence))
+                    print("STD: 3 ", type(dept_document.absence))
+                    print("STD: 4 ", type(dept_document.absence_illness))
                     if student_absence in dept_document.absence:
                         dept_document.absence[student_absence][_id] = student.get(
                             "short_name"
@@ -1043,7 +1041,7 @@ async def staff_various_edit(daytime, group_id, course):
                 for _id in items:
                     attr = getattr(form, f"student_id_{_id}")
                     attr.data = illness
-
+    logging.error("before students_data")
     students_data = [
         {k: (str(v) if v is not None else None) for k, v in record.items()}
         for record in students_data
