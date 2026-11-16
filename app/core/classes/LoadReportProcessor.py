@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from config import ApeksConfig as Apeks
 from .LessonsData import LessonsData
+from ...staff.func import stringify
 
 
 @dataclass
@@ -112,8 +113,8 @@ class LoadReportProcessor(LessonsData):
             if department_id:
                 if department_id == int(self.department_id):
                     staff_id = lesson.get("staff_id")
-                    l_type = self.get_lesson_type(lesson)
-                    s_type = self.get_student_type(lesson)
+                    l_type = self.get_lesson_type(stringify(lesson))
+                    s_type = self.get_student_type(stringify(lesson))
                     if staff_id and l_type and s_type:
                         if l_type in Apeks.LOAD_LESSON_TYPES:
                             self.add_load(staff_id, l_type, s_type)
@@ -125,11 +126,11 @@ class LoadReportProcessor(LessonsData):
             if department_id:
                 if department_id == int(self.department_id):
                     staff_id = control.get("staff_id")
-                    l_type = self.get_lesson_type(control)
-                    s_type = self.get_student_type(control)
+                    l_type = self.get_lesson_type(stringify(control))
+                    s_type = self.get_student_type(stringify(control))
                     if staff_id and l_type and s_type:
                         if l_type in Apeks.LOAD_CONTROL_TYPES:
-                            value = self.get_control_hours(control)
+                            value = self.get_control_hours(stringify(control))
                             self.add_load(staff_id, l_type, s_type, value)
             else:
                 logging.warning(f"Необработанное занятие типа контроль - {control}")

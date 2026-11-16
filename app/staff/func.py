@@ -27,6 +27,17 @@ from ..core.services.base_apeks_api_service import data_processor
 from ..core.services.staff_various_document_service import StaffVariousGroupDocStructure
 
 
+def stringify(obj):
+    if isinstance(obj, dict):
+        return {str(k): stringify(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [stringify(i) for i in obj]
+    elif obj is None:
+        return None
+    else:
+        return str(obj)
+
+
 def make_short_name(family_name: str, name: str, surname: str = None) -> str:
     """Создает короткое имя формата Иванов И.И."""
     name_letter = f"{name[0]}." if name else ""

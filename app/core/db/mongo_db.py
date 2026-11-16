@@ -12,5 +12,5 @@ def get_mongo_db(
     """Подключение к базе данных MongoDB."""
     client = MongoClient(MongoDBSettings.CONNECTION_STRING)
     # mongodb://str_user:MasterSTR-24@172.16.1.23:37017/?authMechanism=DEFAULT&authSource=admin
-    #client = MongoClient("mongodb://str_user:MasterSTR-24@172.16.1.23:37017/?authMechanism=DEFAULT&authSource=organization_staff")
+    client = MongoClient("mongodb://str_user:MasterSTR-24@172.16.1.23:37017/?authMechanism=DEFAULT&authSource=organization_staff")
     return client[dbname]

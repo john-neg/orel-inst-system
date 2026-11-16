@@ -99,7 +99,7 @@ class EducationStaff:
         """
         staff_list = []
         for staff in self.state_staff_history:
-            if staff.get("staff_id") and staff.get("department_id") == str(
+            if staff.get("staff_id") and str(staff.get("department_id")) == str(
                     department_id
             ):
                 staff_id = int(staff.get("staff_id"))

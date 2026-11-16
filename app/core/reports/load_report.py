@@ -23,7 +23,6 @@ def generate_load_report(load: LoadReportProcessor) -> str:
         str
             название файла
     """
-
     wb = load_workbook(
         os.path.join(FlaskConfig.TEMPLATE_FILE_DIR, "load_report_temp.xlsx")
     )
@@ -44,6 +43,7 @@ def generate_load_report(load: LoadReportProcessor) -> str:
         # Prepod Name
         ws.cell(row, 1).value = load.staff_list[staff_id]
         ws.cell(row, 1).style = ExcelStyle.Base
+
         for l_type in load.load_data[staff_id]:
             if l_type == "lecture":
                 column = 2
