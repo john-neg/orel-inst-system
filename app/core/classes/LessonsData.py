@@ -320,6 +320,16 @@ class LessonsData:
             == str(Apeks.EDUCATION_LEVEL_ID.get("spec"))
         ):
             s_type = "och"
+
+        # очно, среднее
+        elif lesson.get("education_form_id") == str(
+            Apeks.EDUCATION_FORM_ID.get("ochno")
+        ) and (
+            lesson.get("education_level_id") == str(Apeks.EDUCATION_LEVEL_ID.get("bak"))
+            or lesson.get("education_level_id")
+            == str(Apeks.EDUCATION_LEVEL_ID.get("spo"))
+        ):
+            s_type = "och_midl"
         # заочно, бакалавр или специалитет
         elif lesson.get("education_form_id") == str(
             Apeks.EDUCATION_FORM_ID.get("zaochno")

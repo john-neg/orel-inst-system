@@ -1,5 +1,6 @@
 import datetime as dt
 from dataclasses import dataclass, field
+from pprint import pprint
 
 from ..core.services.apeks_db_state_departments_service import (
     get_db_apeks_state_departments_service,
@@ -73,20 +74,24 @@ class Departments:
         return self.departments
 
     async def get_children(self, dep_id: int | str) -> list | None:
-        dep_id = None if dep_id == "0" else dep_id
+
+        dep_id = None if str(dep_id) == "0" else dep_id
         departments = await self.get_all()
+
         return [
             {"id": dep["id"], "title": dep["title"]}
             for dep in departments
-            if dep["parent_id"] == dep_id
+            if str(dep["parent_id"]) == str(dep_id)
         ]
 
     async def get_department(self, dep_id) -> dict | None:
-        if dep_id == "0":
+
+        if str(dep_id) == "0":
             return {"id": "0", "title": "root", "parent_id": "0"}
         departments = await self.get_all()
+
         for dep in departments:
-            if dep["id"] == dep_id:
+            if str(dep["id"]) == str(dep_id):
                 return dep
         return None
 
@@ -129,11 +134,12 @@ class Abonents:
         working_date = dt.date.today()
         staff_history_service = get_db_apeks_state_staff_history_service()
         staff_history = await staff_history_service.get_staff_for_date(working_date)
+
         # id работающих на текущую дату сотрудников
         staff_ids = {
             item.get("staff_id"): item
             for item in staff_history
-            if item.get("vacancy_id") and item.get("value") == "1"
+            if item.get("vacancy_id") and str(item.get("value")) == "1"
         }
         # список сотрудников
         state_staff_service = get_apeks_db_state_staff_service()
@@ -152,12 +158,15 @@ class Abonents:
         state_staff_field_data_service = get_apeks_db_state_staff_field_data_service()
         # телефонные номера
         field_data = await state_staff_field_data_service.get(field_id="1")
+
         state_staff_field_data = data_processor(field_data, "staff_id")
+
         self.abonents = []
+
         for item in full_staff_data:
             extension_number = []
             landline_number = []
-            phone_rec = state_staff_field_data.get(item["staff_id"])
+            phone_rec = state_staff_field_data.get(int(item["staff_id"]))
             if phone_rec:
                 # разбиваем список телефонов
                 phones = phone_rec["data"].split(", ")
@@ -167,6 +176,7 @@ class Abonents:
                         landline_number.append(phone)
                     else:
                         extension_number.append(phone)
+
             abonent = {
                 "id": item["staff_id"],
                 "post": item["position"],
@@ -187,4 +197,4 @@ class Abonents:
 
     async def get_for_department(self, dep_id: int | str) -> list:
         abons = await self.get_all()
-        return [abon for abon in abons if abon["department"] == dep_id]
+        return [abon for abon in abons if str(abon["department"]) == str(dep_id)]

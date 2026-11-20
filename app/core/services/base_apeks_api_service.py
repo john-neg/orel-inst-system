@@ -91,6 +91,7 @@ class ApeksApiDbService(AbstractDBRepository):
                     values = [str(val) for val in db_value]
                 params[f"filter[{db_filter}][]"] = values
         response_data = await self.repository.get(endpoint, params)
+
         logging.debug(
             f"Выполнен GET запрос к таблице: {self.table}. Фильтры - {filters}"
         )

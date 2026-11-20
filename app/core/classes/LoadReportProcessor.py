@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from config import ApeksConfig as Apeks
 from .LessonsData import LessonsData
+from ...staff.func import stringify
 
 
 @dataclass
@@ -100,6 +101,7 @@ class LoadReportProcessor(LessonsData):
 
     def process_load_data(self) -> None:
         """Рассчитывает нагрузку по преподавателям"""
+      #  print("REPORT: self.structured_lessons", self.structured_lessons)
         lesson_types = Apeks.LOAD_LESSON_TYPES + Apeks.LOAD_CONTROL_TYPES
         for staff_id in self.staff_list:
             self.load_data[staff_id] = {}
@@ -107,15 +109,18 @@ class LoadReportProcessor(LessonsData):
                 self.load_data[staff_id][l_type] = {}
                 for s_type in Apeks.LOAD_STUDENT_TYPES:
                     self.load_data[staff_id][l_type][s_type] = 0
+        #if(staff_id==288):
+           # print("REPORT: staff_id",self.load_data[staff_id])
         for lesson in self.structured_lessons:
             department_id = lesson.get("department_id")
             if department_id:
                 if department_id == int(self.department_id):
                     staff_id = lesson.get("staff_id")
-                    l_type = self.get_lesson_type(lesson)
-                    s_type = self.get_student_type(lesson)
+                    l_type = self.get_lesson_type(stringify(lesson))
+                    s_type = self.get_student_type(stringify(lesson))
                     if staff_id and l_type and s_type:
-                        if l_type in Apeks.LOAD_LESSON_TYPES:
+                        #if l_type in Apeks.LOAD_LESSON_TYPES:
+                        if l_type in lesson_types:
                             self.add_load(staff_id, l_type, s_type)
             else:
                 logging.warning(f"Необработанное занятие - {lesson}")
@@ -125,11 +130,11 @@ class LoadReportProcessor(LessonsData):
             if department_id:
                 if department_id == int(self.department_id):
                     staff_id = control.get("staff_id")
-                    l_type = self.get_lesson_type(control)
-                    s_type = self.get_student_type(control)
+                    l_type = self.get_lesson_type(stringify(control))
+                    s_type = self.get_student_type(stringify(control))
                     if staff_id and l_type and s_type:
                         if l_type in Apeks.LOAD_CONTROL_TYPES:
-                            value = self.get_control_hours(control)
+                            value = self.get_control_hours(stringify(control))
                             self.add_load(staff_id, l_type, s_type, value)
             else:
                 logging.warning(f"Необработанное занятие типа контроль - {control}")

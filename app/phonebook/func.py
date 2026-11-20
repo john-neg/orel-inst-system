@@ -1,3 +1,6 @@
+import asyncio
+from pprint import pprint
+
 from .classes import Abonents, Departments
 
 
@@ -86,19 +89,24 @@ async def build_branch(path: list, branch: dict, departments: Departments, abone
         branch["departments"] = await departments.get_children(path[0])
     if not branch.get("abonents"):
         branch["abonents"] = await abonents.get_for_department(path[0])
+
     if len(path) > 2:
+
         if not branch.get("show"):
+
             branch["show"] = {"departments": []}
         b = set(branch["show"]["departments"])
+
         b.add(path[1])
         branch["show"]["departments"] = list(b)
         await build_branch(
             path[1:],
-            branch["departments"][find_by_key(branch["departments"], "id", path[1])],
+            branch["departments"][find_by_key(branch["departments"], "id", int(path[1]))],
             departments,
             abonents
         )
     else:
+
         if not branch.get("show"):
             branch["show"] = {"abonents": []}
         b = set(branch["show"]["abonents"])
@@ -155,10 +163,12 @@ async def search(search_str: str, departments: Departments, abonents: Abonents) 
                 ] | None
             }
     """
+
     lower_search_str = search_str.lower()
     abons = await abonents.get_all()
     response = {}
     for abon in abons:
+
         if (
             lower_search_str in abon["surname"].lower()
             or lower_search_str in abon["name"].lower()
@@ -167,12 +177,15 @@ async def search(search_str: str, departments: Departments, abonents: Abonents) 
             or lower_search_str in "".join(abon["landline"])
         ):
             path = [abon["id"]]
-            parent = abon["department"]
+            parent = int(abon["department"])
+
             while parent:
-                path.append(parent)
+                path.append(int(parent))
                 parent = (await departments.get_department(parent))["parent_id"]
-            path.append("0")
+            path.append(0)
+
             await build_branch(path[::-1], response, departments, abonents)
+
     return response
 
 
@@ -224,6 +237,7 @@ async def get(dep_id: int | str, departments: Departments, abonents: Abonents) -
                 ] | None
             }
     """
+
     response = {
         "id": dep_id,
         "title": (await departments.get_department(dep_id))["title"],

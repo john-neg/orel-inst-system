@@ -20,6 +20,7 @@ def get_abonents():
 
 @phonebook_bp.route('/phonebook/get_data', methods=['GET'])
 async def get_data():
+
     if request.method == 'GET':
         departments = get_departments()
         abonents = get_abonents()
@@ -32,6 +33,7 @@ async def get_data():
         # обработка запроса 'search', поиск по введенному значению
         if data_search:
             response = await search(data_search, departments, abonents)
+
         return jsonify(response)
     return None
 

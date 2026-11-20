@@ -31,7 +31,7 @@
               {% if groups_data %}
                 {% for branch in branches %}
                   {% set ns = namespace(l = 0) %}
-                  {% for items in groups_data.values()|selectattr('branch_id', 'in', branch) %}
+                  {% for items in groups_data.values()|selectattr('branch_id', 'in', branch|map('string')|list) %}
                     {% set ns.l = ns.l + 1 %}
                   {% endfor%}
                   {% if ns.l != 0 %}
@@ -41,7 +41,7 @@
                       </tr>
                     </thead>
                   {% endif %}
-                  {% for dept_data in groups_data.values()|selectattr('branch_id', 'in', branch) %}
+                  {% for dept_data in groups_data.values()|selectattr('branch_id', 'in', branch|map('string')|list) %}
                     <thead>
                       <tr>
                         <th class="table-primary text-center mb-1 text-uppercase" colspan="5">{{ dept_data.get('name') }}</th>

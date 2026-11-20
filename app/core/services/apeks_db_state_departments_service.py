@@ -48,15 +48,17 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
 
         departments_types_service = get_apeks_db_state_departments_types_service()
         dept_types = await departments_types_service.list()
+
         for dept in state_departments:
-            dept_type = next((tp for tp in dept_types if tp['department_id'] == dept['id']), None)
+            dept_type = next((tp for tp in dept_types if tp['department_id'] == int(dept['id'])), None)
+
             dept['type'] = dept_type.get('type') if dept_type else '0'
 
         # Получаем id групп подразделений по типам, и группы подразделений
         groups_by_type = {}
         departments_groups = {}
         for dept in state_departments:
-            branch = dept.get('branch_id') if dept.get('branch_id') else '0'
+            branch = str(dept.get('branch_id')) if dept.get('branch_id') else '0'
             if branch_id == branch:
                 # старый код, до обновления апекса, которое вынесло поле type из таблицы state_departments
                 # в отдельную таблицу state_departments_types
@@ -72,12 +74,13 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
                 #     parent_id = dept.get("parent_id") or "Other"
                 #     group = departments_groups.setdefault(parent_id, [])
                 #     group.append(dept)
-                if dept.get("contains_staff") == "0":
-                    dept_type = ApeksConfig.DEPT_TYPES[dept.get("type")]
+
+                if str(dept.get("contains_staff")) == "0":
+                    dept_type = ApeksConfig.DEPT_TYPES[str(dept.get("type"))]
                     group_type = groups_by_type.setdefault(dept_type, [])
                     group_type.append(dept.get("id"))
                 else:
-                    parent_id = dept.get("parent_id") or "Other"
+                    parent_id = str(dept.get("parent_id")) or "Other"
                     group = departments_groups.setdefault(parent_id, [])
                     group.append(dept)
 
@@ -87,14 +90,15 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
         dept_dict = {}
         for group_type in groups_by_type:
             for group_id in groups_by_type[group_type]:
-                dept_group = departments_groups.get(group_id)
+                dept_group = departments_groups.get(str(group_id))
+
                 if dept_group:
                     for dept in dept_group:
-                        dept_dict[dept["id"]] = {
+                        dept_dict[str(dept["id"])] = {
                             "full": dept.get("name"),
                             "short": dept.get("name_short"),
                             "type": group_type,
-                            "branch_id": dept.get("branch_id") if dept.get('branch_id') else '0'
+                            "branch_id": str(dept.get("branch_id")) if dept.get('branch_id') else '0'
                         }
 
         logging.debug("Информация о подразделениях успешно передана")
@@ -107,6 +111,7 @@ class ApeksDbStateDepartmentsService(ApeksApiDbService):
                 )
             )
         else:
+
             return dept_dict
 
 

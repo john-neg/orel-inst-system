@@ -16,6 +16,7 @@ Filename: TypeAlias = str
 
 def get_various_report_data(document: dict, faculty_names: dict):
     daytime = document.get("daytime")
+
     result = {
         "date": document.get("date"),
         "daytime": MongoDBSettings.DAYTIME_NAME.get(
@@ -46,7 +47,9 @@ def get_various_report_data(document: dict, faculty_names: dict):
             course_data["absence_illness"].setdefault(illness_name, 0)
             course_data["absence_illness"][illness_name] += len(students)
 
+
     def sort_faculty(faculty_name):
+
         if faculty_name in faculty_names:
             return faculty_names[faculty_name][0]
         return max(faculty_names.values()) + 1
@@ -54,7 +57,9 @@ def get_various_report_data(document: dict, faculty_names: dict):
     result["faculty_data"] = {
         faculty: result["faculty_data"][faculty]
         for faculty in sorted(result["faculty_data"], key=sort_faculty)
+
     }
+
     for faculty, courses_data in result["faculty_data"].items():
         result["faculty_data"][faculty]['courses_data'] = {
             course: courses_data['courses_data'][course] for course in sorted(courses_data['courses_data'])
