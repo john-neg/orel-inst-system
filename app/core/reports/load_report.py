@@ -46,8 +46,6 @@ def generate_load_report(load: LoadReportProcessor) -> str:
         ws.cell(row, 1).style = ExcelStyle.Base
 
         for l_type in load.load_data[staff_id]:
-   #         print('REPORT: l_type',l_type)
-    #        print('REPORT: staff_id', staff_id, load.staff_list[staff_id])
             if l_type == "lecture":
                 column = 2
             elif l_type == "seminar":
